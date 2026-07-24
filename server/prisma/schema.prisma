@@ -1,0 +1,311 @@
+// Cổng thông tin du lịch phường Đông Triều — Quảng Ninh
+// Nguồn dữ liệu: hồ sơ lý lịch di tích + QĐ xếp hạng (thư mục .docx gốc)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Người dùng ────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(EDITOR)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ─── Di tích ───────────────────────────────────────────────────────────────
+
+enum HeritageType {
+  CHUA // Chùa
+  DEN // Đền
+  DINH // Đình
+  MIEU // Miếu
+  CUM_DI_TICH // Cụm đình – chùa – đền – nghè
+  LICH_SU_CACH_MANG // Di tích lịch sử cách mạng
+}
+
+enum RankLevel {
+  QUOC_GIA_DAC_BIET
+  QUOC_GIA
+  CAP_TINH
+}
+
+model Heritage {
+  id   String @id @default(cuid())
+  slug String @unique
+  name String
+
+  altNames String[] @default([])
+  type     HeritageType
+  typeText String? // nguyên văn trong hồ sơ, vd "Cụm di tích (đình – chùa – đền – nghè)"
+
+  rankLevel     RankLevel
+  rankLevelText String? // "Di tích quốc gia ĐẶC BIỆT"
+  rankDecision  String? // "QĐ số 2383/QĐ-TTg ngày 09/12/2013"
+  rankAuthority String? // "Thủ tướng Chính phủ"
+  rankNote      String? // ghi chú bổ sung trong ngoặc
+
+  address  String
+  wardOld  String? // tên xã/phường cũ trước sáp nhập
+  mapQuery String? // chuỗi tra Google Maps khi chưa có toạ độ
+  lat      Float?
+  lng      Float?
+
+  worship      String[] @default([]) // đối tượng thờ phụng
+  festivalNote String? // mô tả lễ hội trong hồ sơ di tích
+  keywords     String[] @default([])
+
+  summary      String  @db.Text
+  history      String  @db.Text
+  architecture String  @db.Text
+  highlights   String[] @default([])
+
+  coverUrl  String?
+  featured  Boolean @default(false)
+  order     Int     @default(0)
+  published Boolean @default(true)
+
+  images    HeritageImage[]
+  festivals Festival[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+  @@index([type])
+  @@index([rankLevel])
+}
+
+model HeritageImage {
+  id         String   @id @default(cuid())
+  heritageId String
+  heritage   Heritage @relation(fields: [heritageId], references: [id], onDelete: Cascade)
+  url        String
+  caption    String?
+  order      Int      @default(0)
+
+  @@index([heritageId, order])
+}
+
+// ─── Lễ hội ────────────────────────────────────────────────────────────────
+
+enum FestivalScale {
+  LON // Lễ hội lớn cấp vùng
+  VUA // Quy mô vừa
+  HOI_LANG // Hội làng
+}
+
+model Festival {
+  id   String @id @default(cuid())
+  slug String @unique
+  name String
+
+  lunarMonth    Int? // tháng âm lịch bắt đầu (Giêng = 1, Chạp = 12)
+  lunarDay      Int? // ngày âm lịch bắt đầu
+  lunarTimeText String // nguyên văn, vd "13 – 17 tháng Giêng âm lịch"
+  solarEstimate String? // "Khoảng tháng 2 dương lịch"
+
+  location String
+  scale    FestivalScale @default(HOI_LANG)
+
+  intro   String   @db.Text
+  rituals String[] @default([])
+
+  heritageId String?
+  heritage   Heritage? @relation(fields: [heritageId], references: [id], onDelete: SetNull)
+
+  coverUrl  String?
+  images    String[] @default([])
+  order     Int      @default(0)
+  published Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, lunarMonth, lunarDay])
+}
+
+// ─── Lưu trú ───────────────────────────────────────────────────────────────
+
+enum LodgingType {
+  KHACH_SAN
+  NHA_NGHI
+  HOMESTAY
+}
+
+model Lodging {
+  id      String      @id @default(cuid())
+  name    String
+  type    LodgingType @default(NHA_NGHI)
+  address String
+  owner   String?
+  phones  String[]    @default([])
+
+  lat         Float?
+  lng         Float?
+  description String?  @db.Text
+  priceRange  String?
+  amenities   String[] @default([])
+  images      String[] @default([])
+
+  order     Int     @default(0)
+  published Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+// ─── Ẩm thực ───────────────────────────────────────────────────────────────
+
+model Cuisine {
+  id      String @id @default(cuid())
+  slug    String @unique
+  name    String
+  summary String @db.Text
+
+  description String   @db.Text
+  priceRange  String?
+  season      String?
+  whereToBuy  String[] @default([])
+
+  coverUrl  String?
+  images    String[] @default([])
+  order     Int      @default(0)
+  published Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+enum RestaurantType {
+  NHA_HANG
+  QUAN_AN
+  CAFE
+  DIEM_DUNG_CHAN
+}
+
+model Restaurant {
+  id      String         @id @default(cuid())
+  name    String
+  type    RestaurantType @default(NHA_HANG)
+  address String
+  phone   String?
+
+  openHours   String?
+  priceRange  String?
+  specialties String[] @default([])
+  description String?  @db.Text
+
+  lat    Float?
+  lng    Float?
+  images String[] @default([])
+
+  /// true = dữ liệu mẫu do hồ sơ gốc không có danh sách nhà hàng.
+  /// Quản trị viên thay bằng cơ sở thật rồi bỏ cờ này.
+  isPlaceholder Boolean @default(false)
+
+  order     Int     @default(0)
+  published Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+// ─── Bài viết / tin tức ────────────────────────────────────────────────────
+
+enum ArticleCategory {
+  TIN_TUC
+  CAM_NANG
+  PHONG_SU
+  THONG_BAO
+}
+
+model Article {
+  id      String          @id @default(cuid())
+  slug    String          @unique
+  title   String
+  excerpt String          @db.Text
+  contentHtml String      @db.Text
+  category ArticleCategory @default(TIN_TUC)
+
+  coverUrl String?
+  author   String?
+  tags     String[] @default([])
+  views    Int      @default(0)
+
+  publishedAt DateTime?
+  published   Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, publishedAt])
+  @@index([category])
+}
+
+// ─── Slider trang chủ ──────────────────────────────────────────────────────
+
+model Slide {
+  id       String  @id @default(cuid())
+  title    String
+  subtitle String?
+  imageUrl String?
+  /// Khi trống, giao diện dùng ảnh bìa placeholder theo di tích liên kết
+  heritageSlug String?
+  ctaLabel String?
+  ctaHref  String?
+  order    Int     @default(0)
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, order])
+}
+
+// ─── Thư viện ảnh ──────────────────────────────────────────────────────────
+
+model Media {
+  id       String  @id @default(cuid())
+  url      String
+  thumbUrl String?
+  filename String
+  mime     String
+  size     Int
+  width    Int?
+  height   Int?
+  alt      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// ─── Cài đặt chung ─────────────────────────────────────────────────────────
+
+model SiteSetting {
+  key       String   @id
+  valueJson Json
+  updatedAt DateTime @updatedAt
+}

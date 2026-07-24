@@ -1,0 +1,21 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+*.log
+npm-debug.log*
+# Log do PM2 sinh ra
+logs/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Ảnh do admin upload — không commit
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Prisma
+server/prisma/dev.db*

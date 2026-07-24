@@ -1,0 +1,318 @@
+[
+  {
+    "order": 1,
+    "slug": "le-hoi-thai-mieu-nha-tran",
+    "name": "Lễ hội Thái Miếu nhà Trần",
+    "lunarMonth": 1,
+    "lunarDay": 18,
+    "lunarTimeText": "18 – 20 tháng Giêng âm lịch",
+    "solarEstimate": "Khoảng tháng 2 – 3 dương lịch",
+    "location": "Thái Miếu nhà Trần (đồi Đình), thôn Trại Lốc, xã An Sinh",
+    "scale": "LON",
+    "intro": "Thái Miếu (Tiên Miếu, Tổ Miếu) là di tích quan trọng bậc nhất — nơi thờ tổ tiên vương triều Trần, gắn với ngày giỗ Thái Tổ Trần Thừa. Nghi lễ quan trọng nhất là Lễ rước nước: lấy nước từ sông dâng lên bàn thờ, gợi nhớ nguồn gốc xuất thân chài lưới trên sông nước của nhà Trần. Phần hội có thi làm bánh chưng, giã giò, giao lưu thể thao, hát dân ca quan họ. Du khách có thể kết hợp tham quan đền An Sinh gần đó bằng xe điện.",
+    "rituals": [
+      "Lễ rước nước",
+      "Dâng hương, tế truyền thống",
+      "Thi làm bánh chưng, giã giò",
+      "Hát dân ca, quan họ"
+    ],
+    "published": true
+  },
+  {
+    "order": 2,
+    "slug": "le-hoi-xuan-ngoa-van",
+    "name": "Lễ hội Xuân Ngọa Vân",
+    "lunarMonth": 1,
+    "lunarDay": 9,
+    "lunarTimeText": "Khai hội mùng 9 tháng Giêng, kéo dài hết tháng 3 âm lịch",
+    "solarEstimate": "Khoảng tháng 2 – 4 dương lịch",
+    "location": "Khu di tích am – chùa Ngọa Vân (núi Bảo Đài), xã Bình Khê",
+    "scale": "LON",
+    "intro": "Ngọa Vân là \"thánh địa\" của Thiền phái Trúc Lâm — nơi Phật hoàng Trần Nhân Tông tu hành những năm cuối đời và nhập Niết Bàn (ngày 1/11 âm lịch năm 1308). Lễ hội khai xuân tôn vinh giá trị của Thiền phái Trúc Lâm với các nghi lễ cầu quốc thái dân an, dâng hương lễ Phật, tụng kinh bái sám; hàng vạn tăng ni, phật tử và du khách hành hương mỗi năm. Kinh nghiệm: có thể đi bộ leo núi vãn cảnh hoặc đi cáp treo Ngọa Vân; nên mặc đồ ấm và mang giày thể thao; có dịch vụ ăn chay tại chùa và khu chân cáp treo.",
+    "rituals": [
+      "Nghi lễ cầu quốc thái dân an",
+      "Dâng hương lễ Phật, tụng kinh bái sám",
+      "Hành hương leo núi hoặc đi cáp treo",
+      "Giao lưu văn hóa nghệ thuật ngày khai hội"
+    ],
+    "published": true
+  },
+  {
+    "order": 3,
+    "slug": "le-hoi-dinh-lang-don-son",
+    "name": "Lễ hội đình làng Đồn Sơn",
+    "lunarMonth": 1,
+    "lunarDay": 16,
+    "lunarTimeText": "16 – 18 tháng Giêng âm lịch",
+    "solarEstimate": "Khoảng tháng 2 dương lịch",
+    "location": "Đình làng Đồn Sơn, xã Yên Đức (khu du lịch Làng quê Yên Đức)",
+    "scale": "LON",
+    "intro": "Lễ hội tri ân 8 vị tổ có công khai hoang lập nên vùng đất trù phú Đồn Sơn – Yên Đức. Phần lễ có tế truyền thống, dâng hương thành hoàng làng và các bậc tiên tổ; phần hội đậm chất đồng quê với hát quan họ, hát chèo, thi nấu cơm, bắt chạch trong chum, ném còn, bịt mắt bắt dê. Du khách có thể kết hợp đạp xe quanh làng, xem múa rối nước Yên Đức — trải nghiệm được khách quốc tế đặc biệt ưa chuộng.",
+    "rituals": [
+      "Tế lễ, dâng hương tiên tổ",
+      "Thi nấu cơm, bắt chạch trong chum",
+      "Ném còn, bịt mắt bắt dê",
+      "Hát quan họ, chèo; múa rối nước Yên Đức"
+    ],
+    "published": true
+  },
+  {
+    "order": 4,
+    "slug": "hoi-chua-an-bien-hoi-lang-ven",
+    "name": "Hội chùa An Biên (hội làng Vẻn)",
+    "lunarMonth": 1,
+    "lunarDay": 21,
+    "lunarTimeText": "21 tháng Giêng âm lịch",
+    "solarEstimate": "Khoảng tháng 2 dương lịch",
+    "location": "Chùa An Biên, thôn An Biên, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Hội chùa An Biên xưa kéo dài ba ngày 21–23 tháng Giêng, nay tổ chức gọn trong ngày 21 — cũng là ngày hội làng. Phần lễ có dâng hương cúng Phật, cúng Tổ; phần hội có kéo co, bịt mắt bắt vịt và các trò chơi dân gian. Ngoài ra chùa còn các ngày lễ Thượng nguyên (14 tháng Giêng), Phật đản (8/4) và lễ dâng hương kỷ niệm Chiến thắng An Biên ngày 08/01 dương lịch.",
+    "rituals": [
+      "Dâng hương cúng Phật, cúng Tổ",
+      "Kéo co",
+      "Bịt mắt bắt vịt"
+    ],
+    "published": true
+  },
+  {
+    "order": 5,
+    "slug": "hoi-chua-my-cu",
+    "name": "Hội chùa Mỹ Cụ",
+    "lunarMonth": 1,
+    "lunarDay": 10,
+    "lunarTimeText": "Mùng 10 – 12 tháng Giêng âm lịch",
+    "solarEstimate": "Khoảng tháng 2 dương lịch",
+    "location": "Chùa Mỹ Cụ, khu Mỹ Cụ, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Hội chùa Mỹ Cụ diễn ra ba ngày từ mùng 10 đến 12 tháng Giêng âm lịch tại ngôi chùa cổ tương truyền có từ thời Trần. Du khách trẩy hội vừa lễ Phật cầu an đầu năm, vừa có dịp chiêm ngưỡng kho tàng 126 hiện vật quý — đặc biệt là pho tượng A Di Đà đất nung thời Tây Sơn cao 1,65m.",
+    "rituals": [
+      "Tụng kinh niệm Phật",
+      "Dâng hương lễ Phật đầu xuân",
+      "Sinh hoạt văn hóa tín ngưỡng"
+    ],
+    "published": true
+  },
+  {
+    "order": 6,
+    "slug": "hoi-dinh-my-cu",
+    "name": "Hội đình Mỹ Cụ",
+    "lunarMonth": 1,
+    "lunarDay": 9,
+    "lunarTimeText": "Mùng 9 tháng Giêng âm lịch",
+    "solarEstimate": "Khoảng tháng 2 dương lịch",
+    "location": "Đình Mỹ Cụ, khu Mỹ Cụ 1, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Lễ hội đình Mỹ Cụ nay tổ chức vào mùng 9 tháng Giêng (lệ xưa tế mùng 10 tháng Giêng và mùng 1 tháng 4 âm lịch). Phần lễ có dâng hương, tế Thành hoàng — tám vị thần của làng trong đó thần chủ là Tam Giang Khước Địch (Trương Hát); tối mùng 8 làng tổ chức giao lưu văn nghệ mở hội.",
+    "rituals": [
+      "Tế Thành hoàng",
+      "Dâng hương",
+      "Giao lưu văn nghệ tối mùng 8"
+    ],
+    "published": true
+  },
+  {
+    "order": 7,
+    "slug": "le-hoi-den-chua-kenh-giang-hoi-den-yet-kieu",
+    "name": "Lễ hội đền, chùa Kênh Giang (hội đền Yết Kiêu)",
+    "lunarMonth": 1,
+    "lunarDay": 10,
+    "lunarTimeText": "Mùng 10 tháng Giêng (sinh nhật Thành hoàng); 25 tháng Chạp (hóa nhật)",
+    "solarEstimate": "Khoảng tháng 2 dương lịch (kỳ chính)",
+    "location": "Đền, chùa Kênh Giang, thôn 1 – Vân Giang, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Lễ hội chính vào mùng 10 tháng Giêng âm lịch — ngày sinh Thành hoàng Yết Kiêu; xưa là Lễ Đại kỳ phúc kéo dài ba ngày (mùng 9–11) với nghi thức rước Thần, tế lễ, hát chèo và đặc sắc nhất là thi bơi thuyền chải trên sông, đấu cờ người — đậm chất văn hóa làng chài. Ngày 25 tháng Chạp là lễ hóa nhật (giỗ). Theo lệ xưa, cứ 5 năm một lần dân làng rước Thành hoàng về đền Kiếp Bạc dự giỗ Hưng Đạo Đại vương.",
+    "rituals": [
+      "Rước Thần, tế lễ",
+      "Thi bơi thuyền chải",
+      "Cờ người",
+      "Hát chèo"
+    ],
+    "published": true
+  },
+  {
+    "order": 8,
+    "slug": "hoi-lang-dong-mai",
+    "name": "Hội làng Đông Mai",
+    "lunarMonth": 1,
+    "lunarDay": 11,
+    "lunarTimeText": "11 – 12 tháng Giêng (ngày sinh Thành hoàng); 19 – 20 tháng 10 âm lịch (ngày hóa)",
+    "solarEstimate": "Khoảng tháng 2 dương lịch (kỳ chính)",
+    "location": "Đình, chùa, nghè Đông Mai, thôn 9, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Hội làng Đông Mai tổ chức hai kỳ: 11–12 tháng Giêng (ngày sinh Thành hoàng Lưu Ân Cư Sĩ Đại Vương) và 19–20 tháng 10 âm lịch (ngày hóa). Nghi thức đặc trưng gồm lễ xuống Nghè Giá — nơi thờ Lý Thường Kiệt — xin phép trước khi mở hội, tế nữ quan, rước Thành hoàng du xuân quanh làng; phần hội có thi cờ tướng và văn nghệ.",
+    "rituals": [
+      "Lễ xuống Nghè Giá xin phép",
+      "Rước Thành hoàng du xuân",
+      "Tế nữ quan",
+      "Thi cờ tướng"
+    ],
+    "published": true
+  },
+  {
+    "order": 9,
+    "slug": "hoi-lang-van-dong-le-ong-bo",
+    "name": "Hội làng Vân Động — lễ \"Ông Bồ\"",
+    "lunarMonth": 1,
+    "lunarDay": 13,
+    "lunarTimeText": "13 – 17 tháng Giêng âm lịch",
+    "solarEstimate": "Khoảng tháng 2 dương lịch",
+    "location": "Đình, chùa, nghè làng Vân Động, thôn Vân Động 2, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Hội làng Vân Động kéo dài 5 ngày từ 13 đến 17 tháng Giêng âm lịch, với đám rước long trọng từ đình qua nghè lên chùa. Nghi lễ đặc sắc nhất là tục \"nuôi – lừa – xiết\" Ông Bồ: các giáp trong làng nuôi lợn tế thần theo lệ, chăm chút cả năm để dâng cúng — nghi lễ điển hình của cư dân nông nghiệp vùng Quảng Ninh mang giá trị văn hóa phi vật thể đặc sắc. Làng còn có lễ tế Thần Nông ngày 5/5 âm lịch.",
+    "rituals": [
+      "Đám rước Đình – Nghè – Chùa",
+      "Nghi lễ \"Ông Bồ\" — nuôi lợn tế thần",
+      "Tế lễ truyền thống",
+      "Trò chơi dân gian"
+    ],
+    "published": true
+  },
+  {
+    "order": 10,
+    "slug": "hoi-lang-binh-luc",
+    "name": "Hội làng Bình Lục",
+    "lunarMonth": 1,
+    "lunarDay": 14,
+    "lunarTimeText": "14 tháng Giêng âm lịch (lệ cũ: 12 – 14 tháng 11)",
+    "solarEstimate": "Khoảng tháng 2 dương lịch",
+    "location": "Đình Bình Lục, khu Bình Lục Hạ, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Hội làng Bình Lục nay tổ chức ngày 14 tháng Giêng âm lịch với đám rước, múa lân và tế Thành hoàng An Sinh vương Trần Liễu — thân phụ của Hưng Đạo Đại vương. Theo lệ cũ, làng tế Thành hoàng vào 12–14 tháng 11 âm lịch và Xuân – Thu nhị kỳ (rằm tháng 2, rằm tháng 8). Làng còn giữ lệ giao hiếu với làng An Sinh, cùng tế lễ trong dịp lễ hội đền An Sinh 20 tháng 8 âm lịch.",
+    "rituals": [
+      "Đám rước, múa lân",
+      "Tế Thành hoàng Trần Liễu",
+      "Giao hiếu với làng An Sinh"
+    ],
+    "published": true
+  },
+  {
+    "order": 11,
+    "slug": "le-xuan-nguyen-trieu-khe-tien-thuyen-rong",
+    "name": "Lễ Xuân Nguyên Triều Khê — tiễn thuyền rồng",
+    "lunarMonth": 1,
+    "lunarDay": 13,
+    "lunarTimeText": "13 – 16 tháng Giêng (Lễ Cả: 11 – 15 tháng 11 âm lịch)",
+    "solarEstimate": "Khoảng tháng 2 dương lịch",
+    "location": "Đình Triều Khê, thôn Triều Khê, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Làng Triều Khê có hai kỳ lễ chính: Lễ Xuân Nguyên (Tiểu lệ) 13–16 tháng Giêng và Lễ Cả (Đại lệ) 11–15 tháng 11 âm lịch. Đặc sắc nhất là lễ tiễn thuyền rồng trên sông Kinh Thầy vào ngày 15 tháng Giêng — nghi thức độc đáo của cư dân vùng cửa sông, cùng tục nuôi lợn tế thần \"Ông Bồ\". Làng còn giữ lệ rước tế tại đền An Sinh ngày 22 tháng 10 âm lịch.",
+    "rituals": [
+      "Lễ tiễn thuyền rồng trên sông Kinh Thầy",
+      "Tục nuôi lợn tế thần",
+      "Tế lễ tại đình và hai nghè"
+    ],
+    "published": true
+  },
+  {
+    "order": 12,
+    "slug": "le-hoi-chua-quynh-lam",
+    "name": "Lễ hội chùa Quỳnh Lâm",
+    "lunarMonth": 2,
+    "lunarDay": 1,
+    "lunarTimeText": "Mùng 1 – mùng 4 tháng 2 âm lịch",
+    "solarEstimate": "Khoảng tháng 3 dương lịch",
+    "location": "Chùa Quỳnh Lâm, phường Tràng An",
+    "scale": "LON",
+    "intro": "Chùa Quỳnh Lâm khởi dựng từ thời Lý, đến thời Trần được Thiền sư Pháp Loa mở rộng thành viện Quỳnh Lâm — \"trường đại học Phật giáo\" đầu tiên của Việt Nam, nơi từng có pho tượng Di Lặc bằng đồng khổng lồ (một trong An Nam tứ đại khí). Lễ hội có nghi thức rước nước, rước kiệu, cầu quốc thái dân an; phần hội có biểu diễn chèo, trò chơi dân gian, liên hoan văn nghệ. Điểm nhấn: chiêm ngưỡng pho tượng Phật Thích Ca bằng ngọc nguyên khối và quần thể kiến trúc gỗ quy mô lớn vừa được trùng tu.",
+    "rituals": [
+      "Lễ rước nước, rước kiệu",
+      "Cầu quốc thái dân an",
+      "Biểu diễn chèo",
+      "Trò chơi dân gian"
+    ],
+    "published": true
+  },
+  {
+    "order": 13,
+    "slug": "le-hoi-chua-quan-ngoc-thanh",
+    "name": "Lễ hội Chùa – Quán Ngọc Thanh",
+    "lunarMonth": 2,
+    "lunarDay": 19,
+    "lunarTimeText": "19 – 20 tháng 2 âm lịch",
+    "solarEstimate": "Khoảng tháng 3 dương lịch",
+    "location": "Chùa quán Ngọc Thanh, khu Đạm Thủy, phường Đông Triều",
+    "scale": "LON",
+    "intro": "Lễ hội truyền thống tại chùa quán Ngọc Thanh — điểm di tích hiếm có vừa là chùa vừa là đạo quán, thuộc Khu di tích lịch sử nhà Trần tại Đông Triều. Phần lễ có rước kiệu, tế lễ, dâng hương lễ vật truyền thống; phần hội có hát quan họ và trò chơi dân gian. Không gian lễ hội tĩnh lặng, gần gũi, phù hợp cho du khách muốn chiêm bái trong không khí thanh tịnh, không quá đông đúc như các lễ hội lớn.",
+    "rituals": [
+      "Rước kiệu, tế lễ",
+      "Dâng hương lễ vật",
+      "Hát quan họ",
+      "Trò chơi dân gian"
+    ],
+    "published": true
+  },
+  {
+    "order": 14,
+    "slug": "le-hoi-den-an-bien-gio-nu-tuong-le-chan",
+    "name": "Lễ hội đền An Biên (giỗ nữ tướng Lê Chân)",
+    "lunarMonth": 2,
+    "lunarDay": 8,
+    "lunarTimeText": "Mùng 8 tháng 2 âm lịch (ngày sinh); 15/8 (thắng trận) và 25 tháng Chạp (ngày hóa)",
+    "solarEstimate": "Khoảng tháng 3 dương lịch (kỳ chính)",
+    "location": "Đền An Biên, thôn An Biên, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Đền An Biên mỗi năm có ba kỳ lễ theo cuộc đời nữ tướng Lê Chân: mùng 8 tháng 2 (ngày sinh), 15 tháng 8 (ngày thắng trận) và 25 tháng Chạp (ngày hóa). Kỳ lễ chính mùng 8/2 có phần hội với múa võ, đánh vật — tái hiện cảnh luyện quân của nữ tướng trên chính quê hương bà, thu hút đông đảo nhân dân và du khách về dâng hương.",
+    "rituals": [
+      "Dâng hương tưởng niệm nữ tướng Lê Chân",
+      "Múa võ, đánh vật",
+      "Tế lễ truyền thống"
+    ],
+    "published": true
+  },
+  {
+    "order": 15,
+    "slug": "hoi-lang-trao-ha-gio-nguyen-quang-huy",
+    "name": "Hội làng Trạo Hà (giỗ Nguyễn Quang Huy)",
+    "lunarMonth": 2,
+    "lunarDay": 16,
+    "lunarTimeText": "16 tháng 2 âm lịch",
+    "solarEstimate": "Khoảng tháng 3 dương lịch",
+    "location": "Đình Trạo Hà – đền Di Ái, thôn Trạo Hà, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Hội làng Trạo Hà diễn ra ngày 16 tháng 2 âm lịch — ngày giỗ Nguyễn Quang Huy, vị quan lập làng và là tướng Tây Sơn, tổ chức theo chiếu vua Quang Trung để lại. Lễ dâng hương do người cao tuổi nhất làng làm chủ tế tại quần thể đình – đền – lăng mộ. Dân gian còn truyền câu ví: \"Làng Trạo vào đám tháng Hai / Vừa vào, vừa rã, vừa ra một ngày\".",
+    "rituals": [
+      "Lễ giỗ danh nhân Nguyễn Quang Huy",
+      "Dâng hương tại lăng mộ",
+      "Tế lễ truyền thống"
+    ],
+    "published": true
+  },
+  {
+    "order": 16,
+    "slug": "le-ky-hau-than-mieu-hau",
+    "name": "Lễ kỵ Hậu thần — Miếu Hậu",
+    "lunarMonth": 2,
+    "lunarDay": 26,
+    "lunarTimeText": "26 – 27 tháng 2 âm lịch",
+    "solarEstimate": "Khoảng tháng 3 – 4 dương lịch",
+    "location": "Miếu Hậu, thôn Đạm Thủy, phường Đông Triều",
+    "scale": "HOI_LANG",
+    "intro": "Lễ kỵ Hậu thần Đinh Thị Huệ tổ chức trong hai ngày 26–27 tháng 2 âm lịch: các giáp trong làng rước lễ, tế nam quan (tiểu tế hôm trước, đại tế ngày giỗ chính), tế nữ quan và hát chèo cửa đình — thể hiện đạo lý \"uống nước nhớ nguồn\" với người phụ nữ có công quyên góp ruộng đất, tiền của cho làng xã từ thế kỷ XVII.",
+    "rituals": [
+      "Các giáp rước lễ",
+      "Tế nam quan, nữ quan",
+      "Hát chèo cửa đình"
+    ],
+    "published": true
+  },
+  {
+    "order": 17,
+    "slug": "le-hoi-den-an-sinh",
+    "name": "Lễ hội đền An Sinh",
+    "lunarMonth": 8,
+    "lunarDay": 20,
+    "lunarTimeText": "20 – 22 tháng 8 âm lịch (chính hội 20/8)",
+    "solarEstimate": "Khoảng tháng 9 – 10 dương lịch",
+    "location": "Đền An Sinh, xã An Sinh (thuộc Khu di tích nhà Trần tại Đông Triều)",
+    "scale": "LON",
+    "intro": "Lễ hội đền An Sinh là một trong những lễ hội lớn nhất của Đông Triều, mang ý nghĩa đặc biệt trong việc bảo tồn và phát huy giá trị di sản nhà Trần. Đền An Sinh xây dựng từ thế kỷ XIV, thờ 8 vị vua triều Trần. Phần lễ có gióng trống chiêng khai hội, dâng hương tưởng niệm các vua Trần, lễ cáo yết đền và các lăng mộ; phần hội có giao lưu văn nghệ, thi đấu bóng chuyền hơi, kéo co, đẩy gậy, cờ người, triển lãm ảnh và cây cảnh nghệ thuật. Kinh nghiệm: nên đến sáng ngày 20/8 âm lịch để dự lễ khai mạc, trang phục lịch sự trang nghiêm.",
+    "rituals": [
+      "Lễ gióng trống, chiêng khai hội",
+      "Dâng hương tưởng niệm các vua Trần",
+      "Lễ cáo yết đền và các lăng mộ",
+      "Kéo co, đẩy gậy, cờ người",
+      "Giao lưu văn nghệ, triển lãm ảnh"
+    ],
+    "published": true
+  }
+]

@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+  .dark body {
+    @apply bg-jade-950 text-jade-50;
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif;
+  }
+  ::selection {
+    @apply bg-gold-300/60;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-jade-400 focus-visible:ring-offset-2;
+  }
+  .btn-primary {
+    @apply btn bg-jade-600 text-white shadow-soft hover:bg-jade-700 active:scale-[0.98];
+  }
+  .btn-gold {
+    @apply btn bg-gold-400 text-jade-950 shadow-soft hover:bg-gold-300 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn border border-jade-200 bg-white/70 text-jade-800 hover:bg-white dark:border-jade-700 dark:bg-jade-900/50 dark:text-jade-100;
+  }
+  .card {
+    @apply rounded-2xl bg-white shadow-soft ring-1 ring-jade-900/5 transition dark:bg-jade-900/40 dark:ring-white/5;
+  }
+  .card-hover {
+    @apply card hover:-translate-y-1 hover:shadow-lift;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium;
+  }
+  .section-title {
+    @apply font-serif text-2xl font-semibold text-jade-900 sm:text-3xl dark:text-jade-50;
+  }
+  .prose-vn {
+    @apply prose max-w-none prose-headings:font-serif prose-headings:text-jade-900 prose-a:text-jade-600
+      prose-strong:text-jade-900 prose-img:rounded-xl dark:prose-invert dark:prose-headings:text-jade-50
+      dark:prose-strong:text-jade-50;
+  }
+  /* Nền hoa văn mờ trang trí */
+  .pattern-bg {
+    background-image: radial-gradient(circle at 1px 1px, rgba(14, 124, 94, 0.08) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+}
+
+/* Thanh cuộn mềm */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Swiper: nút điều hướng & bullet theo tông màu site */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #faf7f0 !important;
+}
+.swiper-pagination-bullet {
+  background: rgba(250, 247, 240, 0.6) !important;
+}
+.swiper-pagination-bullet-active {
+  background: #d9a441 !important;
+}

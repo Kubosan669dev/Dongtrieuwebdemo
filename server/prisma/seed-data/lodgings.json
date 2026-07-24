@@ -1,0 +1,198 @@
+[
+  {
+    "order": 1,
+    "name": "Khách sạn Khang Nhi",
+    "type": "KHACH_SAN",
+    "address": "Khu 1, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Nguyễn Thị Trang",
+    "phones": [
+      "0963.958.543"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 2,
+    "name": "Khách sạn Thành Đạt",
+    "type": "KHACH_SAN",
+    "address": "Bình Lục Thượng, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Nguyễn Kim Cường",
+    "phones": [
+      "0978.135.829"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 3,
+    "name": "Khách sạn Vườn Trần",
+    "type": "KHACH_SAN",
+    "address": "Khu phố IV, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Trần Ngọc Đức",
+    "phones": [
+      "0966.249.106"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 4,
+    "name": "Nhà nghỉ Quốc Phương",
+    "type": "NHA_NGHI",
+    "address": "Khu 1, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Nguyễn Văn Tùng",
+    "phones": [
+      "0934.285.666"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 5,
+    "name": "Nhà nghỉ Thanh Tâm",
+    "type": "NHA_NGHI",
+    "address": "Khu 4, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Nguyễn Thị Tâm",
+    "phones": [
+      "02033.870.361"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 6,
+    "name": "Nhà nghỉ Diệu Thuần",
+    "type": "NHA_NGHI",
+    "address": "Khu 4, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Hoàng Diệu Thuần",
+    "phones": [
+      "0333.870.337"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 7,
+    "name": "Nhà nghỉ Tuấn Hiển",
+    "type": "NHA_NGHI",
+    "address": "Mễ Xá 1, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Đặng Thị Nghĩa",
+    "phones": [
+      "0369.212.816"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 8,
+    "name": "Nhà nghỉ Tràng An 2",
+    "type": "NHA_NGHI",
+    "address": "Mễ Xá 1, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Nguyễn Xuân Quý",
+    "phones": [
+      "0913.389.791",
+      "0919.775.325"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 9,
+    "name": "Nhà nghỉ Điểm Hẹn",
+    "type": "NHA_NGHI",
+    "address": "Khu phố 1, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Nguyễn Thị Năm",
+    "phones": [
+      "0868.615.925"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 10,
+    "name": "Nhà nghỉ Xuân Phương",
+    "type": "NHA_NGHI",
+    "address": "Đạm Thủy, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Đào Xuân Phương",
+    "phones": [
+      "0968.092.920"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 11,
+    "name": "Nhà nghỉ Xuân Phương 1",
+    "type": "NHA_NGHI",
+    "address": "Đạm Thủy, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Phạm Thị Thanh Trà",
+    "phones": [
+      "0336.762.529"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 12,
+    "name": "Nhà nghỉ Thanh Minh",
+    "type": "NHA_NGHI",
+    "address": "Đông Tân, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Trần Văn Minh",
+    "phones": [
+      "0979.090.388"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 13,
+    "name": "Nhà nghỉ Thanh Huệ",
+    "type": "NHA_NGHI",
+    "address": "Khu 4, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Nguyễn Thị Huệ",
+    "phones": [
+      "0358.716.666"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 14,
+    "name": "Nhà nghỉ Linh Anh",
+    "type": "NHA_NGHI",
+    "address": "Đông Tân, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Lê Văn Hải",
+    "phones": [
+      "0936.724.326"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  },
+  {
+    "order": 15,
+    "name": "Nhà nghỉ Hương Lan",
+    "type": "NHA_NGHI",
+    "address": "Đạm Thủy, phường Đông Triều, tỉnh Quảng Ninh",
+    "owner": "Trần Khắc Điềm",
+    "phones": [
+      "0963.313.016"
+    ],
+    "lat": null,
+    "lng": null,
+    "published": true
+  }
+]

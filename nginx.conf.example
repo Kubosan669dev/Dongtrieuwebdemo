@@ -1,0 +1,107 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Nginx — Cổng thông tin du lịch phường Đông Triều
+#
+# Cài đặt trên VPS Ubuntu:
+#   sudo cp nginx.conf.example /etc/nginx/sites-available/dongtrieu
+#   sudo ln -s /etc/nginx/sites-available/dongtrieu /etc/nginx/sites-enabled/
+#   sudo rm -f /etc/nginx/sites-enabled/default        # bỏ trang mặc định
+#   sudo nginx -t && sudo systemctl reload nginx
+#
+# Nhớ thay <TEN-MIEN> bằng tên miền thật (vd dulichdongtrieu.vn).
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Nén nội dung văn bản (ảnh WebP đã nén sẵn nên không cần)
+gzip              on;
+gzip_vary         on;
+gzip_min_length   1024;
+gzip_proxied      any;
+gzip_comp_level   5;
+gzip_types        text/plain text/css text/xml application/json application/javascript
+                  application/xml+rss image/svg+xml;
+
+server {
+    listen      80;
+    listen      [::]:80;
+    server_name <TEN-MIEN> www.<TEN-MIEN>;
+
+    # Sau khi chạy `certbot --nginx`, Certbot sẽ tự thêm khối 443 và
+    # chuyển hướng 80 → 443 vào đây. Xem khối HTTPS mẫu ở cuối file.
+
+    # Giới hạn dung lượng tải lên — khớp UPLOAD_MAX_MB=8 trong server/.env
+    # (để dư cho phần overhead của multipart form-data)
+    client_max_body_size 10M;
+
+    # Ảnh do quản trị viên tải lên (Express phục vụ từ server/uploads)
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:4000;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Tài nguyên tĩnh của Vite (tên file có hash nên cache dài hạn an toàn)
+    location /assets/ {
+        proxy_pass http://127.0.0.1:4000;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Toàn bộ phần còn lại: API, trang HTML, sitemap.xml, robots.txt
+    location / {
+        proxy_pass http://127.0.0.1:4000;
+        proxy_http_version 1.1;
+
+        # BẮT BUỘC: server bật `app.set('trust proxy', 1)` nên cần các header này
+        # để rate-limit (express-rate-limit) đọc đúng IP thật của khách.
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection        "upgrade";
+
+        proxy_connect_timeout 30s;
+        proxy_send_timeout    60s;
+        proxy_read_timeout    60s;
+    }
+
+    access_log /var/log/nginx/dongtrieu.access.log;
+    error_log  /var/log/nginx/dongtrieu.error.log;
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# KHỐI HTTPS — thông thường Certbot tự sinh, chỉ dùng khi cần cấu hình thủ công.
+#
+#   sudo apt install certbot python3-certbot-nginx
+#   sudo certbot --nginx -d <TEN-MIEN> -d www.<TEN-MIEN>
+#
+# server {
+#     listen      443 ssl http2;
+#     listen      [::]:443 ssl http2;
+#     server_name <TEN-MIEN> www.<TEN-MIEN>;
+#
+#     ssl_certificate     /etc/letsencrypt/live/<TEN-MIEN>/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/<TEN-MIEN>/privkey.pem;
+#     include             /etc/letsencrypt/options-ssl-nginx.conf;
+#     ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
+#
+#     client_max_body_size 10M;
+#
+#     # ... sao chép nguyên các khối `location` ở trên vào đây ...
+# }
+#
+# server {
+#     listen      80;
+#     server_name <TEN-MIEN> www.<TEN-MIEN>;
+#     return 301  https://$host$request_uri;
+# }
+# ─────────────────────────────────────────────────────────────────────────────

@@ -1,0 +1,79 @@
+[
+  {
+    "order": 1,
+    "name": "Nhà hàng trung tâm phường Đông Triều",
+    "type": "NHA_HANG",
+    "address": "Khu trung tâm phường Đông Triều, tỉnh Quảng Ninh",
+    "openHours": "09:00 – 22:00",
+    "priceRange": "150.000 – 400.000đ/người",
+    "specialties": [
+      "Gà đồi Đông Triều",
+      "Ngán và canh ngán Quảng Ninh",
+      "Rươi Đông Triều (chả rươi, rươi kho)"
+    ],
+    "description": "Cụm nhà hàng khu trung tâm phường phục vụ gà đồi Đông Triều, hải sản tươi đưa từ Quảng Yên – Hạ Long và các món rươi theo mùa.",
+    "isPlaceholder": true,
+    "published": true
+  },
+  {
+    "order": 2,
+    "name": "Quán ăn dọc Quốc lộ 18",
+    "type": "QUAN_AN",
+    "address": "Dọc Quốc lộ 18, đoạn qua phường Đông Triều, tỉnh Quảng Ninh",
+    "openHours": "06:00 – 21:00",
+    "priceRange": "50.000 – 200.000đ/người",
+    "specialties": [
+      "Gà đồi Đông Triều",
+      "Ngán và canh ngán Quảng Ninh"
+    ],
+    "description": "Chuỗi quán ăn bình dân ven Quốc lộ 18 — điểm dừng chân quen thuộc của khách đi tuyến Hà Nội – Hạ Long.",
+    "isPlaceholder": true,
+    "published": true
+  },
+  {
+    "order": 3,
+    "name": "Chợ trung tâm Đông Triều",
+    "type": "DIEM_DUNG_CHAN",
+    "address": "Chợ trung tâm phường Đông Triều, tỉnh Quảng Ninh",
+    "openHours": "05:00 – 18:00",
+    "priceRange": "Theo mặt hàng",
+    "specialties": [
+      "Na dai Đông Triều",
+      "Nếp cái hoa vàng Đông Triều",
+      "Khoai lang làng Trạo",
+      "Bưởi Đông Triều"
+    ],
+    "description": "Nơi mua đặc sản mang về: na dai, nếp cái hoa vàng, khoai lang làng Trạo, bưởi Đông Triều theo mùa.",
+    "isPlaceholder": true,
+    "published": true
+  },
+  {
+    "order": 4,
+    "name": "Làng nghề gốm sứ Đông Triều",
+    "type": "DIEM_DUNG_CHAN",
+    "address": "Các cơ sở gốm sứ dọc Quốc lộ 18, phường Đông Triều, tỉnh Quảng Ninh",
+    "openHours": "08:00 – 17:30",
+    "priceRange": "30.000đ – vài triệu đồng",
+    "specialties": [
+      "Gốm sứ Đông Triều (quà lưu niệm)"
+    ],
+    "description": "Xem nghệ nhân chuốt gốm, tự tay thử làm sản phẩm và chọn mua quà lưu niệm men lam, men rạn.",
+    "isPlaceholder": true,
+    "published": true
+  },
+  {
+    "order": 5,
+    "name": "Nhà vườn sinh thái na – bưởi Đông Triều",
+    "type": "DIEM_DUNG_CHAN",
+    "address": "Vùng đồi bán sơn địa phường Đông Triều, tỉnh Quảng Ninh",
+    "openHours": "Theo mùa vụ (tháng 7 – 12)",
+    "priceRange": "25.000 – 70.000đ",
+    "specialties": [
+      "Na dai Đông Triều",
+      "Bưởi Đông Triều"
+    ],
+    "description": "Trải nghiệm hái na (tháng 7–9) và hái bưởi (tháng 8–12) tại vườn, phù hợp gia đình có trẻ nhỏ.",
+    "isPlaceholder": true,
+    "published": true
+  }
+]

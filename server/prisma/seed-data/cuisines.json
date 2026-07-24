@@ -1,0 +1,111 @@
+[
+  {
+    "order": 1,
+    "slug": "na-dai-dong-trieu",
+    "name": "Na dai Đông Triều",
+    "summary": "Đặc sản trứ danh nhất Đông Triều — quả to, mắt sáng, cùi dày, vị ngọt đậm mà thanh, đã được bảo hộ nhãn hiệu tập thể.",
+    "description": "Na dai Đông Triều được trồng trên vùng đất đồi bán sơn địa ven dãy Yên Tử, hưởng khí hậu giao thoa giữa vùng núi Đông Bắc và đồng bằng ven sông Kinh Thầy. Quả na to, vỏ mỏng, mắt sáng, cùi dày ít hạt, ăn ngọt đậm nhưng thanh, dai chứ không bở — khác biệt hẳn với na các vùng khác. Mùa na chín rộ từ tháng 7 đến tháng 9 hằng năm; du khách có thể ghé các nhà vườn để trải nghiệm hái na tại vườn.",
+    "priceRange": "35.000 – 70.000đ/kg (tùy mùa và loại)",
+    "whereToBuy": [
+      "Các nhà vườn khu vực Đông Triều",
+      "Chợ trung tâm Đông Triều",
+      "Điểm bán dọc Quốc lộ 18 vào mùa na (tháng 7–9)"
+    ],
+    "published": true
+  },
+  {
+    "order": 2,
+    "slug": "ruoi-dong-trieu-cha-ruoi-ruoi-kho",
+    "name": "Rươi Đông Triều (chả rươi, rươi kho)",
+    "summary": "\"Lộc trời\" vùng nước lợ ven sông Kinh Thầy — chả rươi thơm béo trứ danh, chỉ có theo mùa \"tháng chín đôi mươi, tháng mười mùng năm\".",
+    "description": "Vùng bãi triều nước lợ ven sông Kinh Thầy, Đá Bạc thuộc khu vực Hồng Phong, Nguyễn Huệ là nơi con rươi xuất hiện mỗi độ cuối thu — dân gian gọi là \"lộc trời\" vì mỗi năm chỉ có vài con nước ngắn ngủi. Rươi được chế biến thành nhiều món: chả rươi trứng thơm béo ăn kèm vỏ quýt, rươi kho niêu đất, mắm rươi, nem rươi... Món chả rươi nóng hổi chấm nước mắm chanh ớt là trải nghiệm ẩm thực khó quên của thực khách về Đông Triều dịp tháng 9 – 11 âm lịch.",
+    "priceRange": "300.000 – 500.000đ/kg rươi tươi (theo mùa)",
+    "whereToBuy": [
+      "Các nhà hàng khu trung tâm phường Đông Triều",
+      "Chợ phiên mùa rươi (tháng 9–11 âm lịch)",
+      "Các hộ dân vùng Hồng Phong, Nguyễn Huệ ven sông"
+    ],
+    "published": true
+  },
+  {
+    "order": 3,
+    "slug": "nep-cai-hoa-vang-dong-trieu",
+    "name": "Nếp cái hoa vàng Đông Triều",
+    "summary": "Giống nếp quý trồng trên đồng đất ven sông — hạt tròn mẩy, đồ xôi dẻo thơm, nguyên liệu của bánh chưng, rượu nếp ngon nức tiếng.",
+    "description": "Nếp cái hoa vàng là giống lúa nếp cổ truyền được gieo cấy trên những cánh đồng phù sa ven sông Kinh Thầy — Đá Bạc của Đông Triều. Hạt gạo tròn mẩy, trắng đục, khi đồ xôi dẻo quánh và tỏa hương thơm đặc trưng; là nguyên liệu làm bánh chưng ngày Tết, cốm, chè kho và cất rượu nếp men lá. Gạo nếp cái hoa vàng Đông Triều từ lâu là món quà quê được ưa chuộng mỗi dịp cuối năm.",
+    "priceRange": "35.000 – 50.000đ/kg",
+    "whereToBuy": [
+      "Chợ trung tâm Đông Triều",
+      "Các hộ sản xuất tại vùng lúa Hồng Phong, Nguyễn Huệ",
+      "Cửa hàng nông sản OCOP Quảng Ninh"
+    ],
+    "published": true
+  },
+  {
+    "order": 4,
+    "slug": "ga-doi-dong-trieu",
+    "name": "Gà đồi Đông Triều",
+    "summary": "Gà thả đồi chân vàng da giòn, thịt chắc ngọt — món chính trong mâm cỗ đãi khách của người Đông Triều.",
+    "description": "Trên các triền đồi bán sơn địa ven cánh cung Đông Triều, gà được nuôi thả tự nhiên, ăn ngô thóc và côn trùng nên da vàng giòn, thịt chắc, ngọt đậm mà không dai. Gà đồi luộc chấm muối chanh lá chanh, gà nướng mật ong hay lẩu gà nấu chua là những món được các nhà hàng quanh khu vực trung tâm phường và các điểm du lịch phục vụ quanh năm, đặc biệt đắt khách mùa lễ hội xuân.",
+    "priceRange": "150.000 – 250.000đ/kg",
+    "whereToBuy": [
+      "Nhà hàng khu trung tâm phường Đông Triều",
+      "Các quán ăn dọc Quốc lộ 18",
+      "Chợ trung tâm (gà sống/làm sẵn)"
+    ],
+    "published": true
+  },
+  {
+    "order": 5,
+    "slug": "ngan-va-canh-ngan-quang-ninh",
+    "name": "Ngán và canh ngán Quảng Ninh",
+    "summary": "Đặc sản nhuyễn thể vùng cửa biển Quảng Ninh — canh ngán nấu chua thanh mát, rượu ngán nồng nàn \"chỉ Quảng Ninh mới có\".",
+    "description": "Con ngán — loài nhuyễn thể chỉ sống ở vùng bãi triều cửa sông ven biển Quảng Ninh — là đặc sản du khách khó lòng bỏ qua khi về vùng Đông Bắc. Ngán hấp gừng ngọt lịm, canh ngán nấu chua thanh mát giải nhiệt, gỏi ngán và đặc biệt là rượu ngán — thức uống \"tiến khách\" nổi tiếng của Quảng Ninh. Các nhà hàng tại Đông Triều thường phục vụ ngán tươi đưa từ vùng biển Quảng Yên, Hạ Long về trong ngày.",
+    "priceRange": "120.000 – 200.000đ/đĩa (tùy món)",
+    "whereToBuy": [
+      "Nhà hàng hải sản khu trung tâm phường Đông Triều",
+      "Nhà hàng dọc Quốc lộ 18"
+    ],
+    "published": true
+  },
+  {
+    "order": 6,
+    "slug": "khoai-lang-lang-trao",
+    "name": "Khoai lang làng Trạo",
+    "summary": "\"Khoai làng Trạo, gạo xứ Bắc\" — câu ví xưa về củ khoai lang bở thơm nức tiếng trồng trên đất vườn Trạo Hà.",
+    "description": "Dân gian vùng Đông Triều truyền câu ví \"Khoai làng Trạo, gạo xứ Bắc\" để nói về hai sản vật ngon có tiếng. Đất vườn làng Trạo Hà (xã Đức Chính cũ) tơi xốp, trồng được giống khoai lang củ to, luộc lên bở tơi, ngọt lịm và thơm. Khoai lang luộc, khoai nướng mật hay chè khoai là những thức quà quê dân dã du khách có thể tìm mua khi ghé thăm cụm di tích đình Trạo Hà – đền Di Ái ngay sát Quốc lộ 18.",
+    "priceRange": "15.000 – 25.000đ/kg",
+    "whereToBuy": [
+      "Chợ và các hộ dân thôn Trạo Hà",
+      "Chợ trung tâm Đông Triều (theo mùa)"
+    ],
+    "published": true
+  },
+  {
+    "order": 7,
+    "slug": "buoi-dong-trieu",
+    "name": "Bưởi Đông Triều",
+    "summary": "Bưởi trồng ở các nhà vườn sinh thái ven đồi — múi mọng, ngọt mát, cùng na dai làm nên thương hiệu trái cây Đông Triều.",
+    "description": "Bên cạnh na dai, các nhà vườn sinh thái Đông Triều còn nổi tiếng với bưởi — trái to, vỏ vàng óng khi chín, múi mọng nước, vị ngọt mát dịu. Nhiều nhà vườn mở cửa đón khách tham quan, trải nghiệm hái trái theo mùa (khoảng tháng 8 – 12), phù hợp với các gia đình đưa trẻ nhỏ dạo chơi cuối tuần kết hợp vãn cảnh chùa chiền, di tích.",
+    "priceRange": "25.000 – 60.000đ/quả",
+    "whereToBuy": [
+      "Nhà vườn sinh thái khu vực Đông Triều",
+      "Chợ trung tâm",
+      "Điểm bán trái cây dọc Quốc lộ 18"
+    ],
+    "published": true
+  },
+  {
+    "order": 8,
+    "slug": "gom-su-dong-trieu-qua-luu-niem",
+    "name": "Gốm sứ Đông Triều (quà lưu niệm)",
+    "summary": "Làng nghề gốm sứ truyền thống hơn nửa thế kỷ — bình, ấm chén, tranh gốm men lam là món quà mang đậm hồn đất Đông Triều.",
+    "description": "Nghề gốm sứ Đông Triều hình thành từ giữa thế kỷ XX và trở thành thương hiệu thủ công nổi tiếng của Quảng Ninh. Các sản phẩm bình hoa, ấm chén, chậu cảnh, tranh gốm men lam, men rạn... được chuốt và vẽ tay bởi những nghệ nhân làng nghề. Du khách có thể ghé các cơ sở gốm dọc Quốc lộ 18 để xem thợ chuốt gốm, tự tay thử làm sản phẩm và chọn mua quà lưu niệm — món quà mang \"hồn đất\" Đông Triều về nhà.",
+    "priceRange": "30.000đ – vài triệu đồng (tùy sản phẩm)",
+    "whereToBuy": [
+      "Các cơ sở gốm sứ dọc Quốc lộ 18",
+      "Làng nghề gốm sứ truyền thống khu vực Đông Triều"
+    ],
+    "published": true
+  }
+]
