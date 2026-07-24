@@ -1,18 +1,42 @@
 /**
- * Sinh gợi ý tham quan dựa trên thời tiết thực tế.
+ * Kiến thức thời tiết dùng CHUNG cho cả giao diện web và chatbot.
  *
- * Nhận dữ liệu từ /api/weather (mã WMO, nhiệt độ, xác suất mưa, chỉ số UV) cùng
- * danh sách di tích lấy từ database, trả về lời khuyên + các điểm đến phù hợp.
- * Không tự bịa tên di tích: chỉ chọn trong danh sách truyền vào.
+ * Đặt ở thư mục `shared/` vì cả `client/` lẫn `server/` đều import file này —
+ * nhờ vậy khối gợi ý trên trang /thoi-tiet và câu trả lời của chatbot luôn khớp
+ * nhau, sửa một chỗ là cả hai cùng đổi. File cố ý không import gì (kể cả React
+ * hay Prisma) để chạy được ở cả trình duyệt lẫn Node.
  */
 
+// ─── Mã thời tiết WMO → nhãn tiếng Việt ────────────────────────────────────
+export const WEATHER_CODES = {
+  0: { label: 'Trời quang', icon: '☀️' },
+  1: { label: 'Ít mây', icon: '🌤️' },
+  2: { label: 'Có mây', icon: '⛅' },
+  3: { label: 'Nhiều mây', icon: '☁️' },
+  45: { label: 'Sương mù', icon: '🌫️' },
+  48: { label: 'Sương muối', icon: '🌫️' },
+  51: { label: 'Mưa phùn nhẹ', icon: '🌦️' },
+  53: { label: 'Mưa phùn', icon: '🌦️' },
+  55: { label: 'Mưa phùn dày', icon: '🌧️' },
+  61: { label: 'Mưa nhẹ', icon: '🌧️' },
+  63: { label: 'Mưa', icon: '🌧️' },
+  65: { label: 'Mưa to', icon: '🌧️' },
+  66: { label: 'Mưa lạnh', icon: '🌧️' },
+  67: { label: 'Mưa lạnh nặng hạt', icon: '🌧️' },
+  71: { label: 'Tuyết nhẹ', icon: '🌨️' },
+  80: { label: 'Mưa rào nhẹ', icon: '🌦️' },
+  81: { label: 'Mưa rào', icon: '🌧️' },
+  82: { label: 'Mưa rào mạnh', icon: '⛈️' },
+  95: { label: 'Dông', icon: '⛈️' },
+  96: { label: 'Dông kèm mưa đá', icon: '⛈️' },
+  99: { label: 'Dông mạnh, mưa đá', icon: '⛈️' },
+};
+
+export const weatherInfo = (code) => WEATHER_CODES[code] ?? { label: 'Không rõ', icon: '🌡️' };
+
+// ─── Gợi ý tham quan theo thời tiết ────────────────────────────────────────
 // Nhóm di tích theo đặc điểm tham quan, dùng slug có thật trong database.
-const INDOOR = [
-  'chua-my-cu-sung-khanh-tu',
-  'dinh-chua-trieu-khe',
-  'mieu-hau-tu-vu-mieu',
-  'dinh-my-cu',
-];
+const INDOOR = ['chua-my-cu-sung-khanh-tu', 'dinh-chua-trieu-khe', 'mieu-hau-tu-vu-mieu', 'dinh-my-cu'];
 const SHADED = [
   'den-an-bien-den-nu-tuong-le-chan',
   'chua-an-bien-bao-an-tu',
@@ -28,14 +52,18 @@ const OUTDOOR = [
 /** Chọn các di tích theo slug, giữ đúng thứ tự ưu tiên; bỏ qua slug không tồn tại. */
 function pick(heritages, slugs, limit = 3) {
   const bySlug = new Map((heritages || []).map((h) => [h.slug, h]));
-  return slugs.map((s) => bySlug.get(s)).filter(Boolean).slice(0, limit);
+  return slugs
+    .map((s) => bySlug.get(s))
+    .filter(Boolean)
+    .slice(0, limit);
 }
 
 /** Ghi chú theo mùa, dựa trên tháng dương lịch hiện tại. */
-function seasonNote(date = new Date()) {
+export function seasonNote(date = new Date()) {
   const m = date.getMonth() + 1;
   if (m >= 7 && m <= 9) return 'Đang mùa na dai Đông Triều — có thể ghé nhà vườn hái na tại chỗ.';
-  if (m >= 10 && m <= 12) return 'Mùa rươi vùng sông Kinh Thầy – Đá Bạc (tháng 9–11 âm lịch); xem tab Triều cường để canh con nước.';
+  if (m >= 10 && m <= 12)
+    return 'Mùa rươi vùng sông Kinh Thầy – Đá Bạc (tháng 9–11 âm lịch); xem tab Triều cường để canh con nước.';
   if (m >= 1 && m <= 3) return 'Cao điểm mùa lễ hội xuân — nhiều hội làng diễn ra trong tháng Giêng âm lịch.';
   if (m >= 4 && m <= 6) return 'Trời chuyển nắng, nên tham quan vào sáng sớm hoặc chiều muộn.';
   return null;
@@ -85,7 +113,9 @@ export function getWeatherAdvice(weather, heritages = []) {
   } else if (isHot) {
     tone = 'hot';
     title = 'Trời nắng nóng — đi sáng sớm hoặc chiều muộn';
-    message = `Nhiệt độ ${Math.round(temp)}°C${uv >= 8 ? `, chỉ số UV cao (${Math.round(uv)})` : ''}. Nên tham quan trước 9h sáng hoặc sau 16h, ưu tiên nơi có cây xanh và suối.`;
+    message = `Nhiệt độ ${Math.round(temp)}°C${
+      uv >= 8 ? `, chỉ số UV cao (${Math.round(uv)})` : ''
+    }. Nên tham quan trước 9h sáng hoặc sau 16h, ưu tiên nơi có cây xanh và suối.`;
     slugs = SHADED;
     tips.push('Mang đủ nước, đội mũ rộng vành và bôi kem chống nắng.');
     tips.push('Đền An Biên còn gọi là "Đền Suối" — có dòng suối chảy quanh năm, khuôn viên nhiều cây.');
@@ -98,7 +128,9 @@ export function getWeatherAdvice(weather, heritages = []) {
   } else {
     tone = 'good';
     title = 'Thời tiết đẹp — rất hợp để tham quan cả ngày';
-    message = `Nhiệt độ ${Math.round(temp)}°C, trời ${code <= 1 ? 'quang đãng' : 'ít mây'}. Đây là điều kiện lý tưởng để leo đồi ngắm cảnh và đi nhiều điểm trong ngày.`;
+    message = `Nhiệt độ ${Math.round(temp)}°C, trời ${
+      code <= 1 ? 'quang đãng' : 'ít mây'
+    }. Đây là điều kiện lý tưởng để leo đồi ngắm cảnh và đi nhiều điểm trong ngày.`;
     slugs = OUTDOOR;
     tips.push('Đồn Cao nằm trên đồi cao 61m — tầm nhìn thoáng, đẹp nhất vào lúc chiều muộn.');
     tips.push('Có thể kết hợp 3–4 điểm trong ngày vì các di tích cách nhau không xa.');

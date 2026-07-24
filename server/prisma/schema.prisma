@@ -373,3 +373,24 @@ model SiteSetting {
   valueJson Json
   updatedAt DateTime @updatedAt
 }
+
+// ─── Nhật ký chatbot ───────────────────────────────────────────────────────
+// Ghi lại câu hỏi của du khách để quản trị viên biết bot còn THIẾU dữ liệu gì.
+// Đây chính là vòng lặp "huấn luyện" của dự án: xem câu nào bot chịu thua
+// (matched = false) rồi bổ sung nội dung tương ứng trong trang quản trị.
+//
+// Cố ý KHÔNG lưu IP, cookie hay bất cứ thứ gì nhận dạng người hỏi.
+
+model ChatLog {
+  id       String  @id @default(cuid())
+  question String  @db.Text
+  /// Ý định bot nhận ra, vd "weather_now", "lookup_heritage", "fallback"
+  intent   String
+  /// false = bot không tìm được thông tin phù hợp → cần bổ sung dữ liệu
+  matched  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@index([matched, createdAt])
+  @@index([createdAt])
+}

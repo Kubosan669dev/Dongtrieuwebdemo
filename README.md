@@ -25,13 +25,18 @@ Bản đồ: Google Maps nhúng qua iframe (không cần API key).
 .
 ├── Ly lich di tich phuong Dong Trieu/   # 29 file .docx — dữ liệu nguồn
 ├── Anh di tich/                         # ảnh nguồn + _nguon-anh.json (ghi giấy phép)
+├── shared/                              # mã dùng chung cho cả client lẫn server
+│   └── weather.js                       # mã WMO + gợi ý theo thời tiết (web & chatbot chung một nguồn)
 ├── client/                              # Giao diện React
 │   └── src/{components,pages,pages/admin,hooks,lib,styles}
 ├── server/                              # API Express
 │   ├── prisma/{schema.prisma,seed.js,seed-data/}
-│   ├── scripts/                         # extract-docx · fetch-images · import-images
-│   ├── src/{routes,services,middleware,lib}
-│   ├── data/knowledge_base.md           # kho tri thức cho chatbot (giai đoạn sau)
+│   ├── scripts/                         # extract-docx · fetch-images · import-images · test-chatbot
+│   ├── src/
+│   │   ├── lib/                         # vitext.js (xử lý tiếng Việt) · lunar.js (âm lịch)
+│   │   ├── services/                    # chatbot.js · knowledge.js · retrieval.js · weather · tide
+│   │   ├── routes/ · middleware/
+│   ├── data/knowledge_base.md           # bản xuất tĩnh kho tri thức (tham khảo/đối chiếu)
 │   └── uploads/                         # ảnh admin tải lên (không commit)
 ├── ecosystem.config.cjs                 # cấu hình PM2
 ├── nginx.conf.example                   # cấu hình Nginx mẫu
@@ -108,6 +113,8 @@ Mật khẩu:      123456
 | `npm run db:studio` | Mở Prisma Studio để xem/sửa database trực quan |
 | `npm run fetch-images` | Tải ảnh minh hoạ về thư mục `Anh di tich/` (Pexels nếu có key, không thì Wikimedia) |
 | `npm run import-images` | Nén ảnh sang WebP, đưa vào `server/uploads/` và gán ảnh bìa theo slug |
+| `npm run test-chatbot` | Chạy thử trợ lý AI với ~36 câu hỏi mẫu, in ra câu trả lời |
+| `npm run test-chatbot "câu hỏi"` | Hỏi trợ lý một câu bất kỳ ngay trên terminal |
 
 Chạy thử production trên máy local:
 
@@ -134,7 +141,9 @@ Tất cả endpoint ghi dữ liệu (`POST` / `PATCH` / `DELETE`) đều yêu c�
 | `GET` | `/api/tide` | Mực nước 3 ngày + giờ nước lớn/ròng · cache 60 phút |
 | `POST` | `/api/media/upload` | Tự nén sang WebP 1600px + thumbnail 480px |
 | `GET` | `/api/settings` · `PUT /api/settings/:key` | Liên hệ, mạng xã hội, toạ độ, SEO |
-| `POST` | `/api/chat` | Chatbot — hiện trả thông báo "đang hoàn thiện" |
+| `POST` | `/api/chat` | Trợ lý AI — trả lời từ dữ liệu của phường · giới hạn 30 câu/phút mỗi IP |
+| `GET` | `/api/chat/suggestions` | Lời chào + câu hỏi gợi ý cho khung chat |
+| `GET` | `/api/chat/logs` | Nhật ký câu hỏi (**cần đăng nhập**) · `?unmatched=1` lọc câu bot chịu thua |
 
 `GET /sitemap.xml` và `/robots.txt` được sinh động từ database.
 
@@ -142,7 +151,7 @@ Tất cả endpoint ghi dữ liệu (`POST` / `PATCH` / `DELETE`) đều yêu c�
 
 ## Trang quản trị
 
-Đăng nhập tại `/admin` để quản lý: **Di tích · Lễ hội · Điểm lân cận · Lưu trú · Ẩm thực · Nhà hàng · Bài viết · Slider trang chủ · Thư viện ảnh · Cài đặt chung**.
+Đăng nhập tại `/admin` để quản lý: **Di tích · Lễ hội · Điểm lân cận · Lưu trú · Ẩm thực · Nhà hàng · Bài viết · Slider trang chủ · Thư viện ảnh · Trợ lý AI · Cài đặt chung**.
 
 Một số điểm đáng chú ý:
 
@@ -151,6 +160,7 @@ Một số điểm đáng chú ý:
 - **Bài viết**: soạn thảo trực quan (in đậm, tiêu đề, danh sách, chèn ảnh, liên kết).
 - **Công tắc "Ảnh minh hoạ"**: bật khi ảnh không phải chụp chính địa điểm đó — trang công khai sẽ hiện nhãn nhỏ để du khách không hiểu nhầm.
 - **Công tắc "Đã gọi xác minh"** (Nhà hàng): thông tin lấy từ Internet mặc định hiện nhãn cảnh báo; bật công tắc sau khi bạn gọi kiểm tra để gỡ nhãn.
+- **Trợ lý AI**: xem du khách hỏi gì và những câu trợ lý chưa trả lời được — dùng để biết cần bổ sung dữ liệu ở đâu.
 - Bật/tắt hiển thị từng mục bằng công tắc *Hiển thị* mà không cần xoá dữ liệu.
 
 ---
@@ -165,7 +175,7 @@ Những điểm sau là **hiện trạng dữ liệu nguồn**, không phải l�
 | **Toạ độ GPS** | Chỉ 1/13 di tích có toạ độ trong hồ sơ (đền, chùa Kênh Giang). 12 điểm còn lại ghim theo địa chỉ chữ nên có thể lệch vài trăm mét. | Admin → Di tích → nhập `lat`/`lng`, có nút *"Xem thử trên bản đồ"* |
 | **Nhà hàng, quán ăn** | Hồ sơ gốc không có danh sách. Hiện có **9 mục**: 5 cơ sở thật (tên, địa chỉ, SĐT tổng hợp từ nguồn công khai) + 4 mô tả theo khu vực. Tất cả đang gắn cờ `isVerified=false` và hiện nhãn *"chưa xác minh"*. Một số cơ sở thuộc **phường Mạo Khê / Xuân Sơn** sau sáp nhập — đã ghi rõ ở trường `area`. | Gọi kiểm tra SĐT → Admin → Nhà hàng → bật công tắc *"Đã gọi xác minh"* |
 | **Triều cường** | Toạ độ Đông Triều nằm sâu trong đất liền, ngoài lưới hải văn của Open-Meteo (trả về `null`). Hệ thống dùng điểm **cửa Nam Triệu – Bạch Đằng** (20.70, 106.80) làm số liệu **tham chiếu** cho vùng sông Kinh Thầy – Đá Bạc, ghi rõ trên giao diện. | Không cần sửa — đã ghi nhãn minh bạch |
-| **Chatbot AI** | Mới có vỏ giao diện. Endpoint `/api/chat` trả thông báo "đang hoàn thiện". Kho tri thức `server/data/knowledge_base.md` (904 dòng, 7 phần) đã sẵn sàng. | Giai đoạn sau: nối mô hình ngôn ngữ, dùng file trên làm ngữ cảnh |
+| **Trợ lý AI** | Đã hoạt động, chạy hoàn toàn trên dữ liệu của phường. Vì không dùng mô hình ngôn ngữ nên trợ lý **chỉ hiểu những cách hỏi đã được dạy** — gặp câu lạ sẽ nói thật là chưa biết chứ không bịa. | Xem mục [Trợ lý AI](#trợ-lý-ai-chatbot) để biết cách mở rộng |
 
 ---
 
@@ -216,6 +226,68 @@ Admin → mục cần sửa → ô **Ảnh bìa** → chọn hoặc tải ảnh 
 
 File `Anh di tich/_nguon-anh.json` lưu nguồn, giấy phép và đường dẫn gốc của từng ảnh tải tự động —
 dùng để đối chiếu bản quyền khi cần.
+
+---
+
+## Trợ lý AI (chatbot)
+
+Nút trò chuyện ở góc phải dưới mọi trang. **Trợ lý chạy hoàn toàn trên máy chủ của bạn** — không
+gọi OpenAI, Gemini hay bất kỳ dịch vụ AI nào, không cần API key, không tốn phí, không gửi câu hỏi
+của du khách ra ngoài.
+
+### Cách hoạt động
+
+```
+Câu hỏi  →  ① Nhận diện ý định (luật tiếng Việt)
+              ├─ thời tiết / triều cường  → tính từ số liệu Open-Meteo thời gian thực
+              ├─ lễ hội sắp diễn ra       → quy đổi âm lịch → dương lịch
+              └─ còn lại ↓
+            ② Tra cứu BM25 trên toàn bộ database
+            ③ Trích thông tin từ bản ghi có thật → soạn câu trả lời
+```
+
+Hệ quả quan trọng: **trợ lý không bịa**. Mọi số điện thoại, địa chỉ, con số trong câu trả lời đều
+lấy từ một bản ghi cụ thể trong database. Không tìm được thì nói thẳng là chưa biết.
+
+### Trả lời được những gì
+
+| Nhóm | Ví dụ câu hỏi |
+|---|---|
+| Thời tiết | *"thời tiết hôm nay thế nào"* · *"ngày mai có mưa không"* · *"thứ bảy trời thế nào"* · *"dự báo 7 ngày tới"* |
+| Triều cường | *"triều cường hôm nay"* · *"con nước lên xuống giờ nào"* |
+| Gợi ý theo thời tiết | *"hôm nay nên đi đâu"* — chọn di tích trong nhà khi mưa, nơi có bóng mát khi nắng nóng |
+| Di tích | *"chùa Mỹ Cụ có gì đặc biệt"* · *"đền Yết Kiêu thờ ai"* · *"Đông Triều có bao nhiêu di tích"* |
+| Lễ hội | *"lễ hội nào sắp diễn ra"* (kèm **số ngày còn lại**) · *"lễ hội tháng Giêng có những gì"* |
+| Ẩm thực, lưu trú | *"ăn gì ở Đông Triều"* · *"na mùa nào"* · *"khách sạn ở đâu"* (kèm SĐT) |
+| Đường đi, lịch trình | *"đi từ Hà Nội thế nào"* · *"lịch trình 2 ngày 1 đêm"* |
+
+Hiểu cả **chữ không dấu** (*"chua my cu o dau"*) và **lỗi gõ nhẹ** (*"chùa mĩ cụ"*).
+
+### Cách "dạy" thêm cho trợ lý
+
+Trợ lý đọc thẳng từ database, nên **sửa dữ liệu là sửa kiến thức của bot** — không phải huấn luyện
+lại gì cả. Có 3 mức:
+
+1. **Thêm nội dung** — Admin → Di tích / Lễ hội / Ẩm thực… Vừa lưu là trợ lý biết ngay.
+2. **Dạy cách hỏi mới** — mở [`server/src/lib/vitext.js`](server/src/lib/vitext.js), thêm một dòng
+   vào bảng `SYNONYMS`. Ví dụ muốn hiểu *"măm gì"* nghĩa là hỏi ăn uống thì thêm
+   `mam: ['am thuc', 'dac san']`.
+3. **Thêm dạng câu trả lời mới** — [`server/src/services/chatbot.js`](server/src/services/chatbot.js),
+   phần cuối file là danh sách ý định xếp theo thứ tự ưu tiên.
+
+### Xem trợ lý còn yếu chỗ nào
+
+**Admin → Trợ lý AI**: xem du khách hỏi gì, tỷ lệ trả lời được, và danh sách **câu hỏi bot chịu
+thua** — chính là chỗ dữ liệu còn thiếu. Câu nào bị hỏi nhiều lần thì nên bổ sung trước.
+
+Nhật ký chỉ lưu nội dung câu hỏi, **không lưu IP hay bất cứ thông tin nhận dạng người hỏi nào**.
+
+Kiểm tra nhanh chất lượng sau khi sửa dữ liệu:
+
+```bash
+npm run test-chatbot                      # chạy ~36 câu mẫu
+npm run test-chatbot "na mùa nào?"        # hỏi thử một câu
+```
 
 ---
 

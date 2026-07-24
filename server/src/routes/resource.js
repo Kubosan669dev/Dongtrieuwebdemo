@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { asyncHandler, HttpError } from '../lib/http.js';
 import { requireAuth } from '../middleware/auth.js';
+import { invalidateCorpus } from '../services/knowledge.js';
 
 /**
  * Factory tạo router CRUD cho một model Prisma.
@@ -70,6 +71,7 @@ export function createResourceRouter(opts) {
     asyncHandler(async (req, res) => {
       const data = transform(createSchema.parse(req.body), req);
       const item = await db().create({ data });
+      invalidateCorpus(); // chatbot dùng ngay nội dung vừa thêm
       res.status(201).json({ item });
     }),
   );
@@ -81,6 +83,7 @@ export function createResourceRouter(opts) {
     asyncHandler(async (req, res) => {
       const data = transform(updateSchema.parse(req.body), req);
       const item = await db().update({ where: { id: req.params.id }, data });
+      invalidateCorpus();
       res.json({ item });
     }),
   );
@@ -91,6 +94,7 @@ export function createResourceRouter(opts) {
     requireAuth,
     asyncHandler(async (req, res) => {
       await db().delete({ where: { id: req.params.id } });
+      invalidateCorpus();
       res.json({ ok: true });
     }),
   );

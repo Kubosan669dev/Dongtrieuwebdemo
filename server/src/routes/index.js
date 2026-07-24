@@ -159,7 +159,7 @@ api.get(
   '/admin/stats',
   requireAuth,
   asyncHandler(async (_req, res) => {
-    const [heritages, festivals, attractions, lodgings, cuisines, restaurants, articles, media, noCover, unverified] =
+    const [heritages, festivals, attractions, lodgings, cuisines, restaurants, articles, media, noCover, unverified, chatTotal, chatUnmatched] =
       await Promise.all([
         prisma.heritage.count(),
         prisma.festival.count(),
@@ -171,6 +171,8 @@ api.get(
         prisma.media.count(),
         prisma.heritage.count({ where: { coverUrl: null } }),
         prisma.restaurant.count({ where: { isVerified: false } }),
+        prisma.chatLog.count(),
+        prisma.chatLog.count({ where: { matched: false } }),
       ]);
     const recentArticles = await prisma.article.findMany({
       orderBy: { updatedAt: 'desc' },
@@ -181,6 +183,7 @@ api.get(
       counts: { heritages, festivals, attractions, lodgings, cuisines, restaurants, articles, media },
       heritagesWithoutCover: noCover,
       restaurantsUnverified: unverified,
+      chat: { total: chatTotal, unmatched: chatUnmatched },
       recentArticles,
     });
   }),

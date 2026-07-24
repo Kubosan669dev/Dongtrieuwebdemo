@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Droplets, Wind, Lightbulb } from 'lucide-react';
 import { useWeather } from '../hooks/useForecast.js';
 import { weatherInfo } from '../lib/constants.js';
-import { getShortAdvice } from '../lib/weatherAdvice.js';
+import { getShortAdvice } from '../../../shared/weather.js';
 
 /** Widget thời tiết gọn ở trang chủ, kèm gợi ý tham quan ngắn. */
 export default function MiniWeather() {

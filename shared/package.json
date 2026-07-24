@@ -1,0 +1,7 @@
+{
+  "name": "@dongtrieu/shared",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Mã dùng chung giữa client và server (kiến thức thời tiết cho web + chatbot)",
+  "type": "module"
+}

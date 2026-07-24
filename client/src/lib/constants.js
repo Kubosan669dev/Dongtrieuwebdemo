@@ -56,29 +56,6 @@ export const LUNAR_MONTH_LABELS = {
   12: 'Tháng Chạp',
 };
 
-// Mã thời tiết WMO → nhãn tiếng Việt + biểu tượng
-export const WEATHER_CODES = {
-  0: { label: 'Trời quang', icon: '☀️' },
-  1: { label: 'Ít mây', icon: '🌤️' },
-  2: { label: 'Có mây', icon: '⛅' },
-  3: { label: 'Nhiều mây', icon: '☁️' },
-  45: { label: 'Sương mù', icon: '🌫️' },
-  48: { label: 'Sương muối', icon: '🌫️' },
-  51: { label: 'Mưa phùn nhẹ', icon: '🌦️' },
-  53: { label: 'Mưa phùn', icon: '🌦️' },
-  55: { label: 'Mưa phùn dày', icon: '🌧️' },
-  61: { label: 'Mưa nhẹ', icon: '🌧️' },
-  63: { label: 'Mưa', icon: '🌧️' },
-  65: { label: 'Mưa to', icon: '🌧️' },
-  66: { label: 'Mưa lạnh', icon: '🌧️' },
-  67: { label: 'Mưa lạnh nặng hạt', icon: '🌧️' },
-  71: { label: 'Tuyết nhẹ', icon: '🌨️' },
-  80: { label: 'Mưa rào nhẹ', icon: '🌦️' },
-  81: { label: 'Mưa rào', icon: '🌧️' },
-  82: { label: 'Mưa rào mạnh', icon: '⛈️' },
-  95: { label: 'Dông', icon: '⛈️' },
-  96: { label: 'Dông kèm mưa đá', icon: '⛈️' },
-  99: { label: 'Dông mạnh, mưa đá', icon: '⛈️' },
-};
-
-export const weatherInfo = (code) => WEATHER_CODES[code] ?? { label: 'Không rõ', icon: '🌡️' };
+// Mã thời tiết WMO → nhãn tiếng Việt + biểu tượng.
+// Định nghĩa thật nằm ở shared/weather.js để chatbot phía server dùng chung.
+export { WEATHER_CODES, weatherInfo } from '../../../shared/weather.js';

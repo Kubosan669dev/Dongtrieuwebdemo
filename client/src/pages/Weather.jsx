@@ -10,7 +10,7 @@ import HeritageCover from '../components/HeritageCover.jsx';
 import { Spinner, ErrorNote, Badge } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { weatherInfo } from '../lib/constants.js';
-import { getWeatherAdvice } from '../lib/weatherAdvice.js';
+import { getWeatherAdvice } from '../../../shared/weather.js';
 import { formatHour, formatDate, formatTime, cx } from '../lib/format.js';
 
 const TABS = [

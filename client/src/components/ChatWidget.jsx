@@ -1,30 +1,90 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Sparkles } from 'lucide-react';
+import { useState, useRef, useEffect, Fragment } from 'react';
+import { Link } from 'react-router-dom';
+import { MessageCircle, X, Send, Sparkles, RotateCcw } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { cx } from '../lib/format.js';
 
-const SUGGESTIONS = ['Hôm nay nên đi đâu?', 'Có lễ hội nào sắp diễn ra?', 'Đặc sản Đông Triều có gì?'];
+const STORAGE_KEY = 'dt_chat';
+
+const WELCOME = {
+  role: 'bot',
+  text:
+    'Xin chào 👋 Mình là **trợ lý du lịch phường Đông Triều**.\n\n' +
+    'Mình trả lời dựa trên dữ liệu chính thức của phường — hồ sơ di tích, lịch lễ hội, ẩm thực, lưu trú — cùng **số liệu thời tiết và triều cường cập nhật theo giờ**.',
+  suggestions: ['Hôm nay nên đi đâu?', 'Thời tiết hôm nay thế nào?', 'Lễ hội nào sắp diễn ra?', 'Đặc sản Đông Triều có gì?'],
+};
 
 /**
- * Chatbot AI (giai đoạn này chỉ là vỏ giao diện).
- * Backend /api/chat trả thông báo "đang hoàn thiện". Khi tích hợp LLM ở giai đoạn
- * sau, chỉ cần nối endpoint này với mô hình + knowledge_base.md.
+ * Hiển thị văn bản trả lời của bot.
+ *
+ * Bot trả về text thuần có đánh dấu **in đậm** và dòng bắt đầu bằng "• ".
+ * Cố ý KHÔNG dùng dangerouslySetInnerHTML — nội dung tuy do server sinh ra
+ * nhưng có lẫn dữ liệu người dùng nhập trong trang quản trị, nên render bằng
+ * React cho an toàn tuyệt đối trước XSS.
  */
+function RichText({ text }) {
+  return (
+    <>
+      {String(text).split('\n').map((line, i) => {
+        const isBullet = line.startsWith('• ');
+        const content = isBullet ? line.slice(2) : line;
+        return (
+          <p
+            key={i}
+            className={cx(
+              line.trim() === '' && 'h-2',
+              isBullet && 'relative pl-3.5 before:absolute before:left-0 before:content-["•"]',
+            )}
+          >
+            {content.split(/(\*\*[^*]+\*\*)/g).map((part, j) =>
+              part.startsWith('**') && part.endsWith('**') ? (
+                <strong key={j} className="font-semibold">{part.slice(2, -2)}</strong>
+              ) : (
+                <Fragment key={j}>{part}</Fragment>
+              ),
+            )}
+          </p>
+        );
+      })}
+    </>
+  );
+}
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: 'bot',
-      text: 'Xin chào 👋 Mình là trợ lý du lịch Đông Triều. Bạn muốn tìm hiểu về di tích, lễ hội hay đặc sản nào?',
-    },
-  ]);
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      /* sessionStorage bị chặn — bỏ qua, dùng lời chào mặc định */
+    }
+    return [WELCOME];
+  });
   const bodyRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (open) bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, open]);
+  }, [messages, open, sending]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-30)));
+    } catch {
+      /* không lưu được thì thôi, không ảnh hưởng chức năng */
+    }
+  }, [messages]);
+
+  // Đóng bằng phím Esc
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
   const send = async (text) => {
     const msg = (text ?? input).trim();
@@ -34,19 +94,31 @@ export default function ChatWidget() {
     setSending(true);
     try {
       const res = await api.post('/chat', { message: msg });
-      setMessages((m) => [...m, { role: 'bot', text: res.reply }]);
+      setMessages((m) => [
+        ...m,
+        { role: 'bot', text: res.reply, links: res.links, suggestions: res.suggestions },
+      ]);
     } catch {
-      setMessages((m) => [...m, { role: 'bot', text: 'Xin lỗi, hiện chưa thể phản hồi. Vui lòng thử lại sau.' }]);
+      setMessages((m) => [
+        ...m,
+        { role: 'bot', text: 'Xin lỗi, hiện chưa thể phản hồi. Bạn thử lại sau một chút nhé.' },
+      ]);
     } finally {
       setSending(false);
+      inputRef.current?.focus();
     }
   };
+
+  const reset = () => setMessages([WELCOME]);
+  const last = messages[messages.length - 1];
+  const chips = !sending && last?.role === 'bot' ? (last.suggestions ?? []) : [];
 
   return (
     <>
       <button
         onClick={() => setOpen((v) => !v)}
-        aria-label="Mở trợ lý AI"
+        aria-label={open ? 'Đóng trợ lý du lịch' : 'Mở trợ lý du lịch'}
+        aria-expanded={open}
         className={cx(
           'fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full text-white shadow-lift transition',
           open ? 'bg-jade-800' : 'bg-jade-600 hover:bg-jade-700 animate-float',
@@ -56,15 +128,27 @@ export default function ChatWidget() {
       </button>
 
       {open && (
-        <div className="fixed bottom-24 right-5 z-50 flex h-[30rem] w-[min(22rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-jade-900/10 dark:bg-jade-900 dark:ring-white/10 animate-fade-up">
+        <div
+          role="dialog"
+          aria-label="Trợ lý du lịch Đông Triều"
+          className="fixed bottom-24 right-5 z-50 flex h-[min(34rem,calc(100vh-8rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-jade-900/10 dark:bg-jade-900 dark:ring-white/10 animate-fade-up"
+        >
           <div className="flex items-center gap-3 bg-jade-600 px-4 py-3.5 text-white">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-white/15">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15">
               <Sparkles size={18} />
             </span>
-            <div className="leading-tight">
-              <p className="font-semibold">Trợ lý AI Đông Triều</p>
-              <p className="text-[11px] text-jade-100/80">Đang phát triển · trả lời cơ bản</p>
+            <div className="min-w-0 flex-1 leading-tight">
+              <p className="font-semibold">Trợ lý du lịch Đông Triều</p>
+              <p className="text-[11px] text-jade-100/80">Trả lời từ dữ liệu của phường</p>
             </div>
+            <button
+              onClick={reset}
+              title="Bắt đầu lại cuộc trò chuyện"
+              aria-label="Bắt đầu lại"
+              className="grid h-8 w-8 place-items-center rounded-full text-white/80 transition hover:bg-white/15 hover:text-white"
+            >
+              <RotateCcw size={15} />
+            </button>
           </div>
 
           <div ref={bodyRef} className="flex-1 space-y-3 overflow-y-auto bg-paper/60 p-4 dark:bg-jade-950/40">
@@ -72,24 +156,53 @@ export default function ChatWidget() {
               <div key={i} className={cx('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
                 <div
                   className={cx(
-                    'max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed',
+                    'max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed',
                     m.role === 'user'
                       ? 'bg-jade-600 text-white'
                       : 'bg-white text-jade-900 ring-1 ring-jade-900/5 dark:bg-jade-800 dark:text-jade-50',
                   )}
                 >
-                  {m.text}
+                  {m.role === 'bot' ? <RichText text={m.text} /> : m.text}
+
+                  {m.links?.length > 0 && (
+                    <div className="mt-2.5 flex flex-wrap gap-1.5 border-t border-jade-900/5 pt-2.5 dark:border-white/10">
+                      {m.links.map((l, j) => (
+                        <Link
+                          key={j}
+                          to={l.url}
+                          onClick={() => setOpen(false)}
+                          className="rounded-full bg-jade-50 px-2.5 py-1 text-xs font-medium text-jade-700 transition hover:bg-jade-100 dark:bg-jade-700/50 dark:text-jade-100 dark:hover:bg-jade-700"
+                        >
+                          {l.label} →
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
-            {sending && <div className="text-xs text-jade-500">Đang soạn trả lời…</div>}
-            {messages.length <= 1 && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                {SUGGESTIONS.map((s) => (
+
+            {sending && (
+              <div className="flex justify-start">
+                <div className="flex gap-1 rounded-2xl bg-white px-3.5 py-3 ring-1 ring-jade-900/5 dark:bg-jade-800">
+                  {[0, 150, 300].map((d) => (
+                    <span
+                      key={d}
+                      style={{ animationDelay: `${d}ms` }}
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-jade-400"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {chips.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {chips.map((s) => (
                   <button
                     key={s}
                     onClick={() => send(s)}
-                    className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-jade-700 ring-1 ring-jade-200 hover:bg-jade-50 dark:bg-jade-800 dark:text-jade-100 dark:ring-jade-700"
+                    className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-jade-700 ring-1 ring-jade-200 transition hover:bg-jade-50 dark:bg-jade-800 dark:text-jade-100 dark:ring-jade-700 dark:hover:bg-jade-700"
                   >
                     {s}
                   </button>
@@ -106,12 +219,20 @@ export default function ChatWidget() {
             className="flex items-center gap-2 border-t border-jade-900/5 bg-white p-3 dark:border-white/5 dark:bg-jade-900"
           >
             <input
+              ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              maxLength={500}
+              aria-label="Câu hỏi của bạn"
               placeholder="Nhập câu hỏi của bạn…"
               className="flex-1 rounded-full bg-jade-50 px-4 py-2.5 text-sm outline-none ring-1 ring-transparent focus:ring-jade-300 dark:bg-jade-800 dark:text-jade-50"
             />
-            <button type="submit" disabled={sending} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-jade-600 text-white hover:bg-jade-700 disabled:opacity-50">
+            <button
+              type="submit"
+              disabled={sending || !input.trim()}
+              aria-label="Gửi câu hỏi"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-jade-600 text-white transition hover:bg-jade-700 disabled:opacity-40"
+            >
               <Send size={16} />
             </button>
           </form>

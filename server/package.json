@@ -10,6 +10,7 @@
     "extract": "node scripts/extract-docx.mjs",
     "fetch-images": "node scripts/fetch-images.mjs",
     "import-images": "node scripts/import-images.mjs",
+    "test-chatbot": "node scripts/test-chatbot.mjs",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "node prisma/seed.js",

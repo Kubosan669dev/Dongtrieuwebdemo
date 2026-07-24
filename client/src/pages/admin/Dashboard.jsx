@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Landmark, CalendarDays, Mountain, BedDouble, UtensilsCrossed, Store, Newspaper, Images, ImageOff, PhoneCall } from 'lucide-react';
+import { Landmark, CalendarDays, Mountain, BedDouble, UtensilsCrossed, Store, Newspaper, Images, ImageOff, PhoneCall, Bot } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { Spinner } from '../../components/ui.jsx';
 import { formatDate } from '../../lib/format.js';
@@ -20,7 +20,7 @@ export default function Dashboard() {
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'stats'], queryFn: () => api.get('/admin/stats') });
   if (isLoading) return <Spinner />;
 
-  const { counts, heritagesWithoutCover, restaurantsUnverified, recentArticles } = data;
+  const { counts, heritagesWithoutCover, restaurantsUnverified, chat, recentArticles } = data;
 
   return (
     <div>
@@ -67,6 +67,22 @@ export default function Dashboard() {
               đang hiện nhãn cảnh báo. Sau khi gọi kiểm tra, hãy bật công tắc "Đã gọi xác minh" để gỡ nhãn.
             </p>
             <Link to="/admin/nha-hang" className="btn-ghost mt-3 !py-2 text-xs">Xem danh sách</Link>
+          </div>
+        </div>
+      )}
+
+      {chat?.unmatched > 0 && (
+        <div className="mt-6 flex items-start gap-3 rounded-2xl bg-terra-50 p-5 ring-1 ring-terra-200 dark:bg-terra-900/20 dark:ring-terra-800/40">
+          <Bot size={22} className="mt-0.5 shrink-0 text-terra-600" />
+          <div>
+            <p className="font-semibold text-terra-800 dark:text-terra-200">
+              Trợ lý AI chưa trả lời được {chat.unmatched}/{chat.total} câu hỏi
+            </p>
+            <p className="mt-1 text-sm text-terra-700/80 dark:text-terra-200/70">
+              Trợ lý chỉ trả lời bằng dữ liệu của phường. Xem du khách hỏi gì mà bot chịu thua, rồi bổ
+              sung nội dung tương ứng — đó là cách làm bot thông minh hơn.
+            </p>
+            <Link to="/admin/tro-ly-ai" className="btn-ghost mt-3 !py-2 text-xs">Xem nhật ký trợ lý</Link>
           </div>
         </div>
       )}

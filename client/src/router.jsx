@@ -35,6 +35,7 @@ const AdminArticles = lazy(() => import('./pages/admin/ArticlesAdmin.jsx'));
 const AdminSlides = lazy(() => import('./pages/admin/SlidesAdmin.jsx'));
 const AdminMedia = lazy(() => import('./pages/admin/MediaAdmin.jsx'));
 const AdminSettings = lazy(() => import('./pages/admin/SettingsAdmin.jsx'));
+const AdminChatLogs = lazy(() => import('./pages/admin/ChatLogsAdmin.jsx'));
 
 const withSuspense = (el) => <Suspense fallback={<Spinner className="min-h-screen" />}>{el}</Suspense>;
 
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
       { path: 'bai-viet', element: withSuspense(<AdminArticles />) },
       { path: 'slider', element: withSuspense(<AdminSlides />) },
       { path: 'thu-vien', element: withSuspense(<AdminMedia />) },
+      { path: 'tro-ly-ai', element: withSuspense(<AdminChatLogs />) },
       { path: 'cai-dat', element: withSuspense(<AdminSettings />) },
     ],
   },

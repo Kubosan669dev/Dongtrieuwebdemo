@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Landmark, CalendarDays, BedDouble, UtensilsCrossed, Store,
-  Newspaper, Images, GalleryHorizontal, Settings, LogOut, Menu, X, ExternalLink, Mountain,
+  Newspaper, Images, GalleryHorizontal, Settings, LogOut, Menu, X, ExternalLink, Mountain, Bot,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.jsx';
 import { cx } from '../../lib/format.js';
@@ -18,6 +18,7 @@ const NAV = [
   { to: '/admin/bai-viet', icon: Newspaper, label: 'Bài viết' },
   { to: '/admin/slider', icon: GalleryHorizontal, label: 'Slider' },
   { to: '/admin/thu-vien', icon: Images, label: 'Thư viện ảnh' },
+  { to: '/admin/tro-ly-ai', icon: Bot, label: 'Trợ lý AI' },
   { to: '/admin/cai-dat', icon: Settings, label: 'Cài đặt' },
 ];
 
