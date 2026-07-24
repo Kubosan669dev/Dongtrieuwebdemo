@@ -7,7 +7,7 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
   const [error, setError] = useState('');
@@ -20,7 +20,7 @@ export default function Login() {
     setBusy(true);
     setError('');
     try {
-      await login(email, password);
+      await login(username, password);
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || 'Đăng nhập thất bại.');
@@ -43,15 +43,16 @@ export default function Login() {
 
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-jade-700">Email</label>
+              <label className="mb-1 block text-sm font-medium text-jade-700">Tên đăng nhập</label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
+                autoFocus
                 autoComplete="username"
                 className="w-full rounded-xl border border-jade-200 px-4 py-2.5 outline-none focus:border-jade-400 focus:ring-2 focus:ring-jade-100"
-                placeholder="admin@dongtrieu.vn"
+                placeholder="admin"
               />
             </div>
             <div>

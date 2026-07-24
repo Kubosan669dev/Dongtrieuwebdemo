@@ -82,12 +82,15 @@ npm run dev
 - API: <http://localhost:4000/api/health>
 - Trang quản trị: <http://localhost:5173/admin>
 
-**Tài khoản admin mặc định** (đặt trong `server/.env`, nên đổi ngay):
+**Tài khoản admin mặc định** (đặt trong `server/.env`):
 
 ```
-Email:    admin@dongtrieu.vn
-Mật khẩu: DongTrieu@2026
+Tên đăng nhập: admin
+Mật khẩu:      123456
 ```
+
+> ⚠️ Mật khẩu này chỉ phù hợp khi chạy thử trên máy local. **Trước khi đưa lên VPS
+> hãy đổi `ADMIN_PASSWORD` trong `server/.env` thành mật khẩu mạnh** — xem [DEPLOY.md](DEPLOY.md).
 
 ---
 

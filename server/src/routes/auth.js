@@ -17,7 +17,7 @@ const loginLimiter = rateLimit({
 });
 
 const loginSchema = z.object({
-  email: z.string().email('Email không hợp lệ.'),
+  username: z.string().trim().min(1, 'Vui lòng nhập tên đăng nhập.'),
   password: z.string().min(1, 'Vui lòng nhập mật khẩu.'),
 });
 
@@ -25,14 +25,14 @@ router.post(
   '/login',
   loginLimiter,
   asyncHandler(async (req, res) => {
-    const { email, password } = loginSchema.parse(req.body);
-    const user = await prisma.user.findUnique({ where: { email } });
+    const { username, password } = loginSchema.parse(req.body);
+    const user = await prisma.user.findUnique({ where: { username } });
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-      throw new HttpError(401, 'Email hoặc mật khẩu không đúng.');
+      throw new HttpError(401, 'Tên đăng nhập hoặc mật khẩu không đúng.');
     }
     await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
     res.cookie(COOKIE_NAME, signToken(user), cookieOptions);
-    res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+    res.json({ user: { id: user.id, username: user.username, name: user.name, role: user.role } });
   }),
 );
 
@@ -47,7 +47,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { id: req.user.sub },
-      select: { id: true, email: true, name: true, role: true, lastLoginAt: true },
+      select: { id: true, username: true, name: true, role: true, lastLoginAt: true },
     });
     if (!user) throw new HttpError(401, 'Tài khoản không tồn tại.');
     res.json({ user });
@@ -60,7 +60,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const schema = z.object({
       currentPassword: z.string().min(1),
-      newPassword: z.string().min(8, 'Mật khẩu mới tối thiểu 8 ký tự.'),
+      newPassword: z.string().min(6, 'Mật khẩu mới tối thiểu 6 ký tự.'),
     });
     const { currentPassword, newPassword } = schema.parse(req.body);
     const user = await prisma.user.findUnique({ where: { id: req.user.sub } });

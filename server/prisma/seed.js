@@ -20,17 +20,18 @@ const DATA = path.join(__dirname, 'seed-data');
 const read = (name) => JSON.parse(fs.readFileSync(path.join(DATA, name), 'utf8'));
 
 async function seedAdmin() {
-  const email = process.env.ADMIN_EMAIL || 'admin@dongtrieu.vn';
-  const password = process.env.ADMIN_PASSWORD || 'DongTrieu@2026';
+  const username = process.env.ADMIN_USERNAME || 'admin';
+  const password = process.env.ADMIN_PASSWORD || '123456';
   const name = process.env.ADMIN_NAME || 'Quản trị viên';
   const passwordHash = await bcrypt.hash(password, 10);
 
   await prisma.user.upsert({
-    where: { email },
+    where: { username },
+    // Chạy lại seed KHÔNG ghi đè mật khẩu đã đổi qua trang quản trị
     update: { name, role: 'ADMIN' },
-    create: { email, passwordHash, name, role: 'ADMIN' },
+    create: { username, passwordHash, name, role: 'ADMIN' },
   });
-  console.log(`  ✓ Tài khoản admin: ${email}`);
+  console.log(`  ✓ Tài khoản admin: ${username}`);
 }
 
 async function seedHeritages() {

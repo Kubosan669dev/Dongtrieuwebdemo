@@ -80,7 +80,7 @@ Các giá trị **bắt buộc sửa** trước khi chạy tiếp:
 | `NODE_ENV` | `production` |
 | `PUBLIC_SITE_URL` | `https://<TEN-MIEN>` — dùng cho sitemap và thẻ Open Graph |
 | `JWT_SECRET` | Chuỗi ngẫu nhiên vừa sinh ở trên |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Tài khoản quản trị đầu tiên — **đổi trước khi seed** |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Tài khoản quản trị đầu tiên. Mặc định là `admin` / `123456` — **bắt buộc đổi mật khẩu trước khi seed** |
 
 ## 5. Nạp dữ liệu
 

@@ -5,7 +5,7 @@ import { HttpError } from '../lib/http.js';
 export const COOKIE_NAME = 'dt_token';
 
 export function signToken(user) {
-  return jwt.sign({ sub: user.id, role: user.role, email: user.email }, env.jwtSecret, {
+  return jwt.sign({ sub: user.id, role: user.role, username: user.username }, env.jwtSecret, {
     expiresIn: env.jwtExpiresIn,
   });
 }
