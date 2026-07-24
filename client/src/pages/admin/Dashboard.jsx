@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Landmark, CalendarDays, BedDouble, UtensilsCrossed, Store, Newspaper, Images, AlertTriangle, ImageOff } from 'lucide-react';
+import { Landmark, CalendarDays, Mountain, BedDouble, UtensilsCrossed, Store, Newspaper, Images, ImageOff, PhoneCall } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { Spinner } from '../../components/ui.jsx';
 import { formatDate } from '../../lib/format.js';
@@ -8,6 +8,7 @@ import { formatDate } from '../../lib/format.js';
 const CARDS = [
   { key: 'heritages', icon: Landmark, label: 'Di tích', to: '/admin/di-tich', color: 'bg-jade-600' },
   { key: 'festivals', icon: CalendarDays, label: 'Lễ hội', to: '/admin/le-hoi', color: 'bg-gold-500' },
+  { key: 'attractions', icon: Mountain, label: 'Điểm lân cận', to: '/admin/diem-lan-can', color: 'bg-jade-800' },
   { key: 'lodgings', icon: BedDouble, label: 'Lưu trú', to: '/admin/luu-tru', color: 'bg-terra-500' },
   { key: 'cuisines', icon: UtensilsCrossed, label: 'Ẩm thực', to: '/admin/am-thuc', color: 'bg-jade-500' },
   { key: 'restaurants', icon: Store, label: 'Nhà hàng', to: '/admin/nha-hang', color: 'bg-gold-600' },
@@ -19,14 +20,14 @@ export default function Dashboard() {
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'stats'], queryFn: () => api.get('/admin/stats') });
   if (isLoading) return <Spinner />;
 
-  const { counts, heritagesWithoutCover, recentArticles } = data;
+  const { counts, heritagesWithoutCover, restaurantsUnverified, recentArticles } = data;
 
   return (
     <div>
       <h1 className="font-serif text-2xl font-bold">Tổng quan</h1>
       <p className="mt-1 text-jade-500">Quản lý toàn bộ nội dung cổng thông tin du lịch Đông Triều.</p>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-7">
+      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-8">
         {CARDS.map((c) => (
           <Link key={c.key} to={c.to} className="card p-4 transition hover:-translate-y-0.5 hover:shadow-lift">
             <span className={`mb-3 grid h-10 w-10 place-items-center rounded-xl text-white ${c.color}`}>
@@ -50,6 +51,22 @@ export default function Dashboard() {
               thuyết phục hơn với du khách.
             </p>
             <Link to="/admin/di-tich" className="btn-gold mt-3 !py-2 text-xs">Cập nhật ảnh di tích</Link>
+          </div>
+        </div>
+      )}
+
+      {restaurantsUnverified > 0 && (
+        <div className="mt-6 flex items-start gap-3 rounded-2xl bg-jade-50 p-5 ring-1 ring-jade-200 dark:bg-jade-900/40 dark:ring-jade-700">
+          <PhoneCall size={22} className="mt-0.5 shrink-0 text-jade-600" />
+          <div>
+            <p className="font-semibold text-jade-800 dark:text-jade-100">
+              {restaurantsUnverified} cơ sở ăn uống chưa xác minh
+            </p>
+            <p className="mt-1 text-sm text-jade-600 dark:text-jade-300">
+              Thông tin tổng hợp từ Internet nên số điện thoại, địa chỉ có thể đã thay đổi. Trang công khai
+              đang hiện nhãn cảnh báo. Sau khi gọi kiểm tra, hãy bật công tắc "Đã gọi xác minh" để gỡ nhãn.
+            </p>
+            <Link to="/admin/nha-hang" className="btn-ghost mt-3 !py-2 text-xs">Xem danh sách</Link>
           </div>
         </div>
       )}

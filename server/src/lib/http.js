@@ -20,7 +20,7 @@ export async function fetchJson(url, { timeoutMs = 8000, ...opts } = {}) {
 export async function fetchText(url, { timeoutMs = 8000, headers, ...opts } = {}) {
   const res = await fetch(url, {
     signal: AbortSignal.timeout(timeoutMs),
-    // Một số cổng thông tin (vd nchmf.gov.vn) chặn request không có User-Agent
+    // Một số máy chủ (vd Wikimedia) từ chối request không khai báo User-Agent
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; DongTrieuTourism/1.0)', ...headers },
     ...opts,
   });

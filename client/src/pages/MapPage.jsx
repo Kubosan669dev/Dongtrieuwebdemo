@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { MapPin, Navigation, Landmark, BedDouble } from 'lucide-react';
+import { MapPin, Navigation, Landmark, BedDouble, Mountain } from 'lucide-react';
 import { fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import { Spinner } from '../components/ui.jsx';
@@ -11,6 +11,7 @@ import { mapEmbedUrl, mapDirectionsUrl, cx } from '../lib/format.js';
 export default function MapPage() {
   const heritages = useQuery({ queryKey: ['heritages', 'map'], queryFn: () => fetchList('heritages') });
   const lodgings = useQuery({ queryKey: ['lodgings', 'map'], queryFn: () => fetchList('lodgings') });
+  const attractions = useQuery({ queryKey: ['attractions', 'map'], queryFn: () => fetchList('attractions') });
   const [group, setGroup] = useState('heritage');
   const [selected, setSelected] = useState(null);
 
@@ -26,6 +27,17 @@ export default function MapPage() {
         lng: h.lng,
       }));
     }
+    if (group === 'attraction') {
+      return (attractions.data?.items ?? []).map((a) => ({
+        id: a.id,
+        name: a.name,
+        sub: a.ward ?? 'Lân cận',
+        address: a.address ?? '',
+        query: a.mapQuery || a.address || a.name,
+        lat: a.lat,
+        lng: a.lng,
+      }));
+    }
     return (lodgings.data?.items ?? []).map((l) => ({
       id: l.id,
       name: l.name,
@@ -35,7 +47,7 @@ export default function MapPage() {
       lat: l.lat,
       lng: l.lng,
     }));
-  }, [group, heritages.data, lodgings.data]);
+  }, [group, heritages.data, lodgings.data, attractions.data]);
 
   const active = selected || points[0];
 
@@ -55,6 +67,9 @@ export default function MapPage() {
           </GroupBtn>
           <GroupBtn active={group === 'lodging'} onClick={() => { setGroup('lodging'); setSelected(null); }} icon={BedDouble}>
             Lưu trú ({lodgings.data?.items?.length ?? 0})
+          </GroupBtn>
+          <GroupBtn active={group === 'attraction'} onClick={() => { setGroup('attraction'); setSelected(null); }} icon={Mountain}>
+            Điểm lân cận ({attractions.data?.items?.length ?? 0})
           </GroupBtn>
         </div>
 

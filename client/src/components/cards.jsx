@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { MapPin, CalendarDays, Phone, Tag } from 'lucide-react';
-import HeritageCover from './HeritageCover.jsx';
+import { MapPin, CalendarDays, Phone, Tag, Info, Navigation } from 'lucide-react';
+import HeritageCover, { IllustrativeBadge } from './HeritageCover.jsx';
 import { Badge } from './ui.jsx';
 import { HERITAGE_TYPES, RANK_LEVELS, FESTIVAL_SCALES, LUNAR_MONTH_LABELS, LODGING_TYPES, RESTAURANT_TYPES } from '../lib/constants.js';
 import { truncate, phoneHref } from '../lib/format.js';
@@ -12,7 +12,13 @@ export function HeritageCard({ item }) {
     <Link to={`/di-tich/${item.slug}`} className="card-hover group flex flex-col overflow-hidden">
       <div className="relative aspect-[4/3] overflow-hidden">
         <div className="h-full w-full transition duration-500 group-hover:scale-105">
-          <HeritageCover src={item.coverUrl} name={item.name} type={item.type} rounded="rounded-none" />
+          <HeritageCover
+            src={item.coverUrl}
+            name={item.name}
+            type={item.type}
+            rounded="rounded-none"
+            illustrative={item.coverIsIllustrative}
+          />
         </div>
         <div className="absolute left-3 top-3">
           <Badge tone={rank?.color}>{rank?.short}</Badge>
@@ -65,7 +71,10 @@ export function CuisineCard({ item }) {
     <Link to={`/am-thuc/${item.slug}`} className="card-hover group flex flex-col overflow-hidden">
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-terra-400 to-terra-600">
         {item.coverUrl ? (
-          <img src={item.coverUrl} alt={item.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          <>
+            <img src={item.coverUrl} alt={item.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            {item.coverIsIllustrative && <IllustrativeBadge />}
+          </>
         ) : (
           <div className="flex h-full w-full items-center justify-center p-4 text-center">
             <span className="font-serif text-xl font-semibold text-white drop-shadow">{item.name}</span>
@@ -115,13 +124,9 @@ export function RestaurantCard({ item }) {
   const type = RESTAURANT_TYPES[item.type];
   return (
     <div className="card flex flex-col p-5">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between gap-2">
         <Badge tone="terra">{type?.label}</Badge>
-        {item.isPlaceholder && (
-          <span className="text-[11px] text-jade-400" title="Dữ liệu mẫu — quản trị viên sẽ cập nhật cơ sở thật">
-            dữ liệu mẫu
-          </span>
-        )}
+        {item.area && <span className="text-[11px] text-jade-400">{item.area}</span>}
       </div>
       <h3 className="font-serif text-lg font-semibold text-jade-900 dark:text-jade-50">{item.name}</h3>
       {item.description && <p className="mt-2 text-sm text-jade-600/90 dark:text-jade-300">{truncate(item.description, 130)}</p>}
@@ -129,6 +134,11 @@ export function RestaurantCard({ item }) {
         <MapPin size={15} className="mt-0.5 shrink-0 text-jade-400" />
         {item.address}
       </p>
+      {item.phone && (
+        <a href={phoneHref(item.phone)} className="btn-ghost mt-3 self-start !px-3 !py-1.5 text-xs">
+          <Phone size={13} /> {item.phone}
+        </a>
+      )}
       {item.specialties?.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {item.specialties.map((s) => (
@@ -141,6 +151,15 @@ export function RestaurantCard({ item }) {
       {(item.openHours || item.priceRange) && (
         <p className="mt-3 text-xs text-jade-500">
           {item.openHours && <>🕒 {item.openHours}</>} {item.priceRange && <> · {item.priceRange}</>}
+        </p>
+      )}
+      {!item.isVerified && item.sourceNote && (
+        <p
+          className="mt-3 flex items-start gap-1.5 rounded-lg bg-gold-50 px-2.5 py-1.5 text-[11px] text-gold-700 dark:bg-gold-900/20 dark:text-gold-200"
+          title="Vui lòng gọi xác nhận trước khi đến"
+        >
+          <Info size={12} className="mt-0.5 shrink-0" />
+          {item.sourceNote}
         </p>
       )}
     </div>
@@ -166,5 +185,49 @@ export function ArticleCard({ item }) {
         <p className="mt-2 flex-1 text-sm text-jade-600/90 dark:text-jade-300">{truncate(item.excerpt, 110)}</p>
       </div>
     </Link>
+  );
+}
+
+const ATTRACTION_TYPES = {
+  TAM_LINH: { label: 'Tâm linh', tone: 'jade' },
+  LICH_SU: { label: 'Lịch sử', tone: 'terra' },
+  SINH_THAI: { label: 'Sinh thái', tone: 'gold' },
+};
+
+/** Điểm đến lân cận — nằm ngoài phường Đông Triều nhưng nên kết hợp tham quan. */
+export function AttractionCard({ item }) {
+  const type = ATTRACTION_TYPES[item.type] ?? ATTRACTION_TYPES.TAM_LINH;
+  const dest = item.mapQuery || item.address || item.name;
+  return (
+    <div className="card-hover flex flex-col overflow-hidden">
+      <div className="relative aspect-[16/10] overflow-hidden">
+        <HeritageCover
+          src={item.coverUrl}
+          name={item.name}
+          type="CUM_DI_TICH"
+          rounded="rounded-none"
+          illustrative={item.coverIsIllustrative}
+        />
+        <div className="absolute left-3 top-3">
+          <Badge tone={type.tone}>{type.label}</Badge>
+        </div>
+      </div>
+      <div className="flex flex-1 flex-col p-4">
+        <h3 className="font-serif text-lg font-semibold leading-snug text-jade-900 dark:text-jade-50">{item.name}</h3>
+        <p className="mt-1 text-xs text-jade-400">
+          {item.ward}
+          {item.distanceKm ? ` · cách trung tâm phường ~${item.distanceKm} km` : ''}
+        </p>
+        <p className="mt-2 flex-1 text-sm text-jade-600/90 dark:text-jade-300">{truncate(item.summary, 130)}</p>
+        <a
+          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`}
+          target="_blank"
+          rel="noreferrer"
+          className="btn-ghost mt-4 self-start !px-3 !py-1.5 text-xs"
+        >
+          <Navigation size={13} /> Chỉ đường
+        </a>
+      </div>
+    </div>
   );
 }

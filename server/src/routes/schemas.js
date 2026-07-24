@@ -35,7 +35,9 @@ const heritageBase = {
   history: str,
   architecture: str,
   highlights: strArr,
+  travelTips: optStr,
   coverUrl: optStr,
+  coverIsIllustrative: bool,
   featured: bool,
   order: int,
   published: bool,
@@ -57,6 +59,7 @@ const festivalBase = {
   rituals: strArr,
   heritageId: optStr,
   coverUrl: optStr,
+  coverIsIllustrative: bool,
   images: strArr,
   order: int,
   published: bool,
@@ -93,6 +96,7 @@ const cuisineBase = {
   season: optStr,
   whereToBuy: strArr,
   coverUrl: optStr,
+  coverIsIllustrative: bool,
   images: strArr,
   order: int,
   published: bool,
@@ -112,7 +116,12 @@ const restaurantBase = {
   description: optStr,
   lat: float,
   lng: float,
+  coverUrl: optStr,
+  coverIsIllustrative: bool,
   images: strArr,
+  area: optStr,
+  sourceNote: optStr,
+  isVerified: bool,
   isPlaceholder: bool,
   order: int,
   published: bool,
@@ -149,3 +158,25 @@ const slideBase = {
 };
 export const slideCreate = z.object(slideBase);
 export const slideUpdate = z.object(slideBase).partial();
+
+// ─── Attraction (điểm đến lân cận) ───
+const attractionBase = {
+  name: str.min(1),
+  slug,
+  type: z.enum(['TAM_LINH', 'LICH_SU', 'SINH_THAI']).optional(),
+  ward: optStr,
+  distanceKm: float,
+  address: optStr,
+  mapQuery: optStr,
+  lat: float,
+  lng: float,
+  summary: str,
+  description: optStr,
+  highlights: strArr,
+  coverUrl: optStr,
+  coverIsIllustrative: bool,
+  order: int,
+  published: bool,
+};
+export const attractionCreate = z.object(attractionBase);
+export const attractionUpdate = z.object(attractionBase).partial();

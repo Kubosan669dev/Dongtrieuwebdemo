@@ -1,6 +1,5 @@
 import { getWeather } from '../services/weather.js';
 import { getTide } from '../services/tide.js';
-import { getBulletins } from '../services/bulletins.js';
 import { prisma } from '../lib/prisma.js';
 
 async function settingCoords(key, fallback) {
@@ -22,8 +21,4 @@ export async function tideHandler(_req, res) {
   const data = await getTide(c?.lat, c?.lon);
   if (c?.label) data.location.label = c.label;
   res.json(data);
-}
-
-export async function bulletinsHandler(_req, res) {
-  res.json(await getBulletins());
 }

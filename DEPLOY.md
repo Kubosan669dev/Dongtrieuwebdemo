@@ -193,10 +193,9 @@ crontab -e
 | Lỗi 502 Bad Gateway | Tiến trình Node đã chết: `pm2 restart dongtrieu` |
 | Tải ảnh báo lỗi 413 | Tăng `client_max_body_size` trong Nginx và `UPLOAD_MAX_MB` trong `server/.env` |
 | Đăng nhập admin không giữ phiên | Kiểm tra site chạy HTTPS (cookie đặt `secure` khi `NODE_ENV=production`) |
-| Không hiện bản tin thời tiết | Nguồn `nchmf.gov.vn` là bên thứ ba, hệ thống tự bỏ qua khi lỗi — không ảnh hưởng phần còn lại của trang |
 
 ## Ghi chú vận hành
 
 - **Đổi mật khẩu admin**: đăng nhập `/admin` → hoặc gọi `POST /api/auth/change-password`.
-- **Cache dự báo**: thời tiết 15 phút, triều cường 60 phút, bản tin 30 phút — lưu trong RAM của tiến trình, tự xoá khi `pm2 reload`.
+- **Cache dự báo**: thời tiết 15 phút, triều cường 60 phút — lưu trong RAM của tiến trình, tự xoá khi `pm2 reload`.
 - **Vì sao chỉ 1 instance**: cache lưu theo tiến trình, chạy cluster nhiều instance sẽ gọi Open-Meteo lặp lại không cần thiết. Với lưu lượng cấp phường, 1 instance là đủ.

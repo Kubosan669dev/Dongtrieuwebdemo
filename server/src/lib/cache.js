@@ -1,4 +1,4 @@
-/** Cache in-memory đơn giản có TTL, dùng cho weather/tide/bulletins. */
+/** Cache in-memory đơn giản có TTL, dùng cho dự báo thời tiết và triều cường. */
 const store = new Map();
 
 export function cacheGet(key) {

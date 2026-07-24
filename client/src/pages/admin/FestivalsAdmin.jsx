@@ -20,7 +20,7 @@ export default function FestivalsAdmin() {
 
   const emptyItem = () => ({
     name: '', slug: '', lunarMonth: null, lunarDay: null, lunarTimeText: '', solarEstimate: '',
-    location: '', scale: 'HOI_LANG', intro: '', rituals: [], heritageId: '', coverUrl: null, images: [], order: 0, published: true,
+    location: '', scale: 'HOI_LANG', intro: '', rituals: [], heritageId: '', coverUrl: null, coverIsIllustrative: false, images: [], order: 0, published: true,
   });
 
   const renderForm = (d, set) => (
@@ -30,6 +30,7 @@ export default function FestivalsAdmin() {
         <Field label="Slug" required><Text value={d.slug} onChange={(v) => set('slug', slugify(v))} /></Field>
       </div>
       <Field label="Ảnh bìa"><ImageField value={d.coverUrl} onChange={(v) => set('coverUrl', v)} /></Field>
+      <Toggle value={d.coverIsIllustrative} onChange={(v) => set('coverIsIllustrative', v)} label="Ảnh minh hoạ" />
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label="Tháng âm lịch" hint="1–12"><Number_ value={d.lunarMonth} onChange={(v) => set('lunarMonth', v)} min={1} max={12} /></Field>
         <Field label="Ngày âm lịch"><Number_ value={d.lunarDay} onChange={(v) => set('lunarDay', v)} min={1} max={30} /></Field>

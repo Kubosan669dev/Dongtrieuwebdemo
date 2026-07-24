@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import { fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
-import { HeritageCard } from '../components/cards.jsx';
+import { HeritageCard, AttractionCard } from '../components/cards.jsx';
 import { SkeletonCard, EmptyState, ErrorNote } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { HERITAGE_TYPES, RANK_LEVELS } from '../lib/constants.js';
@@ -19,6 +19,8 @@ export default function Heritages() {
     queryKey: ['heritages', { type, rank, q }],
     queryFn: () => fetchList('heritages', Object.fromEntries([...params].filter(([, v]) => v))),
   });
+
+  const attractions = useQuery({ queryKey: ['attractions'], queryFn: () => fetchList('attractions') });
 
   const setParam = (key, value) => {
     const next = new URLSearchParams(params);
@@ -86,6 +88,23 @@ export default function Heritages() {
               {items.map((h) => <HeritageCard key={h.id} item={h} />)}
             </div>
           </>
+        )}
+
+        {/* Điểm đến lân cận — ngoài phường nhưng nên kết hợp tham quan */}
+        {attractions.data?.items?.length > 0 && (
+          <section className="mt-16">
+            <div className="mb-6">
+              <p className="mb-1 text-sm font-semibold uppercase tracking-wide text-gold-500">Mở rộng hành trình</p>
+              <h2 className="section-title">Điểm đến lân cận</h2>
+              <p className="mt-2 max-w-2xl text-jade-700/80 dark:text-jade-200/70">
+                Những điểm nằm ngoài phường Đông Triều nhưng rất đáng kết hợp — phần lớn thuộc
+                Khu di tích lịch sử nhà Trần tại Đông Triều.
+              </p>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {attractions.data.items.map((a) => <AttractionCard key={a.id} item={a} />)}
+            </div>
+          </section>
         )}
       </div>
     </div>

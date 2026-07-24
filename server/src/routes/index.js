@@ -3,7 +3,7 @@ import { createResourceRouter } from './resource.js';
 import * as S from './schemas.js';
 import authRouter from './auth.js';
 import mediaRouter from './media.js';
-import { weatherHandler, tideHandler, bulletinsHandler } from './forecast.js';
+import { weatherHandler, tideHandler } from './forecast.js';
 import settingsRouter from './settings.js';
 import chatRouter from './chat.js';
 import { asyncHandler } from '../lib/http.js';
@@ -22,7 +22,6 @@ api.use('/chat', chatRouter);
 // Dự báo (public, cache phía server)
 api.get('/weather', asyncHandler(weatherHandler));
 api.get('/tide', asyncHandler(tideHandler));
-api.get('/bulletins', asyncHandler(bulletinsHandler));
 
 // ── Tài nguyên CRUD ──
 api.use(
@@ -125,6 +124,17 @@ api.use(
 );
 
 api.use(
+  '/attractions',
+  createResourceRouter({
+    model: 'attraction',
+    hasSlug: true,
+    filter: (q) => (q.type ? { type: q.type } : {}),
+    createSchema: S.attractionCreate,
+    updateSchema: S.attractionUpdate,
+  }),
+);
+
+api.use(
   '/slides',
   createResourceRouter({
     model: 'slide',
@@ -149,16 +159,18 @@ api.get(
   '/admin/stats',
   requireAuth,
   asyncHandler(async (_req, res) => {
-    const [heritages, festivals, lodgings, cuisines, restaurants, articles, media, noCover] =
+    const [heritages, festivals, attractions, lodgings, cuisines, restaurants, articles, media, noCover, unverified] =
       await Promise.all([
         prisma.heritage.count(),
         prisma.festival.count(),
+        prisma.attraction.count(),
         prisma.lodging.count(),
         prisma.cuisine.count(),
         prisma.restaurant.count(),
         prisma.article.count(),
         prisma.media.count(),
         prisma.heritage.count({ where: { coverUrl: null } }),
+        prisma.restaurant.count({ where: { isVerified: false } }),
       ]);
     const recentArticles = await prisma.article.findMany({
       orderBy: { updatedAt: 'desc' },
@@ -166,8 +178,9 @@ api.get(
       select: { id: true, title: true, slug: true, published: true, updatedAt: true },
     });
     res.json({
-      counts: { heritages, festivals, lodgings, cuisines, restaurants, articles, media },
+      counts: { heritages, festivals, attractions, lodgings, cuisines, restaurants, articles, media },
       heritagesWithoutCover: noCover,
+      restaurantsUnverified: unverified,
       recentArticles,
     });
   }),

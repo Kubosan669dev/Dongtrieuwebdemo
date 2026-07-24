@@ -30,6 +30,7 @@ const AdminFestivals = lazy(() => import('./pages/admin/FestivalsAdmin.jsx'));
 const AdminLodgings = lazy(() => import('./pages/admin/LodgingsAdmin.jsx'));
 const AdminCuisines = lazy(() => import('./pages/admin/CuisinesAdmin.jsx'));
 const AdminRestaurants = lazy(() => import('./pages/admin/RestaurantsAdmin.jsx'));
+const AdminAttractions = lazy(() => import('./pages/admin/AttractionsAdmin.jsx'));
 const AdminArticles = lazy(() => import('./pages/admin/ArticlesAdmin.jsx'));
 const AdminSlides = lazy(() => import('./pages/admin/SlidesAdmin.jsx'));
 const AdminMedia = lazy(() => import('./pages/admin/MediaAdmin.jsx'));
@@ -73,6 +74,7 @@ export const router = createBrowserRouter([
       { path: 'luu-tru', element: withSuspense(<AdminLodgings />) },
       { path: 'am-thuc', element: withSuspense(<AdminCuisines />) },
       { path: 'nha-hang', element: withSuspense(<AdminRestaurants />) },
+      { path: 'diem-lan-can', element: withSuspense(<AdminAttractions />) },
       { path: 'bai-viet', element: withSuspense(<AdminArticles />) },
       { path: 'slider', element: withSuspense(<AdminSlides />) },
       { path: 'thu-vien', element: withSuspense(<AdminMedia />) },

@@ -633,3 +633,272 @@ Nghề gốm sứ Đông Triều hình thành từ giữa thế kỷ XX và tr�
 
 - **Giá tham khảo:** 30.000đ – vài triệu đồng (tùy sản phẩm)
 - **Mua/thưởng thức tại:** Các cơ sở gốm sứ dọc Quốc lộ 18; Làng nghề gốm sứ truyền thống khu vực Đông Triều
+
+## V. Nhà hàng, quán ăn và điểm dừng chân
+
+> Thông tin tổng hợp từ nguồn công khai trên Internet, **chưa xác minh trực tiếp**.
+> Lưu ý một số cơ sở nằm ở phường lân cận sau khi sáp nhập đơn vị hành chính năm 2025.
+
+### Nhà hàng Du thuyền Đông Hải
+- **Loại:** NHA_HANG
+- **Địa chỉ:** Khu vực Cầu Cầm, Đông Triều, tỉnh Quảng Ninh
+- **Khu vực:** Phường Đông Triều
+- **Điện thoại:** 0969 983 891
+- **Khoảng giá:** 200.000 – 500.000đ/người
+- **Món tiêu biểu:** Hải sản tươi; Dê núi; Gà đồi Đông Triều
+
+Nhà hàng dạng du thuyền bên sông khu vực Cầu Cầm, phục vụ hải sản tươi, dê núi và gia cầm. Không gian thoáng, phù hợp tiệc nhóm và gia đình.
+
+### Mr.CUA Sushi & BBQ
+- **Loại:** NHA_HANG
+- **Địa chỉ:** Đường Hoàng Hoa Thám, Đông Triều, tỉnh Quảng Ninh
+- **Khu vực:** Phường Đông Triều
+- **Điện thoại:** 0978 763 788
+- **Giờ mở cửa:** 09:30 – 23:30
+- **Khoảng giá:** 150.000 – 300.000đ/người
+- **Món tiêu biểu:** Lẩu; Nướng BBQ; Sushi
+
+Nhà hàng lẩu nướng kết hợp sushi ngay khu trung tâm phường, mở cửa tới khuya. Phù hợp nhóm bạn trẻ và gia đình.
+
+### Home BBQ Đông Triều
+- **Loại:** NHA_HANG
+- **Địa chỉ:** Khu vực Ngã 6, Đông Triều, tỉnh Quảng Ninh
+- **Khu vực:** Phường Đông Triều
+- **Điện thoại:** 0966 399 659
+- **Khoảng giá:** Buffet — giá cố định theo suất
+- **Món tiêu biểu:** Buffet nướng; Bò; Heo; Hải sản
+
+Buffet nướng tại khu Ngã 6 trung tâm, hình thức ăn thoải mái theo suất. Đông khách vào cuối tuần, nên đặt bàn trước.
+
+### Nhà hàng Xuân Viên
+- **Loại:** NHA_HANG
+- **Địa chỉ:** Khu Xuân Cầm, phường Xuân Sơn (cũ), tỉnh Quảng Ninh
+- **Khu vực:** Phường Xuân Sơn (lân cận)
+- **Điện thoại:** 0886 220 226
+- **Khoảng giá:** 200.000 – 400.000đ/người
+- **Món tiêu biểu:** Món Việt truyền thống; Hải sản tươi; Đặt tiệc
+
+Nhà hàng phục vụ món Việt truyền thống và hải sản tươi, có sảnh lớn nhận đặt tiệc. Nằm ở khu Xuân Cầm, cách trung tâm phường Đông Triều khoảng 10 phút xe.
+
+### Nhà hàng Tây Nam
+- **Loại:** NHA_HANG
+- **Địa chỉ:** Khu đô thị Tân Việt Bắc, phường Mạo Khê, tỉnh Quảng Ninh
+- **Khu vực:** Phường Mạo Khê (lân cận)
+- **Điện thoại:** 0935 766 888
+- **Khoảng giá:** 250.000 – 500.000đ/người
+- **Món tiêu biểu:** Hải sản chọn tại bể; Món Âu; Món Việt
+
+Nhà hàng lớn tại khu đô thị Tân Việt Bắc, thực đơn kết hợp món Việt và món Âu, có bể hải sản sống cho khách tự chọn. Thuộc phường Mạo Khê, cách trung tâm phường Đông Triều khoảng 15 phút xe theo Quốc lộ 18.
+
+### Quán ăn dọc Quốc lộ 18
+- **Loại:** QUAN_AN
+- **Địa chỉ:** Dọc Quốc lộ 18 đoạn qua phường Đông Triều, tỉnh Quảng Ninh
+- **Khu vực:** Phường Đông Triều
+- **Giờ mở cửa:** 06:00 – 21:00
+- **Khoảng giá:** 50.000 – 200.000đ/người
+- **Món tiêu biểu:** Gà đồi Đông Triều; Cơm bình dân; Phở
+
+Chuỗi quán ăn bình dân ven Quốc lộ 18 — điểm dừng chân quen thuộc của khách đi tuyến Hà Nội – Hạ Long. Phục vụ gà đồi, cơm bình dân, phở.
+
+### Chợ trung tâm Đông Triều
+- **Loại:** DIEM_DUNG_CHAN
+- **Địa chỉ:** Chợ trung tâm phường Đông Triều, tỉnh Quảng Ninh
+- **Khu vực:** Phường Đông Triều
+- **Giờ mở cửa:** 05:00 – 18:00
+- **Khoảng giá:** Theo mặt hàng
+- **Món tiêu biểu:** Na dai Đông Triều; Nếp cái hoa vàng Đông Triều; Khoai lang làng Trạo; Bưởi Đông Triều
+
+Nơi mua đặc sản mang về: na dai (tháng 7–9), nếp cái hoa vàng, khoai lang làng Trạo, bưởi Đông Triều theo mùa. Đi chợ sớm buổi sáng hàng tươi và phong phú nhất.
+
+### Làng nghề gốm sứ Đông Triều
+- **Loại:** DIEM_DUNG_CHAN
+- **Địa chỉ:** Các cơ sở gốm sứ dọc Quốc lộ 18, tỉnh Quảng Ninh
+- **Khu vực:** Khu vực Đông Triều
+- **Giờ mở cửa:** 08:00 – 17:30
+- **Khoảng giá:** 30.000đ – vài triệu đồng
+- **Món tiêu biểu:** Gốm sứ Đông Triều (quà lưu niệm); Bình hoa men lam; Tranh gốm
+
+Xem nghệ nhân chuốt gốm, tự tay thử làm sản phẩm và chọn mua quà lưu niệm men lam, men rạn. Nghề gốm Đông Triều hình thành từ giữa thế kỷ XX.
+
+### Nhà vườn na – bưởi Đông Triều
+- **Loại:** DIEM_DUNG_CHAN
+- **Địa chỉ:** Vùng đồi bán sơn địa phường Đông Triều, tỉnh Quảng Ninh
+- **Khu vực:** Phường Đông Triều
+- **Giờ mở cửa:** Theo mùa vụ (tháng 7 – 12)
+- **Khoảng giá:** 25.000 – 70.000đ/kg
+- **Món tiêu biểu:** Na dai Đông Triều; Bưởi Đông Triều
+
+Trải nghiệm hái na tại vườn (tháng 7–9) và hái bưởi (tháng 8–12), phù hợp gia đình có trẻ nhỏ đi cuối tuần kết hợp vãn cảnh chùa chiền.
+
+## VI. Điểm đến lân cận (ngoài phường Đông Triều)
+
+### Am – chùa Ngọa Vân
+- **Địa bàn:** Xã Bình Khê
+- **Khoảng cách từ trung tâm phường:** ~14 km
+- **Địa chỉ:** Núi Bảo Đài, xã Bình Khê, tỉnh Quảng Ninh
+
+"Thánh địa" của Thiền phái Trúc Lâm — nơi Phật hoàng Trần Nhân Tông tu hành những năm cuối đời và nhập Niết Bàn năm 1308.
+
+Ngọa Vân nghĩa là "nằm trên mây" — am nằm trên sườn núi Bảo Đài quanh năm mây phủ. Đây là điểm dừng chân cuối cùng trong hành trình tu hành của Phật hoàng Trần Nhân Tông, người sáng lập Thiền phái Trúc Lâm Yên Tử. Ngài nhập Niết Bàn tại đây ngày 1/11 âm lịch năm 1308.
+
+Quần thể thuộc Khu di tích lịch sử nhà Trần tại Đông Triều — Di tích quốc gia đặc biệt. Lễ hội Xuân Ngọa Vân khai hội mùng 9 tháng Giêng và kéo dài hết tháng 3 âm lịch, thu hút hàng vạn tăng ni, phật tử hành hương mỗi năm.
+
+Du khách có thể leo bộ vãn cảnh hoặc đi cáp treo. Cáp treo hoạt động 6:00–18:00; giá tham khảo năm 2026 là 300.000đ/người khứ hồi, 160.000đ/người một chiều, miễn phí cho trẻ dưới 1m, Mẹ Việt Nam Anh hùng, thương binh, tăng ni.
+
+**Điểm nhấn:**
+- Nơi Phật hoàng Trần Nhân Tông nhập Niết Bàn (năm 1308)
+- Thuộc Di tích quốc gia đặc biệt — Khu di tích nhà Trần tại Đông Triều
+- Có cáp treo, hoạt động 6:00–18:00
+- Lễ hội Xuân khai hội mùng 9 tháng Giêng, kéo dài hết tháng 3 âm lịch
+- Cảnh núi mây đặc trưng, có dịch vụ ăn chay tại chùa
+
+### Chùa Quỳnh Lâm
+- **Địa bàn:** Phường Tràng An
+- **Khoảng cách từ trung tâm phường:** ~8 km
+- **Địa chỉ:** Phường Tràng An, tỉnh Quảng Ninh
+
+"Trường đại học Phật giáo" đầu tiên của Việt Nam — viện Quỳnh Lâm thời Trần, nơi từng có pho tượng Di Lặc bằng đồng thuộc An Nam tứ đại khí.
+
+Chùa Quỳnh Lâm khởi dựng từ thời Lý, đến thời Trần được Thiền sư Pháp Loa — Đệ nhị Tổ Trúc Lâm — mở rộng thành viện Quỳnh Lâm, được xem là trung tâm đào tạo Phật giáo quy mô đầu tiên của nước ta.
+
+Chùa từng có pho tượng Di Lặc bằng đồng khổng lồ, một trong "An Nam tứ đại khí" — bốn báu vật đúc đồng nổi tiếng nhất Đại Việt. Ngày nay du khách có thể chiêm ngưỡng pho tượng Phật Thích Ca bằng ngọc nguyên khối và quần thể kiến trúc gỗ quy mô lớn vừa được trùng tu.
+
+Lễ hội chùa Quỳnh Lâm diễn ra mùng 1 – mùng 4 tháng 2 âm lịch với nghi thức rước nước, rước kiệu, cầu quốc thái dân an.
+
+**Điểm nhấn:**
+- Viện Quỳnh Lâm — trung tâm đào tạo Phật giáo đầu tiên của Việt Nam
+- Từng có tượng Di Lặc đồng thuộc An Nam tứ đại khí
+- Tượng Phật Thích Ca bằng ngọc nguyên khối
+- Do Đệ nhị Tổ Trúc Lâm Pháp Loa mở mang
+- Lễ hội mùng 1 – 4 tháng 2 âm lịch
+
+### Đền An Sinh
+- **Địa bàn:** Xã An Sinh
+- **Khoảng cách từ trung tâm phường:** ~10 km
+- **Địa chỉ:** Xã An Sinh, tỉnh Quảng Ninh
+
+Đền thờ 8 vị vua triều Trần, xây dựng từ thế kỷ XIV — trung tâm của Khu di tích lịch sử nhà Trần tại Đông Triều.
+
+Đền An Sinh được xây dựng từ thế kỷ XIV, là nơi thờ 8 vị vua triều Trần cùng Hưng Đạo Đại vương Trần Quốc Tuấn. Vùng An Sinh vốn là thái ấp được ban cho An Sinh vương Trần Liễu năm 1237, về sau trở thành nơi đặt lăng mộ các vua Trần.
+
+Lễ hội đền An Sinh là một trong những lễ hội lớn nhất vùng, diễn ra 20 – 22 tháng 8 âm lịch (chính hội ngày 20). Phần lễ có gióng trống chiêng khai hội, dâng hương tưởng niệm các vua Trần, lễ cáo yết đền và các lăng mộ; phần hội có kéo co, đẩy gậy, cờ người, triển lãm ảnh và cây cảnh nghệ thuật.
+
+Kinh nghiệm: nên đến sáng ngày 20/8 âm lịch để dự lễ khai mạc; trang phục lịch sự trang nghiêm. Có thể kết hợp tham quan Thái Miếu nhà Trần gần đó bằng xe điện.
+
+**Điểm nhấn:**
+- Thờ 8 vị vua triều Trần, dựng từ thế kỷ XIV
+- Trung tâm Khu di tích lịch sử nhà Trần tại Đông Triều
+- Lễ hội lớn 20 – 22 tháng 8 âm lịch
+- Gắn với thái ấp An Sinh vương Trần Liễu (năm 1237)
+- Kết hợp tham quan Thái Miếu bằng xe điện
+
+### Thái Miếu nhà Trần
+- **Địa bàn:** Xã An Sinh
+- **Khoảng cách từ trung tâm phường:** ~11 km
+- **Địa chỉ:** Đồi Đình, thôn Trại Lốc, xã An Sinh, tỉnh Quảng Ninh
+
+Tiên Miếu — Tổ Miếu của vương triều Trần, nơi thờ tổ tiên nhà Trần, gắn với ngày giỗ Thái Tổ Trần Thừa.
+
+Thái Miếu (còn gọi Tiên Miếu, Tổ Miếu) là di tích quan trọng bậc nhất trong hệ thống di tích nhà Trần tại Đông Triều — nơi thờ tổ tiên của vương triều Trần.
+
+Lễ hội Thái Miếu diễn ra 18 – 20 tháng Giêng âm lịch. Nghi lễ quan trọng nhất là Lễ rước nước: lấy nước từ sông dâng lên bàn thờ, gợi nhớ nguồn gốc xuất thân chài lưới trên sông nước của nhà Trần. Phần hội có thi làm bánh chưng, giã giò, giao lưu thể thao và hát dân ca quan họ.
+
+**Điểm nhấn:**
+- Tổ Miếu của vương triều Trần
+- Lễ rước nước — gợi nhớ gốc gác chài lưới của nhà Trần
+- Lễ hội 18 – 20 tháng Giêng âm lịch
+- Thi làm bánh chưng, giã giò, hát quan họ
+- Gần đền An Sinh, tiện kết hợp tham quan
+
+### Làng quê Yên Đức
+- **Địa bàn:** Xã Yên Đức
+- **Khoảng cách từ trung tâm phường:** ~12 km
+- **Địa chỉ:** Xã Yên Đức, tỉnh Quảng Ninh
+
+Khu du lịch làng quê với múa rối nước, đạp xe đồng ruộng và trải nghiệm nông nghiệp — điểm đến được khách quốc tế đặc biệt ưa chuộng.
+
+Làng quê Yên Đức là mô hình du lịch cộng đồng giữ nguyên nếp sống nông thôn Bắc Bộ: đường làng, ao sen, cánh đồng lúa và núi đá vôi bao quanh.
+
+Du khách có thể đạp xe quanh làng, tham gia bắt cá, cấy lúa, làm bánh cùng người dân và xem biểu diễn múa rối nước ngay tại làng — trải nghiệm được khách quốc tế đặc biệt ưa chuộng.
+
+Tại đây còn có đình làng Đồn Sơn với lễ hội 16 – 18 tháng Giêng âm lịch, tri ân 8 vị tổ có công khai hoang lập nên vùng đất Đồn Sơn – Yên Đức. Phần hội đậm chất đồng quê: hát quan họ, hát chèo, thi nấu cơm, bắt chạch trong chum, ném còn, bịt mắt bắt dê.
+
+**Điểm nhấn:**
+- Múa rối nước biểu diễn ngay tại làng
+- Đạp xe, bắt cá, cấy lúa, làm bánh cùng người dân
+- Đình làng Đồn Sơn — lễ hội 16 – 18 tháng Giêng
+- Cảnh quan làng quê Bắc Bộ nguyên bản
+- Phù hợp gia đình có trẻ nhỏ và khách quốc tế
+
+### Chùa Bắc Mã
+- **Địa bàn:** Xã Bình Dương
+- **Khoảng cách từ trung tâm phường:** ~9 km
+- **Địa chỉ:** Xã Bình Dương, tỉnh Quảng Ninh
+
+Nơi thành lập Đệ tứ Chiến khu Đông Triều chiều 8/6/1945 — di tích quốc gia, gắn liền với Đồn Cao Đông Triều.
+
+Chiều ngày 8/6/1945, ngay sau khi nghĩa quân do đồng chí Nguyễn Bình chỉ huy hạ Đồn Cao và giải phóng huyện lỵ Đông Triều, Đệ tứ Chiến khu (Chiến khu Đông Triều — Chiến khu Trần Hưng Đạo) được tuyên bố thành lập tại chùa Bắc Mã.
+
+Đây là di tích quốc gia "Địa điểm lịch sử trung tâm chiến khu Đông Triều (chùa Bắc Mã)" xếp hạng năm 1994 — cùng hệ thống với Đồn Cao Đông Triều nằm ngay trung tâm phường. Hai điểm này tạo thành tuyến tham quan "Đệ tứ chiến khu Đông Triều".
+
+**Điểm nhấn:**
+- Nơi thành lập Đệ tứ Chiến khu chiều 8/6/1945
+- Di tích quốc gia xếp hạng năm 1994
+- Cùng tuyến tham quan với Đồn Cao Đông Triều
+- "Địa chỉ đỏ" giáo dục truyền thống cách mạng
+
+## VII. Cách đến và kinh nghiệm tham quan
+
+Phường Đông Triều cách Hà Nội khoảng 85km và cách TP Hạ Long khoảng 80km, đi theo **Quốc lộ 18** — tuyến chính nối Hà Nội – Bắc Ninh – Chí Linh – Đông Triều – Uông Bí – Hạ Long. Xe khách tuyến Hà Nội – Hạ Long đều dừng tại Đông Triều. Các di tích nằm gần nhau nên thuận tiện đi bằng xe máy hoặc ô tô cá nhân, có thể ghép 3–4 điểm trong một ngày.
+
+### Chùa quán Ngọc Thanh
+
+Nằm ở thôn Đạm Thủy, sườn Đông núi Đạm Thủy. Có thể kết hợp trong một buổi với **Miếu Hậu** và **đền An Biên** vì cùng khu vực Đạm Thủy – An Biên. Không gian tĩnh lặng, thích hợp cho du khách muốn chiêm bái thong thả, không đông đúc như các lễ hội lớn. Đông nhất vào 19–20 tháng 2 âm lịch (chính hội).
+
+### Đền An Biên (Đền nữ tướng Lê Chân)
+
+Khuôn viên rộng khoảng 5.000m² bên dòng suối chảy quanh năm nên còn gọi là **Đền Suối** — nhiều cây xanh, mát kể cả ngày nắng. Ba kỳ lễ đông khách nhất: mùng 8 tháng 2, 15 tháng 8 và 25 tháng Chạp âm lịch. Nên kết hợp lên núi Vàn viếng chùa An Biên ngay gần đó.
+
+### Chùa An Biên (Báo Ân tự)
+
+Chùa nằm trên núi Vàn, phải leo một đoạn bậc — nên đi giày đế mềm. Ngày 08/01 dương lịch hằng năm có lễ dâng hương kỷ niệm Chiến thắng An Biên; hội chùa (cũng là hội làng) vào 21 tháng Giêng âm lịch.
+
+### Chùa Mỹ Cụ (Sùng Khánh tự)
+
+Điểm đáng đến nhất nếu bạn quan tâm nghệ thuật điêu khắc: chùa lưu giữ **126 hiện vật**, nổi bật là tượng A Di Đà đất nung thời Tây Sơn cao 1,65m. Toàn bộ hiện vật đặt trong nhà nên tham quan được cả khi trời mưa. Hội chùa mùng 10–12 tháng Giêng âm lịch.
+
+### Đình Mỹ Cụ
+
+Cách chùa Mỹ Cụ không xa, nên đi liền một tuyến. Hội đình mùng 9 tháng Giêng âm lịch; tối mùng 8 có giao lưu văn nghệ. Lưu ý: 14 đạo sắc phong của đình đã bị mất trộm năm 2019, hiện chỉ còn tư liệu.
+
+### Đền, chùa Kênh Giang (Đền Yết Kiêu)
+
+Đây là di tích duy nhất trong 13 điểm có **toạ độ GPS chính xác** trong hồ sơ, dễ tìm bằng bản đồ. Nằm bên bờ sông Đông Mai, đền và chùa chung một cổng tam quan. Lễ hội mùng 10 tháng Giêng có thi bơi thuyền chải trên sông — đặc sắc nhất trong năm.
+
+### Đình, chùa, nghè Đông Mai
+
+Cụm ba công trình đình – chùa – nghè nằm gần nhau ở thôn 9. Nên bắt đầu từ **Nghè Giá** (nơi tương truyền Lý Thường Kiệt dừng chân) rồi sang đình và chùa. Hội làng hai kỳ: 11–12 tháng Giêng và 19–20 tháng 10 âm lịch.
+
+### Đình, chùa, nghè làng Vân Động
+
+Đến vào 13–17 tháng Giêng âm lịch để xem nghi lễ **"Ông Bồ"** — tục nuôi lợn tế thần rất độc đáo, kéo dài 5 ngày với đám rước từ đình qua nghè lên chùa. Chùa Hồ còn giữ bộ 8 pho tượng đất thời Nguyễn hiếm có ở Quảng Ninh.
+
+### Đình, chùa Bình Lục
+
+Nằm trên núi Mục (núi Rùa), khu Bình Lục Hạ. Đình đang trong dự án tu bổ tôn tạo phê duyệt năm 2024 — nên hỏi trước tình trạng công trình khi tới. Kho bia đá 8 tấm (sớm nhất năm 1696) là điểm đáng xem nhất.
+
+### Đình, chùa Triều Khê
+
+Ngôi đình hiếm hoi ở Đông Triều còn nguyên **6 bộ vì kèo gỗ lim** và các mảng chạm long – lân – quy – phượng thời Nguyễn — rất đáng xem với người thích kiến trúc gỗ cổ. Bên đình có giếng cổ, cây đa, cây thị cổ thụ. Lễ tiễn thuyền rồng trên sông Kinh Thầy ngày 15 tháng Giêng.
+
+### Đình Trạo Hà – Đền Di Ái
+
+Nằm **ngay sát Quốc lộ 18** nên dễ tiếp cận nhất trong 13 di tích — thích hợp làm điểm dừng chân đầu hoặc cuối hành trình. Quần thể đi từ ngoài vào: đình Trạo Hà → đình Hàng Phủ → đền Di Ái → lăng mộ Nguyễn Quang Huy. Đừng bỏ lỡ 3 sắc phong của 3 vua Tây Sơn khắc trên thành mộ.
+
+### Miếu Hậu (Từ Vũ miếu)
+
+Miếu nhỏ, khuôn viên khép kín khoảng 450m², tham quan nhanh trong 20–30 phút. Hiện vật quý nhất là tấm bia – phù điêu liền tượng bằng đá xanh thế kỷ XVII. Kết hợp cùng chùa quán Ngọc Thanh và đền An Biên trong cụm Đạm Thủy. Lễ kỵ Hậu thần 26–27 tháng 2 âm lịch.
+
+### Đồn Cao Đông Triều
+
+Nằm trên đồi cao 61m ngay **trung tâm phường**, cạnh Ban Chỉ huy quân sự — đi bộ được từ khu trung tâm. Tầm nhìn thoáng, đẹp nhất vào chiều muộn. Nên đi vào ngày khô ráo vì đường lên đồi và nền công sự cũ có thể trơn khi mưa. Kết hợp với chùa Bắc Mã (xã Bình Dương) thành tuyến "Đệ tứ chiến khu Đông Triều".

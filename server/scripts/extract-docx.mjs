@@ -274,6 +274,42 @@ const KNOWN_COORDS = {
   'den-chua-kenh-giang-den-yet-kieu': { lat: 21.06897, lng: 106.45619 },
 };
 
+/**
+ * Cách đến và kinh nghiệm tham quan — biên soạn thủ công, không có trong hồ sơ
+ * lý lịch di tích. Phần chung áp dụng cho mọi điểm, phần riêng ghi theo từng nơi.
+ */
+const TRAVEL_INTRO =
+  'Phường Đông Triều cách Hà Nội khoảng 85km và cách TP Hạ Long khoảng 80km, đi theo **Quốc lộ 18** — tuyến chính nối Hà Nội – Bắc Ninh – Chí Linh – Đông Triều – Uông Bí – Hạ Long. Xe khách tuyến Hà Nội – Hạ Long đều dừng tại Đông Triều. Các di tích nằm gần nhau nên thuận tiện đi bằng xe máy hoặc ô tô cá nhân, có thể ghép 3–4 điểm trong một ngày.';
+
+const TRAVEL_TIPS = {
+  'chua-quan-ngoc-thanh':
+    'Nằm ở thôn Đạm Thủy, sườn Đông núi Đạm Thủy. Có thể kết hợp trong một buổi với **Miếu Hậu** và **đền An Biên** vì cùng khu vực Đạm Thủy – An Biên. Không gian tĩnh lặng, thích hợp cho du khách muốn chiêm bái thong thả, không đông đúc như các lễ hội lớn. Đông nhất vào 19–20 tháng 2 âm lịch (chính hội).',
+  'den-an-bien-den-nu-tuong-le-chan':
+    'Khuôn viên rộng khoảng 5.000m² bên dòng suối chảy quanh năm nên còn gọi là **Đền Suối** — nhiều cây xanh, mát kể cả ngày nắng. Ba kỳ lễ đông khách nhất: mùng 8 tháng 2, 15 tháng 8 và 25 tháng Chạp âm lịch. Nên kết hợp lên núi Vàn viếng chùa An Biên ngay gần đó.',
+  'chua-an-bien-bao-an-tu':
+    'Chùa nằm trên núi Vàn, phải leo một đoạn bậc — nên đi giày đế mềm. Ngày 08/01 dương lịch hằng năm có lễ dâng hương kỷ niệm Chiến thắng An Biên; hội chùa (cũng là hội làng) vào 21 tháng Giêng âm lịch.',
+  'chua-my-cu-sung-khanh-tu':
+    'Điểm đáng đến nhất nếu bạn quan tâm nghệ thuật điêu khắc: chùa lưu giữ **126 hiện vật**, nổi bật là tượng A Di Đà đất nung thời Tây Sơn cao 1,65m. Toàn bộ hiện vật đặt trong nhà nên tham quan được cả khi trời mưa. Hội chùa mùng 10–12 tháng Giêng âm lịch.',
+  'dinh-my-cu':
+    'Cách chùa Mỹ Cụ không xa, nên đi liền một tuyến. Hội đình mùng 9 tháng Giêng âm lịch; tối mùng 8 có giao lưu văn nghệ. Lưu ý: 14 đạo sắc phong của đình đã bị mất trộm năm 2019, hiện chỉ còn tư liệu.',
+  'den-chua-kenh-giang-den-yet-kieu':
+    'Đây là di tích duy nhất trong 13 điểm có **toạ độ GPS chính xác** trong hồ sơ, dễ tìm bằng bản đồ. Nằm bên bờ sông Đông Mai, đền và chùa chung một cổng tam quan. Lễ hội mùng 10 tháng Giêng có thi bơi thuyền chải trên sông — đặc sắc nhất trong năm.',
+  'dinh-chua-nghe-dong-mai':
+    'Cụm ba công trình đình – chùa – nghè nằm gần nhau ở thôn 9. Nên bắt đầu từ **Nghè Giá** (nơi tương truyền Lý Thường Kiệt dừng chân) rồi sang đình và chùa. Hội làng hai kỳ: 11–12 tháng Giêng và 19–20 tháng 10 âm lịch.',
+  'dinh-chua-nghe-lang-van-dong':
+    'Đến vào 13–17 tháng Giêng âm lịch để xem nghi lễ **"Ông Bồ"** — tục nuôi lợn tế thần rất độc đáo, kéo dài 5 ngày với đám rước từ đình qua nghè lên chùa. Chùa Hồ còn giữ bộ 8 pho tượng đất thời Nguyễn hiếm có ở Quảng Ninh.',
+  'dinh-chua-binh-luc':
+    'Nằm trên núi Mục (núi Rùa), khu Bình Lục Hạ. Đình đang trong dự án tu bổ tôn tạo phê duyệt năm 2024 — nên hỏi trước tình trạng công trình khi tới. Kho bia đá 8 tấm (sớm nhất năm 1696) là điểm đáng xem nhất.',
+  'dinh-chua-trieu-khe':
+    'Ngôi đình hiếm hoi ở Đông Triều còn nguyên **6 bộ vì kèo gỗ lim** và các mảng chạm long – lân – quy – phượng thời Nguyễn — rất đáng xem với người thích kiến trúc gỗ cổ. Bên đình có giếng cổ, cây đa, cây thị cổ thụ. Lễ tiễn thuyền rồng trên sông Kinh Thầy ngày 15 tháng Giêng.',
+  'dinh-trao-ha-den-di-ai':
+    'Nằm **ngay sát Quốc lộ 18** nên dễ tiếp cận nhất trong 13 di tích — thích hợp làm điểm dừng chân đầu hoặc cuối hành trình. Quần thể đi từ ngoài vào: đình Trạo Hà → đình Hàng Phủ → đền Di Ái → lăng mộ Nguyễn Quang Huy. Đừng bỏ lỡ 3 sắc phong của 3 vua Tây Sơn khắc trên thành mộ.',
+  'mieu-hau-tu-vu-mieu':
+    'Miếu nhỏ, khuôn viên khép kín khoảng 450m², tham quan nhanh trong 20–30 phút. Hiện vật quý nhất là tấm bia – phù điêu liền tượng bằng đá xanh thế kỷ XVII. Kết hợp cùng chùa quán Ngọc Thanh và đền An Biên trong cụm Đạm Thủy. Lễ kỵ Hậu thần 26–27 tháng 2 âm lịch.',
+  'don-cao-dong-trieu':
+    'Nằm trên đồi cao 61m ngay **trung tâm phường**, cạnh Ban Chỉ huy quân sự — đi bộ được từ khu trung tâm. Tầm nhìn thoáng, đẹp nhất vào chiều muộn. Nên đi vào ngày khô ráo vì đường lên đồi và nền công sự cũ có thể trơn khi mưa. Kết hợp với chùa Bắc Mã (xã Bình Dương) thành tuyến "Đệ tứ chiến khu Đông Triều".',
+};
+
 // ── PHẦN II — 17 lễ hội ─────────────────────────────────────────────────────
 
 function parseFestivals(lines) {
@@ -426,122 +462,65 @@ function parseAbout(lines) {
   };
 }
 
-// ── Nhà hàng / quán ăn mẫu ──────────────────────────────────────────────────
-// Dữ liệu gốc KHÔNG có danh sách nhà hàng. Các mục dưới đây suy ra từ trường
-// "Mua/thưởng thức tại" của 8 đặc sản, đánh dấu isPlaceholder=true để quản trị
-// viên thay bằng cơ sở thật qua trang admin.
-
-function buildPlaceholderRestaurants(cuisines) {
-  const byName = (n) => cuisines.find((c) => c.name.includes(n));
-  const specialtiesOf = (...names) => names.map((n) => byName(n)?.name).filter(Boolean);
-
-  return [
-    {
-      order: 1,
-      name: 'Nhà hàng trung tâm phường Đông Triều',
-      type: 'NHA_HANG',
-      address: 'Khu trung tâm phường Đông Triều, tỉnh Quảng Ninh',
-      openHours: '09:00 – 22:00',
-      priceRange: '150.000 – 400.000đ/người',
-      specialties: specialtiesOf('Gà đồi', 'Ngán', 'Rươi'),
-      description:
-        'Cụm nhà hàng khu trung tâm phường phục vụ gà đồi Đông Triều, hải sản tươi đưa từ Quảng Yên – Hạ Long và các món rươi theo mùa.',
-      isPlaceholder: true,
-      published: true,
-    },
-    {
-      order: 2,
-      name: 'Quán ăn dọc Quốc lộ 18',
-      type: 'QUAN_AN',
-      address: 'Dọc Quốc lộ 18, đoạn qua phường Đông Triều, tỉnh Quảng Ninh',
-      openHours: '06:00 – 21:00',
-      priceRange: '50.000 – 200.000đ/người',
-      specialties: specialtiesOf('Gà đồi', 'Ngán'),
-      description:
-        'Chuỗi quán ăn bình dân ven Quốc lộ 18 — điểm dừng chân quen thuộc của khách đi tuyến Hà Nội – Hạ Long.',
-      isPlaceholder: true,
-      published: true,
-    },
-    {
-      order: 3,
-      name: 'Chợ trung tâm Đông Triều',
-      type: 'DIEM_DUNG_CHAN',
-      address: 'Chợ trung tâm phường Đông Triều, tỉnh Quảng Ninh',
-      openHours: '05:00 – 18:00',
-      priceRange: 'Theo mặt hàng',
-      specialties: specialtiesOf('Na dai', 'Nếp cái hoa vàng', 'Khoai lang', 'Bưởi'),
-      description:
-        'Nơi mua đặc sản mang về: na dai, nếp cái hoa vàng, khoai lang làng Trạo, bưởi Đông Triều theo mùa.',
-      isPlaceholder: true,
-      published: true,
-    },
-    {
-      order: 4,
-      name: 'Làng nghề gốm sứ Đông Triều',
-      type: 'DIEM_DUNG_CHAN',
-      address: 'Các cơ sở gốm sứ dọc Quốc lộ 18, phường Đông Triều, tỉnh Quảng Ninh',
-      openHours: '08:00 – 17:30',
-      priceRange: '30.000đ – vài triệu đồng',
-      specialties: specialtiesOf('Gốm sứ'),
-      description:
-        'Xem nghệ nhân chuốt gốm, tự tay thử làm sản phẩm và chọn mua quà lưu niệm men lam, men rạn.',
-      isPlaceholder: true,
-      published: true,
-    },
-    {
-      order: 5,
-      name: 'Nhà vườn sinh thái na – bưởi Đông Triều',
-      type: 'DIEM_DUNG_CHAN',
-      address: 'Vùng đồi bán sơn địa phường Đông Triều, tỉnh Quảng Ninh',
-      openHours: 'Theo mùa vụ (tháng 7 – 12)',
-      priceRange: '25.000 – 70.000đ',
-      specialties: specialtiesOf('Na dai', 'Bưởi'),
-      description:
-        'Trải nghiệm hái na (tháng 7–9) và hái bưởi (tháng 8–12) tại vườn, phù hợp gia đình có trẻ nhỏ.',
-      isPlaceholder: true,
-      published: true,
-    },
-  ];
-}
+// ── Nhà hàng / quán ăn ──────────────────────────────────────────────────────
+// KHÔNG sinh từ .docx: hồ sơ gốc không có danh sách nhà hàng. Dữ liệu nhà hàng
+// nằm ở prisma/seed-data/restaurants.json — tổng hợp thủ công từ nguồn công khai,
+// mỗi mục có sourceNote + isVerified để quản trị viên xác minh rồi bật cờ.
+// Script này cố ý KHÔNG ghi đè file đó.
 
 // ── Bài viết mẫu ────────────────────────────────────────────────────────────
 
 function buildSeedArticles(heritages, festivals) {
-  const byslug = (s) => heritages.find((h) => h.slug === s);
   const donCao = heritages.find((h) => h.type === 'LICH_SU_CACH_MANG');
   const ngocThanh = heritages.find((h) => h.rankLevel === 'QUOC_GIA_DAC_BIET');
   const springFestivals = festivals.filter((f) => f.lunarMonth === 1);
+  const now = new Date().toISOString();
+
+  // Ảnh do import-images.mjs sinh ra với tên cố định theo slug.
+  // Chỉ chèn <figure> khi file thật sự tồn tại — tránh ảnh vỡ khi chưa có ảnh.
+  // Chạy lại `npm run extract` sau khi thêm ảnh là bài viết tự có ảnh.
+  const UPLOADS = path.join(ROOT, 'server/uploads');
+  const fig = (slug, caption) => {
+    if (!fs.existsSync(path.join(UPLOADS, `${slug}.webp`))) return '';
+    return `<figure><img src="/uploads/${slug}.webp" alt="${caption}" loading="lazy"><figcaption>${caption}</figcaption></figure>`;
+  };
 
   return [
     {
       slug: 'cam-nang-du-lich-dong-trieu-mot-ngay',
       title: 'Cẩm nang: Một ngày khám phá di tích phường Đông Triều',
       category: 'CAM_NANG',
+      coverSlug: 'chua-quan-ngoc-thanh',
       excerpt:
         'Gợi ý lịch trình một ngày trọn vẹn qua các di tích tiêu biểu của phường Đông Triều — từ chùa quán Ngọc Thanh, đền An Biên đến Đồn Cao.',
       contentHtml: `
 <p><strong>Phường Đông Triều</strong> hiện có <strong>13 cụm di tích đã được xếp hạng</strong>, trong đó có 1 điểm thuộc Di tích quốc gia đặc biệt, 3 di tích cấp quốc gia và 9 di tích cấp tỉnh. Với quãng đường di chuyển ngắn, du khách hoàn toàn có thể khám phá những điểm tiêu biểu nhất trong một ngày.</p>
 <h2>Buổi sáng — Cụm di tích Đạm Thủy</h2>
+${fig('chua-quan-ngoc-thanh', 'Chùa quán Ngọc Thanh — điểm di tích vừa là chùa vừa là đạo quán')}
 <p>Khởi hành sớm tới <strong>${ngocThanh?.name ?? 'chùa quán Ngọc Thanh'}</strong> — điểm di tích hiếm có vừa là chùa Phật giáo vừa là đạo quán Đạo giáo, thuộc Khu di tích lịch sử nhà Trần tại Đông Triều. Ngay gần đó là <strong>Miếu Hậu (Từ Vũ miếu)</strong> với tấm bia – phù điêu liền tượng bằng đá xanh thế kỷ XVII thuộc loại cực hiếm ở Việt Nam.</p>
 <h2>Giữa trưa — Đền An Biên và làng Vẻn</h2>
+${fig('den-an-bien-den-nu-tuong-le-chan', 'Đền An Biên thờ nữ tướng Lê Chân, còn gọi là Đền Suối')}
 <p>Di chuyển tới <strong>Đền An Biên</strong> thờ nữ tướng Lê Chân ngay trên quê gốc của bà, rồi lên núi Vàn viếng <strong>chùa An Biên (Báo Ân tự)</strong> — tương truyền do Đệ Tam Tổ Trúc Lâm, Thiền sư Huyền Quang khởi dựng. Dùng bữa trưa với gà đồi Đông Triều tại các quán ven Quốc lộ 18.</p>
 <h2>Buổi chiều — Về trung tâm phường</h2>
+${fig('don-cao-dong-trieu', 'Đồn Cao Đông Triều trên đồi cao 61m giữa trung tâm phường')}
 <p>Ghé <strong>${donCao?.name ?? 'Đồn Cao Đông Triều'}</strong> — "địa chỉ đỏ" gắn với Đệ tứ Chiến khu, nơi rạng sáng 8/6/1945 nghĩa quân đánh chiếm đồn Pháp, giải phóng huyện lỵ Đông Triều. Kết thúc hành trình tại <strong>đình Trạo Hà – đền Di Ái</strong> ngay sát Quốc lộ 18, nơi còn nguyên vẹn 3 sắc phong của 3 vua Tây Sơn khắc trên thành mộ.</p>
 <h2>Trước khi về</h2>
 <p>Đừng quên mua đặc sản: na dai (tháng 7–9), nếp cái hoa vàng, khoai lang làng Trạo và gốm sứ Đông Triều làm quà.</p>`.trim(),
       author: 'Ban Biên tập',
       tags: ['cẩm nang', 'lịch trình', 'di tích'],
       published: true,
-      publishedAt: new Date().toISOString(),
+      publishedAt: now,
     },
     {
       slug: 'mua-le-hoi-xuan-dong-trieu',
       title: `Mùa lễ hội xuân Đông Triều: ${springFestivals.length} lễ hội trong tháng Giêng`,
       category: 'TIN_TUC',
+      coverSlug: 'dinh-chua-nghe-lang-van-dong',
       excerpt:
         'Từ mùng 9 tháng Giêng, hàng loạt lễ hội truyền thống nối nhau diễn ra trên địa bàn phường Đông Triều và vùng phụ cận.',
       contentHtml: `
 <p>Tháng Giêng âm lịch là cao điểm mùa lễ hội của Đông Triều với <strong>${springFestivals.length} lễ hội</strong> diễn ra liên tiếp, từ hội làng quy mô thôn xóm đến những lễ hội lớn thu hút hàng vạn lượt khách hành hương.</p>
+${fig('dinh-chua-nghe-lang-van-dong', 'Hội làng Vân Động với nghi lễ Ông Bồ kéo dài 5 ngày')}
 <h2>Các lễ hội tiêu biểu</h2>
 <ul>
 ${springFestivals
@@ -553,16 +532,18 @@ ${springFestivals
       author: 'Ban Biên tập',
       tags: ['lễ hội', 'tháng Giêng', 'mùa xuân'],
       published: true,
-      publishedAt: new Date().toISOString(),
+      publishedAt: now,
     },
     {
       slug: 'ruoi-dong-trieu-loc-troi-cuoi-thu',
       title: 'Rươi Đông Triều — "lộc trời" của vùng nước lợ ven sông Kinh Thầy',
       category: 'PHONG_SU',
+      coverSlug: 'ruoi-dong-trieu-cha-ruoi-ruoi-kho',
       excerpt:
         'Mỗi năm chỉ vài con nước ngắn ngủi, con rươi vùng bãi triều Kinh Thầy – Đá Bạc làm nên món chả rươi trứ danh của Đông Triều.',
       contentHtml: `
 <p>Dân gian có câu <em>"tháng chín đôi mươi, tháng mười mùng năm"</em> để chỉ những ngày con rươi nổi. Vùng bãi triều nước lợ ven sông Kinh Thầy, Đá Bạc thuộc khu vực Hồng Phong, Nguyễn Huệ là nơi con rươi xuất hiện mỗi độ cuối thu.</p>
+${fig('ruoi-dong-trieu-cha-ruoi-ruoi-kho', 'Chả rươi — món ăn trứ danh mùa nước rươi')}
 <h2>Vì sao gọi là "lộc trời"</h2>
 <p>Rươi không nuôi được, không đoán trước được sản lượng. Người dân chỉ có thể canh con nước theo lịch triều — đây cũng là lý do <a href="/thoi-tiet">trang dự báo triều cường</a> của cổng thông tin luôn hiển thị giờ nước lớn, nước ròng để bà con và du khách tiện theo dõi.</p>
 <h2>Thưởng thức thế nào</h2>
@@ -572,14 +553,103 @@ ${springFestivals
       author: 'Ban Biên tập',
       tags: ['ẩm thực', 'rươi', 'đặc sản'],
       published: true,
-      publishedAt: new Date().toISOString(),
+      publishedAt: now,
+    },
+    {
+      slug: 'huong-dan-di-lai-den-dong-trieu',
+      title: 'Hướng dẫn đi lại đến Đông Triều từ Hà Nội và Hạ Long',
+      category: 'CAM_NANG',
+      coverSlug: 'dinh-trao-ha-den-di-ai',
+      excerpt:
+        'Đông Triều nằm ngay trên Quốc lộ 18 — trục nối Hà Nội với Hạ Long, nên rất dễ tiếp cận bằng cả xe khách lẫn xe cá nhân.',
+      contentHtml: `
+<p>Phường Đông Triều nằm ở cửa ngõ phía Tây tỉnh Quảng Ninh, ngay trên <strong>Quốc lộ 18</strong> — tuyến đường huyết mạch nối Hà Nội – Bắc Ninh – Chí Linh – Đông Triều – Uông Bí – Hạ Long. Vị trí này khiến Đông Triều trở thành điểm dừng chân tự nhiên trên hành trình về vùng Đông Bắc.</p>
+<h2>Từ Hà Nội (khoảng 85km)</h2>
+<ul>
+  <li><strong>Xe cá nhân:</strong> đi Quốc lộ 5 tới ngã ba Sài Đồng, rẽ về Bắc Ninh rồi theo Quốc lộ 18 qua Phả Lại, Chí Linh là tới Đông Triều. Thời gian khoảng 2 giờ.</li>
+  <li><strong>Xe khách:</strong> mọi tuyến Hà Nội – Hạ Long, Hà Nội – Cẩm Phả, Hà Nội – Móng Cái đều đi qua và dừng đón trả khách tại Đông Triều.</li>
+</ul>
+<h2>Từ Hạ Long (khoảng 80km)</h2>
+<p>Đi ngược Quốc lộ 18 qua Uông Bí là tới, mất khoảng 1 giờ 30 phút. Có thể kết hợp Đông Triều làm điểm dừng khi đi hoặc về Hạ Long.</p>
+${fig('dinh-trao-ha-den-di-ai', 'Đình Trạo Hà – đền Di Ái nằm ngay sát Quốc lộ 18')}
+<h2>Di chuyển trong phường</h2>
+<p>Các di tích nằm khá gần nhau, thuận tiện đi bằng xe máy hoặc ô tô cá nhân. Một số gợi ý ghép tuyến:</p>
+<ul>
+  <li><strong>Cụm Đạm Thủy – An Biên:</strong> chùa quán Ngọc Thanh → Miếu Hậu → đền An Biên → chùa An Biên</li>
+  <li><strong>Cụm Mỹ Cụ:</strong> chùa Mỹ Cụ → đình Mỹ Cụ</li>
+  <li><strong>Tuyến ven Quốc lộ 18:</strong> đình Trạo Hà – đền Di Ái → Đồn Cao (trung tâm phường)</li>
+</ul>
+<h2>Kết hợp điểm lân cận</h2>
+<p>Nếu có 2 ngày, nên kết hợp thêm <strong>am – chùa Ngọa Vân</strong> (xã Bình Khê), <strong>chùa Quỳnh Lâm</strong> (phường Tràng An), <strong>đền An Sinh</strong> và <strong>Thái Miếu nhà Trần</strong> (xã An Sinh) — đều thuộc Khu di tích nhà Trần tại Đông Triều.</p>`.trim(),
+      author: 'Ban Biên tập',
+      tags: ['cẩm nang', 'đi lại', 'quốc lộ 18'],
+      published: true,
+      publishedAt: now,
+    },
+    {
+      slug: 'lich-trinh-hai-ngay-mot-dem-dong-trieu',
+      title: 'Lịch trình 2 ngày 1 đêm: di sản nhà Trần và làng quê Đông Triều',
+      category: 'CAM_NANG',
+      coverSlug: 'am-chua-ngoa-van',
+      excerpt:
+        'Hành trình hai ngày kết hợp di tích trong phường với "thánh địa" Ngọa Vân, chùa Quỳnh Lâm và làng quê Yên Đức.',
+      contentHtml: `
+<p>Với hai ngày, du khách có thể đi trọn cả di tích trong phường Đông Triều lẫn những điểm nổi tiếng nhất của vùng đất nhà Trần.</p>
+<h2>Ngày 1 — Di tích phường Đông Triều</h2>
+<ul>
+  <li><strong>Sáng:</strong> chùa quán Ngọc Thanh → Miếu Hậu → đền An Biên → chùa An Biên (núi Vàn)</li>
+  <li><strong>Trưa:</strong> ăn gà đồi Đông Triều tại nhà hàng khu trung tâm</li>
+  <li><strong>Chiều:</strong> chùa Mỹ Cụ (xem 126 hiện vật, tượng A Di Đà đất nung thời Tây Sơn) → đình Mỹ Cụ → Đồn Cao ngắm hoàng hôn</li>
+  <li><strong>Tối:</strong> nghỉ tại khách sạn khu trung tâm phường</li>
+</ul>
+<h2>Ngày 2 — Di sản nhà Trần và làng quê</h2>
+${fig('am-chua-ngoa-van', 'Am – chùa Ngọa Vân trên núi Bảo Đài, nơi Phật hoàng Trần Nhân Tông nhập Niết Bàn')}
+<ul>
+  <li><strong>Sáng sớm:</strong> đi <strong>am – chùa Ngọa Vân</strong> (xã Bình Khê) — leo bộ hoặc đi cáp treo (hoạt động 6:00–18:00)</li>
+  <li><strong>Trưa:</strong> xuống núi, ăn trưa; ghé <strong>chùa Quỳnh Lâm</strong> (phường Tràng An) xem tượng Phật ngọc nguyên khối</li>
+  <li><strong>Chiều:</strong> <strong>đền An Sinh</strong> và <strong>Thái Miếu nhà Trần</strong> (xã An Sinh), hoặc <strong>Làng quê Yên Đức</strong> xem múa rối nước</li>
+</ul>
+<h2>Chuẩn bị</h2>
+<ul>
+  <li>Giày thể thao đế mềm — nhiều điểm phải leo bậc đá</li>
+  <li>Trang phục lịch sự, kín đáo khi vào khu vực thờ tự</li>
+  <li>Xem <a href="/thoi-tiet">dự báo thời tiết</a> trước khi đi; trời mưa nên ưu tiên các điểm có mái che</li>
+  <li>Đặt phòng trước nếu đi vào mùa lễ hội tháng Giêng</li>
+</ul>`.trim(),
+      author: 'Ban Biên tập',
+      tags: ['cẩm nang', 'lịch trình', 'nhà Trần'],
+      published: true,
+      publishedAt: now,
+    },
+    {
+      slug: 'mua-nao-di-dong-trieu-dep-nhat',
+      title: 'Mùa nào đi Đông Triều đẹp nhất?',
+      category: 'CAM_NANG',
+      coverSlug: 'na-dai-dong-trieu',
+      excerpt:
+        'Mỗi mùa Đông Triều có một vẻ riêng: xuân trẩy hội, hè hái na, thu ăn rươi, đông vãn cảnh chùa vắng.',
+      contentHtml: `
+<p>Đông Triều có thể ghé thăm quanh năm, nhưng mỗi mùa cho một trải nghiệm khác nhau.</p>
+<h2>Mùa xuân (tháng 1 – 3 dương lịch) — mùa lễ hội</h2>
+<p>Đây là cao điểm du lịch. Riêng tháng Giêng âm lịch đã có hơn 10 lễ hội nối nhau, từ hội làng tới các lễ hội lớn như Thái Miếu nhà Trần, Xuân Ngọa Vân, đền An Sinh. Thời tiết lạnh và ẩm, nên mặc ấm và mang ô. Nếu ngại đông đúc, chọn các hội làng nhỏ như hội đình Mỹ Cụ hay lễ kỵ Miếu Hậu.</p>
+<h2>Mùa hè (tháng 7 – 9) — mùa na dai</h2>
+${fig('na-dai-dong-trieu', 'Na dai Đông Triều chín rộ từ tháng 7 đến tháng 9')}
+<p>Na dai Đông Triều chín rộ. Du khách có thể ghé nhà vườn hái na tại chỗ. Trời nắng nóng nên tham quan vào sáng sớm hoặc chiều muộn; ưu tiên các điểm nhiều cây xanh như đền An Biên (Đền Suối).</p>
+<h2>Mùa thu (tháng 9 – 11) — mùa rươi</h2>
+<p>Vùng bãi triều ven sông Kinh Thầy – Đá Bạc vào mùa rươi (tháng 9–11 âm lịch). Đây cũng là thời điểm thời tiết dễ chịu nhất trong năm: mát, ít mưa, trời trong. Rất hợp để leo Đồn Cao hay lên núi Vàn ngắm cảnh.</p>
+<h2>Mùa đông (tháng 12 – 1) — chùa vắng</h2>
+<p>Ít khách nhất trong năm, thích hợp cho ai muốn chiêm bái trong không gian tĩnh lặng. Ngày 08/01 dương lịch có lễ dâng hương kỷ niệm Chiến thắng An Biên tại chùa An Biên.</p>`.trim(),
+      author: 'Ban Biên tập',
+      tags: ['cẩm nang', 'mùa vụ', 'kinh nghiệm'],
+      published: true,
+      publishedAt: now,
     },
   ];
 }
 
 // ── Kho tri thức cho chatbot (giai đoạn sau) ────────────────────────────────
 
-function buildKnowledgeBase({ heritages, festivals, lodgings, cuisines }) {
+function buildKnowledgeBase({ heritages, festivals, lodgings, cuisines, restaurants = [], attractions = [] }) {
   const lines = [
     '# Kho tri thức — Du lịch phường Đông Triều, tỉnh Quảng Ninh',
     '',
@@ -639,6 +709,49 @@ function buildKnowledgeBase({ heritages, festivals, lodgings, cuisines }) {
     lines.push('');
   });
 
+  // ── Các phần biên soạn thủ công (không sinh từ .docx) ──
+  lines.push('## V. Nhà hàng, quán ăn và điểm dừng chân', '');
+  if (restaurants.length) {
+    lines.push(
+      '> Thông tin tổng hợp từ nguồn công khai trên Internet, **chưa xác minh trực tiếp**.',
+      '> Lưu ý một số cơ sở nằm ở phường lân cận sau khi sáp nhập đơn vị hành chính năm 2025.',
+      '',
+    );
+    restaurants.forEach((r) => {
+      lines.push(`### ${r.name}`);
+      lines.push(`- **Loại:** ${r.type}`);
+      lines.push(`- **Địa chỉ:** ${r.address}`);
+      if (r.area) lines.push(`- **Khu vực:** ${r.area}`);
+      if (r.phone) lines.push(`- **Điện thoại:** ${r.phone}`);
+      if (r.openHours) lines.push(`- **Giờ mở cửa:** ${r.openHours}`);
+      if (r.priceRange) lines.push(`- **Khoảng giá:** ${r.priceRange}`);
+      if (r.specialties?.length) lines.push(`- **Món tiêu biểu:** ${r.specialties.join('; ')}`);
+      if (r.description) lines.push('', r.description);
+      lines.push('');
+    });
+  }
+
+  lines.push('## VI. Điểm đến lân cận (ngoài phường Đông Triều)', '');
+  attractions.forEach((a) => {
+    lines.push(`### ${a.name}`);
+    if (a.ward) lines.push(`- **Địa bàn:** ${a.ward}`);
+    if (a.distanceKm) lines.push(`- **Khoảng cách từ trung tâm phường:** ~${a.distanceKm} km`);
+    if (a.address) lines.push(`- **Địa chỉ:** ${a.address}`);
+    lines.push('', a.summary, '');
+    if (a.description) lines.push(a.description, '');
+    if (a.highlights?.length) {
+      lines.push('**Điểm nhấn:**');
+      a.highlights.forEach((x) => lines.push(`- ${x}`));
+      lines.push('');
+    }
+  });
+
+  lines.push('## VII. Cách đến và kinh nghiệm tham quan', '', TRAVEL_INTRO, '');
+  heritages.forEach((h) => {
+    const tip = TRAVEL_TIPS[h.slug];
+    if (tip) lines.push(`### ${h.name}`, '', tip, '');
+  });
+
   return lines.join('\n');
 }
 
@@ -665,11 +778,14 @@ function main() {
   const lines = docxToLines(mainPath);
 
   const heritages = parseHeritages(lines);
-  heritages.forEach((h) => Object.assign(h, KNOWN_COORDS[h.slug] ?? {}));
+  heritages.forEach((h) => {
+    Object.assign(h, KNOWN_COORDS[h.slug] ?? {});
+    const tip = TRAVEL_TIPS[h.slug];
+    h.travelTips = tip ? `${TRAVEL_INTRO}\n\n**Riêng điểm này:** ${tip}` : TRAVEL_INTRO;
+  });
   const festivals = parseFestivals(lines);
   const lodgings = parseLodgings(lines);
   const cuisines = parseCuisines(lines);
-  const restaurants = buildPlaceholderRestaurants(cuisines);
   const articles = buildSeedArticles(heritages, festivals);
 
   let about = { sections: [] };
@@ -684,12 +800,22 @@ function main() {
   writeJson('festivals.json', festivals);
   writeJson('lodgings.json', lodgings);
   writeJson('cuisines.json', cuisines);
-  writeJson('restaurants.json', restaurants);
   writeJson('articles.json', articles);
   writeJson('about.json', about);
 
   const kbPath = path.join(KB_DIR, 'knowledge_base.md');
-  fs.writeFileSync(kbPath, buildKnowledgeBase({ heritages, festivals, lodgings, cuisines }), 'utf8');
+  // Đọc lại 2 file biên soạn thủ công để đưa vào kho tri thức (script không ghi đè chúng)
+  const readManual = (n) => {
+    try { return JSON.parse(fs.readFileSync(path.join(OUT_DIR, n), 'utf8')); } catch { return []; }
+  };
+  const restaurants = readManual('restaurants.json');
+  const attractions = readManual('attractions.json');
+
+  fs.writeFileSync(
+    kbPath,
+    buildKnowledgeBase({ heritages, festivals, lodgings, cuisines, restaurants, attractions }),
+    'utf8',
+  );
   console.log(`  ✓ ${path.relative(ROOT, kbPath)}`);
 
   // ── Kiểm tra tính toàn vẹn ──

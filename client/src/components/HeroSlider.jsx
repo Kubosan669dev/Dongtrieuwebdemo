@@ -34,7 +34,13 @@ export default function HeroSlider({ slides = [], coverBySlug = {} }) {
             <SwiperSlide key={s.id ?? i}>
               <div className="relative h-full w-full overflow-hidden">
                 <div className="absolute inset-0 animate-ken-burns">
-                  <HeritageCover src={img} name={s.title} type={cover.type || 'CHUA'} rounded="rounded-none" />
+                  <HeritageCover
+                    src={img}
+                    name={s.title}
+                    type={cover.type || 'CHUA'}
+                    rounded="rounded-none"
+                    illustrative={cover.illustrative}
+                  />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-jade-950/85 via-jade-950/30 to-transparent" />
                 <div className="container-page relative flex h-full items-end pb-20 sm:items-center sm:pb-0">

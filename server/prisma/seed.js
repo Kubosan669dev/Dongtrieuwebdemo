@@ -59,6 +59,7 @@ async function seedHeritages() {
       history: h.history,
       architecture: h.architecture,
       highlights: h.highlights,
+      travelTips: h.travelTips ?? null,
       featured: h.featured,
       order: h.order,
       published: h.published,
@@ -161,25 +162,55 @@ async function seedCuisines() {
 
 async function seedRestaurants() {
   const items = read('restaurants.json');
-  await prisma.restaurant.deleteMany({ where: { isPlaceholder: true } });
+  // Không có khoá tự nhiên → xoá & nạp lại. Giữ lại các cơ sở do quản trị viên
+  // tự thêm và đã xác minh (isVerified=true) để không mất công nhập liệu.
+  await prisma.restaurant.deleteMany({ where: { isVerified: false } });
   for (const r of items) {
+    const exists = await prisma.restaurant.findFirst({ where: { name: r.name } });
+    if (exists) continue;
     await prisma.restaurant.create({
       data: {
         name: r.name,
         type: r.type,
         address: r.address,
+        area: r.area ?? null,
         phone: r.phone ?? null,
-        openHours: r.openHours,
-        priceRange: r.priceRange,
-        specialties: r.specialties,
-        description: r.description,
-        isPlaceholder: r.isPlaceholder,
+        openHours: r.openHours ?? null,
+        priceRange: r.priceRange ?? null,
+        specialties: r.specialties ?? [],
+        description: r.description ?? null,
+        sourceNote: r.sourceNote ?? null,
+        isVerified: r.isVerified ?? false,
+        isPlaceholder: r.isPlaceholder ?? false,
         order: r.order,
         published: r.published,
       },
     });
   }
-  console.log(`  ✓ Nhà hàng (mẫu): ${items.length}`);
+  console.log(`  ✓ Nhà hàng & điểm dừng chân: ${items.length}`);
+}
+
+async function seedAttractions() {
+  const items = read('attractions.json');
+  for (const a of items) {
+    const data = {
+      name: a.name,
+      type: a.type,
+      ward: a.ward ?? null,
+      distanceKm: a.distanceKm ?? null,
+      address: a.address ?? null,
+      mapQuery: a.mapQuery ?? null,
+      lat: a.lat ?? null,
+      lng: a.lng ?? null,
+      summary: a.summary,
+      description: a.description ?? null,
+      highlights: a.highlights ?? [],
+      order: a.order,
+      published: a.published,
+    };
+    await prisma.attraction.upsert({ where: { slug: a.slug }, update: data, create: { slug: a.slug, ...data } });
+  }
+  console.log(`  ✓ Điểm đến lân cận: ${items.length}`);
 }
 
 async function seedArticles() {
@@ -267,6 +298,7 @@ async function main() {
   await seedLodgings();
   await seedCuisines();
   await seedRestaurants();
+  await seedAttractions();
   await seedArticles();
   await seedSlides();
   await seedSettings();

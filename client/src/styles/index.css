@@ -57,6 +57,17 @@
       prose-strong:text-jade-900 prose-img:rounded-xl dark:prose-invert dark:prose-headings:text-jade-50
       dark:prose-strong:text-jade-50;
   }
+  /* Ảnh có chú thích trong bài viết */
+  .prose-vn figure {
+    @apply my-6;
+  }
+  .prose-vn figure img {
+    @apply w-full rounded-2xl shadow-soft;
+  }
+  .prose-vn figcaption {
+    @apply mt-2 text-center text-sm italic text-jade-500 dark:text-jade-400;
+  }
+
   /* Nền hoa văn mờ trang trí */
   .pattern-bg {
     background-image: radial-gradient(circle at 1px 1px, rgba(14, 124, 94, 0.08) 1px, transparent 0);

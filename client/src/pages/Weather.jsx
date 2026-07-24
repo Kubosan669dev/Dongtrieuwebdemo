@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import { Clock, CalendarRange, Waves, Droplets, Wind, Sun, Thermometer, AlertTriangle, ExternalLink, MapPin } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { Clock, CalendarRange, Waves, Droplets, Wind, Sun, Thermometer, MapPin, Lightbulb, ChevronRight } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
-import { useWeather, useTide, useBulletins } from '../hooks/useForecast.js';
+import { useWeather, useTide } from '../hooks/useForecast.js';
+import { fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
+import HeritageCover from '../components/HeritageCover.jsx';
 import { Spinner, ErrorNote, Badge } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { weatherInfo } from '../lib/constants.js';
+import { getWeatherAdvice } from '../lib/weatherAdvice.js';
 import { formatHour, formatDate, formatTime, cx } from '../lib/format.js';
 
 const TABS = [
@@ -20,20 +25,25 @@ export default function Weather() {
   const [tab, setTab] = useState('hourly');
   const weather = useWeather();
   const tide = useTide();
-  const bulletins = useBulletins();
+  const heritages = useQuery({ queryKey: ['heritages', 'advice'], queryFn: () => fetchList('heritages') });
+
+  const advice = getWeatherAdvice(weather.data, heritages.data?.items);
 
   return (
     <div>
-      <Seo title="Dự báo thời tiết & triều cường" description="Dự báo thời tiết theo giờ, 7 ngày tới và triều cường cho vùng Đông Triều, kèm bản tin cảnh báo của Trung tâm KTTV Quốc gia." />
+      <Seo title="Dự báo thời tiết & triều cường" description="Dự báo thời tiết theo giờ, 7 ngày tới và triều cường cho vùng Đông Triều, kèm gợi ý điểm tham quan phù hợp với thời tiết." />
       <PageHero
         title="Dự báo thời tiết & triều cường"
-        description="Dữ liệu cập nhật theo thời gian thực từ Open-Meteo; bản tin cảnh báo từ Trung tâm Dự báo KTTV Quốc gia."
+        description="Dữ liệu cập nhật theo thời gian thực từ Open-Meteo, kèm gợi ý điểm tham quan phù hợp với thời tiết hôm nay."
         breadcrumb={[{ label: 'Thời tiết' }]}
       />
 
       <div className="container-page py-10">
         {/* Thẻ hiện tại */}
         {weather.data?.current && <CurrentCard data={weather.data} />}
+
+        {/* Gợi ý tham quan theo thời tiết */}
+        {advice && <AdviceCard advice={advice} />}
 
         {/* Tabs */}
         <div className="no-scrollbar mt-8 flex gap-2 overflow-x-auto border-b border-jade-900/5 dark:border-white/10">
@@ -56,11 +66,76 @@ export default function Weather() {
           {tab === 'daily' && (weather.isLoading ? <Spinner /> : weather.isError ? <ErrorNote onRetry={weather.refetch} /> : <DailyTab data={weather.data} />)}
           {tab === 'tide' && (tide.isLoading ? <Spinner /> : tide.isError ? <ErrorNote onRetry={tide.refetch} /> : <TideTab data={tide.data} />)}
         </div>
-
-        {/* Bản tin cảnh báo */}
-        <Bulletins query={bulletins} />
       </div>
     </div>
+  );
+}
+
+// Tông màu theo tình hình thời tiết
+const ADVICE_TONES = {
+  good: { ring: 'ring-jade-200 dark:ring-jade-700', bg: 'bg-jade-50 dark:bg-jade-900/40', icon: 'text-jade-600' },
+  hot: { ring: 'ring-gold-200 dark:ring-gold-800/40', bg: 'bg-gold-50 dark:bg-gold-900/20', icon: 'text-gold-600' },
+  rain: { ring: 'ring-sky-200 dark:ring-sky-800/40', bg: 'bg-sky-50 dark:bg-sky-900/20', icon: 'text-sky-600' },
+  cold: { ring: 'ring-indigo-200 dark:ring-indigo-800/40', bg: 'bg-indigo-50 dark:bg-indigo-900/20', icon: 'text-indigo-600' },
+  warn: { ring: 'ring-red-200 dark:ring-red-800/40', bg: 'bg-red-50 dark:bg-red-900/20', icon: 'text-red-600' },
+};
+
+function AdviceCard({ advice }) {
+  const tone = ADVICE_TONES[advice.tone] ?? ADVICE_TONES.good;
+  return (
+    <section className={cx('mt-6 rounded-3xl p-6 ring-1 sm:p-7', tone.bg, tone.ring)}>
+      <div className="flex items-start gap-3">
+        <span className={cx('mt-0.5 shrink-0', tone.icon)}><Lightbulb size={24} /></span>
+        <div>
+          <h2 className="font-serif text-xl font-semibold text-jade-900 dark:text-jade-50">{advice.title}</h2>
+          <p className="mt-1.5 text-jade-700 dark:text-jade-200">{advice.message}</p>
+        </div>
+      </div>
+
+      {advice.picks.length > 0 && (
+        <>
+          <p className="mt-6 text-sm font-semibold uppercase tracking-wide text-jade-500">Gợi ý hôm nay</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            {advice.picks.map((h) => (
+              <Link
+                key={h.slug}
+                to={`/di-tich/${h.slug}`}
+                className="group flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-jade-900/5 transition hover:-translate-y-0.5 hover:shadow-lift dark:bg-jade-900/60 dark:ring-white/5"
+              >
+                <span className="h-14 w-14 shrink-0 overflow-hidden rounded-xl">
+                  <HeritageCover
+                    src={h.coverUrl}
+                    name={h.name}
+                    type={h.type}
+                    rounded="rounded-xl"
+                    illustrative={h.coverIsIllustrative}
+                    showBadge={false}
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-jade-900 group-hover:text-jade-600 dark:text-jade-50">
+                    {h.name}
+                  </span>
+                  <span className="block truncate text-xs text-jade-500">{h.address}</span>
+                </span>
+                <ChevronRight size={16} className="shrink-0 text-jade-400" />
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+
+      {advice.tips.length > 0 && (
+        <ul className="mt-5 space-y-1.5">
+          {advice.tips.map((t, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm text-jade-700 dark:text-jade-200">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
+              {t}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -230,43 +305,6 @@ function TideTab({ data }) {
           💡 Con rươi vùng sông Kinh Thầy – Đá Bạc thường nổi theo con nước lớn cuối thu (tháng 9–11 âm lịch).
         </p>
       </div>
-    </div>
-  );
-}
-
-function Bulletins({ query }) {
-  const { data, isLoading } = query;
-  return (
-    <div className="mt-12">
-      <h2 className="mb-4 flex items-center gap-2 section-title">
-        <AlertTriangle size={22} className="text-gold-500" /> Bản tin & cảnh báo thời tiết
-      </h2>
-      {isLoading ? (
-        <Spinner />
-      ) : !data?.items?.length ? (
-        <div className="rounded-xl bg-jade-50 p-5 text-sm text-jade-600 dark:bg-jade-900/40 dark:text-jade-300">
-          {data?.note || 'Hiện chưa có bản tin cảnh báo mới.'}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {data.items.map((b, i) => (
-            <a key={i} href={b.link} target="_blank" rel="noreferrer" className="card-hover block p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                  <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                    {b.tag && <Badge tone="terra">{b.tag}</Badge>}
-                    {b.pubDate && <span className="text-xs text-jade-400">{formatDate(b.pubDate, { hour: '2-digit', minute: '2-digit' })}</span>}
-                  </div>
-                  <p className="font-medium text-jade-900 dark:text-jade-50">{b.title}</p>
-                  {b.description && <p className="mt-1 line-clamp-2 text-sm text-jade-500">{b.description}</p>}
-                </div>
-                <ExternalLink size={16} className="mt-1 shrink-0 text-jade-400" />
-              </div>
-            </a>
-          ))}
-          <p className="text-xs text-jade-400">Nguồn: {data.source} · nchmf.gov.vn</p>
-        </div>
-      )}
     </div>
   );
 }

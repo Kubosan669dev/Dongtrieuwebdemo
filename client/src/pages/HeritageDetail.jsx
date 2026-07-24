@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { MapPin, Award, Landmark, Sparkles, CalendarDays, ScrollText, Building2 } from 'lucide-react';
+import { MapPin, Award, Landmark, Sparkles, CalendarDays, ScrollText, Building2, Route } from 'lucide-react';
 import { fetchOne, fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import HeritageCover from '../components/HeritageCover.jsx';
@@ -18,6 +18,7 @@ const TABS = [
   { key: 'history', label: 'Lịch sử', icon: ScrollText },
   { key: 'architecture', label: 'Kiến trúc & hiện vật', icon: Building2 },
   { key: 'highlights', label: 'Điểm nhấn', icon: Award },
+  { key: 'travel', label: 'Cách đến & kinh nghiệm', icon: Route },
 ];
 
 export default function HeritageDetail() {
@@ -63,7 +64,13 @@ export default function HeritageDetail() {
           {/* Nội dung chính */}
           <div className="lg:col-span-2">
             <div className="aspect-[16/9] overflow-hidden rounded-2xl shadow-soft">
-              <HeritageCover src={h.coverUrl} name={h.name} type={h.type} rounded="rounded-2xl" />
+              <HeritageCover
+                src={h.coverUrl}
+                name={h.name}
+                type={h.type}
+                rounded="rounded-2xl"
+                illustrative={h.coverIsIllustrative}
+              />
             </div>
 
             {/* Badge hàng đầu */}
@@ -97,6 +104,11 @@ export default function HeritageDetail() {
               {tab === 'summary' && <div className="prose-vn"><ReactMarkdown>{h.summary}</ReactMarkdown></div>}
               {tab === 'history' && <div className="prose-vn"><ReactMarkdown>{h.history}</ReactMarkdown></div>}
               {tab === 'architecture' && <div className="prose-vn"><ReactMarkdown>{h.architecture}</ReactMarkdown></div>}
+              {tab === 'travel' && (
+                <div className="prose-vn">
+                  <ReactMarkdown>{h.travelTips || 'Thông tin đang được cập nhật.'}</ReactMarkdown>
+                </div>
+              )}
               {tab === 'highlights' && (
                 <ul className="space-y-3">
                   {h.highlights?.map((x, i) => (

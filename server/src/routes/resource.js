@@ -106,6 +106,7 @@ const FIELDS = {
   cuisine: { published: true, slug: true },
   restaurant: { published: true },
   article: { published: true, slug: true },
+  attraction: { published: true, slug: true },
   slide: { active: true },
 };
 const prismaFields = (m) => FIELDS[m] || {};

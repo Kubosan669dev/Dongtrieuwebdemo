@@ -1,6 +1,24 @@
 import { HERITAGE_TYPES } from '../lib/constants.js';
 import { cx } from '../lib/format.js';
 
+/**
+ * Nhãn cho ảnh không phải chụp chính địa điểm này.
+ * Cổng thông tin chính thức của phường nên phải nói rõ để du khách không hiểu nhầm.
+ */
+export function IllustrativeBadge({ className }) {
+  return (
+    <span
+      title="Ảnh mang tính minh hoạ, không phải ảnh chụp chính địa điểm này"
+      className={cx(
+        'pointer-events-none absolute bottom-1.5 right-1.5 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur-sm',
+        className,
+      )}
+    >
+      Ảnh minh hoạ
+    </span>
+  );
+}
+
 // Bảng màu gradient theo loại hình di tích (dùng khi chưa có ảnh thật).
 const GRADIENTS = {
   CHUA: ['#0e7c5e', '#0b4134'],
@@ -15,15 +33,27 @@ const GRADIENTS = {
  * Ảnh bìa di tích. Nếu có `src` (ảnh admin upload) thì hiển thị ảnh;
  * nếu không, vẽ placeholder SVG gradient + hoa văn + tên di tích.
  */
-export default function HeritageCover({ src, name, type = 'CHUA', className, rounded = 'rounded-2xl' }) {
+export default function HeritageCover({
+  src,
+  name,
+  type = 'CHUA',
+  className,
+  rounded = 'rounded-2xl',
+  illustrative = false,
+  // Ảnh thu nhỏ (avatar, gợi ý) quá bé để hiện nhãn — nhãn vẫn còn ở thẻ và trang chi tiết
+  showBadge = true,
+}) {
   if (src) {
     return (
-      <img
-        src={src}
-        alt={name}
-        loading="lazy"
-        className={cx('h-full w-full object-cover', rounded, className)}
-      />
+      <span className={cx('relative block h-full w-full overflow-hidden', rounded)}>
+        <img
+          src={src}
+          alt={illustrative ? `${name} (ảnh minh hoạ)` : name}
+          loading="lazy"
+          className={cx('h-full w-full object-cover', className)}
+        />
+        {illustrative && showBadge && <IllustrativeBadge />}
+      </span>
     );
   }
 

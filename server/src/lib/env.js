@@ -29,7 +29,8 @@ export const env = {
     lat: num(process.env.TIDE_LAT, 20.7),
     lon: num(process.env.TIDE_LON, 106.8),
   },
-  nchmfRssUrl: process.env.NCHMF_RSS_URL || 'https://www.nchmf.gov.vn/kttv/vi-VN/1/homerss.html',
+  // Tuỳ chọn: có key thì script tải ảnh dùng Pexels, không có thì dùng Wikimedia Commons
+  pexelsApiKey: process.env.PEXELS_API_KEY || '',
 
   uploadMaxBytes: num(process.env.UPLOAD_MAX_MB, 8) * 1024 * 1024,
 };

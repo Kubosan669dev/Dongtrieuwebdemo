@@ -7,11 +7,27 @@ const typeOptions = Object.entries(RESTAURANT_TYPES).map(([value, v]) => ({ valu
 const columns = [
   { key: 'name', label: 'Tên', render: (it) => <span className="font-medium">{it.name}{it.isPlaceholder && <span className="ml-2 text-xs text-gold-500">(mẫu)</span>}</span> },
   { key: 'type', label: 'Loại', render: (it) => RESTAURANT_TYPES[it.type]?.label },
+  { key: 'area', label: 'Khu vực' },
+  {
+    key: 'isVerified',
+    label: 'Xác minh',
+    render: (it) =>
+      it.isVerified ? (
+        <span className="text-xs text-jade-600">✓ đã xác minh</span>
+      ) : (
+        <span className="text-xs text-gold-600">chưa xác minh</span>
+      ),
+  },
   { key: 'published', label: 'Trạng thái', render: (it) => <PublishedBadge value={it.published} /> },
 ];
 
 export default function RestaurantsAdmin() {
-  const emptyItem = () => ({ name: '', type: 'NHA_HANG', address: '', phone: '', openHours: '', priceRange: '', specialties: [], description: '', images: [], lat: null, lng: null, isPlaceholder: false, order: 0, published: true });
+  const emptyItem = () => ({
+    name: '', type: 'NHA_HANG', address: '', area: '', phone: '', openHours: '', priceRange: '',
+    specialties: [], description: '', images: [], lat: null, lng: null,
+    coverUrl: null, coverIsIllustrative: false,
+    sourceNote: '', isVerified: false, isPlaceholder: false, order: 0, published: true,
+  });
 
   const renderForm = (d, set) => (
     <>
@@ -20,6 +36,12 @@ export default function RestaurantsAdmin() {
         <Field label="Loại"><Select value={d.type} onChange={(v) => set('type', v)} options={typeOptions} /></Field>
       </div>
       <Field label="Địa chỉ" required><Text value={d.address} onChange={(v) => set('address', v)} /></Field>
+      <Field
+        label="Khu vực hành chính"
+        hint='Ghi rõ nếu không thuộc phường Đông Triều, vd "Phường Mạo Khê (lân cận)"'
+      >
+        <Text value={d.area} onChange={(v) => set('area', v)} />
+      </Field>
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label="Điện thoại"><Text value={d.phone} onChange={(v) => set('phone', v)} /></Field>
         <Field label="Giờ mở cửa"><Text value={d.openHours} onChange={(v) => set('openHours', v)} /></Field>
@@ -29,6 +51,14 @@ export default function RestaurantsAdmin() {
       <Field label="Món / đặc sản"><ArrayInput value={d.specialties} onChange={(v) => set('specialties', v)} placeholder="Thêm món…" /></Field>
       <Field label="Hình ảnh"><GalleryField value={d.images} onChange={(v) => set('images', v)} /></Field>
       <LatLngField lat={d.lat} lng={d.lng} onChange={({ lat, lng }) => { set('lat', lat); set('lng', lng); }} />
+
+      <Field label="Ghi chú nguồn" hint="Hiển thị cho du khách khi chưa xác minh">
+        <Text value={d.sourceNote} onChange={(v) => set('sourceNote', v)} />
+      </Field>
+      <Toggle value={d.isVerified} onChange={(v) => set('isVerified', v)} label="Đã gọi xác minh" />
+      <p className="-mt-2 text-xs text-jade-400">
+        Bật sau khi bạn đã gọi kiểm tra số điện thoại và địa chỉ — ghi chú nguồn sẽ tự ẩn khỏi trang công khai.
+      </p>
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label="Thứ tự"><Number_ value={d.order} onChange={(v) => set('order', v ?? 0)} /></Field>
         <div className="flex items-end"><Toggle value={d.isPlaceholder} onChange={(v) => set('isPlaceholder', v)} label="Dữ liệu mẫu" /></div>

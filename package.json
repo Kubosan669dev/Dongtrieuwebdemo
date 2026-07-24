@@ -14,6 +14,8 @@
     "build": "npm --workspace client run build",
     "start": "npm --workspace server run start",
     "extract": "npm --workspace server run extract",
+    "fetch-images": "npm --workspace server run fetch-images",
+    "import-images": "npm --workspace server run import-images",
     "db:migrate": "npm --workspace server run db:migrate",
     "db:seed": "npm --workspace server run db:seed",
     "db:studio": "npm --workspace server run db:studio",

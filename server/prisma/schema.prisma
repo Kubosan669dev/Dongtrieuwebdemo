@@ -76,7 +76,13 @@ model Heritage {
   architecture String  @db.Text
   highlights   String[] @default([])
 
-  coverUrl  String?
+  /// Cách đến và kinh nghiệm tham quan (Markdown)
+  travelTips String? @db.Text
+
+  coverUrl String?
+  /// true = ảnh bìa chỉ mang tính minh hoạ, không phải ảnh chụp chính di tích này
+  coverIsIllustrative Boolean @default(false)
+
   featured  Boolean @default(false)
   order     Int     @default(0)
   published Boolean @default(true)
@@ -130,10 +136,11 @@ model Festival {
   heritageId String?
   heritage   Heritage? @relation(fields: [heritageId], references: [id], onDelete: SetNull)
 
-  coverUrl  String?
-  images    String[] @default([])
-  order     Int      @default(0)
-  published Boolean  @default(true)
+  coverUrl            String?
+  coverIsIllustrative Boolean  @default(false)
+  images              String[] @default([])
+  order               Int      @default(0)
+  published           Boolean  @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -186,10 +193,11 @@ model Cuisine {
   season      String?
   whereToBuy  String[] @default([])
 
-  coverUrl  String?
-  images    String[] @default([])
-  order     Int      @default(0)
-  published Boolean  @default(true)
+  coverUrl            String?
+  coverIsIllustrative Boolean  @default(false)
+  images              String[] @default([])
+  order               Int      @default(0)
+  published           Boolean  @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -218,11 +226,66 @@ model Restaurant {
 
   lat    Float?
   lng    Float?
-  images String[] @default([])
+
+  coverUrl            String?
+  coverIsIllustrative Boolean  @default(false)
+  images              String[] @default([])
+
+  /// Khu vực hành chính, vd "Phường Đông Triều" hoặc "Phường Mạo Khê (lân cận)".
+  /// Cần thiết vì sau sáp nhập 2025, nhiều cơ sở nằm ở phường khác.
+  area String?
+
+  /// Nguồn thông tin, vd "Tổng hợp từ Internet — chưa xác minh"
+  sourceNote String?
+
+  /// false = thông tin lấy từ Internet, chưa gọi kiểm chứng.
+  /// Giao diện hiển thị nhãn cảnh báo cho tới khi quản trị viên bật cờ này.
+  isVerified Boolean @default(false)
 
   /// true = dữ liệu mẫu do hồ sơ gốc không có danh sách nhà hàng.
   /// Quản trị viên thay bằng cơ sở thật rồi bỏ cờ này.
   isPlaceholder Boolean @default(false)
+
+  order     Int     @default(0)
+  published Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+// ─── Điểm đến lân cận ──────────────────────────────────────────────────────
+// Các điểm NGOÀI phường Đông Triều nhưng du khách thường kết hợp tham quan.
+// Tách riêng khỏi Heritage để giữ đúng con số "13 cụm di tích đã xếp hạng
+// của phường" theo hồ sơ chính thức.
+
+enum AttractionType {
+  TAM_LINH // chùa, đền, am
+  LICH_SU // di tích lịch sử
+  SINH_THAI // làng quê, sinh thái, trải nghiệm
+}
+
+model Attraction {
+  id      String         @id @default(cuid())
+  slug    String         @unique
+  name    String
+  type    AttractionType @default(TAM_LINH)
+
+  /// Đơn vị hành chính chứa điểm này, vd "Xã An Sinh"
+  ward       String?
+  distanceKm Float?
+  address    String?
+  mapQuery   String?
+  lat        Float?
+  lng        Float?
+
+  summary     String  @db.Text
+  description String? @db.Text
+  highlights  String[] @default([])
+
+  coverUrl            String?
+  coverIsIllustrative Boolean @default(false)
 
   order     Int     @default(0)
   published Boolean @default(true)

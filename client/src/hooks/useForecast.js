@@ -19,11 +19,3 @@ export function useTide() {
     staleTime: 60 * 60 * 1000,
   });
 }
-
-export function useBulletins() {
-  return useQuery({
-    queryKey: ['bulletins'],
-    queryFn: () => api.get('/bulletins'),
-    staleTime: 30 * 60 * 1000,
-  });
-}

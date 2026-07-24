@@ -1,6 +1,6 @@
 # Cổng thông tin du lịch phường Đông Triều
 
-Website du lịch của phường Đông Triều, tỉnh Quảng Ninh — giới thiệu **13 cụm di tích đã xếp hạng**, **17 lễ hội truyền thống**, **15 cơ sở lưu trú**, **8 đặc sản tiêu biểu**, kèm bản đồ, dự báo thời tiết – triều cường theo thời gian thực và trang quản trị nội dung.
+Website du lịch của phường Đông Triều, tỉnh Quảng Ninh — giới thiệu **13 cụm di tích đã xếp hạng**, **17 lễ hội truyền thống**, **15 cơ sở lưu trú**, **8 đặc sản tiêu biểu**, **6 điểm đến lân cận**, kèm bản đồ, dự báo thời tiết – triều cường theo thời gian thực (có gợi ý điểm tham quan phù hợp với thời tiết) và trang quản trị nội dung.
 
 Toàn bộ nội dung di tích được biên soạn từ **hồ sơ lý lịch di tích và quyết định xếp hạng chính thức** (thư mục `Ly lich di tich phuong Dong Trieu/`).
 
@@ -17,7 +17,6 @@ Toàn bộ nội dung di tích được biên soạn từ **hồ sơ lý lịch 
 | Khác | JWT (cookie httpOnly) · Multer + Sharp (ảnh) · Zod (kiểm tra dữ liệu) |
 
 Dữ liệu thời tiết & triều cường: [Open-Meteo](https://open-meteo.com) (miễn phí, không cần API key).
-Bản tin cảnh báo: RSS của [Trung tâm Dự báo KTTV Quốc gia](https://nchmf.gov.vn).
 Bản đồ: Google Maps nhúng qua iframe (không cần API key).
 
 ## Cấu trúc thư mục
@@ -25,11 +24,12 @@ Bản đồ: Google Maps nhúng qua iframe (không cần API key).
 ```
 .
 ├── Ly lich di tich phuong Dong Trieu/   # 29 file .docx — dữ liệu nguồn
+├── Anh di tich/                         # ảnh nguồn + _nguon-anh.json (ghi giấy phép)
 ├── client/                              # Giao diện React
 │   └── src/{components,pages,pages/admin,hooks,lib,styles}
 ├── server/                              # API Express
 │   ├── prisma/{schema.prisma,seed.js,seed-data/}
-│   ├── scripts/extract-docx.mjs         # .docx → JSON
+│   ├── scripts/                         # extract-docx · fetch-images · import-images
 │   ├── src/{routes,services,middleware,lib}
 │   ├── data/knowledge_base.md           # kho tri thức cho chatbot (giai đoạn sau)
 │   └── uploads/                         # ảnh admin tải lên (không commit)
@@ -106,6 +106,8 @@ Mật khẩu:      123456
 | `npm run db:migrate` | Tạo & áp dụng migration (khi sửa `schema.prisma`) |
 | `npm run db:seed` | Nạp lại dữ liệu (an toàn khi chạy nhiều lần) |
 | `npm run db:studio` | Mở Prisma Studio để xem/sửa database trực quan |
+| `npm run fetch-images` | Tải ảnh minh hoạ về thư mục `Anh di tich/` (Pexels nếu có key, không thì Wikimedia) |
+| `npm run import-images` | Nén ảnh sang WebP, đưa vào `server/uploads/` và gán ảnh bìa theo slug |
 
 Chạy thử production trên máy local:
 
@@ -127,9 +129,9 @@ Tất cả endpoint ghi dữ liệu (`POST` / `PATCH` / `DELETE`) đều yêu c�
 | `GET` | `/api/heritages/:slug` | Kèm thư viện ảnh |
 | `GET` | `/api/festivals` | Lọc `?month=` (tháng âm lịch), `?scale=` |
 | `GET` | `/api/lodgings` · `/cuisines` · `/restaurants` · `/articles` · `/slides` | |
+| `GET` | `/api/attractions` | 6 điểm đến lân cận ngoài phường (Ngọa Vân, Quỳnh Lâm, đền An Sinh…) |
 | `GET` | `/api/weather` | Hiện tại + 24 giờ + 7 ngày · cache 15 phút |
 | `GET` | `/api/tide` | Mực nước 3 ngày + giờ nước lớn/ròng · cache 60 phút |
-| `GET` | `/api/bulletins` | Bản tin NCHMF · cache 30 phút · tự bỏ qua khi nguồn lỗi |
 | `POST` | `/api/media/upload` | Tự nén sang WebP 1600px + thumbnail 480px |
 | `GET` | `/api/settings` · `PUT /api/settings/:key` | Liên hệ, mạng xã hội, toạ độ, SEO |
 | `POST` | `/api/chat` | Chatbot — hiện trả thông báo "đang hoàn thiện" |
@@ -140,13 +142,15 @@ Tất cả endpoint ghi dữ liệu (`POST` / `PATCH` / `DELETE`) đều yêu c�
 
 ## Trang quản trị
 
-Đăng nhập tại `/admin` để quản lý: **Di tích · Lễ hội · Lưu trú · Ẩm thực · Nhà hàng · Bài viết · Slider trang chủ · Thư viện ảnh · Cài đặt chung**.
+Đăng nhập tại `/admin` để quản lý: **Di tích · Lễ hội · Điểm lân cận · Lưu trú · Ẩm thực · Nhà hàng · Bài viết · Slider trang chủ · Thư viện ảnh · Cài đặt chung**.
 
 Một số điểm đáng chú ý:
 
 - **Thư viện ảnh**: tải lên nhiều ảnh cùng lúc, tự nén WebP, gán mô tả (alt), chọn làm ảnh bìa.
 - **Form di tích**: có ô nhập `lat`/`lng` kèm nút *"Xem thử trên bản đồ"* để ghim toạ độ chính xác.
 - **Bài viết**: soạn thảo trực quan (in đậm, tiêu đề, danh sách, chèn ảnh, liên kết).
+- **Công tắc "Ảnh minh hoạ"**: bật khi ảnh không phải chụp chính địa điểm đó — trang công khai sẽ hiện nhãn nhỏ để du khách không hiểu nhầm.
+- **Công tắc "Đã gọi xác minh"** (Nhà hàng): thông tin lấy từ Internet mặc định hiện nhãn cảnh báo; bật công tắc sau khi bạn gọi kiểm tra để gỡ nhãn.
 - Bật/tắt hiển thị từng mục bằng công tắc *Hiển thị* mà không cần xoá dữ liệu.
 
 ---
@@ -157,11 +161,61 @@ Những điểm sau là **hiện trạng dữ liệu nguồn**, không phải l�
 
 | Hạng mục | Hiện trạng | Cách khắc phục |
 |---|---|---|
-| **Ảnh di tích** | Chưa có ảnh thật. Ảnh nhúng trong file `.docx` gốc chỉ là con dấu và sơ đồ vị trí (10–80 KB). Website đang dùng ảnh bìa placeholder tự vẽ (gradient theo loại hình + badge xếp hạng). | Admin → Di tích → tải ảnh thật lên |
-| **Toạ độ GPS** | Chỉ 1/13 di tích có toạ độ trong hồ sơ (đền, chùa Kênh Giang). 12 điểm còn lại đang ghim theo địa chỉ chữ nên có thể lệch vài trăm mét. | Admin → Di tích → nhập `lat`/`lng` |
-| **Nhà hàng, quán ăn** | Hồ sơ gốc không có danh sách. 5 mục hiện tại là **dữ liệu mẫu** (gắn cờ `isPlaceholder`, hiển thị nhãn *"dữ liệu mẫu"*), suy ra từ mục "Mua/thưởng thức tại" của 8 đặc sản. | Admin → Nhà hàng → thay bằng cơ sở thật |
-| **Triều cường** | Toạ độ Đông Triều nằm sâu trong đất liền, ngoài lưới hải văn của Open-Meteo (trả về `null`). Hệ thống dùng điểm **cửa Nam Triệu – Bạch Đằng** (20.70, 106.80) làm số liệu **tham chiếu** cho vùng sông Kinh Thầy – Đá Bạc, và ghi rõ điều này trên giao diện. | Không cần sửa — đã ghi nhãn minh bạch |
-| **Chatbot AI** | Mới có vỏ giao diện. Endpoint `/api/chat` trả thông báo "đang hoàn thiện". | Giai đoạn sau: nối mô hình ngôn ngữ, dùng `server/data/knowledge_base.md` làm ngữ cảnh |
+| **Ảnh** | **1/27 mục có ảnh thật** (chùa quán Ngọc Thanh). 26 mục còn lại dùng ảnh bìa placeholder tự vẽ — gradient theo loại hình + badge xếp hạng, trông vẫn chỉn chu. Đã thử tải tự động từ Wikimedia Commons nhưng **kết quả sai lệch nghiêm trọng** (trả về đền Sikh ở Ấn Độ, ảnh đường phố, ảnh người) nên đã gỡ bỏ. | Xem mục [Thêm ảnh cho website](#thêm-ảnh-cho-website) — **cần key Pexels** |
+| **Toạ độ GPS** | Chỉ 1/13 di tích có toạ độ trong hồ sơ (đền, chùa Kênh Giang). 12 điểm còn lại ghim theo địa chỉ chữ nên có thể lệch vài trăm mét. | Admin → Di tích → nhập `lat`/`lng`, có nút *"Xem thử trên bản đồ"* |
+| **Nhà hàng, quán ăn** | Hồ sơ gốc không có danh sách. Hiện có **9 mục**: 5 cơ sở thật (tên, địa chỉ, SĐT tổng hợp từ nguồn công khai) + 4 mô tả theo khu vực. Tất cả đang gắn cờ `isVerified=false` và hiện nhãn *"chưa xác minh"*. Một số cơ sở thuộc **phường Mạo Khê / Xuân Sơn** sau sáp nhập — đã ghi rõ ở trường `area`. | Gọi kiểm tra SĐT → Admin → Nhà hàng → bật công tắc *"Đã gọi xác minh"* |
+| **Triều cường** | Toạ độ Đông Triều nằm sâu trong đất liền, ngoài lưới hải văn của Open-Meteo (trả về `null`). Hệ thống dùng điểm **cửa Nam Triệu – Bạch Đằng** (20.70, 106.80) làm số liệu **tham chiếu** cho vùng sông Kinh Thầy – Đá Bạc, ghi rõ trên giao diện. | Không cần sửa — đã ghi nhãn minh bạch |
+| **Chatbot AI** | Mới có vỏ giao diện. Endpoint `/api/chat` trả thông báo "đang hoàn thiện". Kho tri thức `server/data/knowledge_base.md` (904 dòng, 7 phần) đã sẵn sàng. | Giai đoạn sau: nối mô hình ngôn ngữ, dùng file trên làm ngữ cảnh |
+
+---
+
+## Thêm ảnh cho website
+
+Có 3 cách, dùng cách nào cũng được:
+
+### Cách 1 — Tải hàng loạt bằng Pexels (nhanh nhất)
+
+Lấy API key miễn phí tại <https://www.pexels.com/api/> (đăng ký ~1 phút), dán vào `server/.env`:
+
+```
+PEXELS_API_KEY="chuoi-key-cua-ban"
+```
+
+Rồi chạy:
+
+```bash
+npm run fetch-images     # tải ảnh về thư mục "Anh di tich/"
+npm run import-images    # nén WebP, đưa vào site, gán ảnh bìa
+```
+
+Chạy lại nhiều lần an toàn — ảnh đã có sẽ được bỏ qua, **không ghi đè ảnh thật bạn tự thêm**.
+
+> ⚠️ Nếu bỏ trống `PEXELS_API_KEY`, script chuyển sang Wikimedia Commons — **không khuyến khích**.
+> Thử nghiệm thực tế cho thấy nguồn này gần như không có ảnh phù hợp cho di tích Đông Triều
+> (trả về đền Sikh ở Ấn Độ, ảnh đường phố, ảnh người) và chặn tần suất rất gắt (HTTP 429).
+> Nếu vẫn dùng, **hãy xem lại từng ảnh trong `Anh di tich/` và xoá ảnh không phù hợp**
+> trước khi chạy `npm run import-images`.
+
+### Cách 2 — Tự bỏ ảnh vào thư mục
+
+Đặt ảnh vào `Anh di tich/` với **tên file trùng slug** của mục, ví dụ:
+
+```
+Anh di tich/chua-my-cu-sung-khanh-tu.jpg
+Anh di tich/am-chua-ngoa-van.jpg
+```
+
+Rồi chạy `npm run import-images`. Ảnh tự thêm được coi là **ảnh thật** nên không gắn nhãn minh hoạ.
+
+### Cách 3 — Tải trực tiếp trên trang quản trị
+
+Admin → mục cần sửa → ô **Ảnh bìa** → chọn hoặc tải ảnh mới. Nhớ bật công tắc
+**"Ảnh minh hoạ"** nếu ảnh không phải chụp chính địa điểm đó.
+
+### Ghi chú về nguồn ảnh
+
+File `Anh di tich/_nguon-anh.json` lưu nguồn, giấy phép và đường dẫn gốc của từng ảnh tải tự động —
+dùng để đối chiếu bản quyền khi cần.
 
 ---
 

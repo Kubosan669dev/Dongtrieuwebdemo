@@ -9,7 +9,7 @@ const columns = [
 ];
 
 export default function CuisinesAdmin() {
-  const emptyItem = () => ({ name: '', slug: '', summary: '', description: '', priceRange: '', season: '', whereToBuy: [], coverUrl: null, images: [], order: 0, published: true });
+  const emptyItem = () => ({ name: '', slug: '', summary: '', description: '', priceRange: '', season: '', whereToBuy: [], coverUrl: null, coverIsIllustrative: false, images: [], order: 0, published: true });
 
   const renderForm = (d, set) => (
     <>
@@ -18,6 +18,7 @@ export default function CuisinesAdmin() {
         <Field label="Slug" required><Text value={d.slug} onChange={(v) => set('slug', slugify(v))} /></Field>
       </div>
       <Field label="Ảnh bìa"><ImageField value={d.coverUrl} onChange={(v) => set('coverUrl', v)} /></Field>
+      <Toggle value={d.coverIsIllustrative} onChange={(v) => set('coverIsIllustrative', v)} label="Ảnh minh hoạ" />
       <Field label="Tóm tắt" required><Textarea value={d.summary} onChange={(v) => set('summary', v)} rows={2} /></Field>
       <Field label="Giới thiệu" required><Textarea value={d.description} onChange={(v) => set('description', v)} rows={5} /></Field>
       <div className="grid gap-4 sm:grid-cols-2">
