@@ -665,7 +665,9 @@ function detectRoute(q, amount) {
   const hasSang = has(q, 'buoi sang') || (has(q, 'sang') && goIntent);
   const hasChieu = has(q, 'buoi chieu') || (has(q, 'chieu') && goIntent);
   const hasDayWord = has(q, 'ca ngay', 'mot ngay', '1 ngay', 'trong ngay', 'nguyen ngay');
-  const hasTwo = has(q, '2 ngay', 'hai ngay', '2n1d', 'ngu dem', 'qua dem', 'nghi dem');
+  // Cố ý KHÔNG nhận 'qua dem'/'ngu dem' vì "ngủ ở đâu qua đêm" là hỏi chỗ NGỦ,
+  // không phải chuyến 2 ngày.
+  const hasTwo = has(q, '2 ngay', 'hai ngay', '2n1d', '2 ngay 1 dem', 'hai ngay mot dem');
 
   // Sở thích
   let theme = null;
@@ -680,8 +682,17 @@ function detectRoute(q, amount) {
     has(q, 'nguoi gia', 'cao tuoi', 'lon tuoi', 'ong ba', 'suc khoe yeu', 'khong leo', 'ngai leo', 'it di bo', 'di bo it', 'de di', 'nhe nhang', 'thong tha', 'khong met', 'di cham') ||
     theme === 'family';
 
-  // Chỉ coi là hỏi lộ trình khi có tín hiệu rõ ràng (tránh nuốt "hôm nay nên đi đâu")
-  const wantsRoute = routeWord || hasSang || hasChieu || hasDayWord || hasTwo || amount || (theme && goIntent);
+  // Chỉ coi là hỏi lộ trình khi có tín hiệu rõ ràng (tránh nuốt "hôm nay nên đi đâu"
+  // và tránh cướp "quán ăn cho người già" → sức khoẻ chỉ tính khi kèm từ vận động).
+  const wantsRoute =
+    routeWord ||
+    hasSang ||
+    hasChieu ||
+    hasDayWord ||
+    hasTwo ||
+    amount ||
+    (theme && goIntent) ||
+    (easy && (goIntent || has(q, 'leo', 'di bo', 'di lai', 'di choi')));
   if (!wantsRoute) return null;
 
   let span;
@@ -1036,7 +1047,7 @@ export async function ask(question) {
   const strongName = Boolean(top && (top.exactName || top.titleCoverage >= 0.6));
 
   // 1. Xã giao
-  if (/^(xin\s+)?(chao|hello|hi|hey|alo)\b/.test(q) || has(q, 'chao ban', 'chao bot'))
+  if (/^(xin\s+)?(chao|hello|hi|hey|alo)\b/.test(q) || has(q, 'xin chao', 'chao ban', 'chao bot'))
     return { ...GREETING, matched: true };
   if (has(q, 'cam on', 'thanks', 'thank you'))
     return {
@@ -1053,9 +1064,11 @@ export async function ask(question) {
   if (has(q, 'thuy trieu', 'trieu cuong', 'con nuoc', 'nuoc lon', 'nuoc rong', 'muc nuoc', 'dinh trieu'))
     return { ...(await answerTide()), matched: true };
 
-  // 3. Thời tiết — hoặc hỏi thẳng, hoặc hỏi kiểu "thứ bảy trời thế nào"
+  // 3. Thời tiết — hỏi thẳng, hỏi kiểu "thứ bảy trời thế nào", hoặc các cụm rõ nghĩa
+  //    (tránh dùng bare 'gio' vì trùng "giờ" trong câu hỏi giờ mở cửa).
   if (
     has(q, 'thoi tiet', 'du bao', 'nhiet do', 'bao nhieu do', 'chi so uv', 'do am') ||
+    has(q, 'co mua', 'co nang', 'troi nang', 'troi mua', 'nang khong', 'mua khong', 'nong khong', 'lanh khong', 'ret khong', 'troi the nao', 'troi ra sao', 'oi buc', 'am uot') ||
     (has(q, ...DAY_WORDS) && has(q, ...WEATHER_WORDS))
   )
     return { ...(await answerWeather(q, corpus)), matched: true };
@@ -1074,7 +1087,7 @@ export async function ask(question) {
   if (has(q, 'cap cuu', 'khan cap', 'cong an', 'canh sat', 'cuu hoa', 'chay no', 'so 113', 'so 114', 'so 115', '113', '114', '115', 'benh vien', 'tram y te'))
     return { ...answerContact(corpus, true), matched: true };
   if (
-    has(q, 'duong day nong', 'hotline', 'so dien thoai ubnd', 'so dien thoai phuong', 'lien he', 'lien lac', 'ubnd', 'uy ban nhan dan') ||
+    has(q, 'duong day nong', 'hotline', 'so dien thoai ubnd', 'so dien thoai phuong', 'lien he', 'lien lac', 'ubnd', 'uy ban nhan dan', 'goi cho phuong', 'goi len phuong', 'goi cho ubnd', 'so phuong', 'lien he phuong') ||
     (has(q, 'so dien thoai', 'sdt', 'lien he') && !strongName)
   )
     return { ...answerContact(corpus, false), matched: true };
@@ -1088,13 +1101,16 @@ export async function ask(question) {
   if (has(q, 'atm', 'rut tien', 'cay xang', 'tram xang', 'do xang', 'nha ve sinh', 'bai do xe', 'bai gui xe', 'gui xe', 'do xe o dau'))
     return { ...OUT_OF_SCOPE_FACILITY };
 
-  // 3g. Gợi ý dịch vụ chất lượng / giá hợp lý — trước "nên đi đâu" vì có chữ "gợi ý"
-  if (
-    has(q, 'chat luong', 'dich vu tot', 'gia hop ly', 'hop ly', 'gia tot', 'gia re', 'binh dan', 'ngon re', 'noi tieng nhat', 'tot nhat', 'ngon nhat', 'uy tin', 'nen chon', 'chon quan nao') ||
-    (has(q, 'goi y', 'de xuat', 'nen di', 'nen an', 'nen o') && has(q, 'nha hang', 'quan', 'quan an', 'khach san', 'dich vu', 'an uong', 'luu tru', 'cho an'))
-  ) {
-    const cheap = has(q, 'gia re', 'binh dan', 'hop ly', 'gia tot', 'ngon re', 're', 'tiet kiem', 'it tien');
-    return { ...answerRecommend(corpus, cheap), matched: true };
+  // 3g. Gợi ý dịch vụ chất lượng / giá hợp lý — trước "nên đi đâu" vì có chữ "gợi ý".
+  //     Đòi hỏi có từ chỉ ĂN UỐNG/LƯU TRÚ để không nuốt "di tích nào nổi tiếng nhất".
+  {
+    const svc = has(q, 'nha hang', 'quan', 'quan an', 'quan nao', 'khach san', 'dich vu', 'an uong', 'luu tru', 'cho an', 'an ngon', 'mon an', 'do an', 'an gi');
+    const priceHint = has(q, 'gia hop ly', 'hop ly', 'gia tot', 'gia re', 'binh dan', 'ngon re', 'ngon bo re', 'tiet kiem');
+    const qualHint = has(q, 'chat luong', 'dich vu tot', 'uy tin', 'ngon nhat', 'tot nhat', 'noi tieng nhat', 'nen chon', 'chon quan nao', 'quan ngon');
+    if ((priceHint && (svc || has(q, 'an', 'ngon'))) || (qualHint && svc)) {
+      const cheap = priceHint;
+      return { ...answerRecommend(corpus, cheap), matched: true };
+    }
   }
 
   // 4. Nên đi đâu (chung chung, gợi ý theo thời tiết) — lộ trình cụ thể đã xử lý ở 3b
@@ -1123,7 +1139,7 @@ export async function ask(question) {
   // 8. Vé & giờ mở cửa — xét TRƯỚC nhánh liệt kê di tích, nếu không "giờ tham quan
   //    di tích" sẽ bị hiểu thành danh sách di tích. Dữ liệu chưa có giờ/giá cụ thể
   //    nên trả lời trung thực theo lệ chung (di tích Đông Triều hầu hết miễn phí).
-  if (has(q, 've vao cua', 've tham quan', 'phi vao cua', 'phi tham quan', 'mat ve', 'ban ve', 'gia ve vao', 'vao cua co mat', 'co mat phi', 'co ton phi', 'mua ve'))
+  if (has(q, 've vao', 've tham quan', 'phi vao cua', 'phi tham quan', 'mat ve', 'ban ve', 'gia ve vao', 'vao cua co mat', 'co mat phi', 'co ton phi', 'mua ve'))
     return { ...answerTicket(), matched: true };
   if (has(q, 'gio mo cua', 'may gio mo', 'mo cua luc', 'mo cua khi nao', 'gio tham quan', 'gio dong cua', 'dong cua luc', 'mo cua may gio', 'gio mo', 'gio lam viec'))
     return { ...answerHours(), matched: true };
@@ -1135,12 +1151,15 @@ export async function ask(question) {
   //     để mục tra cứu riêng cơ sở đó.
   const wantKind = has(q, 'khach san', 'nha nghi', 'luu tru', 'homestay', 'ngu o dau', 'o dau qua dem', 'dat phong')
     ? 'lodging'
-    : has(q, 'nha hang', 'quan an', 'quan nao', 'an o dau', 'dia diem an', 'cho an', 'hai san', 'an uong', 'lau', 'nuong', 'buffet', 'an ngon') ||
-        (has(q, 'an') && has(q, 'o dau'))
+    : has(q, 'nha hang', 'quan an', 'quan nao', 'an o dau', 'an trua o dau', 'an toi o dau', 'an sang o dau', 'dia diem an', 'cho an', 'hai san', 'an uong', 'lau', 'nuong', 'buffet', 'an ngon')
       ? 'restaurant'
       : has(q, 'dac san', 'am thuc', 'an gi', 'mon gi', 'mon ngon', 'do an', 'qua gi', 'mua gi ve')
         ? 'cuisine'
-        : null;
+        : // "ăn ... ở đâu" (động từ ăn) — chỉ khi KHÔNG phải tên riêng, để "Đền An Biên ở đâu"
+          // (token 'an' trong tên) không bị hiểu thành hỏi chỗ ăn
+          !strongName && has(q, 'an') && has(q, 'o dau')
+          ? 'restaurant'
+          : null;
   if (wantKind && !(strongName && top?.doc.kind === wantKind)) {
     // Khách hỏi "gần <di tích>" → truyền tên di tích để ghi chú trung thực
     const placeHint = strongName && top?.doc.kind === 'heritage' ? top.doc.raw.name : null;

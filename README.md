@@ -293,16 +293,25 @@ Nhật ký chỉ lưu nội dung câu hỏi, **không lưu IP hay bất cứ th�
 Kiểm tra nhanh chất lượng sau khi sửa dữ liệu:
 
 ```bash
-npm run test-chatbot                      # chạy ~40 câu mẫu
+npm run test-chatbot                      # chạy ~40 câu mẫu, in câu trả lời
 npm run test-chatbot "na mùa nào?"        # hỏi thử một câu
-npm run test-scenarios                    # bộ kịch bản 67 câu theo 13 nhóm (kiểu cổng du lịch)
-npm run test-scenarios -- --fails         # chỉ in nhóm/câu chưa đạt
+npm run test-scenarios                    # bộ kịch bản CURATED ~79 câu theo nhóm
+npm run test-scenarios-bulk               # bộ SINH TỰ ĐỘNG ~950 câu (mẫu × dữ liệu × biến thể)
+npm run test-scenarios-bulk -- --fails    # in chi tiết câu chưa đạt
+npm run test-scenarios-bulk -- --drift    # in cả cảnh báo lệch ý định
 ```
 
-Bộ **kịch bản 67 câu** (`server/scripts/chatbot-scenarios.mjs`) mô phỏng các nhóm câu hỏi mà một
-trợ lý ảo trên cổng du lịch chính quyền thường gặp (giới thiệu, di tích, lễ hội, ẩm thực, lưu trú,
-vé & giờ mở cửa, thời tiết, đường đi, ngân sách, liên hệ & khẩn cấp, và **các câu ngoài phạm vi phải
-từ chối trung thực**). Vừa là bộ hồi quy, vừa là "bản đồ" cho biết cần bổ sung dữ liệu ở đâu.
+Hai lớp kiểm thử:
+
+- **Curated** (`chatbot-scenarios.mjs`, ~79 câu) — viết tay, mô phỏng các nhóm câu hỏi của một cổng
+  du lịch chính quyền (giới thiệu, di tích, lễ hội, ẩm thực, lưu trú, vé & giờ, thời tiết, đường đi,
+  **lộ trình cá nhân hoá**, liên hệ & khẩn cấp, và **các câu ngoài phạm vi phải từ chối trung thực**).
+- **Sinh tự động** (`gen-scenarios.mjs`, ~950 câu) — ghép **mẫu câu × dữ liệu thật trong database ×
+  biến thể** (có dấu / không dấu / thêm từ đệm). Tự phình theo dữ liệu: thêm một di tích là có thêm
+  vài chục câu test. Đây là "bản đồ" phát hiện định tuyến sai ở quy mô lớn — mỗi lần chạy báo tỷ lệ
+  đạt theo nhóm và liệt kê câu trượt để khoanh vùng.
+
+Muốn mở rộng: thêm một dòng mẫu vào `gen-scenarios.mjs` là sinh thêm hàng loạt câu cho toàn bộ dữ liệu.
 
 ---
 

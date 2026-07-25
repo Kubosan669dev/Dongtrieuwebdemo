@@ -35,8 +35,10 @@ export function norm(s) {
  */
 export const STOPWORDS = new Set(
   (
+    // "cho" (nghĩa "for") rất hay xuất hiện trong từ đệm ("cho mình hỏi", "cho tôi")
+    // và sau khi bỏ dấu lại trùng "chợ" → gây khớp nhầm "Chợ trung tâm". Bỏ đi.
     'la va voi trong ngoai tren duoi ra vao thi ma nhung cac mot nay kia ay ' +
-    'the nhe duoc bi se dang roi lai cung van con hoac neu boi hon nhat ' +
+    'the nhe duoc bi se dang roi lai cung van con hoac neu boi hon nhat cho ' +
     'xin vui giup minh toi rat'
   )
     .split(/\s+/)
