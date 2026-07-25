@@ -11,6 +11,7 @@
     "fetch-images": "node scripts/fetch-images.mjs",
     "import-images": "node scripts/import-images.mjs",
     "test-chatbot": "node scripts/test-chatbot.mjs",
+    "test-scenarios": "node scripts/chatbot-scenarios.mjs",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "node prisma/seed.js",

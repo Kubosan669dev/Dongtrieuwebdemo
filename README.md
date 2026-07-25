@@ -113,8 +113,9 @@ Mật khẩu:      123456
 | `npm run db:studio` | Mở Prisma Studio để xem/sửa database trực quan |
 | `npm run fetch-images` | Tải ảnh minh hoạ về thư mục `Anh di tich/` (Pexels nếu có key, không thì Wikimedia) |
 | `npm run import-images` | Nén ảnh sang WebP, đưa vào `server/uploads/` và gán ảnh bìa theo slug |
-| `npm run test-chatbot` | Chạy thử trợ lý AI với ~36 câu hỏi mẫu, in ra câu trả lời |
+| `npm run test-chatbot` | Chạy thử trợ lý AI với ~40 câu hỏi mẫu, in ra câu trả lời |
 | `npm run test-chatbot "câu hỏi"` | Hỏi trợ lý một câu bất kỳ ngay trên terminal |
+| `npm run test-scenarios` | Bộ kịch bản 67 câu theo 13 nhóm (kiểu cổng du lịch); báo nhóm nào chưa đạt |
 
 Chạy thử production trên máy local:
 
@@ -259,9 +260,13 @@ lấy từ một bản ghi cụ thể trong database. Không tìm được thì 
 | Di tích | *"chùa Mỹ Cụ có gì đặc biệt"* · *"đền Yết Kiêu thờ ai"* · *"Đông Triều có bao nhiêu di tích"* |
 | Lễ hội | *"lễ hội nào sắp diễn ra"* (kèm **số ngày còn lại**) · *"lễ hội tháng Giêng có những gì"* |
 | Ẩm thực, lưu trú | *"ăn gì ở Đông Triều"* · *"na mùa nào"* · *"khách sạn ở đâu"* (kèm SĐT) |
-| Đường đi, lịch trình | *"đi từ Hà Nội thế nào"* · *"lịch trình 2 ngày 1 đêm"* |
+| Đường đi, lịch trình, ngân sách | *"đi từ Hà Nội thế nào"* · *"lịch trình 2 ngày 1 đêm"* · *"tôi có 2 triệu thì đi đâu"* |
+| Giới thiệu, vé, giờ mở cửa | *"giới thiệu về Đông Triều"* · *"vé vào cửa bao nhiêu"* · *"mấy giờ mở cửa"* |
+| Liên hệ & khẩn cấp | *"số điện thoại UBND phường"* · *"gọi cấp cứu số mấy"* (113/114/115) |
 
 Hiểu cả **chữ không dấu** (*"chua my cu o dau"*) và **lỗi gõ nhẹ** (*"chùa mĩ cụ"*).
+
+Những gì **ngoài phạm vi** (thủ tục hành chính, ATM/bãi đỗ, chuyện ngoài Đông Triều) thì trợ lý **từ chối trung thực và chỉ hướng đúng chỗ** thay vì bịa — ví dụ hỏi làm căn cước thì hướng sang UBND phường / Cổng dịch vụ công.
 
 ### Cách "dạy" thêm cho trợ lý
 
@@ -285,9 +290,16 @@ Nhật ký chỉ lưu nội dung câu hỏi, **không lưu IP hay bất cứ th�
 Kiểm tra nhanh chất lượng sau khi sửa dữ liệu:
 
 ```bash
-npm run test-chatbot                      # chạy ~36 câu mẫu
+npm run test-chatbot                      # chạy ~40 câu mẫu
 npm run test-chatbot "na mùa nào?"        # hỏi thử một câu
+npm run test-scenarios                    # bộ kịch bản 67 câu theo 13 nhóm (kiểu cổng du lịch)
+npm run test-scenarios -- --fails         # chỉ in nhóm/câu chưa đạt
 ```
+
+Bộ **kịch bản 67 câu** (`server/scripts/chatbot-scenarios.mjs`) mô phỏng các nhóm câu hỏi mà một
+trợ lý ảo trên cổng du lịch chính quyền thường gặp (giới thiệu, di tích, lễ hội, ẩm thực, lưu trú,
+vé & giờ mở cửa, thời tiết, đường đi, ngân sách, liên hệ & khẩn cấp, và **các câu ngoài phạm vi phải
+từ chối trung thực**). Vừa là bộ hồi quy, vừa là "bản đồ" cho biết cần bổ sung dữ liệu ở đâu.
 
 ---
 

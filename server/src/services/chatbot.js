@@ -648,6 +648,134 @@ function answerBudget(corpus) {
   };
 }
 
+// ─── Giới thiệu địa phương ─────────────────────────────────────────────────
+
+function answerAbout(corpus) {
+  const sections = corpus.settings?.about?.sections ?? [];
+  const intro = sections[0]?.body;
+  const nH = corpus.heritages.length;
+  const nF = corpus.festivals.length;
+
+  const reply = intro
+    ? `📍 **Về phường Đông Triều**\n\n${short(intro, 380)}\n\n` +
+      `Trên cổng thông tin có **${nH} cụm di tích đã xếp hạng**, **${nF} lễ hội**, cùng đặc sản, nơi lưu trú và bản đồ để bạn lên kế hoạch.`
+    : `📍 **Phường Đông Triều, tỉnh Quảng Ninh** — vùng đất quê gốc và nơi yên nghỉ của các vua Trần, trung tâm Thiền phái Trúc Lâm. Có **${nH} cụm di tích đã xếp hạng** và **${nF} lễ hội** truyền thống.`;
+
+  return {
+    intent: 'about',
+    reply,
+    links: [
+      { label: 'Giới thiệu chi tiết', url: '/gioi-thieu' },
+      { label: 'Danh sách di tích', url: '/di-tich' },
+      { label: 'Bản đồ', url: '/ban-do' },
+    ],
+    suggestions: ['Di tích nào nổi tiếng nhất?', 'Hôm nay nên đi đâu?', 'Đặc sản Đông Triều có gì?'],
+  };
+}
+
+// ─── Liên hệ & khẩn cấp ────────────────────────────────────────────────────
+
+function answerContact(corpus, isEmergency) {
+  const c = corpus.settings?.contact ?? {};
+
+  if (isEmergency) {
+    return {
+      intent: 'contact_emergency',
+      reply:
+        '🆘 **Số điện thoại khẩn cấp** (toàn quốc):\n\n' +
+        bullets([
+          '**113** — Cảnh sát phản ứng nhanh (Công an)',
+          '**114** — Cảnh sát Phòng cháy chữa cháy & Cứu nạn',
+          '**115** — Cấp cứu y tế',
+        ]) +
+        `\n\nTrường hợp cần chính quyền địa phương, liên hệ **${c.name || 'UBND phường Đông Triều'}**` +
+        (c.phone ? ` — ☎ ${c.phone}.` : '. Số điện thoại cụ thể xem tại trang Liên hệ.'),
+      links: [{ label: 'Trang liên hệ', url: '/lien-he' }],
+      suggestions: ['Đường dây nóng của phường?', 'Thời tiết hôm nay', 'Hôm nay nên đi đâu?'],
+    };
+  }
+
+  const lines = [`🏛️ **${c.name || 'UBND phường Đông Triều'}**`];
+  if (c.address) lines.push(`📍 ${c.address}`);
+  if (c.phone) lines.push(`☎ ${c.phone}`);
+  if (c.email) lines.push(`✉ ${c.email}`);
+  const social = corpus.settings?.social ?? {};
+  if (social.facebook) lines.push(`📘 Facebook: ${social.facebook}`);
+  if (social.zalo) lines.push(`💬 Zalo: ${social.zalo}`);
+
+  const hasContact = c.phone || c.email || social.facebook;
+  return {
+    intent: 'contact',
+    reply:
+      lines.join('\n') +
+      (hasContact
+        ? ''
+        : '\n\nThông tin liên hệ chi tiết (điện thoại, email) đang được cập nhật — bạn xem tại trang Liên hệ nhé.') +
+      '\n\nSố khẩn cấp: **113** Công an · **114** Cứu hoả · **115** Cấp cứu.',
+    links: [{ label: 'Trang liên hệ', url: '/lien-he' }],
+    suggestions: ['Số điện thoại khẩn cấp?', 'Hôm nay nên đi đâu?', 'Đi từ Hà Nội thế nào?'],
+  };
+}
+
+// ─── Vé & giờ mở cửa ───────────────────────────────────────────────────────
+
+function answerTicket() {
+  return {
+    intent: 'ticket',
+    reply:
+      '🎟️ **Vé tham quan**\n\n' +
+      bullets([
+        'Các **di tích, đình, đền, chùa** ở phường Đông Triều **hầu hết mở cửa tự do, không bán vé**.',
+        'Vào dịp lễ hội có thể có gửi xe hoặc công đức tuỳ tâm, không bắt buộc.',
+        'Một số điểm **lân cận ngoài phường** (như khu Ngoạ Vân có tuyến cáp treo) thì cáp treo tính phí riêng — xem mục Điểm lân cận.',
+      ]) +
+      '\n\nMình chưa có bảng giá chi tiết trong dữ liệu, nếu cần chính xác bạn nên hỏi trực tiếp ban quản lý di tích.',
+    links: [
+      { label: 'Danh sách di tích', url: '/di-tich' },
+      { label: 'Điểm lân cận', url: '/di-tich' },
+    ],
+    suggestions: ['Giờ mở cửa thế nào?', 'Hôm nay nên đi đâu?', 'Đi từ Hà Nội thế nào?'],
+  };
+}
+
+function answerHours() {
+  return {
+    intent: 'hours',
+    reply:
+      '🕐 **Giờ tham quan**\n\n' +
+      bullets([
+        'Các đình, đền, chùa thường **mở cửa ban ngày** (khoảng từ sáng sớm đến chiều tối) và ra vào tự do.',
+        'Ngày rằm, mùng một và mùa lễ hội (chủ yếu tháng Giêng âm lịch) thường đông và mở muộn hơn.',
+        'Muốn dự lễ hoặc vào ban quản lý, bạn nên tới vào ban ngày.',
+      ]) +
+      '\n\nGiờ giấc cụ thể từng điểm chưa có trong dữ liệu — nên liên hệ ban quản lý di tích để chắc chắn.',
+    links: [{ label: 'Danh sách di tích', url: '/di-tich' }, { label: 'Lịch lễ hội', url: '/le-hoi' }],
+    suggestions: ['Vé vào cửa bao nhiêu?', 'Lễ hội nào sắp diễn ra?', 'Hôm nay nên đi đâu?'],
+  };
+}
+
+// Tiện ích (ATM, xăng, nhà vệ sinh, bãi đỗ) — chưa có trong dữ liệu.
+const OUT_OF_SCOPE_FACILITY = {
+  intent: 'out_of_scope_facility',
+  matched: false,
+  reply:
+    'Mình chưa có dữ liệu về các tiện ích như ATM, cây xăng, nhà vệ sinh hay bãi đỗ xe trong khu vực 🙏\n\n' +
+    'Mình chỉ nắm thông tin về di tích, lễ hội, ẩm thực, lưu trú và thời tiết. Với các tiện ích này, bạn tra trên Google Maps sẽ nhanh hơn.',
+  links: [{ label: 'Bản đồ khu vực', url: '/ban-do' }],
+  suggestions: ['Hôm nay nên đi đâu?', 'Có khách sạn nào không?', 'Đặc sản Đông Triều có gì?'],
+};
+
+// Thủ tục hành chính — ngoài phạm vi cổng du lịch, chuyển hướng lịch sự.
+const OUT_OF_SCOPE_ADMIN = {
+  intent: 'out_of_scope_admin',
+  matched: false,
+  reply:
+    'Đây là **cổng thông tin du lịch** của phường nên mình không hỗ trợ thủ tục hành chính (căn cước, hộ khẩu, khai sinh, dịch vụ công…) 🙏\n\n' +
+    'Những việc đó bạn liên hệ trực tiếp **UBND phường Đông Triều** hoặc Cổng dịch vụ công quốc gia **dichvucong.gov.vn**. Mình chỉ giúp được về tham quan, lễ hội, ẩm thực, lưu trú và thời tiết thôi nhé.',
+  links: [{ label: 'Trang liên hệ', url: '/lien-he' }],
+  suggestions: ['Hôm nay nên đi đâu?', 'Đặc sản Đông Triều có gì?', 'Số điện thoại khẩn cấp?'],
+};
+
 // ─── Câu xã giao ───────────────────────────────────────────────────────────
 
 const GREETING = {
@@ -669,6 +797,8 @@ const HELP = {
       '**Lễ hội** — quy đổi âm lịch sang dương lịch để biết còn bao nhiêu ngày',
       '**Ẩm thực & nhà hàng** — đặc sản, mùa nào có, mua ở đâu',
       '**Lưu trú** — khách sạn, nhà nghỉ kèm số điện thoại',
+      '**Đường đi, lịch trình, ngân sách** — cách tới Đông Triều, gợi ý 1–2 ngày',
+      '**Vé & giờ mở cửa, liên hệ, số khẩn cấp** — thông tin tiện ích cơ bản',
     ]) +
     '\n\nMình chỉ trả lời trong phạm vi dữ liệu của phường, không bịa thêm nhé.',
   links: [],
@@ -760,12 +890,30 @@ export async function ask(question) {
   //     ("tôi có 2 triệu thì nên đi đâu") và không nên trả về thời tiết.
   if (detectBudget(q)) return { ...answerBudget(corpus), matched: true };
 
+  // 3c. Khẩn cấp & liên hệ — như trợ lý cổng chính quyền
+  if (has(q, 'cap cuu', 'khan cap', 'cong an', 'canh sat', 'cuu hoa', 'chay no', 'so 113', 'so 114', 'so 115', '113', '114', '115', 'benh vien', 'tram y te'))
+    return { ...answerContact(corpus, true), matched: true };
+  if (
+    has(q, 'duong day nong', 'hotline', 'so dien thoai ubnd', 'so dien thoai phuong', 'lien he', 'lien lac', 'ubnd', 'uy ban nhan dan') ||
+    (has(q, 'so dien thoai', 'sdt', 'lien he') && !strongName)
+  )
+    return { ...answerContact(corpus, false), matched: true };
+
+  // 3d. Thủ tục hành chính — ngoài phạm vi cổng du lịch
+  if (has(q, 'thu tuc', 'can cuoc', 'cccd', 'chung minh nhan dan', 'khai sinh', 'ho khau', 'tam tru', 'tam vang', 'giay phep', 'dich vu cong', 'hanh chinh', 'cong chung', 'so do', 'dang ky kinh doanh', 'bao hiem'))
+    return { ...OUT_OF_SCOPE_ADMIN };
+
+  // 3e. Tiện ích chưa có dữ liệu (ATM, xăng, nhà vệ sinh, bãi đỗ) — xét trước
+  //     nhánh "gần đây" ở mục 8b để "ATM gần đây" không bị hiểu thành điểm lân cận.
+  if (has(q, 'atm', 'rut tien', 'cay xang', 'tram xang', 'do xang', 'nha ve sinh', 'bai do xe', 'bai gui xe', 'gui xe', 'do xe o dau'))
+    return { ...OUT_OF_SCOPE_FACILITY };
+
   // 4. Nên đi đâu
   if (has(q, 'nen di dau', 'di dau', 'choi o dau', 'tham quan o dau', 'goi y', 'nen den dau', 'dau dep', 'co gi choi'))
     return { ...(await answerWhereToGo(corpus)), matched: true };
 
   // 5. Lịch trình
-  if (has(q, 'lich trinh', 'di may ngay', 'mot ngay', '2 ngay', 'hai ngay', 'ke hoach di'))
+  if (has(q, 'lich trinh', 'di may ngay', 'mot ngay', '2 ngay', 'hai ngay', 'ke hoach di', 'trong ngay', 'trong 1 ngay', 'di trong ngay', 'tham quan trong ngay'))
     return { ...answerItinerary(corpus), matched: true };
 
   // 6. Đường đi
@@ -787,14 +935,23 @@ export async function ask(question) {
     if (!strongName) return { ...answerListFestivals(corpus), matched: true };
   }
 
-  // 8a. Danh mục rõ ràng (khách sạn/nhà hàng/ẩm thực) — các từ này KHÔNG trùng tên
+  // 8. Vé & giờ mở cửa — xét TRƯỚC nhánh liệt kê di tích, nếu không "giờ tham quan
+  //    di tích" sẽ bị hiểu thành danh sách di tích. Dữ liệu chưa có giờ/giá cụ thể
+  //    nên trả lời trung thực theo lệ chung (di tích Đông Triều hầu hết miễn phí).
+  if (has(q, 've vao cua', 've tham quan', 'phi vao cua', 'phi tham quan', 'mat ve', 'ban ve', 'gia ve vao', 'vao cua co mat', 'co mat phi', 'co ton phi', 'mua ve'))
+    return { ...answerTicket(), matched: true };
+  if (has(q, 'gio mo cua', 'may gio mo', 'mo cua luc', 'mo cua khi nao', 'gio tham quan', 'gio dong cua', 'dong cua luc', 'mo cua may gio', 'gio mo', 'gio lam viec'))
+    return { ...answerHours(), matched: true };
+
+  // 9a. Danh mục rõ ràng (khách sạn/nhà hàng/ẩm thực) — các từ này KHÔNG trùng tên
   //     di tích/lễ hội nên ưu tiên hơn tên riêng khác loại: "khách sạn gần Miếu Hậu"
   //     phải ra danh sách KHÁCH SẠN, không phải hồ sơ Miếu Hậu. Ngoại lệ: nếu tên
   //     riêng mạnh ở top đúng bằng loại đang hỏi ("nhà hàng Xuân Viên có gì") thì
-  //     để mục 9 tra cứu riêng cơ sở đó.
+  //     để mục tra cứu riêng cơ sở đó.
   const wantKind = has(q, 'khach san', 'nha nghi', 'luu tru', 'homestay', 'ngu o dau', 'o dau qua dem', 'dat phong')
     ? 'lodging'
-    : has(q, 'nha hang', 'quan an', 'quan nao', 'an o dau', 'dia diem an', 'cho an')
+    : has(q, 'nha hang', 'quan an', 'quan nao', 'an o dau', 'dia diem an', 'cho an', 'hai san', 'an uong', 'lau', 'nuong', 'buffet', 'an ngon') ||
+        (has(q, 'an') && has(q, 'o dau'))
       ? 'restaurant'
       : has(q, 'dac san', 'am thuc', 'an gi', 'mon gi', 'mon ngon', 'do an', 'qua gi', 'mua gi ve')
         ? 'cuisine'
@@ -807,7 +964,7 @@ export async function ask(question) {
     return { ...answerListCuisines(corpus), matched: true };
   }
 
-  // 8b. Nhóm rộng/mơ hồ — chỉ khi câu hỏi KHÔNG nhắc tên riêng cụ thể, vì
+  // 9b. Nhóm rộng/mơ hồ — chỉ khi câu hỏi KHÔNG nhắc tên riêng cụ thể, vì
   //     "chùa Mỹ Cụ có những gì" phải là tra cứu di tích chứ không phải danh sách.
   if (!strongName) {
     if (has(q, 'diem lan can', 'gan day', 'xung quanh', 'lan can', 'ngoai phuong'))
@@ -815,6 +972,14 @@ export async function ask(question) {
     if (has(q, 'di tich', 'bao nhieu di tich', 'danh sach di tich', 'co nhung gi', 'thang canh', 'danh lam'))
       return { ...answerListHeritages(corpus), matched: true };
   }
+
+  // 9c. Giới thiệu địa phương — chỉ khi không nhắc tên riêng cụ thể
+  if (
+    !strongName &&
+    (has(q, 'gioi thieu', 'tong quan', 'noi tieng ve', 'noi tieng gi', 'noi tieng khong', 'thuoc tinh nao', 'o tinh nao', 'thuoc dau', 'nam o dau', 'la vung dat', 'lich su dong trieu', 'gia tri gi') ||
+      (has(q, 'dong trieu') && has(q, 'o dau', 'la gi', 'the nao', 'nhu the nao', 'co gi dac biet')))
+  )
+    return { ...answerAbout(corpus), matched: true };
 
   // 9. Tra cứu tự do trên toàn bộ dữ liệu.
   //    Đòi hỏi độ phủ đủ cao: câu "thủ đô nước Pháp là gì" tuy khớp chữ "Pháp"

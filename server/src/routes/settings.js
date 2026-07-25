@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { asyncHandler } from '../lib/http.js';
 import { requireAuth } from '../middleware/auth.js';
+import { invalidateCorpus } from '../services/knowledge.js';
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router.put(
       update: { valueJson },
       create: { key, valueJson },
     });
+    invalidateCorpus(); // chatbot dùng ngay thông tin liên hệ/giới thiệu vừa sửa
     res.json({ setting: row });
   }),
 );

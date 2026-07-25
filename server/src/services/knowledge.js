@@ -85,7 +85,7 @@ function makeDoc({ id, kind, title, url, aliases = [], keywords = [], body = '',
 
 /** Dựng toàn bộ tài liệu từ database. */
 async function build() {
-  const [heritages, festivals, cuisines, lodgings, restaurants, attractions, articles] =
+  const [heritages, festivals, cuisines, lodgings, restaurants, attractions, articles, settingRows] =
     await Promise.all([
       prisma.heritage.findMany({ where: { published: true }, orderBy: { order: 'asc' } }),
       prisma.festival.findMany({
@@ -98,7 +98,12 @@ async function build() {
       prisma.restaurant.findMany({ where: { published: true }, orderBy: { order: 'asc' } }),
       prisma.attraction.findMany({ where: { published: true }, orderBy: { order: 'asc' } }),
       prisma.article.findMany({ where: { published: true }, orderBy: { publishedAt: 'desc' } }),
+      prisma.siteSetting.findMany(),
     ]);
+
+  // Cài đặt chung (liên hệ, giới thiệu…) — chatbot dùng để trả lời câu hỏi về
+  // địa phương và số điện thoại, giống trợ lý của các cổng thông tin chính quyền.
+  const settings = Object.fromEntries(settingRows.map((r) => [r.key, r.valueJson]));
 
   const docs = [];
 
@@ -221,6 +226,7 @@ async function build() {
     restaurants,
     attractions,
     articles,
+    settings,
     builtAt: Date.now(),
   };
 }
