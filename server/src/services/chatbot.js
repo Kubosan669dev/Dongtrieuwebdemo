@@ -374,11 +374,20 @@ function answerListCuisines(corpus) {
   };
 }
 
-function answerListLodgings(corpus) {
+/**
+ * @param {string|null} placeHint  tên một di tích nếu khách hỏi "gần <di tích>".
+ *   Ta không có toạ độ để tính khoảng cách thật (chỉ 1/13 di tích có GPS, 0 cơ sở
+ *   lưu trú có GPS) nên nói thẳng thay vì bịa ra thứ tự "gần nhất".
+ */
+function answerListLodgings(corpus, placeHint = null) {
   const list = corpus.lodgings.slice(0, 6);
+  const near = placeHint
+    ? `Bạn hỏi các cơ sở gần **${placeHint}**. Dữ liệu chưa có khoảng cách tới từng điểm nên mình liệt kê các cơ sở lưu trú trong phường — phường không rộng nên đều khá thuận tiện.\n\n`
+    : '';
   return {
     intent: 'list_lodging',
     reply:
+      near +
       `🛏️ Phường có **${corpus.lodgings.length} cơ sở lưu trú** trong danh sách:\n\n` +
       bullets(
         list.map(
@@ -394,12 +403,16 @@ function answerListLodgings(corpus) {
   };
 }
 
-function answerListRestaurants(corpus) {
+function answerListRestaurants(corpus, placeHint = null) {
   const list = corpus.restaurants.slice(0, 6);
   const anyUnverified = list.some((r) => !r.isVerified);
+  const near = placeHint
+    ? `Bạn hỏi quán gần **${placeHint}**. Dữ liệu chưa có khoảng cách tới từng điểm nên mình liệt kê các nơi ăn uống trong vùng — phường không rộng nên đều khá thuận tiện.\n\n`
+    : '';
   return {
     intent: 'list_restaurant',
     reply:
+      near +
       `🍜 **Nhà hàng, quán ăn và điểm dừng chân** (${corpus.restaurants.length} mục):\n\n` +
       bullets(
         list.map(
@@ -589,6 +602,52 @@ function answerItinerary(corpus) {
   };
 }
 
+/**
+ * Trả lời câu hỏi ngân sách ("tôi có 2 triệu thì nên đi đâu").
+ *
+ * Hồ sơ gốc gần như không có bảng giá, nên tuyệt đối không bịa con số. Ta nói thật:
+ * vào cửa di tích hầu hết miễn phí, liệt kê những mục CÓ ghi giá (nếu có), và gợi ý
+ * lịch trình theo mức chi tiêu chung.
+ */
+function answerBudget(corpus) {
+  const guide = corpus.articles.find((a) => norm(a.title).includes('lich trinh'));
+  // Chỉ nêu giá với các mục thực sự có trường priceRange trong dữ liệu
+  const pricedFood = corpus.cuisines.filter((c) => c.priceRange).slice(0, 3);
+  const pricedStay = corpus.lodgings.filter((l) => l.priceRange).slice(0, 3);
+
+  const parts = [
+    '💰 **Đi Đông Triều tốn bao nhiêu?**',
+    '',
+    'Mình chưa có bảng giá chi tiết trong dữ liệu của phường nên không nêu con số chính xác được, nhưng vài điều chắc chắn:',
+    bullets([
+      'Vào cửa các **di tích, đền, chùa** ở Đông Triều **hầu hết miễn phí** — phần lớn ngân sách là đi lại, ăn ở.',
+      'Các di tích nằm gần nhau nên đi xe máy/ô tô cá nhân rất tiết kiệm, ghép được 3–4 điểm trong ngày.',
+      'Với ngân sách vừa phải, một chuyến **1–2 ngày** (ngủ 1 đêm, ăn đặc sản địa phương) là hợp lý.',
+    ]),
+  ];
+
+  if (pricedStay.length)
+    parts.push('', '**Lưu trú có ghi giá:**', bullets(pricedStay.map((l) => `${l.name} — ${l.priceRange}`)));
+  if (pricedFood.length)
+    parts.push('', '**Đặc sản có ghi giá:**', bullets(pricedFood.map((c) => `${c.name} — ${c.priceRange}`)));
+
+  parts.push(
+    '',
+    'Bạn xem trang **Lưu trú** (có số điện thoại để hỏi giá trực tiếp) và **Ẩm thực** để ước lượng, hoặc mở bài cẩm nang lịch trình để lên kế hoạch cụ thể.',
+  );
+
+  return {
+    intent: 'budget',
+    reply: parts.join('\n'),
+    links: [
+      { label: 'Nơi lưu trú (kèm SĐT)', url: '/luu-tru' },
+      { label: 'Đặc sản Đông Triều', url: '/am-thuc' },
+      ...(guide ? [{ label: guide.title, url: `/tin-tuc/${guide.slug}` }] : []),
+    ],
+    suggestions: ['Lịch trình 2 ngày 1 đêm?', 'Có khách sạn nào không?', 'Ăn gì ở Đông Triều?'],
+  };
+}
+
 // ─── Câu xã giao ───────────────────────────────────────────────────────────
 
 const GREETING = {
@@ -626,6 +685,16 @@ const DAY_WORDS = [
 ];
 // Từ chỉ hiện tượng thời tiết — riêng chúng thì mơ hồ, phải đi kèm mốc ngày
 const WEATHER_WORDS = ['troi', 'mua', 'nang', 'nong', 'lanh', 'am', 'gio', 'nhiet', 'thoi tiet'];
+
+/**
+ * Câu hỏi có nhắc tới tiền/ngân sách không?
+ * Đòi hỏi con số đứng trước đơn vị tiền (\b để không đụng "2 ngày", "2 kg",
+ * và món "ngán"), hoặc các cụm nói về chi phí.
+ */
+function detectBudget(q) {
+  if (/(\d+(?:[.,]\d+)?)\s*(trieu|tr|nghin|ngan|k|dong)\b/.test(q)) return true;
+  return has(q, 'ngan sach', 'chi phi', 'gia ca', 'bao nhieu tien', 'tiet kiem', 'it tien', 'kinh phi', 'het bao nhieu');
+}
 
 /** Tháng âm lịch nhắc tới trong câu hỏi, nếu có. */
 function detectLunarMonth(q) {
@@ -687,6 +756,10 @@ export async function ask(question) {
   )
     return { ...(await answerWeather(q, corpus)), matched: true };
 
+  // 3b. Ngân sách — xét trước "nên đi đâu" vì câu hỏi tiền thường kèm cụm đó
+  //     ("tôi có 2 triệu thì nên đi đâu") và không nên trả về thời tiết.
+  if (detectBudget(q)) return { ...answerBudget(corpus), matched: true };
+
   // 4. Nên đi đâu
   if (has(q, 'nen di dau', 'di dau', 'choi o dau', 'tham quan o dau', 'goi y', 'nen den dau', 'dau dep', 'co gi choi'))
     return { ...(await answerWhereToGo(corpus)), matched: true };
@@ -714,14 +787,29 @@ export async function ask(question) {
     if (!strongName) return { ...answerListFestivals(corpus), matched: true };
   }
 
-  // 8. Các nhóm danh sách — chỉ khi câu hỏi KHÔNG nhắc tên riêng cụ thể
+  // 8a. Danh mục rõ ràng (khách sạn/nhà hàng/ẩm thực) — các từ này KHÔNG trùng tên
+  //     di tích/lễ hội nên ưu tiên hơn tên riêng khác loại: "khách sạn gần Miếu Hậu"
+  //     phải ra danh sách KHÁCH SẠN, không phải hồ sơ Miếu Hậu. Ngoại lệ: nếu tên
+  //     riêng mạnh ở top đúng bằng loại đang hỏi ("nhà hàng Xuân Viên có gì") thì
+  //     để mục 9 tra cứu riêng cơ sở đó.
+  const wantKind = has(q, 'khach san', 'nha nghi', 'luu tru', 'homestay', 'ngu o dau', 'o dau qua dem', 'dat phong')
+    ? 'lodging'
+    : has(q, 'nha hang', 'quan an', 'quan nao', 'an o dau', 'dia diem an', 'cho an')
+      ? 'restaurant'
+      : has(q, 'dac san', 'am thuc', 'an gi', 'mon gi', 'mon ngon', 'do an', 'qua gi', 'mua gi ve')
+        ? 'cuisine'
+        : null;
+  if (wantKind && !(strongName && top?.doc.kind === wantKind)) {
+    // Khách hỏi "gần <di tích>" → truyền tên di tích để ghi chú trung thực
+    const placeHint = strongName && top?.doc.kind === 'heritage' ? top.doc.raw.name : null;
+    if (wantKind === 'lodging') return { ...answerListLodgings(corpus, placeHint), matched: true };
+    if (wantKind === 'restaurant') return { ...answerListRestaurants(corpus, placeHint), matched: true };
+    return { ...answerListCuisines(corpus), matched: true };
+  }
+
+  // 8b. Nhóm rộng/mơ hồ — chỉ khi câu hỏi KHÔNG nhắc tên riêng cụ thể, vì
+  //     "chùa Mỹ Cụ có những gì" phải là tra cứu di tích chứ không phải danh sách.
   if (!strongName) {
-    if (has(q, 'khach san', 'nha nghi', 'luu tru', 'ngu o dau', 'o dau qua dem', 'homestay', 'dat phong'))
-      return { ...answerListLodgings(corpus), matched: true };
-    if (has(q, 'nha hang', 'quan an', 'quan nao', 'an o dau', 'dia diem an', 'cho an'))
-      return { ...answerListRestaurants(corpus), matched: true };
-    if (has(q, 'dac san', 'am thuc', 'an gi', 'mon gi', 'mon ngon', 'do an', 'qua gi', 'mua gi ve'))
-      return { ...answerListCuisines(corpus), matched: true };
     if (has(q, 'diem lan can', 'gan day', 'xung quanh', 'lan can', 'ngoai phuong'))
       return { ...answerListAttractions(corpus), matched: true };
     if (has(q, 'di tich', 'bao nhieu di tich', 'danh sach di tich', 'co nhung gi', 'thang canh', 'danh lam'))

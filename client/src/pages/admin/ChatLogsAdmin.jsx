@@ -15,6 +15,7 @@ const INTENT_LABELS = {
   weather_range: 'Thời tiết 7 ngày',
   tide: 'Triều cường',
   where_today: 'Gợi ý điểm đến',
+  budget: 'Câu hỏi ngân sách',
   festival_upcoming: 'Lễ hội sắp tới',
   festival_month: 'Lễ hội theo tháng',
   list_heritage: 'Danh sách di tích',

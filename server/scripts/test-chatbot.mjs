@@ -49,6 +49,14 @@ const QUESTIONS = [
   'có nhà hàng nào ngon không',
   'khách sạn ở đâu',
   'ngủ ở đâu qua đêm',
+  // Danh mục phải thắng tên riêng khác loại (lỗi đã sửa)
+  'các khách sạn gần miếu hậu',
+  'quán ăn gần chùa Mỹ Cụ',
+  'nhà hàng Xuân Viên có gì', // cùng loại → vẫn tra cứu riêng cơ sở
+  // Ngân sách — không được ra thời tiết (lỗi đã sửa)
+  'tôi có 2 triệu thì nên đi đâu',
+  'đi Đông Triều hết bao nhiêu tiền',
+  '500k đi chơi được không',
   // Đường đi, lịch trình
   'đi từ Hà Nội thế nào',
   'đông triều cách hà nội bao xa',
