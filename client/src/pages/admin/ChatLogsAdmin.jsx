@@ -15,9 +15,10 @@ const INTENT_LABELS = {
   weather_range: 'Thời tiết 7 ngày',
   tide: 'Triều cường',
   where_today: 'Gợi ý điểm đến',
-  budget: 'Ngân sách & lộ trình',
-  day_plan: 'Lịch trình theo buổi',
+  route: 'Lộ trình (theo buổi/sở thích/sức khoẻ/ngân sách)',
   recommend: 'Gợi ý dịch vụ',
+  budget: 'Ngân sách & lộ trình', // log cũ
+  day_plan: 'Lịch trình theo buổi', // log cũ
   about: 'Giới thiệu địa phương',
   contact: 'Liên hệ',
   contact_emergency: 'Số khẩn cấp',

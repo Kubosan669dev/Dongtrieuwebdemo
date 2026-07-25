@@ -261,8 +261,9 @@ lấy từ một bản ghi cụ thể trong database. Không tìm được thì 
 | Di tích | *"chùa Mỹ Cụ có gì đặc biệt"* · *"đền Yết Kiêu thờ ai"* · *"Đông Triều có bao nhiêu di tích"* |
 | Lễ hội | *"lễ hội nào sắp diễn ra"* (kèm **số ngày còn lại**) · *"lễ hội tháng Giêng có những gì"* |
 | Ẩm thực, lưu trú | *"ăn gì ở Đông Triều"* · *"na mùa nào"* · *"khách sạn ở đâu"* (kèm SĐT) |
-| Đường đi & lịch trình | *"đi từ Hà Nội thế nào"* · *"lịch trình 2 ngày 1 đêm"* · *"buổi sáng đi đâu, chiều đi đâu"* |
-| Ngân sách & gợi ý dịch vụ | *"tôi có 2 triệu thì vạch lộ trình tham quan + ăn uống"* (lấy giá thực đơn nhà hàng) · *"gợi ý quán giá hợp lý"* |
+| Đường đi | *"đi từ Hà Nội thế nào"* · *"Đông Triều cách Hà Nội bao xa"* |
+| **Lộ trình cá nhân hoá** | Vẽ đúng khoảng thời gian hỏi và điều chỉnh theo người: *"lộ trình 1 buổi sáng"* (chỉ vẽ sáng) · *"lịch trình cho người lớn tuổi"* (bỏ điểm leo trèo) · *"lộ trình thiên về tâm linh / lịch sử"* · *"gia đình có trẻ nhỏ nên đi đâu"* · *"tôi có 2 triệu thì vạch lộ trình + ăn uống"* (chọn nhà hàng theo giá thực đơn) |
+| Gợi ý dịch vụ | *"gợi ý quán giá hợp lý"* · *"nhà hàng nào chất lượng"* |
 | Giới thiệu, vé, giờ mở cửa | *"giới thiệu về Đông Triều"* · *"vé vào cửa bao nhiêu"* · *"mấy giờ mở cửa"* |
 | Liên hệ & khẩn cấp | *"số điện thoại UBND phường"* · *"gọi cấp cứu số mấy"* (113/114/115) |
 
