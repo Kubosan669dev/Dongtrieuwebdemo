@@ -602,49 +602,153 @@ function answerItinerary(corpus) {
   };
 }
 
-/**
- * Trả lời câu hỏi ngân sách ("tôi có 2 triệu thì nên đi đâu").
- *
- * Hồ sơ gốc gần như không có bảng giá, nên tuyệt đối không bịa con số. Ta nói thật:
- * vào cửa di tích hầu hết miễn phí, liệt kê những mục CÓ ghi giá (nếu có), và gợi ý
- * lịch trình theo mức chi tiêu chung.
- */
-function answerBudget(corpus) {
-  const guide = corpus.articles.find((a) => norm(a.title).includes('lich trinh'));
-  // Chỉ nêu giá với các mục thực sự có trường priceRange trong dữ liệu
-  const pricedFood = corpus.cuisines.filter((c) => c.priceRange).slice(0, 3);
-  const pricedStay = corpus.lodgings.filter((l) => l.priceRange).slice(0, 3);
+// ─── Công cụ cho lịch trình & ngân sách ────────────────────────────────────
 
-  const parts = [
-    '💰 **Đi Đông Triều tốn bao nhiêu?**',
-    '',
-    'Mình chưa có bảng giá chi tiết trong dữ liệu của phường nên không nêu con số chính xác được, nhưng vài điều chắc chắn:',
-    bullets([
-      'Vào cửa các **di tích, đền, chùa** ở Đông Triều **hầu hết miễn phí** — phần lớn ngân sách là đi lại, ăn ở.',
-      'Các di tích nằm gần nhau nên đi xe máy/ô tô cá nhân rất tiết kiệm, ghép được 3–4 điểm trong ngày.',
-      'Với ngân sách vừa phải, một chuyến **1–2 ngày** (ngủ 1 đêm, ăn đặc sản địa phương) là hợp lý.',
-    ]),
+/** Định dạng số tiền kiểu Việt Nam: 200000 → "200.000đ". */
+const vnd = (n) => `${Math.round(n).toLocaleString('vi-VN')}đ`;
+
+/** Đọc số tiền nhỏ nhất trong chuỗi giá, vd "200.000 – 500.000đ/người" → 200000. */
+function priceFloor(text) {
+  const m = String(text ?? '').match(/(\d[\d.]*)/);
+  if (!m) return null;
+  const n = Number(m[1].replace(/\./g, ''));
+  return Number.isFinite(n) && n >= 1000 ? n : null;
+}
+
+/** Đọc ngân sách người dùng nêu: "2 triệu" → 2000000, "500k" → 500000. */
+function parseAmount(q) {
+  let m = q.match(/(\d+(?:[.,]\d+)?)\s*(trieu|tr)\b/);
+  if (m) return Math.round(Number(m[1].replace(',', '.')) * 1_000_000);
+  m = q.match(/(\d+)\s*(nghin|ngan|k)\b/);
+  if (m) return Number(m[1]) * 1000;
+  m = q.match(/\b(\d{6,9})\s*(dong|d)?\b/); // số tiền viết đủ chữ số
+  if (m) return Number(m[1]);
+  return null;
+}
+
+/** Chọn di tích cho buổi sáng / buổi chiều (đưa Đồn Cao vào chiều muộn). */
+function planHeritages(corpus) {
+  const hs = corpus.heritages;
+  const donCao = hs.find((h) => h.slug === 'don-cao-dong-trieu');
+  const morning = hs.slice(0, 2);
+  const rest = hs.filter((h) => !morning.includes(h) && h.slug !== 'don-cao-dong-trieu');
+  const afternoon = [...rest.slice(0, 1), ...(donCao ? [donCao] : rest.slice(1, 2))];
+  return { morning, afternoon };
+}
+
+const hLink = (h) => ({ label: h.name, url: `/di-tich/${h.slug}` });
+/** Các cơ sở thực sự để ăn (bỏ chợ, làng nghề, nhà vườn). */
+const eateries = (corpus) =>
+  corpus.restaurants.filter((r) => ['NHA_HANG', 'QUAN_AN'].includes(r.type));
+
+// ─── Lịch trình theo buổi ──────────────────────────────────────────────────
+
+function answerDayPlan(corpus) {
+  const { morning, afternoon } = planHeritages(corpus);
+  const lunch = eateries(corpus)[0];
+  const names = (arr) => arr.map((h) => `**${h.name}**`).join(' và ');
+
+  const lines = [
+    `🌅 **Buổi sáng:** vãn cảnh ${names(morning)} — nên đi sớm cho mát và vắng.`,
+    lunch
+      ? `🍜 **Buổi trưa:** nghỉ ăn tại **${lunch.name}**${lunch.priceRange ? ` (${lunch.priceRange})` : ''}, hoặc thử đặc sản na, rươi, gà đồi tuỳ mùa.`
+      : `🍜 **Buổi trưa:** thưởng thức đặc sản Đông Triều (na, rươi, gà đồi tuỳ mùa).`,
+    `🏯 **Buổi chiều:** tham quan ${names(afternoon)}${afternoon.some((h) => h.slug === 'don-cao-dong-trieu') ? ' — lên Đồn Cao lúc chiều muộn ngắm toàn cảnh rất đẹp' : ''}.`,
+    `🌆 **Buổi tối:** ăn tối ở khu trung tâm rồi nghỉ, hoặc về trong ngày vì các điểm khá gần nhau.`,
   ];
 
-  if (pricedStay.length)
-    parts.push('', '**Lưu trú có ghi giá:**', bullets(pricedStay.map((l) => `${l.name} — ${l.priceRange}`)));
-  if (pricedFood.length)
-    parts.push('', '**Đặc sản có ghi giá:**', bullets(pricedFood.map((c) => `${c.name} — ${c.priceRange}`)));
+  return {
+    intent: 'day_plan',
+    reply: `🗺️ **Gợi ý một ngày ở Đông Triều**\n\n${lines.join('\n\n')}\n\nLịch có thể đảo lại tuỳ thời tiết — trời mưa thì ưu tiên các điểm có mái che.`,
+    links: [...morning.map(hLink), ...afternoon.map(hLink), { label: 'Nơi ăn uống', url: '/am-thuc' }].slice(0, 4),
+    suggestions: ['Tôi có 2 triệu thì đi đâu?', 'Ăn trưa ở đâu ngon?', 'Hôm nay thời tiết thế nào?'],
+  };
+}
 
-  parts.push(
-    '',
-    'Bạn xem trang **Lưu trú** (có số điện thoại để hỏi giá trực tiếp) và **Ẩm thực** để ước lượng, hoặc mở bài cẩm nang lịch trình để lên kế hoạch cụ thể.',
-  );
+// ─── Lộ trình theo ngân sách + ăn uống theo giá ────────────────────────────
+
+function answerBudgetPlan(corpus, amount) {
+  const days = amount && amount >= 1_500_000 ? 2 : 1;
+  const mealCap = amount ? Math.round((amount * 0.5) / (days * 2)) : null;
+
+  // Sắp nhà hàng theo giá tăng dần; lọc theo mức chi cho mỗi bữa nếu biết ngân sách
+  const priced = eateries(corpus)
+    .map((r) => ({ r, floor: priceFloor(r.priceRange) }))
+    .filter((x) => x.floor)
+    .sort((a, b) => a.floor - b.floor);
+  const affordable = mealCap ? priced.filter((x) => x.floor <= mealCap) : priced;
+  const pickPool = affordable.length ? affordable : priced; // nếu quá thấp, vẫn gợi ý rẻ nhất
+  const lunch = pickPool[0]?.r;
+  const dinner = (pickPool[1] ?? pickPool[0])?.r;
+
+  const { morning, afternoon } = planHeritages(corpus);
+  const mealLine = (label, r) =>
+    r ? `${label} **${r.name}**${r.priceRange ? ` — ${r.priceRange}` : ''}` : `${label} đặc sản địa phương`;
+
+  const plan = [
+    `🌅 **Sáng:** vãn cảnh ${morning.map((h) => `**${h.name}**`).join(', ')} _(vào cửa miễn phí)_`,
+    `🍜 **Trưa:** ${mealLine('ăn tại', lunch)}`,
+    `🏯 **Chiều:** ${afternoon.map((h) => `**${h.name}**`).join(', ')} _(miễn phí)_`,
+    `🌆 **Tối:** ${mealLine('ăn tại', dinner)}`,
+  ];
+  if (days === 2)
+    plan.push('🛏️ **Nghỉ đêm:** chọn một khách sạn/nhà nghỉ trong phường (gọi hỏi giá phòng), sáng hôm sau kết hợp các điểm lân cận như Ngoạ Vân, Quỳnh Lâm.');
+
+  // Ước tính tiền ăn từ giá sàn của các bữa đã chọn
+  const mealFloors = [lunch, dinner].filter(Boolean).map((r) => priceFloor(r.priceRange)).filter(Boolean);
+  const foodEst = mealFloors.length ? mealFloors.reduce((s, n) => s + n, 0) * (days === 2 ? 2 : 1) : null;
+
+  const head = amount
+    ? `💰 Với khoảng **${vnd(amount)}**, bạn thoải mái đi **${days === 2 ? '2 ngày 1 đêm' : 'trong ngày'}** ở Đông Triều. Gợi ý lộ trình:`
+    : '💰 **Gợi ý lộ trình tham quan + ăn uống ở Đông Triều:**';
+
+  const foot = [];
+  if (foodEst)
+    foot.push(`Ước tính tiền ăn khoảng **${vnd(foodEst)}/người** (giá tối thiểu theo thực đơn); vé tham quan miễn phí.`);
+  foot.push('Các con số là **giá tham khảo** trên thực đơn — bạn nên gọi nhà hàng xác nhận trước, và hỏi trực tiếp giá phòng khi đặt.');
 
   return {
     intent: 'budget',
-    reply: parts.join('\n'),
+    reply: `${head}\n\n${plan.join('\n\n')}\n\n${foot.join(' ')}`,
     links: [
+      { label: 'Nơi ăn uống & giá', url: '/am-thuc' },
       { label: 'Nơi lưu trú (kèm SĐT)', url: '/luu-tru' },
-      { label: 'Đặc sản Đông Triều', url: '/am-thuc' },
-      ...(guide ? [{ label: guide.title, url: `/tin-tuc/${guide.slug}` }] : []),
+      ...morning.slice(0, 1).map(hLink),
     ],
-    suggestions: ['Lịch trình 2 ngày 1 đêm?', 'Có khách sạn nào không?', 'Ăn gì ở Đông Triều?'],
+    suggestions: ['Buổi sáng đi đâu, chiều đi đâu?', 'Nhà hàng nào giá hợp lý?', 'Có khách sạn nào không?'],
+  };
+}
+
+// ─── Gợi ý dịch vụ chất lượng / giá hợp lý ─────────────────────────────────
+
+function answerRecommend(corpus, cheap) {
+  const priced = eateries(corpus)
+    .map((r) => ({ r, floor: priceFloor(r.priceRange) ?? 999999999 }))
+    .sort((a, b) => a.floor - b.floor);
+  const list = (cheap ? priced : [...priced].reverse()).slice(0, 4).map((x) => x.r);
+
+  const foodLines = list.map(
+    (r) =>
+      `**${r.name}**${r.priceRange ? ` — ${r.priceRange}` : ''}` +
+      (r.specialties?.length ? `\n   Nổi bật: ${r.specialties.slice(0, 3).join(', ')}` : ''),
+  );
+
+  const hotels = corpus.lodgings.filter((l) => l.type === 'KHACH_SAN').slice(0, 3);
+
+  return {
+    intent: 'recommend',
+    reply:
+      (cheap
+        ? '🪙 **Gợi ý ăn uống giá hợp lý ở Đông Triều** (từ rẻ đến cao hơn):'
+        : '⭐ **Một số nhà hàng đáng thử ở Đông Triều:**') +
+      `\n\n${bullets(foodLines)}` +
+      (hotels.length ? `\n\n🛏️ **Khách sạn để nghỉ:** ${hotels.map((h) => h.name).join(', ')}.` : '') +
+      '\n\n⚠️ Mình chưa có **đánh giá sao/chất lượng chính thức** trong dữ liệu, đây là các cơ sở có thông tin đầy đủ nhất và **chưa được gọi xác minh** — bạn nên gọi hỏi trước khi tới.',
+    links: [
+      { label: 'Tất cả nơi ăn uống', url: '/am-thuc' },
+      { label: 'Nơi lưu trú', url: '/luu-tru' },
+    ],
+    suggestions: ['Tôi có 2 triệu thì đi đâu?', 'Buổi sáng đi đâu, chiều đi đâu?', 'Đặc sản Đông Triều có gì?'],
   };
 }
 
@@ -886,9 +990,9 @@ export async function ask(question) {
   )
     return { ...(await answerWeather(q, corpus)), matched: true };
 
-  // 3b. Ngân sách — xét trước "nên đi đâu" vì câu hỏi tiền thường kèm cụm đó
-  //     ("tôi có 2 triệu thì nên đi đâu") và không nên trả về thời tiết.
-  if (detectBudget(q)) return { ...answerBudget(corpus), matched: true };
+  // 3b. Ngân sách — vạch lộ trình tham quan + ăn uống theo giá nhà hàng.
+  //     Xét trước "nên đi đâu" vì câu hỏi tiền thường kèm cụm đó.
+  if (detectBudget(q)) return { ...answerBudgetPlan(corpus, parseAmount(q)), matched: true };
 
   // 3c. Khẩn cấp & liên hệ — như trợ lý cổng chính quyền
   if (has(q, 'cap cuu', 'khan cap', 'cong an', 'canh sat', 'cuu hoa', 'chay no', 'so 113', 'so 114', 'so 115', '113', '114', '115', 'benh vien', 'tram y te'))
@@ -907,6 +1011,19 @@ export async function ask(question) {
   //     nhánh "gần đây" ở mục 8b để "ATM gần đây" không bị hiểu thành điểm lân cận.
   if (has(q, 'atm', 'rut tien', 'cay xang', 'tram xang', 'do xang', 'nha ve sinh', 'bai do xe', 'bai gui xe', 'gui xe', 'do xe o dau'))
     return { ...OUT_OF_SCOPE_FACILITY };
+
+  // 3f. Lịch trình theo buổi ("buổi sáng đi đâu, buổi chiều đi đâu")
+  if (has(q, 'buoi sang', 'buoi chieu', 'buoi toi', 'sang di dau', 'chieu di dau', 'sang chieu') || (has(q, 'sang') && has(q, 'chieu')))
+    return { ...answerDayPlan(corpus), matched: true };
+
+  // 3g. Gợi ý dịch vụ chất lượng / giá hợp lý — trước "nên đi đâu" vì có chữ "gợi ý"
+  if (
+    has(q, 'chat luong', 'dich vu tot', 'gia hop ly', 'hop ly', 'gia tot', 'gia re', 'binh dan', 'ngon re', 'noi tieng nhat', 'tot nhat', 'ngon nhat', 'uy tin', 'nen chon', 'chon quan nao') ||
+    (has(q, 'goi y', 'de xuat', 'nen di', 'nen an', 'nen o') && has(q, 'nha hang', 'quan', 'quan an', 'khach san', 'dich vu', 'an uong', 'luu tru', 'cho an'))
+  ) {
+    const cheap = has(q, 'gia re', 'binh dan', 'hop ly', 'gia tot', 'ngon re', 're', 'tiet kiem', 'it tien');
+    return { ...answerRecommend(corpus, cheap), matched: true };
+  }
 
   // 4. Nên đi đâu
   if (has(q, 'nen di dau', 'di dau', 'choi o dau', 'tham quan o dau', 'goi y', 'nen den dau', 'dau dep', 'co gi choi'))

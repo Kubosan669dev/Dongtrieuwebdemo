@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import { LodgingCard } from '../components/cards.jsx';
+import LodgingDetail from '../components/LodgingDetail.jsx';
 import { SkeletonCard, EmptyState } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { LODGING_TYPES } from '../lib/constants.js';
@@ -10,6 +11,7 @@ import { cx } from '../lib/format.js';
 
 export default function Lodging() {
   const [type, setType] = useState('');
+  const [selected, setSelected] = useState(null);
   const { data, isLoading } = useQuery({ queryKey: ['lodgings'], queryFn: () => fetchList('lodgings') });
   const items = (data?.items ?? []).filter((l) => !type || l.type === type);
 
@@ -40,9 +42,11 @@ export default function Lodging() {
           <EmptyState title="Chưa có cơ sở lưu trú" />
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((l) => <LodgingCard key={l.id} item={l} />)}
+            {items.map((l) => <LodgingCard key={l.id} item={l} onClick={() => setSelected(l)} />)}
           </div>
         )}
+
+        {selected && <LodgingDetail item={selected} onClose={() => setSelected(null)} />}
 
         <p className="mt-8 rounded-xl bg-jade-50 p-4 text-sm text-jade-600 dark:bg-jade-900/40 dark:text-jade-300">
           ℹ️ Thông tin liên hệ được cung cấp theo danh sách thống kê của UBND phường Đông Triều. Vui lòng

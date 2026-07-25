@@ -88,6 +88,9 @@ const SCENARIOS = [
       ['quán ăn gần chùa Mỹ Cụ', 'answer'],
       ['ăn hải sản ở đâu', 'answer'],
       ['nhà hàng Xuân Viên có gì', 'answer'],
+      ['gợi ý nhà hàng giá hợp lý', 'answer'],
+      ['gợi ý dịch vụ chất lượng tốt', 'answer'],
+      ['quán nào ngon bổ rẻ', 'answer'],
     ],
   },
   {
@@ -124,7 +127,10 @@ const SCENARIOS = [
     items: [
       ['hôm nay nên đi đâu', 'answer'],
       ['gợi ý lịch trình 2 ngày 1 đêm', 'answer'],
+      ['buổi sáng đi đâu buổi chiều đi đâu', 'answer'],
+      ['sáng đi đâu chiều đi đâu', 'answer'],
       ['tôi có 2 triệu thì nên đi đâu', 'answer'],
+      ['tôi có 2 triệu thì vạch lộ trình tham quan và ăn uống', 'answer'],
       ['đi Đông Triều hết bao nhiêu tiền', 'answer'],
       ['đi trong ngày thì đi những đâu', 'answer'],
     ],

@@ -158,6 +158,7 @@ Một số điểm đáng chú ý:
 
 - **Thư viện ảnh**: tải lên nhiều ảnh cùng lúc, tự nén WebP, gán mô tả (alt), chọn làm ảnh bìa.
 - **Form di tích**: có ô nhập `lat`/`lng` kèm nút *"Xem thử trên bản đồ"* để ghim toạ độ chính xác.
+- **Lưu trú**: trang `/luu-tru` cho bấm vào từng cơ sở để xem **chi tiết** (mô tả, giá phòng, tiện nghi, ảnh, bản đồ). Các trường này lấy từ form Lưu trú trong admin — điền càng đầy đủ, cửa sổ chi tiết càng phong phú (hiện dữ liệu gốc mới có tên/địa chỉ/điện thoại).
 - **Bài viết**: soạn thảo trực quan (in đậm, tiêu đề, danh sách, chèn ảnh, liên kết).
 - **Công tắc "Ảnh minh hoạ"**: bật khi ảnh không phải chụp chính địa điểm đó — trang công khai sẽ hiện nhãn nhỏ để du khách không hiểu nhầm.
 - **Công tắc "Đã gọi xác minh"** (Nhà hàng): thông tin lấy từ Internet mặc định hiện nhãn cảnh báo; bật công tắc sau khi bạn gọi kiểm tra để gỡ nhãn.
@@ -260,7 +261,8 @@ lấy từ một bản ghi cụ thể trong database. Không tìm được thì 
 | Di tích | *"chùa Mỹ Cụ có gì đặc biệt"* · *"đền Yết Kiêu thờ ai"* · *"Đông Triều có bao nhiêu di tích"* |
 | Lễ hội | *"lễ hội nào sắp diễn ra"* (kèm **số ngày còn lại**) · *"lễ hội tháng Giêng có những gì"* |
 | Ẩm thực, lưu trú | *"ăn gì ở Đông Triều"* · *"na mùa nào"* · *"khách sạn ở đâu"* (kèm SĐT) |
-| Đường đi, lịch trình, ngân sách | *"đi từ Hà Nội thế nào"* · *"lịch trình 2 ngày 1 đêm"* · *"tôi có 2 triệu thì đi đâu"* |
+| Đường đi & lịch trình | *"đi từ Hà Nội thế nào"* · *"lịch trình 2 ngày 1 đêm"* · *"buổi sáng đi đâu, chiều đi đâu"* |
+| Ngân sách & gợi ý dịch vụ | *"tôi có 2 triệu thì vạch lộ trình tham quan + ăn uống"* (lấy giá thực đơn nhà hàng) · *"gợi ý quán giá hợp lý"* |
 | Giới thiệu, vé, giờ mở cửa | *"giới thiệu về Đông Triều"* · *"vé vào cửa bao nhiêu"* · *"mấy giờ mở cửa"* |
 | Liên hệ & khẩn cấp | *"số điện thoại UBND phường"* · *"gọi cấp cứu số mấy"* (113/114/115) |
 

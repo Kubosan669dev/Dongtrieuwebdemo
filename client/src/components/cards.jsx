@@ -94,12 +94,19 @@ export function CuisineCard({ item }) {
   );
 }
 
-export function LodgingCard({ item }) {
+export function LodgingCard({ item, onClick }) {
   const type = LODGING_TYPES[item.type];
   return (
-    <div className="card flex flex-col p-5">
+    <div
+      className="card card-hover flex cursor-pointer flex-col p-5"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onClick?.())}
+    >
       <div className="mb-2 flex items-center justify-between">
         <Badge tone={item.type === 'KHACH_SAN' ? 'gold' : 'jade'}>{type?.label}</Badge>
+        {item.priceRange && <span className="text-xs font-medium text-jade-500">{item.priceRange}</span>}
       </div>
       <h3 className="font-serif text-lg font-semibold text-jade-900 dark:text-jade-50">{item.name}</h3>
       <p className="mt-2 flex items-start gap-1.5 text-sm text-jade-600 dark:text-jade-300">
@@ -107,15 +114,21 @@ export function LodgingCard({ item }) {
         {item.address}
       </p>
       {item.owner && <p className="mt-1 text-sm text-jade-500">Đại diện: {item.owner}</p>}
-      {item.phones?.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {item.phones.map((p) => (
-            <a key={p} href={phoneHref(p)} className="btn-ghost !px-3 !py-1.5 text-xs">
-              <Phone size={13} /> {p}
-            </a>
-          ))}
-        </div>
-      )}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {item.phones?.map((p) => (
+          <a
+            key={p}
+            href={phoneHref(p)}
+            onClick={(e) => e.stopPropagation()}
+            className="btn-ghost !px-3 !py-1.5 text-xs"
+          >
+            <Phone size={13} /> {p}
+          </a>
+        ))}
+        <span className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-jade-600 dark:text-jade-300">
+          <Info size={13} /> Xem chi tiết
+        </span>
+      </div>
     </div>
   );
 }
