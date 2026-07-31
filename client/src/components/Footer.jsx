@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Facebook, Youtube } from 'lucide-react';
 import { useSettings } from '../hooks/useSettings.js';
+import Brand from './Brand.jsx';
+import { SITE_NAME, SITE_OWNER } from '../lib/site.js';
 
 export default function Footer() {
   const settings = useSettings();
@@ -11,14 +13,9 @@ export default function Footer() {
     <footer className="mt-20 border-t border-jade-900/5 bg-jade-950 text-jade-100">
       <div className="container-page grid gap-10 py-14 md:grid-cols-4">
         <div className="md:col-span-2">
-          <div className="flex items-center gap-2.5">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-jade-600 text-white">
-              <MapPin size={20} />
-            </span>
-            <span className="font-serif text-xl font-bold">Du lịch Đông Triều</span>
-          </div>
+          <Brand size={44} title={SITE_NAME} titleClass="text-xl" />
           <p className="mt-4 max-w-md text-sm leading-relaxed text-jade-200/80">
-            Cổng thông tin du lịch phường Đông Triều, tỉnh Quảng Ninh — vùng đất địa linh nhân kiệt,
+            Cổng thông tin chính thức về du lịch phường Đông Triều, tỉnh Quảng Ninh — vùng đất địa linh nhân kiệt,
             quê gốc và nơi yên nghỉ của các vị vua triều Trần, trung tâm của Thiền phái Trúc Lâm.
           </p>
           <div className="mt-5 flex gap-3">
@@ -60,9 +57,14 @@ export default function Footer() {
               </li>
             )}
             {contact.email && (
-              <li className="flex items-center gap-2">
-                <Mail size={16} className="text-gold-400" />
-                <a href={`mailto:${contact.email}`} className="hover:text-gold-300">{contact.email}</a>
+              <li className="flex items-start gap-2">
+                <Mail size={16} className="mt-0.5 shrink-0 text-gold-400" />
+                {/* `break-all` + `min-w-0`: địa chỉ thư của phường dài và không có
+                    chỗ ngắt tự nhiên, để nguyên là nó đẩy rộng cả trang ở khổ máy
+                    tính bảng và sinh thanh cuộn ngang. */}
+                <a href={`mailto:${contact.email}`} className="min-w-0 break-all hover:text-gold-300">
+                  {contact.email}
+                </a>
               </li>
             )}
           </ul>
@@ -71,7 +73,7 @@ export default function Footer() {
 
       <div className="border-t border-jade-800/60">
         <div className="container-page flex flex-col items-center justify-between gap-2 py-5 text-xs text-jade-300/70 sm:flex-row">
-          <p>© {new Date().getFullYear()} Cổng thông tin du lịch phường Đông Triều.</p>
+          <p>© {new Date().getFullYear()} {SITE_NAME} · {SITE_OWNER}.</p>
           <p>
             Dữ liệu di tích biên soạn từ hồ sơ lý lịch di tích &amp; quyết định xếp hạng chính thức.
           </p>

@@ -1,7 +1,11 @@
-import { useState } from 'react';
-import { X, ImagePlus, Plus, MapPin } from 'lucide-react';
+import { lazy, Suspense, useState } from 'react';
+import { X, ImagePlus, Plus, MapPin, ChevronUp, ChevronDown } from 'lucide-react';
 import MediaPicker from './MediaPicker.jsx';
-import { mapEmbedUrl, cx } from '../../lib/format.js';
+import { cx } from '../../lib/format.js';
+
+/** Nạp trễ: Leaflet không được nằm trong gói khởi động của khu quản trị. */
+const MapPicker = lazy(() => import('./MapPicker.jsx'));
+import { normalizeImages } from '../../../../shared/images.js';
 
 export function Field({ label, hint, required, children }) {
   return (
@@ -119,28 +123,89 @@ export function ImageField({ value, onChange }) {
   );
 }
 
-/** Chọn nhiều ảnh (gallery). */
-export function GalleryField({ value = [], onChange }) {
+/**
+ * Thư viện ảnh minh hoạ: chọn nhiều ảnh, mỗi ảnh có ô nhập chú thích riêng và
+ * đổi được thứ tự.
+ *
+ * Giá trị là mảng `{ url, caption }`. Vẫn nhận mảng chuỗi URL của dạng cũ để mở
+ * bản ghi lưu từ trước không bị lỗi (xem `shared/images.js`).
+ */
+export function GalleryField({ value, onChange, name }) {
   const [open, setOpen] = useState(false);
+  const items = normalizeImages(value);
+
+  const patch = (i, changes) => onChange(items.map((img, j) => (j === i ? { ...img, ...changes } : img)));
+  const remove = (i) => onChange(items.filter((_, j) => j !== i));
+  const move = (i, dir) => {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = [...items];
+    [next[i], next[j]] = [next[j], next[i]];
+    onChange(next);
+  };
+
   return (
-    <div>
-      <div className="flex flex-wrap gap-2">
-        {value.map((url, i) => (
-          <div key={i} className="relative">
-            <img src={url} alt="" className="h-24 w-24 rounded-lg object-cover ring-1 ring-jade-200" />
-            <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full bg-red-600 text-white"><X size={12} /></button>
+    <div className="space-y-2">
+      {items.map((img, i) => (
+        <div key={`${img.url}-${i}`} className="flex gap-3 rounded-xl border border-jade-200 p-2 dark:border-jade-700">
+          <img src={img.url} alt="" className="h-20 w-20 shrink-0 rounded-lg object-cover ring-1 ring-jade-200 dark:ring-jade-700" />
+          <div className="min-w-0 flex-1">
+            <input
+              className={inputCls}
+              value={img.caption}
+              maxLength={300}
+              onChange={(e) => patch(i, { caption: e.target.value })}
+              placeholder={`Chú thích ảnh${name ? ` — vd "Cổng tam quan ${name}"` : ''}`}
+            />
+            <p className="mt-1 truncate text-[11px] text-jade-400">{img.url}</p>
           </div>
-        ))}
-        <button type="button" onClick={() => setOpen(true)} className="grid h-24 w-24 place-items-center rounded-lg border-2 border-dashed border-jade-200 text-jade-400 hover:border-jade-400 dark:border-jade-700"><Plus size={22} /></button>
-      </div>
-      <MediaPicker open={open} onClose={() => setOpen(false)} onSelect={(urls) => onChange([...(value || []), ...urls])} mode="multiple" />
+          <div className="flex shrink-0 flex-col gap-1">
+            <button type="button" onClick={() => move(i, -1)} disabled={i === 0} title="Lên trên"
+              className="grid h-7 w-7 place-items-center rounded-md text-jade-500 hover:bg-jade-100 disabled:opacity-30 dark:hover:bg-jade-800"><ChevronUp size={15} /></button>
+            <button type="button" onClick={() => move(i, 1)} disabled={i === items.length - 1} title="Xuống dưới"
+              className="grid h-7 w-7 place-items-center rounded-md text-jade-500 hover:bg-jade-100 disabled:opacity-30 dark:hover:bg-jade-800"><ChevronDown size={15} /></button>
+            <button type="button" onClick={() => remove(i)} title="Bỏ ảnh"
+              className="grid h-7 w-7 place-items-center rounded-md text-jade-400 hover:bg-red-50 hover:text-red-600"><X size={14} /></button>
+          </div>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex h-20 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-jade-200 text-sm text-jade-400 hover:border-jade-400 hover:text-jade-600 dark:border-jade-700"
+      >
+        <Plus size={18} /> Thêm ảnh minh hoạ
+      </button>
+      <p className="text-xs text-jade-400">
+        Chú thích hiện ngay dưới ảnh ở trang chi tiết. Ảnh không chụp đúng địa điểm thì nên ghi rõ
+        trong chú thích để du khách không hiểu nhầm.
+      </p>
+
+      <MediaPicker
+        open={open}
+        onClose={() => setOpen(false)}
+        onSelect={(urls) => onChange([...items, ...urls.map((url) => ({ url, caption: '' }))])}
+        mode="multiple"
+      />
     </div>
   );
 }
 
-/** Toạ độ lat/lng + xem thử trên bản đồ. */
-export function LatLngField({ lat, lng, onChange }) {
-  const [preview, setPreview] = useState(false);
+/**
+ * Toạ độ cho bản đồ số.
+ *
+ * Bản trước CHỈ có hai hộp số, bắt gõ tay 5 chữ số thập phân — và kết quả là
+ * 12/13 di tích không có toạ độ, tức bản đồ số gần như trống ở đúng loại nội dung
+ * quan trọng nhất. Nay mặc định là bấm lên bản đồ; hai hộp số vẫn giữ cho ai muốn
+ * dán toạ độ chính xác từ nguồn khác.
+ *
+ * Truyền `name` / `address` / `ward` xuống để nút "Dò từ địa chỉ" có gì mà tra.
+ * Nạp trễ bản đồ: Leaflet không được nằm trong gói khởi động của khu quản trị.
+ */
+export function LatLngField({ lat, lng, onChange, name, address, ward, estimated, onEstimatedChange }) {
+  const [moBanDo, setMoBanDo] = useState(() => lat == null || lng == null);
+
   return (
     <div>
       <div className="grid grid-cols-2 gap-3">
@@ -151,13 +216,43 @@ export function LatLngField({ lat, lng, onChange }) {
           <Number_ value={lng} onChange={(v) => onChange({ lat, lng: v })} step="0.00001" placeholder="106.55440" />
         </Field>
       </div>
-      {lat != null && lng != null && (
-        <button type="button" onClick={() => setPreview((v) => !v)} className="btn-ghost mt-2 !py-2 text-xs">
-          <MapPin size={14} /> {preview ? 'Ẩn' : 'Xem thử trên bản đồ'}
-        </button>
+
+      <button type="button" onClick={() => setMoBanDo((v) => !v)} className="btn-ghost btn-sm mt-2">
+        <MapPin size={14} /> {moBanDo ? 'Ẩn bản đồ' : 'Chọn trên bản đồ'}
+      </button>
+
+      {moBanDo && (
+        <div className="mt-2">
+          <Suspense fallback={<div className="grid h-[300px] place-items-center rounded-xl bg-jade-50 text-sm text-jade-500 dark:bg-jade-900/40">Đang tải bản đồ…</div>}>
+            <MapPicker
+              lat={lat}
+              lng={lng}
+              name={name}
+              address={address}
+              ward={ward}
+              onPick={onChange}
+            />
+          </Suspense>
+        </div>
       )}
-      {preview && lat != null && lng != null && (
-        <iframe title="preview" src={mapEmbedUrl({ lat, lng })} className="mt-2 h-56 w-full rounded-xl" style={{ border: 0 }} loading="lazy" />
+
+      {/* Cờ "chưa xác minh" phải sửa được ngay tại đây: script dò toạ độ đặt cờ
+          này, và người kiểm tra thực địa cần một chỗ để bỏ nó sau khi đã kéo ghim
+          cho đúng. Không có chỗ bỏ thì mọi ghim sẽ mãi mang nhãn ước tính. */}
+      {onEstimatedChange && lat != null && lng != null && (
+        <div className="mt-3">
+          <Toggle
+            value={estimated}
+            onChange={onEstimatedChange}
+            label="Toạ độ chưa xác minh (do máy dò theo địa chỉ)"
+          />
+          {estimated && (
+            <p className="mt-1 text-xs text-gold-700 dark:text-gold-300">
+              Bản đồ công khai vẽ ghim này bằng nét đứt và có ghi chú. Sau khi kéo ghim đúng vị trí thực
+              địa, hãy tắt công tắc này.
+            </p>
+          )}
+        </div>
       )}
     </div>
   );

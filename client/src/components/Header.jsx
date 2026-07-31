@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun, MapPin } from 'lucide-react';
+import { Menu, X, Palette } from 'lucide-react';
+import Brand from './Brand.jsx';
 import { cx } from '../lib/format.js';
+import { SITE_NAME, SITE_SHORT, SITE_TAGLINE } from '../lib/site.js';
 
 const NAV = [
   { to: '/di-tich', label: 'Di tích' },
@@ -14,7 +16,7 @@ const NAV = [
   { to: '/gioi-thieu', label: 'Giới thiệu' },
 ];
 
-export default function Header({ theme, onToggleTheme }) {
+export default function Header({ onOpenThemes }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const location = useLocation();
@@ -26,7 +28,14 @@ export default function Header({ theme, onToggleTheme }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => setOpen(false), [location.pathname]);
+  // Đổi trang thì đóng menu. Dùng mẫu "state phái sinh từ prop" của React thay
+  // cho useEffect: đặt state ngay trong lúc render tránh được một nhịp vẽ thừa
+  // mà người dùng thấy được — menu vẫn còn mở một khung hình sau khi trang đã đổi.
+  const [lastPath, setLastPath] = useState(location.pathname);
+  if (lastPath !== location.pathname) {
+    setLastPath(location.pathname);
+    setOpen(false);
+  }
 
   return (
     <header
@@ -38,14 +47,22 @@ export default function Header({ theme, onToggleTheme }) {
       )}
     >
       <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2.5">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-jade-600 text-white shadow-soft">
-            <MapPin size={20} />
-          </span>
-          <span className="leading-tight">
-            <span className="block font-serif text-lg font-bold text-jade-900 dark:text-jade-50">Đông Triều</span>
-            <span className="block text-[11px] uppercase tracking-wide text-gold-600">Du lịch · Di sản</span>
-          </span>
+        <Link to="/">
+          <Brand
+            /* Tên đầy đủ ở đầu trang — đây là chỗ dễ thấy nhất, để trống tên mới
+               ở đây thì việc đổi tên coi như không xảy ra với người vào trang.
+               Dưới 640px thì rút về tên ngắn: "Khám phá Đông Triều" hai dòng chen
+               với nút ba gạch làm đầu trang chật cứng. */
+            title={
+              <>
+                <span className="sm:hidden">{SITE_SHORT}</span>
+                <span className="hidden sm:inline">{SITE_NAME}</span>
+              </>
+            }
+            subtitle={SITE_TAGLINE}
+            titleClass="text-lg text-jade-900 dark:text-jade-50"
+            subtitleClass="text-[11px] uppercase tracking-wide text-gold-600 dark:text-gold-400"
+          />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -68,16 +85,24 @@ export default function Header({ theme, onToggleTheme }) {
         </nav>
 
         <div className="flex items-center gap-2">
+          {/* Mở hộp chọn bảng màu — bên trong có cả chuyển nền sáng/tối */}
           <button
-            onClick={onToggleTheme}
-            aria-label="Đổi giao diện sáng/tối"
+            onClick={onOpenThemes}
+            aria-label="Đổi bảng màu website"
+            title="Đổi bảng màu"
             className="grid h-10 w-10 place-items-center rounded-full text-jade-700 hover:bg-jade-100 dark:text-jade-200 dark:hover:bg-jade-800/50"
           >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            <Palette size={18} />
           </button>
+          {/* `aria-expanded` + `aria-controls`: trước đây nút chỉ có `aria-label="Menu"`,
+              nên trình đọc màn hình đọc ra "Menu, nút" mà không cho biết menu
+              đang mở hay đang đóng — người dùng bấm rồi không biết đã xảy ra gì.
+              `aria-label` cũng đổi theo trạng thái để nói rõ việc nút sẽ làm. */}
           <button
             onClick={() => setOpen((v) => !v)}
-            aria-label="Menu"
+            aria-label={open ? 'Đóng menu' : 'Mở menu'}
+            aria-expanded={open}
+            aria-controls="menu-dien-thoai"
             className="grid h-10 w-10 place-items-center rounded-full text-jade-700 hover:bg-jade-100 lg:hidden dark:text-jade-200 dark:hover:bg-jade-800/50"
           >
             {open ? <X size={20} /> : <Menu size={20} />}
@@ -87,7 +112,7 @@ export default function Header({ theme, onToggleTheme }) {
 
       {/* Menu mobile */}
       {open && (
-        <div className="border-t border-jade-900/5 bg-paper/95 backdrop-blur-md lg:hidden dark:bg-jade-950/95">
+        <div id="menu-dien-thoai" className="border-t border-jade-900/5 bg-paper/95 backdrop-blur-md lg:hidden dark:bg-jade-950/95">
           <nav className="container-page grid gap-1 py-3">
             {NAV.map((item) => (
               <NavLink
