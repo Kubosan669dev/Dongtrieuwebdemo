@@ -67,7 +67,9 @@ async function main() {
   if (fs.existsSync(MANIFEST)) {
     try {
       manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
-    } catch {}
+    } catch {
+      /* manifest hỏng thì coi như chưa có, quét lại thư mục ảnh */
+    }
   }
 
   const files = fs

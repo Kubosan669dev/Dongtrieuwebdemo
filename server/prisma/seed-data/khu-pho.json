@@ -1,0 +1,106 @@
+{
+  "ghiChu": "Sau sắp xếp, phường Đông Triều tổ chức lại 36 khu phố cũ thành 11 khu phố. Địa chỉ mới có dạng: '<số nhà, đường>, Khu phố <tên>, phường Đông Triều, tỉnh Quảng Ninh'.",
+  "tongSo": 11,
+  "danhSach": [
+    {
+      "so": 1,
+      "ten": "Mỹ Cụ",
+      "gom": "Mỹ Cụ 1 + Mỹ Cụ 2 + La Dương + Vân Quế",
+      "dienTichKm2": 4.35,
+      "soHo": 1200,
+      "nhanKhau": 4030,
+      "nhaVanHoa": "Khu Mỹ Cụ 1"
+    },
+    {
+      "so": 2,
+      "ten": "Mễ Xá",
+      "gom": "Mễ Xá 1 + Mễ Xá 2 + Mễ Xá 3 + Thủ Dương",
+      "dienTichKm2": 3.45,
+      "soHo": 1422,
+      "nhanKhau": 4644,
+      "nhaVanHoa": "Khu Mễ Xá 3"
+    },
+    {
+      "so": 3,
+      "ten": "Đoàn Xá",
+      "gom": "Đoàn Xá 1 + Đoàn Xá 2 + Bến Triều",
+      "dienTichKm2": 2.62,
+      "soHo": 1080,
+      "nhanKhau": 3472,
+      "nhaVanHoa": "Khu Đoàn Xá 1"
+    },
+    {
+      "so": 4,
+      "ten": "Bình Lục",
+      "gom": "Đông Tân + Triều Khê + Bình Lục Thượng + Bình Lục Hạ",
+      "dienTichKm2": 4.18,
+      "soHo": 1480,
+      "nhanKhau": 5033,
+      "nhaVanHoa": "Khu Bình Lục Hạ"
+    },
+    {
+      "so": 5,
+      "ten": "Yên Lâm",
+      "gom": "Yên Lâm 1 + Yên Lâm 2 + Yên Lâm 3 + Yên Lâm 4",
+      "dienTichKm2": 4.47,
+      "soHo": 1634,
+      "nhanKhau": 5262,
+      "nhaVanHoa": "Khu Yên Lâm 4"
+    },
+    {
+      "so": 6,
+      "ten": "Trạo Hà",
+      "gom": "Trạo Hà + Khu phố 3",
+      "dienTichKm2": 1.5,
+      "soHo": 1012,
+      "nhanKhau": 3205,
+      "nhaVanHoa": "Khu Trạo Hà"
+    },
+    {
+      "so": 7,
+      "ten": "Nguyễn Bình",
+      "gom": "Khu phố 1 + Khu 2 + Khu 4",
+      "dienTichKm2": 0.74,
+      "soHo": 1379,
+      "nhanKhau": 5270,
+      "nhaVanHoa": "Khu phố 1"
+    },
+    {
+      "so": 8,
+      "ten": "Đạm Thuỷ",
+      "gom": "Giữ nguyên khu Đạm Thuỷ",
+      "dienTichKm2": 1.83,
+      "soHo": 662,
+      "nhanKhau": 2288,
+      "nhaVanHoa": "Khu Đạm Thuỷ"
+    },
+    {
+      "so": 9,
+      "ten": "An Biên",
+      "gom": "Vị Thuỷ + An Biên",
+      "dienTichKm2": 5.86,
+      "soHo": 768,
+      "nhanKhau": 2589,
+      "nhaVanHoa": "Khu Vị Thuỷ"
+    },
+    {
+      "so": 10,
+      "ten": "Vân Giang",
+      "gom": "Vân Giang + Nguyễn Huệ 2",
+      "dienTichKm2": 3.16,
+      "soHo": 617,
+      "nhanKhau": 1900,
+      "nhaVanHoa": "Khu Vân Giang"
+    },
+    {
+      "so": 11,
+      "ten": "Đông Mai",
+      "gom": "Nguyễn Huệ 3 + 4 + 5 + 6 + 7 + 8 + 9",
+      "dienTichKm2": 8.25,
+      "soHo": 1468,
+      "nhanKhau": 4761,
+      "nhaVanHoa": "Khu Nguyễn Huệ 8"
+    }
+  ],
+  "capNhat": "2026-07-27"
+}

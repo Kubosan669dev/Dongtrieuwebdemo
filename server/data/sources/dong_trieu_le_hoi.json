@@ -1,0 +1,201 @@
+[
+  {
+    "id": 1,
+    "ten": "Lễ hội đền An Sinh",
+    "quy_mo": "Lớn",
+    "tinh_trang": "Thường niên",
+    "di_tich_lien_quan": "Khu di tích Quốc gia đặc biệt đền An Sinh",
+    "dia_diem": "Thôn Nghĩa Hưng, xã An Sinh, thị xã Đông Triều, tỉnh Quảng Ninh",
+    "ghi_chu_hanh_chinh_moi": "Tên đơn vị theo tài liệu là trước sắp xếp 2025; khu vực An Sinh nay là phường An Sinh, giáp phường Đông Triều.",
+    "thoi_gian_am_lich": "20 - 22 tháng 8 âm lịch (chính hội ngày 20/8 - ngày mất Trần Hưng Đạo)",
+    "thoi_gian_duong_lich_uoc_tinh": "Tháng 9 hoặc tháng 10",
+    "thoi_luong": "3 ngày",
+    "gioi_thieu": "Một trong những lễ hội lớn nhất của thị xã Đông Triều, mang ý nghĩa đặc biệt quan trọng trong việc bảo tồn và phát huy giá trị di sản nhà Trần.",
+    "lich_su_hinh_thanh": "Đền An Sinh được xây dựng từ thế kỷ XIV, là nơi thờ 8 vị vua nhà Trần. Lễ hội được phục dựng nhằm ghi nhớ công ơn các vị vua và vương triều Trần.",
+    "nhan_vat_duoc_tho": "8 vị vua triều Trần và Hưng Đạo Đại vương Trần Quốc Tuấn",
+    "y_nghia": {
+      "van_hoa": "Giáo dục sâu sắc về truyền thống 'Uống nước nhớ nguồn', thể hiện tinh thần hào khí Đông A.",
+      "tam_linh": "Dịp để người dân cầu quốc thái dân an, mưa thuận gió hòa."
+    },
+    "nghi_le_chinh": [
+      "Lễ gióng trống, chiêng khai hội",
+      "Lễ dâng hương tưởng niệm các vua Trần",
+      "Lễ cáo yết đền An Sinh và các lăng mộ"
+    ],
+    "hoat_dong_van_hoa": [
+      "Giao lưu văn nghệ các làng, khu phố",
+      "Thi đấu bóng chuyền hơi, kéo co, đẩy gậy, cờ người",
+      "Triển lãm ảnh, trưng bày cây cảnh nghệ thuật"
+    ],
+    "doi_tuong_tham_gia": "Nhân dân địa phương, phật tử, du khách thập phương, các cơ quan ban ngành",
+    "kinh_nghiem_du_khach": [
+      "Thời điểm đẹp nhất: sáng ngày 20/8 âm lịch dự lễ khai mạc",
+      "Trang phục lịch sự, trang nghiêm",
+      "Giữ gìn vệ sinh, gửi xe ở bãi đỗ quy định, tuân thủ hướng dẫn tại di tích"
+    ],
+    "nguon_tham_khao": "Cổng thông tin điện tử UBND tỉnh Quảng Ninh; Trung tâm Xúc tiến Du lịch Quảng Ninh"
+  },
+  {
+    "id": 2,
+    "ten": "Lễ hội Thái Miếu nhà Trần",
+    "quy_mo": "Lớn",
+    "tinh_trang": "Thường niên",
+    "di_tich_lien_quan": "Thái Miếu nhà Trần (đồi Đình)",
+    "dia_diem": "Thôn Trại Lốc, xã An Sinh, thị xã Đông Triều, tỉnh Quảng Ninh",
+    "ghi_chu_hanh_chinh_moi": "Khu vực An Sinh nay là phường An Sinh, giáp phường Đông Triều (tên theo tài liệu là trước sắp xếp 2025).",
+    "thoi_gian_am_lich": "18 - 20 tháng Giêng âm lịch",
+    "thoi_gian_duong_lich_uoc_tinh": "Khoảng tháng 2 - tháng 3",
+    "thoi_luong": "3 ngày",
+    "gioi_thieu": "Thái Miếu là di tích quan trọng bậc nhất, nơi phát tích và thờ tổ tiên vương triều Trần.",
+    "lich_su_hinh_thanh": "Thái Miếu (Tiên Miếu, Tổ Miếu) được phục dựng từ năm 2019 và tổ chức lễ hội thường niên, gắn liền với ngày giỗ Thái Tổ Trần Thừa.",
+    "nhan_vat_duoc_tho": "Tổ tiên nhà Trần và các vị vua nhà Trần",
+    "y_nghia": {
+      "van_hoa": "Gợi nhớ nguồn gốc xuất thân từ nghề chài lưới của nhà Trần trên vùng sông nước.",
+      "tam_linh": "Biết ơn bậc tiền nhân đã khai sáng cơ nghiệp, xin phước lộc cho con cháu vạn đại."
+    },
+    "nghi_le_chinh": [
+      "Lễ rước nước (nghi lễ quan trọng nhất, lấy nước từ sông để dâng lên bàn thờ)",
+      "Lễ dâng hương, tế truyền thống"
+    ],
+    "hoat_dong_van_hoa": [
+      "Hội thi làm bánh chưng, giã giò",
+      "Giao lưu thể thao, hát dân ca, quan họ"
+    ],
+    "doi_tuong_tham_gia": "Dòng họ Trần toàn quốc, người dân địa phương và du khách",
+    "kinh_nghiem_du_khach": [
+      "Trải nghiệm đặc sắc nhất: xem nghi thức Lễ rước nước",
+      "Cách đền An Sinh không xa, có thể kết hợp tuyến đi xe điện"
+    ],
+    "nguon_tham_khao": "Báo Nhân Dân; Cục Di sản Văn hóa"
+  },
+  {
+    "id": 3,
+    "ten": "Lễ hội Xuân Ngọa Vân",
+    "quy_mo": "Lớn",
+    "tinh_trang": "Thường niên",
+    "di_tich_lien_quan": "Khu di tích am - chùa Ngọa Vân (trên núi Bảo Đài)",
+    "dia_diem": "Thôn Tây Sơn, xã Bình Khê, thị xã Đông Triều, tỉnh Quảng Ninh",
+    "ghi_chu_hanh_chinh_moi": "Khu vực Bình Khê nay là phường Bình Khê, giáp phường Đông Triều (tên theo tài liệu là trước sắp xếp 2025).",
+    "thoi_gian_am_lich": "Khai hội ngày 9 tháng Giêng, kéo dài đến hết tháng 3 âm lịch",
+    "thoi_gian_duong_lich_uoc_tinh": "Tháng 2 đến tháng 4",
+    "thoi_luong": "Gần 3 tháng",
+    "gioi_thieu": "Lễ hội tâm linh lớn nhất mùa xuân tại vùng 'đất Phật trời Nam' Đông Triều, gắn liền với Phật hoàng Trần Nhân Tông.",
+    "lich_su_hinh_thanh": "Ngọa Vân là nơi tu hành cuối đời và nhập Niết Bàn của Phật hoàng Trần Nhân Tông. Lễ hội khai xuân được tổ chức tôn vinh giá trị của Thiền phái Trúc Lâm.",
+    "nhan_vat_duoc_tho": "Đức Phật hoàng Trần Nhân Tông",
+    "y_nghia": {
+      "van_hoa": "Tôn vinh tư tưởng từ bi, hỷ xả và nhập thế của Phật giáo Trúc Lâm.",
+      "tam_linh": "Hành hương bái Phật cầu an đầu năm."
+    },
+    "nghi_le_chinh": [
+      "Cầu quốc thái dân an",
+      "Dâng hương lễ Phật",
+      "Tụng kinh bái sám"
+    ],
+    "hoat_dong_van_hoa": [
+      "Hành hương leo núi, ngắm cảnh xuân",
+      "Giao lưu văn hóa nghệ thuật truyền thống trong ngày khai hội"
+    ],
+    "doi_tuong_tham_gia": "Hàng vạn tăng ni, phật tử, du khách thập phương",
+    "kinh_nghiem_du_khach": [
+      "Có thể đi bộ leo núi vãn cảnh hoặc đi cáp treo Ngọa Vân",
+      "Mặc đồ ấm (trên núi cao lạnh), đi giày thể thao leo núi",
+      "Ăn chay tại chùa hoặc nhà hàng khu vực chân cáp treo"
+    ],
+    "nguon_tham_khao": "Ban trị sự GHPGVN tỉnh Quảng Ninh; Ban quản lý các di tích nhà Trần"
+  },
+  {
+    "id": 4,
+    "ten": "Lễ hội chùa Quỳnh Lâm",
+    "quy_mo": "Lớn",
+    "tinh_trang": "Thường niên",
+    "di_tich_lien_quan": "Chùa Quỳnh Lâm ('Đệ nhất danh lam cổ tích nước An Nam', 'trường đại học Phật giáo' đầu tiên của Việt Nam thời Trần)",
+    "dia_diem": "Phường Tràng An, thị xã Đông Triều, tỉnh Quảng Ninh",
+    "ghi_chu_hanh_chinh_moi": "Tên 'phường Tràng An' là trước sắp xếp 2025; khu vực này thuộc phạm vi phường Đông Triều mở rộng ngày nay (nên xác nhận lại đơn vị chính xác).",
+    "thoi_gian_am_lich": "Mùng 1 - mùng 4 tháng 2 âm lịch",
+    "thoi_gian_duong_lich_uoc_tinh": "Tháng 3",
+    "thoi_luong": "4 ngày",
+    "gioi_thieu": "Được mệnh danh là 'Đệ nhất danh lam cổ tích nước An Nam', chùa Quỳnh Lâm là 'trường đại học Phật giáo' đầu tiên của Việt Nam thời Trần.",
+    "lich_su_hinh_thanh": "Chùa khởi dựng từ thời Lý, đến thời Trần được mở rộng thành một trung tâm Phật giáo quy mô lớn. Nơi đây từng có pho tượng Di Lặc bằng đồng khổng lồ (một trong An Nam tứ đại khí).",
+    "nhan_vat_duoc_tho": "Phật Thích Ca, Phật Di Lặc, Tam Tổ Trúc Lâm (Trần Nhân Tông, Pháp Loa, Huyền Quang)",
+    "y_nghia": {
+      "van_hoa": "Ôn lại truyền thống hiếu học, đề cao tri thức và tư tưởng Phật giáo Đại Việt.",
+      "tam_linh": "Lễ Phật đầu năm, xin lộc, cầu trí tuệ và bình an."
+    },
+    "nghi_le_chinh": [
+      "Lễ rước nước, rước kiệu",
+      "Nghi lễ cầu quốc thái dân an"
+    ],
+    "hoat_dong_van_hoa": [
+      "Biểu diễn chèo",
+      "Trò chơi dân gian, liên hoan văn nghệ quần chúng"
+    ],
+    "doi_tuong_tham_gia": "Đông đảo nhân dân địa phương, phật tử và du khách",
+    "kinh_nghiem_du_khach": [
+      "Điểm nhấn: chiêm ngưỡng pho tượng Phật Thích Ca bằng ngọc nguyên khối và kiến trúc gỗ truyền thống quy mô lớn vừa được trùng tu khánh thành",
+      "Chùa rất trang nghiêm, không thắp nhang tùy tiện ngoài khu vực quy định"
+    ],
+    "nguon_tham_khao": "Cổng thông tin điện tử Quảng Ninh; Ban quản lý di tích"
+  },
+  {
+    "id": 5,
+    "ten": "Lễ hội truyền thống làng Đồn Sơn",
+    "quy_mo": "Vừa",
+    "tinh_trang": "Thường niên",
+    "di_tich_lien_quan": "Nhà thờ tổ thôn Đồn Sơn / Đình làng Đồn Sơn",
+    "dia_diem": "Xã Yên Đức, thị xã Đông Triều, tỉnh Quảng Ninh",
+    "ghi_chu_hanh_chinh_moi": "Tên 'xã Yên Đức' là trước sắp xếp 2025; nằm trong khu du lịch làng quê Yên Đức.",
+    "thoi_gian_am_lich": "16 - 18 tháng Giêng âm lịch",
+    "thoi_gian_duong_lich_uoc_tinh": "Tháng 2",
+    "thoi_luong": "3 ngày",
+    "gioi_thieu": "Lễ hội đặc sắc của làng quê mang đậm văn hóa vùng đồng bằng sông Hồng, nằm trong khu du lịch làng quê Yên Đức nổi tiếng.",
+    "lich_su_hinh_thanh": "Lễ hội nhằm tri ân 8 vị tổ có công khai hoang, lập nên vùng đất trù phú Đồn Sơn - Yên Đức từ xa xưa.",
+    "nhan_vat_duoc_tho": "8 vị tổ có công khai hoang lập ấp",
+    "y_nghia": {
+      "van_hoa": "Bảo tồn giá trị văn hóa làng xã truyền thống, gắn kết cộng đồng.",
+      "tam_linh": "Cầu mưa thuận gió hòa, mùa màng bội thu."
+    },
+    "nghi_le_chinh": [
+      "Lễ tế truyền thống, dâng hương tri ân thành hoàng làng và các bậc tiên tổ"
+    ],
+    "hoat_dong_van_hoa": [
+      "Hát quan họ, hát chèo",
+      "Thi nấu cơm, bắt chạch trong chum, ném còn, bịt mắt bắt dê"
+    ],
+    "doi_tuong_tham_gia": "Nhân dân trong xã, khách du lịch quốc tế và nội địa tham gia tour Làng quê Yên Đức",
+    "kinh_nghiem_du_khach": [
+      "Rất phù hợp với khách quốc tế muốn trải nghiệm văn hóa nông thôn Bắc Bộ",
+      "Kết hợp đạp xe quanh làng, xem múa rối nước Yên Đức"
+    ],
+    "nguon_tham_khao": "Trung tâm Xúc tiến Du lịch Quảng Ninh; UBND xã Yên Đức"
+  },
+  {
+    "id": 6,
+    "ten": "Lễ hội Chùa - Quán Ngọc Thanh",
+    "quy_mo": "Vừa",
+    "tinh_trang": "Thường niên",
+    "di_tich_lien_quan": "Khu di tích Chùa - Quán Ngọc Thanh",
+    "dia_diem": "Khu Đạm Thủy, phường Thủy An, thị xã Đông Triều, tỉnh Quảng Ninh",
+    "ghi_chu_hanh_chinh_moi": "Khu Đạm Thủy nay là Khu phố Đạm Thuỷ thuộc phường Đông Triều (sau sắp xếp 2025). Đây là lễ hội duy nhất trong 6 lễ hội nằm ngay trong địa giới phường Đông Triều hiện nay.",
+    "thoi_gian_am_lich": "19 - 20 tháng 2 âm lịch",
+    "thoi_gian_duong_lich_uoc_tinh": "Tháng 3",
+    "thoi_luong": "2 ngày",
+    "gioi_thieu": "Một trong những lễ hội mùa xuân tiêu biểu gắn với di tích nhà Trần, đề cao giá trị lịch sử và tinh thần thượng tôn tri ân.",
+    "lich_su_hinh_thanh": "Chùa - Quán Ngọc Thanh là minh chứng sống động của sự giao thoa văn hóa tín ngưỡng và lịch sử hào hùng của dân tộc thời Trần.",
+    "nhan_vat_duoc_tho": "Đức Phật và các bậc thần linh, thành hoàng",
+    "y_nghia": {
+      "van_hoa": "Bảo tồn nghệ thuật, kiến trúc và truyền thống tín ngưỡng địa phương.",
+      "tam_linh": "Cúng dâng lễ vật, cầu phúc lộc cho gia đình."
+    },
+    "nghi_le_chinh": [
+      "Cúng dâng hương, lễ vật truyền thống"
+    ],
+    "hoat_dong_van_hoa": [
+      "Hội diễn văn nghệ, trò chơi dân gian"
+    ],
+    "doi_tuong_tham_gia": "Nhân dân địa phương và du khách quanh vùng",
+    "kinh_nghiem_du_khach": [
+      "Phù hợp cho du khách thích không gian tĩnh lặng, không quá chen lấn như các lễ hội lớn"
+    ],
+    "nguon_tham_khao": "Du Lịch Quảng Ninh"
+  }
+]

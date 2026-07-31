@@ -18,7 +18,9 @@ export const env = {
   publicSiteUrl: process.env.PUBLIC_SITE_URL || 'http://localhost:4000',
 
   jwtSecret: process.env.JWT_SECRET || 'dev-secret-doi-truoc-khi-len-production',
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  /// Token chỉ nằm trong bộ nhớ trình duyệt và mất khi tải lại trang, nên hạn này
+  /// chỉ là chặn trên cho một buổi làm việc liên tục — không cần dài như trước.
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '8h',
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
 
   weather: {

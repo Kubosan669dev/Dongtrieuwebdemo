@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { asyncHandler, HttpError } from '../lib/http.js';
-import { requireAuth } from '../middleware/auth.js';
+import { optionalAuth, requireAuth } from '../middleware/auth.js';
 import { invalidateCorpus } from '../services/knowledge.js';
+import { deleteReviewsOfTarget } from '../services/reviews.js';
 
 /**
  * Factory tạo router CRUD cho một model Prisma.
@@ -43,11 +44,20 @@ export function createResourceRouter(opts) {
   // ── Danh sách ──
   router.get(
     '/',
+    optionalAuth,
     asyncHandler(async (req, res) => {
       const where = filter ? filter(req.query) : {};
-      // Người dùng công khai chỉ thấy published; admin có thể xem tất cả bằng ?all=1
-      const showAll = req.query.all === '1' && req.cookies?.dt_token;
-      if (!showAll && 'published' in prismaFields(model)) where.published = true;
+      // Người dùng công khai chỉ thấy mục đã xuất bản; quản trị viên đã đăng nhập
+      // thêm ?all=1 thì thấy cả bản nháp.
+      //
+      // `req.user` do `optionalAuth` đặt sau khi kiểm chữ ký JWT. Bản trước xét
+      // `req.cookies?.dt_token` — vừa hở (chỉ cần có cookie tên đó, không cần
+      // đúng), vừa chết hẳn từ khi bỏ cookie chuyển sang Bearer, khiến khu quản
+      // trị không còn thấy bài chưa xuất bản (Article mặc định published=false,
+      // nên bài vừa tạo là biến mất khỏi bảng).
+      const showAll = Boolean(req.user) && req.query.all === '1';
+      const visField = VISIBILITY_FIELD[model];
+      if (!showAll && visField) where[visField] = true;
 
       const items = await db().findMany({ where, orderBy, include });
       res.json({ items, total: items.length });
@@ -94,26 +104,38 @@ export function createResourceRouter(opts) {
     requireAuth,
     asyncHandler(async (req, res) => {
       await db().delete({ where: { id: req.params.id } });
+      // Dọn đánh giá của bản ghi vừa xoá. Bảng Review không có khoá ngoại (đích
+      // thuộc sáu bảng khác nhau) nên không có `ON DELETE CASCADE` lo hộ; không
+      // gọi ở đây thì đánh giá thành mồ côi, nằm mãi trong bảng mà không hiện ra
+      // đâu và không đếm vào đâu. Đây là đường xoá dùng chung của cả 8 model, nên
+      // một chỗ này phủ hết.
+      const daXoa = await deleteReviewsOfTarget(model, req.params.id);
       invalidateCorpus();
-      res.json({ ok: true });
+      res.json({ ok: true, reviewsDeleted: daXoa });
     }),
   );
 
   return router;
 }
 
-// Danh sách trường của mỗi model để biết có 'published' hay không.
-const FIELDS = {
-  heritage: { published: true, slug: true },
-  festival: { published: true, slug: true },
-  lodging: { published: true },
-  cuisine: { published: true, slug: true },
-  restaurant: { published: true },
-  article: { published: true, slug: true },
-  attraction: { published: true, slug: true },
-  slide: { active: true },
+/**
+ * Trường quyết định "khách có được thấy mục này không" của từng model.
+ *
+ * Slide dùng `active` thay vì `published` — trước đây khác biệt đó được xử lý
+ * bằng một hàm `filter` riêng trong `routes/index.js`, mà hàm đó chỉ nhìn
+ * `?all=1` chứ không nhìn phiên đăng nhập, nên khách vãng lai thêm `?all=1` là
+ * đọc được cả slide đã tắt. Gom về một chỗ để cả tám model cùng một luật.
+ */
+const VISIBILITY_FIELD = {
+  heritage: 'published',
+  festival: 'published',
+  lodging: 'published',
+  cuisine: 'published',
+  restaurant: 'published',
+  article: 'published',
+  attraction: 'published',
+  slide: 'active',
 };
-const prismaFields = (m) => FIELDS[m] || {};
 
 async function findByKey(model, key, hasSlug, include) {
   const db = prisma[model];

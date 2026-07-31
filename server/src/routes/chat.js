@@ -5,6 +5,7 @@ import { prisma } from '../lib/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { ask } from '../services/chatbot.js';
 import { getCorpus } from '../services/knowledge.js';
+import { ASSISTANT_NAME } from '../lib/site.js';
 
 const router = Router();
 
@@ -57,12 +58,12 @@ router.get(
   asyncHandler(async (_req, res) => {
     res.json({
       greeting:
-        'Xin chào 👋 Mình là trợ lý du lịch phường Đông Triều. Mình trả lời dựa trên dữ liệu chính thức của phường cùng số liệu thời tiết cập nhật theo giờ.',
+        `Xin chào 👋 Mình là ${ASSISTANT_NAME}. Mình trả lời dựa trên dữ liệu chính thức của phường cùng số liệu thời tiết cập nhật theo giờ.`,
       suggestions: [
         'Hôm nay nên đi đâu?',
-        'Thời tiết hôm nay thế nào?',
+        'Quán nào đánh giá cao nhất?',
+        'Giờ này còn quán nào mở?',
         'Lễ hội nào sắp diễn ra?',
-        'Đặc sản Đông Triều có gì?',
       ],
     });
   }),

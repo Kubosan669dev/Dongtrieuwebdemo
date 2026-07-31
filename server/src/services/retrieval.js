@@ -147,12 +147,20 @@ export function search(index, query, { kinds = null, limit = 5, minScore = 0.8, 
     const tt = doc.titleTokens ?? [];
     let titleHit = 0;
     let titleAll = 0;
+    const seenTitle = new Set();
     for (const t of tt) {
       const w = idf(index.df.get(t) ?? 0, index.N);
       titleAll += w;
-      if (resolved.has(t)) titleHit += w;
+      if (resolved.has(t)) {
+        titleHit += w;
+        seenTitle.add(t);
+      }
     }
     const titleCoverage = titleAll > 0 ? titleHit / titleAll : 0;
+    // Số từ KHÁC NHAU trong tên được câu hỏi chạm tới. Cần tách khỏi
+    // titleCoverage: một từ ngắn khớp tình cờ ("tỷ giá" đụng "Phở Bò Xuân Tỵ")
+    // vẫn có thể cho titleCoverage kha khá, nhưng chỉ chạm đúng 1 từ.
+    const titleHits = seenTitle.size;
 
     // Người dùng gọi thẳng tên riêng ("chùa Mỹ Cụ ở đâu") → ưu tiên mạnh
     const byName = doc.titleNorm.length >= 4 && qNorm.includes(doc.titleNorm);
@@ -163,7 +171,7 @@ export function search(index, query, { kinds = null, limit = 5, minScore = 0.8, 
     score *= 1 + titleCoverage; // khớp tên càng nhiều, điểm càng cao
     score *= boost?.[doc.kind] ?? KIND_PRIOR[doc.kind] ?? 1;
 
-    results.push({ doc, score, coverage, titleCoverage, exactName: byName || byAlias });
+    results.push({ doc, score, coverage, titleCoverage, titleHits, exactName: byName || byAlias });
   }
 
   results.sort((a, b) => b.score - a.score);

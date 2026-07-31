@@ -1,4 +1,4 @@
-// Cổng thông tin du lịch phường Đông Triều — Quảng Ninh
+// Khám phá Đông Triều — cổng thông tin du lịch phường Đông Triều, Quảng Ninh
 // Nguồn dữ liệu: hồ sơ lý lịch di tích + QĐ xếp hạng (thư mục .docx gốc)
 
 generator client {
@@ -66,6 +66,10 @@ model Heritage {
   mapQuery String? // chuỗi tra Google Maps khi chưa có toạ độ
   lat      Float?
   lng      Float?
+  /// true = toạ độ do script `npm run geocode` tự dò từ địa chỉ, CHƯA có người
+  /// xác minh. Bản đồ số vẽ ghim này khác kiểu và khu quản trị hiện nhãn nhắc.
+  /// Đặt tên theo tiền lệ `khuPhoEstimated` đã có trong file này.
+  coordsEstimated Boolean @default(false)
 
   worship      String[] @default([]) // đối tượng thờ phụng
   festivalNote String? // mô tả lễ hội trong hồ sơ di tích
@@ -87,7 +91,8 @@ model Heritage {
   order     Int     @default(0)
   published Boolean @default(true)
 
-  images    HeritageImage[]
+  /// Ảnh minh hoạ kèm chú thích: [{ url, caption }]. Xem lib/images.js.
+  images    Json       @default("[]")
   festivals Festival[]
 
   createdAt DateTime @default(now())
@@ -96,17 +101,6 @@ model Heritage {
   @@index([published, order])
   @@index([type])
   @@index([rankLevel])
-}
-
-model HeritageImage {
-  id         String   @id @default(cuid())
-  heritageId String
-  heritage   Heritage @relation(fields: [heritageId], references: [id], onDelete: Cascade)
-  url        String
-  caption    String?
-  order      Int      @default(0)
-
-  @@index([heritageId, order])
 }
 
 // ─── Lễ hội ────────────────────────────────────────────────────────────────
@@ -129,16 +123,44 @@ model Festival {
 
   location String
   scale    FestivalScale @default(HOI_LANG)
+  /// Độ dài lễ hội theo hồ sơ, vd "3 ngày", "Gần 3 tháng"
+  duration String?
 
   intro   String   @db.Text
   rituals String[] @default([])
+
+  // ── Hồ sơ chi tiết (bộ dữ liệu lễ hội 2026) ──
+  // Có đủ các trường này thì chatbot trả lời được "lễ hội thờ ai", "có nghi lễ
+  // gì", "đi lễ hội cần lưu ý gì" thay vì chỉ đọc lại đoạn giới thiệu.
+
+  /// Lịch sử hình thành lễ hội
+  history String? @db.Text
+  /// Nhân vật / vị thần được thờ
+  worship String[] @default([])
+  /// Ý nghĩa văn hoá
+  meaningCultural String? @db.Text
+  /// Ý nghĩa tâm linh
+  meaningSpiritual String? @db.Text
+  /// Hoạt động phần hội (thi đấu, văn nghệ, trò chơi dân gian)
+  activities String[] @default([])
+  /// Đối tượng tham gia
+  participants String?
+  /// Kinh nghiệm cho du khách (thời điểm đẹp, trang phục, lưu ý)
+  visitorTips String[] @default([])
+  /// Di tích liên quan (nguyên văn hồ sơ, có thể ngoài phường)
+  heritageNote String?
+  /// Ghi chú đơn vị hành chính mới sau sắp xếp 2025
+  wardNote String? @db.Text
+  /// Nguồn tham khảo của hồ sơ lễ hội
+  sourceNote String?
 
   heritageId String?
   heritage   Heritage? @relation(fields: [heritageId], references: [id], onDelete: SetNull)
 
   coverUrl            String?
   coverIsIllustrative Boolean  @default(false)
-  images              String[] @default([])
+  /// Ảnh minh hoạ kèm chú thích: [{ url, caption }]. Xem lib/images.js.
+  images              Json     @default("[]")
   order               Int      @default(0)
   published           Boolean  @default(true)
 
@@ -166,10 +188,41 @@ model Lodging {
 
   lat         Float?
   lng         Float?
+  /// true = toạ độ do script `npm run geocode` tự dò từ địa chỉ, CHƯA có người
+  /// xác minh. Bản đồ số vẽ ghim này khác kiểu và khu quản trị hiện nhãn nhắc.
+  /// Đặt tên theo tiền lệ `khuPhoEstimated` đã có trong file này.
+  coordsEstimated Boolean @default(false)
   description String?  @db.Text
   priceRange  String?
   amenities   String[] @default([])
-  images      String[] @default([])
+  /// Ảnh minh hoạ kèm chú thích: [{ url, caption }]. Xem lib/images.js.
+  images      Json     @default("[]")
+
+  /// Giờ nhận/trả phòng hoặc giờ mở cửa, vd "24 giờ"
+  openHours String?
+
+  /// Điểm sao trung bình trên Google Maps (0–5) và số lượt đánh giá.
+  /// null = chưa có lượt đánh giá nào — KHÔNG phải 0 sao.
+  rating      Float?
+  ratingCount Int?
+
+  /// Khu phố mới sau sắp xếp 2025 (1 trong 11 khu phố của phường).
+  khuPho String?
+  /// true = khu phố do suy luận từ tên đường/đơn vị cũ, chưa đối chiếu sơ đồ chính thức
+  khuPhoEstimated Boolean @default(false)
+  /// Khu vực hành chính, vd "Phường Bình Khê (lân cận)" cho cơ sở ngoài phường
+  area String?
+
+  /// Thẻ tìm kiếm ngữ nghĩa, vd "gần chợ Cột", "wifi", "khách nước ngoài"
+  tags String[] @default([])
+
+  placeId String? // Google Place ID
+  mapsUrl String? // liên kết Google Maps
+
+  /// true = có trong Danh sách cơ sở lưu trú của UBND phường 2026
+  registeredWithWard Boolean @default(false)
+  /// Nguồn của bản ghi, vd "Google Maps", "Danh sách UBND phường 2026"
+  sourceNote String?
 
   order     Int     @default(0)
   published Boolean @default(true)
@@ -195,7 +248,8 @@ model Cuisine {
 
   coverUrl            String?
   coverIsIllustrative Boolean  @default(false)
-  images              String[] @default([])
+  /// Ảnh minh hoạ kèm chú thích: [{ url, caption }]. Xem lib/images.js.
+  images              Json     @default("[]")
   order               Int      @default(0)
   published           Boolean  @default(true)
 
@@ -226,14 +280,35 @@ model Restaurant {
 
   lat    Float?
   lng    Float?
+  /// true = toạ độ do script `npm run geocode` tự dò từ địa chỉ, CHƯA có người
+  /// xác minh. Bản đồ số vẽ ghim này khác kiểu và khu quản trị hiện nhãn nhắc.
+  /// Đặt tên theo tiền lệ `khuPhoEstimated` đã có trong file này.
+  coordsEstimated Boolean @default(false)
 
   coverUrl            String?
   coverIsIllustrative Boolean  @default(false)
-  images              String[] @default([])
+  /// Ảnh minh hoạ kèm chú thích: [{ url, caption }]. Xem lib/images.js.
+  images              Json     @default("[]")
 
   /// Khu vực hành chính, vd "Phường Đông Triều" hoặc "Phường Mạo Khê (lân cận)".
   /// Cần thiết vì sau sáp nhập 2025, nhiều cơ sở nằm ở phường khác.
   area String?
+
+  /// Điểm sao trung bình trên Google Maps (0–5) và số lượt đánh giá.
+  /// null = chưa có lượt đánh giá nào — KHÔNG phải 0 sao.
+  rating      Float?
+  ratingCount Int?
+
+  /// Khu phố mới sau sắp xếp 2025 (1 trong 11 khu phố của phường).
+  khuPho String?
+  /// true = khu phố do suy luận từ tên đường/toạ độ, chưa đối chiếu sơ đồ chính thức
+  khuPhoEstimated Boolean @default(false)
+
+  /// Thẻ tìm kiếm ngữ nghĩa, vd "view đẹp", "đỗ xe rộng", "ăn khuya"
+  tags String[] @default([])
+
+  placeId String? // Google Place ID
+  mapsUrl String? // liên kết Google Maps
 
   /// Nguồn thông tin, vd "Tổng hợp từ Internet — chưa xác minh"
   sourceNote String?
@@ -279,13 +354,28 @@ model Attraction {
   mapQuery   String?
   lat        Float?
   lng        Float?
+  /// true = toạ độ do script `npm run geocode` tự dò từ địa chỉ, CHƯA có người
+  /// xác minh. Bản đồ số vẽ ghim này khác kiểu và khu quản trị hiện nhãn nhắc.
+  /// Đặt tên theo tiền lệ `khuPhoEstimated` đã có trong file này.
+  coordsEstimated Boolean @default(false)
 
   summary     String  @db.Text
   description String? @db.Text
   highlights  String[] @default([])
 
+  phone     String?
+  openHours String?
+  /// Điểm sao Google Maps (0–5) và số lượt đánh giá
+  rating      Float?
+  ratingCount Int?
+  placeId     String?
+  mapsUrl     String?
+  tags        String[] @default([])
+
   coverUrl            String?
   coverIsIllustrative Boolean @default(false)
+  /// Ảnh minh hoạ kèm chú thích: [{ url, caption }]. Xem lib/images.js.
+  images              Json    @default("[]")
 
   order     Int     @default(0)
   published Boolean @default(true)
@@ -393,4 +483,75 @@ model ChatLog {
 
   @@index([matched, createdAt])
   @@index([createdAt])
+}
+
+// ─── Đánh giá của du khách ─────────────────────────────────────────────────
+// KHÁC HẲN trường `rating`/`ratingCount` trên Lodging/Restaurant/Attraction:
+// những trường đó là điểm sao **lấy từ Google Maps**, còn bảng này là đánh giá
+// do khách gửi trên cổng. Hai con số không bao giờ được cộng gộp thành một điểm
+// trung bình — nguồn khác nhau, cỡ mẫu khác nhau, và trộn vào là bịa số liệu.
+
+enum ReviewTarget {
+  HERITAGE
+  FESTIVAL
+  CUISINE
+  LODGING
+  RESTAURANT
+  ATTRACTION
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Review {
+  id String @id @default(cuid())
+
+  targetType ReviewTarget
+  /// LUÔN là `id` của bản ghi đích, không phải slug.
+  ///
+  /// Hai lý do: (1) Lodging và Restaurant không có slug; (2) slug sửa được trong
+  /// khu quản trị, nên lưu theo slug là mọi đánh giá của một di tích sẽ mồ côi
+  /// ngay lần đầu ai đó sửa đường dẫn. Không đặt được khoá ngoại vì đích thuộc
+  /// sáu bảng khác nhau — bù lại, xoá bản ghi đích thì xoá luôn đánh giá của nó
+  /// (xem `deleteReviewsOfTarget` trong services/reviews.js).
+  targetId   String
+
+  authorName String
+  /// 1..5 — kiểm ở lớp zod. Không có 0 sao: "chưa đánh giá" là không có bản ghi.
+  rating     Int
+  /// Văn bản THUẦN. Hiển thị bằng văn bản thuần, không đi qua
+  /// dangerouslySetInnerHTML, nên không cần lọc HTML ở đây.
+  comment    String @db.Text
+
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+  /// Lúc quản trị viên duyệt hoặc từ chối.
+  handledAt DateTime?
+
+  @@index([targetType, targetId, status])
+  @@index([status, createdAt])
+}
+
+// ─── Liên hệ / góp ý ───────────────────────────────────────────────────────
+// Cố ý KHÔNG lưu IP hay bất cứ thứ gì nhận dạng người gửi ngoài thông tin họ
+// chủ động điền, theo đúng lối đã chọn ở ChatLog. Giới hạn tần suất chống spam
+// chỉ giữ IP trong bộ nhớ tiến trình, không ghi xuống cơ sở dữ liệu.
+
+model ContactMessage {
+  id String @id @default(cuid())
+
+  name    String
+  email   String?
+  phone   String?
+  subject String?
+  message String  @db.Text
+
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  handledAt DateTime?
+
+  @@index([handled, createdAt])
 }

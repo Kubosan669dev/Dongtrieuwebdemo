@@ -12,11 +12,14 @@
  */
 
 import { getCorpus } from './knowledge.js';
+import { ASSISTANT_NAME } from '../lib/site.js';
 import { buildIndex, search } from './retrieval.js';
 import { getWeather } from './weather.js';
 import { getTide } from './tide.js';
-import { norm, has } from '../lib/vitext.js';
-import { solarToLunar, nextLunarOccurrence, lunarMonthLabel, lunarYearName } from '../lib/lunar.js';
+import { norm, has, deaccent } from '../lib/vitext.js';
+import { nowVN, isOpenAt, isAllDay, opensAt, closesAt } from '../lib/hours.js';
+import { distanceKm, fmtDistance } from '../lib/geo.js';
+import { solarToLunar, nextLunarOccurrence, lunarMonthLabel, lunarYearName } from '../../../shared/lunar.js';
 import { weatherInfo, getWeatherAdvice, seasonNote } from '../../../shared/weather.js';
 
 // ─── Tiện ích định dạng ────────────────────────────────────────────────────
@@ -66,6 +69,48 @@ const RESTAURANT_LABEL = {
   CAFE: 'Cà phê',
   DIEM_DUNG_CHAN: 'Điểm dừng chân',
 };
+
+// ─── Đánh giá sao ──────────────────────────────────────────────────────────
+// Bộ dữ liệu khảo sát 2026 có điểm Google Maps cho phần lớn cơ sở. Hai quy tắc:
+//
+//   1. XẾP HẠNG phải xét độ tin cậy. Quán 5,0★ với 2 lượt đánh giá không đáng
+//      tin bằng quán 4,1★ với 118 lượt, nên kéo mọi điểm về trung bình chung
+//      theo số lượt (Bayesian shrinkage) trước khi so sánh.
+//   2. Đây là cổng thông tin CHÍNH THỨC của phường. Bot không chủ động chê cơ
+//      sở nào: các câu gợi ý chỉ lấy cơ sở từ GOOD_RATING trở lên. Nhưng khi
+//      khách hỏi đích danh một quán thì vẫn trả lời đầy đủ, kể cả điểm thấp —
+//      giấu thông tin lúc được hỏi thẳng còn tệ hơn.
+
+const PRIOR_MEAN = 3.9; // điểm trung bình chung của bộ dữ liệu
+const PRIOR_WEIGHT = 12; // cần ~12 lượt thì điểm thật mới thắng thế trung bình
+const GOOD_RATING = 3.5; // dưới mức này thì không đưa vào danh sách gợi ý
+
+/** Điểm xếp hạng đã hiệu chỉnh theo số lượt đánh giá. */
+function bayesRating(x) {
+  if (x?.rating == null) return PRIOR_MEAN - 0.5; // chưa có đánh giá: xếp giữa, không phải bét
+  const v = x.ratingCount ?? 0;
+  return (v * x.rating + PRIOR_WEIGHT * PRIOR_MEAN) / (v + PRIOR_WEIGHT);
+}
+
+/** Xếp giảm dần theo độ tin cậy của đánh giá. */
+const byRating = (a, b) => bayesRating(b) - bayesRating(a);
+
+/**
+ * "⭐ 4,2 (80 đánh giá)" — trả về chuỗi rỗng khi chưa có lượt nào.
+ * Cố ý KHÔNG hiển thị "0 sao": chưa ai đánh giá không có nghĩa là dở.
+ */
+function stars(x) {
+  if (x?.rating == null) return '';
+  const n = String(x.rating).replace('.', ',');
+  return `⭐ ${n}${x.ratingCount ? ` (${x.ratingCount} đánh giá)` : ''}`;
+}
+
+/** Đủ điều kiện để bot CHỦ ĐỘNG giới thiệu? Chưa có đánh giá vẫn được. */
+const isGood = (x) => x?.rating == null || x.rating >= GOOD_RATING;
+
+/** Nhãn nguồn cho các danh sách có điểm sao. */
+const RATING_NOTE =
+  '_Điểm sao lấy từ Google Maps (chốt ngày 27/07/2026), chưa phải đánh giá chính thức của phường và có thể thay đổi._';
 
 // ─── Chỉ mục tìm kiếm (dựng lại khi kho tri thức đổi) ──────────────────────
 
@@ -338,6 +383,93 @@ function answerListFestivals(corpus) {
   };
 }
 
+// ─── Hỏi sâu về một lễ hội ─────────────────────────────────────────────────
+// Hồ sơ chi tiết 2026 tách rõ phần LỄ (nghi lễ) với phần HỘI (hoạt động văn
+// hoá), kèm nhân vật được thờ, ý nghĩa và kinh nghiệm cho du khách. Nhờ đó bot
+// trả lời đúng khía cạnh khách hỏi thay vì đọc lại cả đoạn giới thiệu.
+
+/** Khách đang hỏi khía cạnh nào của lễ hội? null nếu hỏi chung chung. */
+function detectFestivalAspect(q) {
+  if (has(q, 'tho ai', 'tho vi nao', 'tho nhung ai', 'thanh hoang', 'tho ong', 'tho than', 'tuong nho ai')) return 'worship';
+  if (has(q, 'nghi le', 'nghi thuc', 'te le', 'ruoc', 'phan le', 'cung te', 'dang huong')) return 'ritual';
+  if (has(q, 'phan hoi', 'hoat dong', 'tro choi', 'thi dau', 'van nghe', 'co gi choi', 'giai tri', 'choi gi')) return 'activity';
+  if (has(q, 'kinh nghiem', 'luu y', 'can chuan bi', 'nen di luc nao', 'meo', 'trang phuc', 'chu y gi', 'can biet'))
+    return 'tips';
+  if (has(q, 'y nghia', 'nghia la gi', 'de lam gi', 'muc dich', 'gia tri')) return 'meaning';
+  if (has(q, 'lich su', 'co tu bao gio', 'nguon goc', 'hinh thanh', 'tu khi nao', 'bat dau tu')) return 'history';
+  return null;
+}
+
+/** Nội dung cho từng khía cạnh — null khi hồ sơ lễ hội chưa có phần đó. */
+function festivalAspectBody(f, aspect) {
+  if (aspect === 'worship' && f.worship?.length)
+    return `🙏 **${f.name} thờ:**\n\n${bullets(f.worship)}` + (f.history ? `\n\n${short(f.history, 260)}` : '');
+
+  if (aspect === 'ritual' && f.rituals?.length)
+    return `🕯️ **Nghi lễ chính trong ${f.name}:**\n\n${bullets(f.rituals.map((x) => short(x, 150)))}`;
+
+  if (aspect === 'activity' && f.activities?.length)
+    return `🎪 **Phần hội — các hoạt động ở ${f.name}:**\n\n${bullets(f.activities.map((x) => short(x, 150)))}`;
+
+  if (aspect === 'tips' && f.visitorTips?.length)
+    return (
+      `🎒 **Kinh nghiệm dự ${f.name}:**\n\n${bullets(f.visitorTips.map((x) => short(x, 160)))}` +
+      (f.duration ? `\n\nLễ hội kéo dài **${f.duration.toLowerCase()}**, diễn ra ${f.lunarTimeText}.` : '')
+    );
+
+  if (aspect === 'meaning' && (f.meaningCultural || f.meaningSpiritual))
+    return (
+      `💫 **Ý nghĩa của ${f.name}**\n\n` +
+      bullets([
+        f.meaningCultural ? `**Văn hoá:** ${f.meaningCultural}` : '',
+        f.meaningSpiritual ? `**Tâm linh:** ${f.meaningSpiritual}` : '',
+      ])
+    );
+
+  if (aspect === 'history' && f.history)
+    return `📜 **Lịch sử ${f.name}**\n\n${short(f.history, 420)}`;
+
+  return null;
+}
+
+function answerFestivalAspect(f, aspect, url) {
+  const body = festivalAspectBody(f, aspect);
+
+  // Hồ sơ lễ hội này chưa có phần khách hỏi → nói thật, đừng lấy đoạn khác thế vào
+  if (!body) {
+    return {
+      intent: 'festival_aspect',
+      matched: false,
+      reply:
+        `Hồ sơ **${f.name}** trong dữ liệu của phường chưa có phần này 😔\n\n` +
+        `Mình đang có: ${short(f.intro, 200)}\n\n` +
+        'Hồ sơ chi tiết (nghi lễ, phần hội, kinh nghiệm dự lễ) hiện mới đầy đủ cho 6 lễ hội lớn của vùng.',
+      links: [{ label: `Chi tiết ${f.name}`, url }, { label: 'Lịch lễ hội', url: '/le-hoi' }],
+      suggestions: ['Lễ hội nào sắp diễn ra?', 'Lễ hội đền An Sinh thờ ai?', 'Hôm nay nên đi đâu?'],
+    };
+  }
+
+  const next = f.lunarMonth && f.lunarDay ? nextLunarOccurrence(f.lunarDay, f.lunarMonth) : null;
+  const when = next
+    ? `\n\n📅 ${f.lunarTimeText} — lần tới còn **${next.daysAway} ngày** (${next.date.getUTCDate()}/${next.date.getUTCMonth() + 1}/${next.date.getUTCFullYear()}).`
+    : `\n\n📅 ${f.lunarTimeText}.`;
+
+  return {
+    intent: 'festival_aspect',
+    reply: body + when + (f.sourceNote ? `\n\n_Nguồn: ${f.sourceNote}._` : ''),
+    links: [{ label: `Chi tiết ${f.name}`, url }, { label: 'Lịch lễ hội', url: '/le-hoi' }],
+    // Gợi ý các khía cạnh khác mà hồ sơ này có, bỏ khía cạnh vừa trả lời
+    suggestions: [
+      aspect !== 'tips' && f.visitorTips?.length ? `Đi ${f.name} cần lưu ý gì?` : '',
+      aspect !== 'ritual' && f.rituals?.length ? `${f.name} có nghi lễ gì?` : '',
+      aspect !== 'worship' && f.worship?.length ? `${f.name} thờ ai?` : '',
+      'Lễ hội nào sắp diễn ra?',
+    ]
+      .filter(Boolean)
+      .slice(0, 3),
+  };
+}
+
 // ─── Danh sách theo nhóm ───────────────────────────────────────────────────
 
 function answerListHeritages(corpus) {
@@ -380,53 +512,69 @@ function answerListCuisines(corpus) {
  *   lưu trú có GPS) nên nói thẳng thay vì bịa ra thứ tự "gần nhất".
  */
 function answerListLodgings(corpus, placeHint = null) {
-  const list = corpus.lodgings.slice(0, 6);
+  const { minutes } = nowVN();
+  const good = corpus.lodgings.filter(isGood).sort(byRating);
+  const list = good.slice(0, 6);
   const near = placeHint
-    ? `Bạn hỏi các cơ sở gần **${placeHint}**. Dữ liệu chưa có khoảng cách tới từng điểm nên mình liệt kê các cơ sở lưu trú trong phường — phường không rộng nên đều khá thuận tiện.\n\n`
+    ? `Bạn hỏi các cơ sở gần **${placeHint}**. Hồ sơ di tích này chưa có toạ độ và cũng chưa quy được về khu phố nên mình không dám xếp theo khoảng cách — dưới đây là các cơ sở lưu trú trong phường, phường không rộng nên đều khá thuận tiện.\n\n`
     : '';
+  const registered = corpus.lodgings.filter((l) => l.registeredWithWard).length;
+
   return {
     intent: 'list_lodging',
     reply:
       near +
-      `🛏️ Phường có **${corpus.lodgings.length} cơ sở lưu trú** trong danh sách:\n\n` +
-      bullets(
-        list.map(
-          (l) =>
-            `**${l.name}** (${LODGING_LABEL[l.type] ?? ''}) — ${l.address}${
-              l.phones?.length ? `\n   ☎ ${l.phones.join(' · ')}` : ''
-            }`,
-        ),
-      ) +
-      (corpus.lodgings.length > list.length ? `\n\n…và ${corpus.lodgings.length - list.length} cơ sở khác.` : ''),
-    links: [{ label: 'Xem tất cả nơi lưu trú', url: '/luu-tru' }],
-    suggestions: ['Ăn gì ở Đông Triều?', 'Lịch trình 2 ngày 1 đêm?', 'Hôm nay nên đi đâu?'],
+      `🛏️ Phường có **${corpus.lodgings.length} cơ sở lưu trú** trong dữ liệu` +
+      (registered ? ` (${registered} cơ sở có trong Danh sách UBND phường 2026)` : '') +
+      ':\n\n' +
+      bullets(list.map((l) => placeLine(l, minutes) + `\n   📍 ${l.address}`)) +
+      (good.length > list.length ? `\n\n…và ${good.length - list.length} cơ sở khác.` : ''),
+    links: [{ label: 'Xem tất cả nơi lưu trú', url: '/luu-tru' }, ...mapsLink(list[0])],
+    suggestions: ['Khách sạn nào đánh giá cao nhất?', 'Lịch trình 2 ngày 1 đêm?', 'Ăn gì ở Đông Triều?'],
   };
 }
 
 function answerListRestaurants(corpus, placeHint = null) {
-  const list = corpus.restaurants.slice(0, 6);
+  const { minutes } = nowVN();
+  // Chỉ nơi ĂN — quán cà phê tách sang answerListCafes, nếu không "ăn ở đâu"
+  // sẽ trả về một danh sách toàn quán nước.
+  const good = eateries(corpus).filter(isGood).sort(byRating);
+  const list = good.slice(0, 6);
   const anyUnverified = list.some((r) => !r.isVerified);
   const near = placeHint
-    ? `Bạn hỏi quán gần **${placeHint}**. Dữ liệu chưa có khoảng cách tới từng điểm nên mình liệt kê các nơi ăn uống trong vùng — phường không rộng nên đều khá thuận tiện.\n\n`
+    ? `Bạn hỏi kèm tên **${placeHint}**. Mình chưa xếp được theo khoảng cách tới điểm đó, nên liệt kê các nơi ăn uống được đánh giá tốt trong vùng — phường không rộng nên đi lại đều khá thuận tiện.\n\n`
     : '';
   return {
     intent: 'list_restaurant',
     reply:
       near +
-      `🍜 **Nhà hàng, quán ăn và điểm dừng chân** (${corpus.restaurants.length} mục):\n\n` +
-      bullets(
-        list.map(
-          (r) =>
-            `**${r.name}** (${RESTAURANT_LABEL[r.type] ?? ''})${r.area ? ` — ${r.area}` : ''}\n   ${r.address}${
-              r.phone ? `\n   ☎ ${r.phone}` : ''
-            }`,
-        ),
-      ) +
+      `🍜 **Nơi ăn uống ở Đông Triều** (${eateries(corpus).length} quán ăn, nhà hàng trong dữ liệu — xếp theo đánh giá):\n\n` +
+      bullets(list.map((r) => placeLine(r, minutes) + `\n   📍 ${r.address}`)) +
+      (good.length > list.length ? `\n\n…và ${good.length - list.length} nơi khác.` : '') +
+      `\n\nNgoài ra phường còn **${cafes(corpus).length} quán cà phê, trà sữa** — hỏi mình _"quán cà phê nào đẹp"_ nhé.` +
+      `\n\n${RATING_NOTE}` +
       (anyUnverified
-        ? '\n\n⚠️ Một số thông tin được tổng hợp từ Internet và **chưa được gọi xác minh**, số điện thoại có thể đã thay đổi.'
+        ? '\n\n⚠️ Một số thông tin tổng hợp từ Internet và **chưa được gọi xác minh**, số điện thoại có thể đã thay đổi.'
         : ''),
-    links: [{ label: 'Trang ẩm thực', url: '/am-thuc' }],
-    suggestions: ['Đặc sản Đông Triều có gì?', 'Có khách sạn nào không?', 'Hôm nay nên đi đâu?'],
+    links: [{ label: 'Trang ẩm thực', url: '/am-thuc' }, ...mapsLink(list[0])],
+    suggestions: ['Quán nào đánh giá cao nhất?', 'Giờ này còn quán nào mở?', 'Đặc sản Đông Triều có gì?'],
+  };
+}
+
+/** Danh sách quán cà phê / trà sữa — nhóm riêng, trước đây lẫn vào nhà hàng. */
+function answerListCafes(corpus) {
+  const { minutes } = nowVN();
+  const good = cafes(corpus).filter(isGood).sort(byRating);
+  if (good.length === 0) return answerListRestaurants(corpus);
+
+  return {
+    intent: 'list_cafe',
+    reply:
+      `☕ **Quán cà phê & trà sữa ở Đông Triều** (${cafes(corpus).length} quán trong dữ liệu):\n\n` +
+      bullets(good.slice(0, 6).map((r) => placeLine(r, minutes) + (r.tags?.length ? `\n   🏷️ ${r.tags.slice(0, 4).join(', ')}` : ''))) +
+      `\n\n${RATING_NOTE}`,
+    links: [{ label: 'Trang ẩm thực', url: '/am-thuc' }, ...mapsLink(good[0])],
+    suggestions: ['Quán nào mở 24/24?', 'Quán ăn nào đánh giá cao?', 'Hôm nay nên đi đâu?'],
   };
 }
 
@@ -470,7 +618,10 @@ function describeDoc(doc) {
   }
 
   if (doc.kind === 'festival') {
-    const lines = [`📅 ${r.lunarTimeText}${r.solarEstimate ? ` (${r.solarEstimate})` : ''}`, `📍 ${r.location}`];
+    const lines = [
+      `📅 ${r.lunarTimeText}${r.solarEstimate ? ` (${r.solarEstimate})` : ''}${r.duration ? ` · kéo dài ${r.duration.toLowerCase()}` : ''}`,
+      `📍 ${r.location}`,
+    ];
     const next = r.lunarMonth && r.lunarDay ? nextLunarOccurrence(r.lunarDay, r.lunarMonth) : null;
     if (next) {
       const d = next.date;
@@ -480,11 +631,25 @@ function describeDoc(doc) {
         }`,
       );
     }
-    const rituals = r.rituals?.length ? `\n\n**Nghi lễ chính:**\n${bullets(r.rituals.slice(0, 4).map((x) => short(x, 120)))}` : '';
+    if (r.worship?.length) lines.push(`🙏 Thờ: ${r.worship.join(', ')}`);
+
+    const rituals = r.rituals?.length
+      ? `\n\n**Nghi lễ chính:**\n${bullets(r.rituals.slice(0, 4).map((x) => short(x, 120)))}`
+      : '';
+    const activities = r.activities?.length
+      ? `\n\n**Phần hội:**\n${bullets(r.activities.slice(0, 3).map((x) => short(x, 110)))}`
+      : '';
+    // Có hồ sơ chi tiết thì mách khách hỏi tiếp được gì
+    const more = r.visitorTips?.length ? `\n\n💡 Hỏi mình _"đi ${r.name} cần lưu ý gì"_ để xem kinh nghiệm dự lễ.` : '';
+
     return {
-      reply: `🎏 **${r.name}**\n\n${short(r.intro, 300)}\n\n${bullets(lines)}${rituals}`,
+      reply: `🎏 **${r.name}**\n\n${short(r.intro, 300)}\n\n${bullets(lines)}${rituals}${activities}${more}`,
       links: [{ label: `Chi tiết ${r.name}`, url: doc.url }, { label: 'Lịch lễ hội', url: '/le-hoi' }],
-      suggestions: ['Lễ hội nào sắp diễn ra?', 'Hôm nay nên đi đâu?', 'Ăn gì ở Đông Triều?'],
+      suggestions: [
+        r.visitorTips?.length ? `Đi ${r.name} cần lưu ý gì?` : 'Lễ hội nào sắp diễn ra?',
+        r.worship?.length ? `${r.name} thờ ai?` : 'Hôm nay nên đi đâu?',
+        'Ăn gì ở Đông Triều?',
+      ],
     };
   }
 
@@ -501,31 +666,52 @@ function describeDoc(doc) {
   }
 
   if (doc.kind === 'lodging') {
+    const { minutes } = nowVN();
     const lines = [`📍 ${r.address}`];
+    if (r.rating != null) lines.push(stars(r));
     if (r.phones?.length) lines.push(`☎ ${r.phones.join(' · ')}`);
     if (r.owner) lines.push(`👤 Chủ cơ sở: ${r.owner}`);
     if (r.priceRange) lines.push(`💰 ${r.priceRange}`);
+    const hl = hoursLine(r, minutes);
+    if (hl) lines.push(hl);
+    if (r.khuPho) lines.push(`🏘️ Khu phố ${r.khuPho}${r.khuPhoEstimated ? ' _(ước tính)_' : ''}`);
+    if (r.registeredWithWard) lines.push('✅ Có trong Danh sách cơ sở lưu trú UBND phường 2026');
+
     return {
-      reply: `🛏️ **${r.name}** (${LODGING_LABEL[r.type] ?? ''})\n\n${bullets(lines)}`,
-      links: [{ label: 'Tất cả nơi lưu trú', url: '/luu-tru' }],
+      reply:
+        `🛏️ **${r.name}** (${LODGING_LABEL[r.type] ?? ''})\n\n` +
+        (r.description ? `${short(r.description, 260)}\n\n` : '') +
+        bullets(lines) +
+        (r.rating != null ? `\n\n${RATING_NOTE}` : ''),
+      links: [{ label: 'Tất cả nơi lưu trú', url: '/luu-tru' }, ...mapsLink(r)],
       suggestions: ['Còn khách sạn nào khác?', 'Ăn gì ở Đông Triều?', 'Lịch trình 2 ngày 1 đêm?'],
     };
   }
 
   if (doc.kind === 'restaurant') {
-    const lines = [`📍 ${r.address}${r.area ? ` (${r.area})` : ''}`];
+    const { minutes } = nowVN();
+    // Chỉ nêu khu vực khi cơ sở nằm NGOÀI phường — trong phường thì địa chỉ đã
+    // có sẵn "phường Đông Triều", nhắc lại chỉ thừa.
+    const lines = [`📍 ${r.address}${inWard(r) ? '' : ` — **${r.area}**`}`];
+    if (r.rating != null) lines.push(stars(r));
     if (r.phone) lines.push(`☎ ${r.phone}`);
-    if (r.openHours) lines.push(`🕐 ${r.openHours}`);
+    const hl = hoursLine(r, minutes);
+    if (hl) lines.push(hl);
     if (r.priceRange) lines.push(`💰 ${r.priceRange}`);
-    if (r.specialties?.length) lines.push(`⭐ Món nổi bật: ${r.specialties.join(', ')}`);
+    if (r.specialties?.length) lines.push(`🍽️ Phục vụ: ${r.specialties.join(', ')}`);
+    if (r.khuPho) lines.push(`🏘️ Khu phố ${r.khuPho}${r.khuPhoEstimated ? ' _(ước tính)_' : ''}`);
+
     return {
       reply:
         `🍜 **${r.name}** (${RESTAURANT_LABEL[r.type] ?? ''})\n\n` +
-        (r.description ? `${short(r.description, 220)}\n\n` : '') +
+        // Hỏi đích danh thì trả lời đầy đủ, kể cả nhận xét chưa hay — giấu
+        // thông tin lúc khách hỏi thẳng còn tệ hơn.
+        (r.description ? `${short(r.description, 300)}\n\n` : '') +
         bullets(lines) +
+        (r.rating != null ? `\n\n${RATING_NOTE}` : '') +
         (r.isVerified ? '' : '\n\n⚠️ Thông tin tổng hợp từ Internet, **chưa gọi xác minh** — bạn nên gọi trước khi tới.'),
-      links: [{ label: 'Trang ẩm thực', url: '/am-thuc' }],
-      suggestions: ['Quán nào nữa?', 'Đặc sản Đông Triều có gì?', 'Có khách sạn nào không?'],
+      links: [{ label: 'Trang ẩm thực', url: '/am-thuc' }, ...mapsLink(r)],
+      suggestions: ['Quán nào đánh giá cao nhất?', 'Giờ này còn quán nào mở?', 'Đặc sản Đông Triều có gì?'],
     };
   }
 
@@ -585,13 +771,79 @@ function answerDirections(corpus, hit) {
 /** Định dạng số tiền kiểu Việt Nam: 200000 → "200.000đ". */
 const vnd = (n) => `${Math.round(n).toLocaleString('vi-VN')}đ`;
 
-/** Đọc số tiền nhỏ nhất trong chuỗi giá, vd "200.000 – 500.000đ/người" → 200000. */
+/**
+ * Đọc số tiền NHỎ NHẤT trong chuỗi giá.
+ *
+ *   "200.000 – 500.000đ/người" → 200000
+ *   "≈ 50k/suất"               → 50000
+ *   "≈ 20–25k/đồ uống"         → 20000   (cả dải dùng chung hậu tố "k")
+ *   "Bình dân", "₫₫"           → null    (không có số → KHÔNG bịa ra con số)
+ *
+ * Trả về null khi không có số thật: hàm này dùng để cộng tiền cho khách nên
+ * đoán bừa một con số còn tệ hơn là nói không biết.
+ */
+const MONEY_MUL = { k: 1000, nghin: 1000, ngan: 1000, tr: 1_000_000, trieu: 1_000_000 };
+
 function priceFloor(text) {
-  const m = String(text ?? '').match(/(\d[\d.]*)/);
-  if (!m) return null;
-  const n = Number(m[1].replace(/\./g, ''));
-  return Number.isFinite(n) && n >= 1000 ? n : null;
+  const s = deaccent(String(text ?? '')).toLowerCase();
+  const nums = [];
+  let scale = null; // hậu tố xuất hiện ở đâu đó trong chuỗi
+  for (const m of s.matchAll(/(\d[\d.,]*)\s*(k|nghin|ngan|tr|trieu)?/g)) {
+    const n = Number(m[1].replace(/[.,]/g, ''));
+    if (!Number.isFinite(n) || n <= 0) continue;
+    const mul = m[2] ? MONEY_MUL[m[2]] : null;
+    if (mul) scale = mul;
+    nums.push({ n, mul });
+  }
+  // Số viết tắt trong dải giá ("20–25k") hiểu theo hậu tố chung; số viết đủ
+  // chữ số ("200.000đ") giữ nguyên.
+  const values = nums
+    .map(({ n, mul }) => (mul ? n * mul : n < 1000 && scale ? n * scale : n))
+    .filter((v) => v >= 1000);
+  return values.length ? Math.min(...values) : null;
 }
+
+/**
+ * Mức giá để SẮP XẾP rẻ → đắt khi không có con số.
+ *
+ * Chỉ dùng cho thứ tự hiển thị, không bao giờ in ra như một mức giá thật —
+ * "Bình dân" là nhận định của người khảo sát, không phải bảng giá.
+ */
+function priceOrder(text) {
+  const n = priceFloor(text);
+  if (n) return n;
+  const s = deaccent(String(text ?? '')).toLowerCase();
+  if (/\bre\b|binh dan/.test(s)) return 60_000;
+  if (/phai chang|hop ly/.test(s)) return 100_000;
+  if (/trung binh/.test(s)) return 150_000;
+  return Number.MAX_SAFE_INTEGER; // không rõ giá → xếp cuối
+}
+
+// ─── Giờ mở cửa & khoảng cách ──────────────────────────────────────────────
+
+/**
+ * Trạng thái mở cửa ngay lúc này.
+ * @returns {{open:boolean, label:string}|null}  null = chưa có dữ liệu giờ
+ */
+function openState(x, minutes) {
+  const open = isOpenAt(x?.openHours, minutes);
+  if (open === null) return null;
+  if (isAllDay(x.openHours)) return { open: true, label: 'mở 24/24' };
+  return { open, label: open ? 'đang mở' : 'đã đóng' };
+}
+
+/** Dòng giờ mở cửa kèm trạng thái, vd "🕐 07:00–22:30 — đang mở". */
+function hoursLine(x, minutes) {
+  if (!x?.openHours) return null;
+  const st = openState(x, minutes);
+  return `🕐 ${x.openHours}${st && !isAllDay(x.openHours) ? ` — ${st.label}` : ''}`;
+}
+
+/** Nút chỉ đường Google Maps, nếu bản ghi có sẵn liên kết. */
+const mapsLink = (x) => (x?.mapsUrl ? [{ label: `Chỉ đường tới ${x.name}`, url: x.mapsUrl }] : []);
+
+/** Cơ sở thuộc phường Đông Triều (bỏ các mục lân cận khi khách hỏi trong phường). */
+const inWard = (x) => !/lân cận/i.test(x?.area ?? '');
 
 /** Đọc ngân sách người dùng nêu: "2 triệu" → 2000000, "500k" → 500000. */
 function parseAmount(q) {
@@ -723,14 +975,17 @@ function buildRoute(corpus, { span = 'day', theme = null, easy = false, amount =
   const mealsPerDay = 2;
   const dayCount = span === 'two' ? 2 : 1;
   const mealCap = amount ? Math.round((amount * 0.5) / (dayCount * mealsPerDay)) : null;
-  const priced = eateries(corpus)
-    .map((r) => ({ r, floor: priceFloor(r.priceRange) }))
-    .filter((x) => x.floor)
-    .sort((a, b) => a.floor - b.floor);
+  const good = eateries(corpus).filter(isGood);
+  const priced = good.map((r) => ({ r, floor: priceFloor(r.priceRange) })).filter((x) => x.floor);
   const affordable = mealCap ? priced.filter((x) => x.floor <= mealCap) : priced;
-  const mealPool = (affordable.length ? affordable : priced).map((x) => x.r);
+  // Có ngân sách → lọc theo giá trước rồi mới xếp theo đánh giá trong số vừa túi.
+  // Không nêu ngân sách → xếp thẳng theo đánh giá cho quán được lòng khách nhất.
+  const mealPool = (mealCap ? (affordable.length ? affordable : priced).map((x) => x.r) : good).sort(byRating);
   const meal = (k) => (mealPool.length ? mealPool[k % mealPool.length] : null);
-  const mealLine = (r) => (r ? `**${r.name}**${r.priceRange ? ` — ${r.priceRange}` : ''}` : 'quán địa phương (thử đặc sản na, rươi, gà đồi tuỳ mùa)');
+  const mealLine = (r) =>
+    r
+      ? `**${r.name}**${r.priceRange ? ` — ${r.priceRange}` : ''}${r.rating != null ? ` ${stars(r)}` : ''}`
+      : 'quán địa phương (thử đặc sản na, rươi, gà đồi tuỳ mùa)';
 
   const segs = [];
   const links = [];
@@ -799,36 +1054,302 @@ function buildRoute(corpus, { span = 'day', theme = null, easy = false, amount =
   };
 }
 
-// ─── Gợi ý dịch vụ chất lượng / giá hợp lý ─────────────────────────────────
+// ─── Gợi ý dịch vụ theo đánh giá / giá ─────────────────────────────────────
 
-function answerRecommend(corpus, cheap) {
-  const priced = eateries(corpus)
-    .map((r) => ({ r, floor: priceFloor(r.priceRange) ?? 999999999 }))
-    .sort((a, b) => a.floor - b.floor);
-  const list = (cheap ? priced : [...priced].reverse()).slice(0, 4).map((x) => x.r);
+/** Quán cà phê, trà sữa. */
+const cafes = (corpus) => corpus.restaurants.filter((r) => r.type === 'CAFE');
 
-  const foodLines = list.map(
-    (r) =>
-      `**${r.name}**${r.priceRange ? ` — ${r.priceRange}` : ''}` +
-      (r.specialties?.length ? `\n   Nổi bật: ${r.specialties.slice(0, 3).join(', ')}` : ''),
+/** Nhóm cơ sở tương ứng với thứ khách đang hỏi. */
+function poolOf(corpus, kind) {
+  if (kind === 'lodging') return corpus.lodgings;
+  if (kind === 'cafe') return cafes(corpus);
+  return eateries(corpus);
+}
+
+const KIND_LABEL = {
+  restaurant: 'quán ăn, nhà hàng',
+  cafe: 'quán cà phê, trà sữa',
+  lodging: 'nơi lưu trú',
+};
+const KIND_PAGE = {
+  restaurant: { label: 'Tất cả nơi ăn uống', url: '/am-thuc' },
+  cafe: { label: 'Tất cả nơi ăn uống', url: '/am-thuc' },
+  lodging: { label: 'Tất cả nơi lưu trú', url: '/luu-tru' },
+};
+
+/** Một dòng mô tả gọn cho cơ sở trong danh sách gợi ý. */
+function placeLine(x, minutes, extra = '') {
+  const meta = [stars(x), x.priceRange ? `💰 ${x.priceRange}` : '', extra].filter(Boolean).join(' · ');
+  const type = LODGING_LABEL[x.type] ?? RESTAURANT_LABEL[x.type] ?? '';
+  const st = openState(x, minutes);
+  // Sau sáp nhập 2025 nhiều cơ sở tên có chữ "Đông Triều" nhưng thuộc phường
+  // khác — phải nói rõ để du khách không đi nhầm.
+  const outside = inWard(x) ? '' : ` _(${x.area})_`;
+  return (
+    `**${x.name}**${type ? ` _(${type})_` : ''}${outside}` +
+    (meta ? `\n   ${meta}` : '') +
+    (x.openHours ? `\n   🕐 ${x.openHours}${st && !st.open ? ' — giờ này đã đóng' : ''}` : '') +
+    (x.phone || x.phones?.length ? `\n   ☎ ${x.phone ?? x.phones.join(' · ')}` : '')
   );
+}
 
-  const hotels = corpus.lodgings.filter((l) => l.type === 'KHACH_SAN').slice(0, 3);
+/**
+ * Gợi ý cơ sở theo CHẤT LƯỢNG (điểm đánh giá) hoặc theo GIÁ.
+ *
+ * Chỉ lấy cơ sở đạt từ GOOD_RATING trở lên — xem ghi chú ở phần "Đánh giá sao".
+ *
+ * @param {{mode?:'quality'|'cheap', kind?:'restaurant'|'cafe'|'lodging'}} opts
+ */
+function answerRecommend(corpus, { mode = 'quality', kind = 'restaurant' } = {}) {
+  const { minutes } = nowVN();
+  const pool = poolOf(corpus, kind).filter(isGood);
+
+  if (pool.length === 0) {
+    return {
+      intent: 'recommend',
+      matched: false,
+      reply: `Trong dữ liệu của phường chưa có ${KIND_LABEL[kind]} nào đủ thông tin để mình yên tâm giới thiệu 🙏`,
+      links: [KIND_PAGE[kind]],
+      suggestions: ['Đặc sản Đông Triều có gì?', 'Hôm nay nên đi đâu?'],
+    };
+  }
+
+  const list =
+    mode === 'cheap'
+      ? [...pool].sort((a, b) => priceOrder(a.priceRange) - priceOrder(b.priceRange)).slice(0, 5)
+      : [...pool].sort(byRating).slice(0, 5);
+
+  const rated = list.filter((x) => x.rating != null).length;
+  const label = KIND_LABEL[kind].charAt(0).toUpperCase() + KIND_LABEL[kind].slice(1);
+  const head =
+    mode === 'cheap'
+      ? `🪙 **${label} giá mềm ở Đông Triều** (rẻ trước):`
+      : `⭐ **${label} được đánh giá tốt nhất ở Đông Triều:**`;
 
   return {
     intent: 'recommend',
     reply:
-      (cheap
-        ? '🪙 **Gợi ý ăn uống giá hợp lý ở Đông Triều** (từ rẻ đến cao hơn):'
-        : '⭐ **Một số nhà hàng đáng thử ở Đông Triều:**') +
-      `\n\n${bullets(foodLines)}` +
-      (hotels.length ? `\n\n🛏️ **Khách sạn để nghỉ:** ${hotels.map((h) => h.name).join(', ')}.` : '') +
-      '\n\n⚠️ Mình chưa có **đánh giá sao/chất lượng chính thức** trong dữ liệu, đây là các cơ sở có thông tin đầy đủ nhất và **chưa được gọi xác minh** — bạn nên gọi hỏi trước khi tới.',
-    links: [
-      { label: 'Tất cả nơi ăn uống', url: '/am-thuc' },
-      { label: 'Nơi lưu trú', url: '/luu-tru' },
-    ],
-    suggestions: ['Tôi có 2 triệu thì đi đâu?', 'Buổi sáng đi đâu, chiều đi đâu?', 'Đặc sản Đông Triều có gì?'],
+      `${head}\n\n${bullets(list.map((x) => placeLine(x, minutes)))}\n\n` +
+      (rated
+        ? `${RATING_NOTE}\n\nThứ tự đã tính cả **số lượt đánh giá** — quán 5★ với 2 lượt chưa chắc hơn quán 4,2★ với 80 lượt.`
+        : 'Các cơ sở này chưa có lượt đánh giá công khai nên mình xếp theo mức độ đầy đủ thông tin.') +
+      '\n\n⚠️ Thông tin tổng hợp từ Internet, **chưa gọi xác minh** — nên gọi trước khi tới.',
+    links: [KIND_PAGE[kind], ...mapsLink(list[0])],
+    suggestions: ['Giờ này còn quán nào mở không?', 'Quán nào giá mềm?', 'Đặc sản Đông Triều có gì?'],
+  };
+}
+
+// ─── Đang mở cửa / ăn khuya / mở sớm ───────────────────────────────────────
+
+/**
+ * Trả lời theo GIỜ GIẤC — năng lực mới nhờ trường `openHours`.
+ *
+ * @param {'now'|'late'|'early'|'allday'} mode
+ */
+function answerOpenNow(corpus, mode, kind = 'restaurant') {
+  const { minutes, hhmm } = nowVN();
+  const pool = poolOf(corpus, kind).filter(isGood);
+
+  // Cơ sở chưa có giờ mở cửa: KHÔNG mặc định coi là đang mở, tách ra nói riêng
+  const known = pool.filter((x) => x.openHours);
+  const unknown = pool.length - known.length;
+
+  const filters = {
+    now: (x) => isOpenAt(x.openHours, minutes) === true,
+    allday: (x) => isAllDay(x.openHours),
+    late: (x) => isAllDay(x.openHours) || (closesAt(x.openHours) ?? 0) >= 22 * 60 + 30,
+    early: (x) => isAllDay(x.openHours) || (opensAt(x.openHours) ?? 1440) <= 6 * 60 + 30,
+  };
+  const head = {
+    now: `🕐 **Bây giờ là ${hhmm}** — các nơi đang mở cửa:`,
+    allday: '🌙 **Các nơi mở cửa 24/24 ở Đông Triều:**',
+    late: '🌙 **Ăn khuya ở Đông Triều** — các nơi mở tới muộn (từ 22h30 trở đi):',
+    early: '🌅 **Mở sớm cho bữa sáng** — các nơi mở trước 6h30:',
+  };
+
+  const list = known.filter(filters[mode]).sort(byRating).slice(0, 6);
+
+  if (list.length === 0) {
+    return {
+      intent: `open_${mode}`,
+      matched: false,
+      reply:
+        (mode === 'now'
+          ? `Bây giờ là **${hhmm}**, trong dữ liệu của mình chưa có nơi nào ghi nhận đang mở vào khung giờ này 😔`
+          : 'Mình chưa tìm được cơ sở nào phù hợp trong dữ liệu 😔') +
+        (unknown ? `\n\nCó **${unknown} cơ sở** chưa ghi giờ mở cửa — bạn nên gọi hỏi trực tiếp.` : ''),
+      links: [KIND_PAGE[kind]],
+      suggestions: ['Quán nào mở 24/24?', 'Ăn gì ở Đông Triều?', 'Có khách sạn nào không?'],
+    };
+  }
+
+  return {
+    intent: `open_${mode}`,
+    reply:
+      `${head[mode]}\n\n${bullets(list.map((x) => placeLine(x, minutes)))}\n\n` +
+      (unknown ? `Còn **${unknown} cơ sở** khác chưa ghi giờ mở cửa nên mình không dám khẳng định. ` : '') +
+      'Giờ giấc theo Google Maps, ngày lễ Tết có thể đổi — nên gọi trước cho chắc.',
+    links: [KIND_PAGE[kind], ...mapsLink(list[0])],
+    suggestions: ['Quán nào đánh giá cao nhất?', 'Chỗ nào mở 24/24?', 'Hôm nay nên đi đâu?'],
+  };
+}
+
+// ─── Gần một di tích ───────────────────────────────────────────────────────
+
+/**
+ * "Quán ăn gần chùa Mỹ Cụ", "khách sạn gần Đồn Cao".
+ *
+ * Ba mức trả lời, theo đúng thứ tự đáng tin — xem ghi chú trong lib/geo.js.
+ * Chỉ 1/13 di tích có toạ độ nên mức 2 (cùng khu phố) mới là mức thường dùng.
+ */
+function answerNear(corpus, place, kind = 'restaurant') {
+  const { minutes } = nowVN();
+  const pool = poolOf(corpus, kind).filter(isGood);
+  const page = KIND_PAGE[kind];
+
+  // Mức 1 — khoảng cách thật
+  if (place?.lat && place?.lng) {
+    const ranked = pool
+      .map((x) => ({ x, km: distanceKm(place, x) }))
+      .filter((r) => r.km !== null)
+      .sort((a, b) => a.km - b.km)
+      .slice(0, 5);
+    if (ranked.length) {
+      const noCoord = pool.length - pool.filter((x) => x.lat && x.lng).length;
+      const label = KIND_LABEL[kind].charAt(0).toUpperCase() + KIND_LABEL[kind].slice(1);
+      return {
+        intent: 'near',
+        reply:
+          `📍 **${label} gần ${place.name}** (đường chim bay, tính từ toạ độ):\n\n` +
+          bullets(ranked.map(({ x, km }) => placeLine(x, minutes, `cách ~${fmtDistance(km)}`))) +
+          (noCoord ? `\n\nCòn **${noCoord} cơ sở** chưa có toạ độ nên mình không xếp vào danh sách này.` : '') +
+          '\n\nKhoảng cách đường chim bay, đi đường thực tế sẽ xa hơn đôi chút.',
+        links: [page, ...mapsLink(ranked[0].x)],
+        suggestions: ['Giờ này còn quán nào mở?', 'Quán nào đánh giá cao nhất?', 'Hôm nay nên đi đâu?'],
+      };
+    }
+  }
+
+  // Mức 2 — cùng khu phố
+  const kp = place?.khuPho;
+  if (kp) {
+    const same = pool.filter((x) => x.khuPho === kp).sort(byRating).slice(0, 5);
+    if (same.length) {
+      const est = same.some((x) => x.khuPhoEstimated);
+      return {
+        intent: 'near',
+        reply:
+          `📍 **${place.name}** thuộc **khu phố ${kp}**. Các ${KIND_LABEL[kind]} cùng khu phố:\n\n` +
+          bullets(same.map((x) => placeLine(x, minutes))) +
+          '\n\nMình xếp theo **cùng khu phố** chứ chưa có khoảng cách chính xác tới di tích — ' +
+          'hồ sơ di tích chưa có toạ độ.' +
+          (est ? ' Một vài mục có khu phố là **ước tính** từ tên đường, cần đối chiếu lại.' : ''),
+        links: [page, { label: `Chi tiết ${place.name}`, url: `/di-tich/${place.slug}` }],
+        suggestions: ['Quán nào đánh giá cao nhất?', 'Giờ này còn quán nào mở?', 'Hôm nay nên đi đâu?'],
+      };
+    }
+  }
+
+  // Mức 3 — không xếp được theo khoảng cách. Nói rõ VÌ SAO, vì hai lý do rất
+  // khác nhau: hoặc di tích chưa quy được về khu phố, hoặc khu phố đó chưa có
+  // cơ sở nào trong dữ liệu.
+  const reason = place?.khuPho
+    ? `**${place.name}** thuộc **khu phố ${place.khuPho}**, nhưng dữ liệu chưa ghi nhận ${KIND_LABEL[kind]} nào ở khu phố này`
+    : `Hồ sơ **${place?.name ?? 'điểm này'}** chưa có toạ độ và cũng chưa quy được về khu phố mới`;
+  const list = [...pool].sort(byRating).slice(0, 5);
+
+  return {
+    intent: 'near',
+    reply:
+      `${reason} nên mình không dám xếp theo khoảng cách 🙏\n\n` +
+      `Dưới đây là ${KIND_LABEL[kind]} được đánh giá tốt trong phường — phường không rộng nên đi lại đều khá thuận tiện:\n\n` +
+      bullets(list.map((x) => placeLine(x, minutes) + `\n   📍 ${x.address}`)),
+    links: [page, ...mapsLink(list[0])],
+    suggestions: ['Quán nào đánh giá cao nhất?', 'Giờ này còn quán nào mở?', 'Hôm nay nên đi đâu?'],
+  };
+}
+
+// ─── Khu phố ───────────────────────────────────────────────────────────────
+
+/** "Ăn gì ở khu phố Nguyễn Bình", "nhà nghỉ khu Đạm Thuỷ". */
+function answerByKhuPho(corpus, kp, kind = 'restaurant') {
+  const { minutes } = nowVN();
+  const list = poolOf(corpus, kind).filter((x) => x.khuPho === kp.ten && isGood(x)).sort(byRating);
+
+  if (list.length === 0) {
+    return {
+      intent: 'khu_pho_list',
+      matched: false,
+      reply:
+        `Trong dữ liệu của mình chưa có ${KIND_LABEL[kind]} nào ghi nhận ở **khu phố ${kp.ten}** 😔\n\n` +
+        `Khu phố ${kp.ten} gồm ${kp.gom.toLowerCase()}. Bạn thử hỏi một khu phố khác, hoặc xem toàn bộ danh sách nhé.`,
+      links: [KIND_PAGE[kind]],
+      suggestions: ['Ăn gì ở Đông Triều?', 'Phường có bao nhiêu khu phố?', 'Hôm nay nên đi đâu?'],
+    };
+  }
+
+  const shown = list.slice(0, 6);
+  const allEstimated = list.every((x) => x.khuPhoEstimated);
+  const label = KIND_LABEL[kind].charAt(0).toUpperCase() + KIND_LABEL[kind].slice(1);
+  return {
+    intent: 'khu_pho_list',
+    reply:
+      `📍 **${label} ở khu phố ${kp.ten}** (${list.length} cơ sở):\n\n` +
+      bullets(shown.map((x) => placeLine(x, minutes))) +
+      (list.length > shown.length ? `\n\n…và ${list.length - shown.length} cơ sở khác.` : '') +
+      (allEstimated
+        ? '\n\n⚠️ Khu phố của các cơ sở này là **ước tính** từ tên đường và toạ độ, chưa đối chiếu sơ đồ khu phố chính thức.'
+        : list.some((x) => x.khuPhoEstimated)
+          ? `\n\n⚠️ ${list.filter((x) => x.khuPhoEstimated).length}/${list.length} mục có khu phố là **ước tính**, chưa đối chiếu sơ đồ chính thức.`
+          : ''),
+    links: [KIND_PAGE[kind], ...mapsLink(list[0])],
+    suggestions: ['Phường có bao nhiêu khu phố?', 'Quán nào đánh giá cao nhất?', 'Hôm nay nên đi đâu?'],
+  };
+}
+
+/** "Phường có bao nhiêu khu phố", "khu phố Mỹ Cụ gồm những khu nào". */
+function answerKhuPhoInfo(corpus, kp = null) {
+  const table = corpus.khuPho;
+  if (!table?.danhSach?.length) {
+    return {
+      intent: 'khu_pho_info',
+      matched: false,
+      reply: 'Mình chưa có dữ liệu về cơ cấu khu phố của phường 🙏',
+      links: [{ label: 'Giới thiệu phường', url: '/gioi-thieu' }],
+      suggestions: ['Giới thiệu về Đông Triều', 'Hôm nay nên đi đâu?'],
+    };
+  }
+
+  // Hỏi riêng một khu phố
+  if (kp) {
+    return {
+      intent: 'khu_pho_info',
+      reply:
+        `📍 **Khu phố ${kp.ten}** (khu phố số ${kp.so}/${table.tongSo} của phường Đông Triều)\n\n` +
+        bullets([
+          `Gộp từ: ${kp.gom}`,
+          `Diện tích ${String(kp.dienTichKm2).replace('.', ',')} km²`,
+          `${kp.soHo.toLocaleString('vi-VN')} hộ · ${kp.nhanKhau.toLocaleString('vi-VN')} nhân khẩu`,
+          `Nhà văn hoá: ${kp.nhaVanHoa}`,
+        ]) +
+        `\n\nSố liệu theo phương án sắp xếp đơn vị hành chính 2025.`,
+      links: [{ label: 'Giới thiệu phường', url: '/gioi-thieu' }],
+      suggestions: [`Ăn gì ở khu phố ${kp.ten}?`, 'Phường có bao nhiêu khu phố?', 'Hôm nay nên đi đâu?'],
+    };
+  }
+
+  const list = table.danhSach;
+  const totalHo = list.reduce((s, k) => s + (k.soHo ?? 0), 0);
+  const totalNk = list.reduce((s, k) => s + (k.nhanKhau ?? 0), 0);
+  return {
+    intent: 'khu_pho_info',
+    reply:
+      `📍 Sau sắp xếp năm 2025, phường Đông Triều tổ chức lại 36 khu phố cũ thành **${table.tongSo} khu phố**:\n\n` +
+      bullets(list.map((k) => `**${k.ten}** — ${k.soHo.toLocaleString('vi-VN')} hộ, ${k.nhanKhau.toLocaleString('vi-VN')} nhân khẩu`)) +
+      `\n\nTổng cộng **${totalHo.toLocaleString('vi-VN')} hộ** với **${totalNk.toLocaleString('vi-VN')} nhân khẩu**.\n\n` +
+      'Địa chỉ mới có dạng: _<số nhà, đường>, Khu phố <tên>, phường Đông Triều, tỉnh Quảng Ninh_.',
+    links: [{ label: 'Giới thiệu phường', url: '/gioi-thieu' }],
+    suggestions: ['Khu phố Nguyễn Bình có gì?', 'Ăn gì ở khu phố Mỹ Cụ?', 'Giới thiệu về Đông Triều'],
   };
 }
 
@@ -949,6 +1470,24 @@ const OUT_OF_SCOPE_FACILITY = {
   suggestions: ['Hôm nay nên đi đâu?', 'Có khách sạn nào không?', 'Đặc sản Đông Triều có gì?'],
 };
 
+// Xếp hạng theo tiêu chí chưa có trong dữ liệu (wifi, độ sạch, bãi đỗ…).
+// Dữ liệu chỉ có ĐIỂM SAO TỔNG THỂ của Google Maps, không có điểm cho từng tiêu
+// chí. Trả về một danh sách xếp theo sao mà khách lại hỏi "wifi mạnh nhất" thì
+// trông như đã trả lời trong khi thực ra chưa — thà nói thẳng.
+const OUT_OF_SCOPE_RANKING = {
+  intent: 'out_of_scope_ranking',
+  matched: false,
+  reply:
+    'Mình chưa có dữ liệu để xếp hạng theo tiêu chí đó 🙏\n\n' +
+    'Dữ liệu của mình chỉ có **điểm sao tổng thể** trên Google Maps, không chấm riêng từng mặt như wifi, độ sạch hay chỗ đậu xe.\n\n' +
+    'Bạn có thể hỏi mình _"quán nào đánh giá cao nhất"_, _"giờ này còn quán nào mở"_ hoặc _"quán nào giá mềm"_ — những cái đó mình trả lời được.',
+  links: [
+    { label: 'Tất cả nơi ăn uống', url: '/am-thuc' },
+    { label: 'Nơi lưu trú', url: '/luu-tru' },
+  ],
+  suggestions: ['Quán nào đánh giá cao nhất?', 'Giờ này còn quán nào mở?', 'Quán nào giá mềm?'],
+};
+
 // Thủ tục hành chính — ngoài phạm vi cổng du lịch, chuyển hướng lịch sự.
 const OUT_OF_SCOPE_ADMIN = {
   intent: 'out_of_scope_admin',
@@ -965,7 +1504,7 @@ const OUT_OF_SCOPE_ADMIN = {
 const GREETING = {
   intent: 'greeting',
   reply:
-    'Xin chào 👋 Mình là trợ lý du lịch phường Đông Triều.\n\nMình trả lời dựa trên **dữ liệu chính thức của phường** — hồ sơ di tích, lịch lễ hội, danh sách lưu trú, ẩm thực — cộng với **số liệu thời tiết và triều cường cập nhật theo giờ**.\n\nBạn muốn hỏi gì nào?',
+    `Xin chào 👋 Mình là ${ASSISTANT_NAME}.\n\nMình trả lời dựa trên **dữ liệu chính thức của phường** — hồ sơ di tích, lịch lễ hội, danh sách lưu trú, ẩm thực — cộng với **số liệu thời tiết và triều cường cập nhật theo giờ**.\n\nBạn muốn hỏi gì nào?`,
   links: [],
   suggestions: ['Hôm nay nên đi đâu?', 'Thời tiết hôm nay thế nào?', 'Lễ hội nào sắp diễn ra?'],
 };
@@ -978,12 +1517,15 @@ const HELP = {
       '**Thời tiết** — hiện tại, ngày mai, 7 ngày tới, và gợi ý nên đi đâu theo thời tiết',
       '**Triều cường** — lịch nước lớn, nước ròng vùng sông Kinh Thầy – Đá Bạc',
       '**Di tích** — 13 cụm di tích xếp hạng: lịch sử, kiến trúc, thờ ai, đường đi',
-      '**Lễ hội** — quy đổi âm lịch sang dương lịch để biết còn bao nhiêu ngày',
-      '**Ẩm thực & nhà hàng** — đặc sản, mùa nào có, mua ở đâu',
-      '**Lưu trú** — khách sạn, nhà nghỉ kèm số điện thoại',
+      '**Lễ hội** — lịch âm quy đổi sang dương, thờ ai, nghi lễ, phần hội và **kinh nghiệm đi lễ**',
+      '**Ẩm thực & quán ăn** — đặc sản, quán được **đánh giá cao**, quán giá mềm, cà phê – trà sữa',
+      '**Giờ mở cửa** — giờ này còn quán nào mở, chỗ nào mở 24/24, ăn khuya, ăn sáng sớm',
+      '**Lưu trú** — khách sạn, nhà nghỉ, homestay kèm số điện thoại và điểm đánh giá',
+      '**Tìm quanh một di tích** — quán ăn, chỗ nghỉ gần điểm bạn định tới',
+      '**Khu phố** — 11 khu phố mới sau sắp xếp 2025 và cơ sở trong từng khu',
       '**Lộ trình cá nhân hoá** — theo buổi (sáng/chiều), sở thích (tâm linh, lịch sử, gia đình), sức khoẻ (đi nhẹ nhàng) và ngân sách',
       '**Đường đi** — cách tới Đông Triều từ Hà Nội, Hạ Long',
-      '**Vé & giờ mở cửa, liên hệ, số khẩn cấp** — thông tin tiện ích cơ bản',
+      '**Vé & giờ tham quan, liên hệ, số khẩn cấp** — thông tin tiện ích cơ bản',
     ]) +
     '\n\nMình chỉ trả lời trong phạm vi dữ liệu của phường, không bịa thêm nhé.',
   links: [],
@@ -1009,6 +1551,33 @@ const WEATHER_WORDS = ['troi', 'mua', 'nang', 'nong', 'lanh', 'am', 'gio', 'nhie
 function detectBudget(q) {
   if (/(\d+(?:[.,]\d+)?)\s*(trieu|tr|nghin|ngan|k|dong)\b/.test(q)) return true;
   return has(q, 'ngan sach', 'chi phi', 'gia ca', 'bao nhieu tien', 'tiet kiem', 'it tien', 'kinh phi', 'het bao nhieu');
+}
+
+/**
+ * Khách hỏi về giờ giấc mở cửa theo kiểu nào?
+ * @returns {'now'|'late'|'early'|'allday'|null}
+ */
+function detectOpenMode(q) {
+  if (has(q, '24 24', '24h', 'mo 24', 'ca dem', 'suot dem', 'xuyen dem', 'mo ca ngay')) return 'allday';
+  if (has(q, 'an khuya', 'an dem', 'khuya', 'toi muon', 'dem muon', 'nua dem', 'mo muon', 'dong cua muon'))
+    return 'late';
+  if (has(q, 'mo som', 'sang som', 'an sang som', 'som nhat')) return 'early';
+  if (
+    has(q, 'dang mo', 'con mo', 'mo chua', 'gio nay', 'bay gio con', 'luc nay con', 'hien tai con', 'con ban khong')
+  )
+    return 'now';
+  return null;
+}
+
+/** Khu phố được nhắc tới trong câu hỏi (chỉ tính khi có chữ "khu"). */
+function detectKhuPho(q, corpus) {
+  // Tên khu phố trùng tên nhiều di tích (Mỹ Cụ, An Biên, Bình Lục…), nên bắt
+  // buộc phải có chữ "khu"/"khu phố" thì mới coi là hỏi về khu phố. Nếu không,
+  // "chùa Mỹ Cụ có gì" sẽ bị hiểu thành hỏi khu phố Mỹ Cụ.
+  if (!has(q, 'khu pho', 'khu')) return null;
+  const list = corpus.khuPho?.danhSach ?? [];
+  // Khớp tên dài trước để "Bình Lục" không nuốt mất tên dài hơn
+  return [...list].sort((a, b) => b.ten.length - a.ten.length).find((k) => has(q, k.ten)) ?? null;
 }
 
 /** Tháng âm lịch nhắc tới trong câu hỏi, nếu có. */
@@ -1047,7 +1616,11 @@ export async function ask(question) {
   const strongName = Boolean(top && (top.exactName || top.titleCoverage >= 0.6));
 
   // 1. Xã giao
-  if (/^(xin\s+)?(chao|hello|hi|hey|alo)\b/.test(q) || has(q, 'xin chao', 'chao ban', 'chao bot'))
+  // Lời chào có thể nằm sau từ đệm ("cho mình hỏi alo nhỉ") nên xét cả has()
+  if (
+    /^(xin\s+)?(chao|hello|hi|hey|alo)\b/.test(q) ||
+    has(q, 'xin chao', 'chao ban', 'chao bot', 'alo', 'hello')
+  )
     return { ...GREETING, matched: true };
   if (has(q, 'cam on', 'thanks', 'thank you'))
     return {
@@ -1072,6 +1645,17 @@ export async function ask(question) {
     (has(q, ...DAY_WORDS) && has(q, ...WEATHER_WORDS))
   )
     return { ...(await answerWeather(q, corpus)), matched: true };
+
+  // 3a. Hỏi SÂU về một lễ hội cụ thể (thờ ai, nghi lễ gì, phần hội có gì, đi cần
+  //     lưu ý gì) — trả lời đúng khía cạnh thay vì đọc lại đoạn giới thiệu.
+  //     Phải xét TRƯỚC mục lộ trình: "đi lễ hội Ngọa Vân cần lưu ý gì" chứa cụm
+  //     "đi lễ" nên bị nhánh lộ trình tâm linh nuốt mất. Điều kiện ở đây rất
+  //     chặt (đúng một lễ hội gọi đích danh + có từ khoá khía cạnh) nên không
+  //     cướp mất câu hỏi lộ trình thật.
+  if (top?.doc.kind === 'festival' && (strongName || top.titleCoverage >= 0.5)) {
+    const aspect = detectFestivalAspect(q);
+    if (aspect) return { matched: true, ...answerFestivalAspect(top.doc.raw, aspect, top.doc.url) };
+  }
 
   // 3b. Lộ trình — vẽ theo ĐÚNG khoảng thời gian khách hỏi (buổi sáng / chiều /
   //     cả ngày / 2 ngày) và cá nhân hoá theo sở thích, sức khoẻ, ngân sách.
@@ -1101,15 +1685,71 @@ export async function ask(question) {
   if (has(q, 'atm', 'rut tien', 'cay xang', 'tram xang', 'do xang', 'nha ve sinh', 'bai do xe', 'bai gui xe', 'gui xe', 'do xe o dau'))
     return { ...OUT_OF_SCOPE_FACILITY };
 
-  // 3g. Gợi ý dịch vụ chất lượng / giá hợp lý — trước "nên đi đâu" vì có chữ "gợi ý".
+  // 3e2. Xin xếp hạng theo tiêu chí không có trong dữ liệu — xét trước mọi
+  //      nhánh gợi ý, nếu không sẽ trả về danh sách xếp theo sao trông như đã
+  //      trả lời đúng câu hỏi.
+  if (
+    has(q, 'nhat', 'hon ca', 'top') &&
+    has(q, 'wifi', 'wi fi', 'dieu hoa', 'may lanh', 'sach se', 've sinh', 'cho dau xe', 'bai do xe', 'do xe')
+  )
+    return { ...OUT_OF_SCOPE_RANKING };
+
+  // 3f. Khu phố — cơ cấu hành chính mới sau sắp xếp 2025.
+  //     Xét trước mục 9a vì "ăn gì ở khu phố Nguyễn Bình" vừa là hỏi chỗ ăn vừa
+  //     là hỏi khu phố; và trước mục tra cứu tên riêng vì nhiều khu phố trùng
+  //     tên di tích (Mỹ Cụ, An Biên, Bình Lục…).
+  {
+    const kp = detectKhuPho(q, corpus);
+    const askListInKhuPho = has(q, 'an', 'an gi', 'quan', 'nha hang', 'ca phe', 'cafe', 'tra sua', 'khach san', 'nha nghi', 'luu tru', 'ngu', 'o dau', 'co gi');
+    if (kp && askListInKhuPho) {
+      const kind = has(q, 'khach san', 'nha nghi', 'luu tru', 'ngu', 'homestay')
+        ? 'lodging'
+        : has(q, 'ca phe', 'cafe', 'tra sua')
+          ? 'cafe'
+          : 'restaurant';
+      return { matched: true, ...answerByKhuPho(corpus, kp, kind) };
+    }
+    if (kp) return { matched: true, ...answerKhuPhoInfo(corpus, kp) };
+    if (
+      has(q, 'khu pho') &&
+      has(q, 'bao nhieu', 'gom nhung', 'co nhung', 'danh sach', 'la gi', 'nhung khu nao', 'co may', 'ke ten', 'liet ke', 'ten cac', 'gom may', 'nhung gi')
+    )
+      return { matched: true, ...answerKhuPhoInfo(corpus, null) };
+  }
+
+  // 3g. Giờ giấc mở cửa của quán ăn / cà phê / lưu trú — năng lực mới nhờ
+  //     trường openHours. Xét TRƯỚC mục 8 (giờ mở cửa di tích) và mục 9a (danh
+  //     mục), vì "quán nào mở 24/24" chứa cả chữ "quán" lẫn chữ "mở cửa".
+  {
+    const mode = detectOpenMode(q);
+    // Câu hỏi về giờ vào di tích thì để mục 8 trả lời theo lệ chung
+    const aboutHeritage = has(q, 'di tich', 'chua', 'den', 'dinh', 'mieu', 'tham quan', 'le chua', 'le phat');
+    if (mode && !aboutHeritage) {
+      const kind = has(q, 'khach san', 'nha nghi', 'luu tru', 'homestay', 'ngu', 'nhan phong')
+        ? 'lodging'
+        : has(q, 'ca phe', 'cafe', 'tra sua', 'do uong')
+          ? 'cafe'
+          : 'restaurant';
+      return { matched: true, ...answerOpenNow(corpus, mode, kind) };
+    }
+  }
+
+  // 3h. Gợi ý dịch vụ chất lượng / giá hợp lý — trước "nên đi đâu" vì có chữ "gợi ý".
   //     Đòi hỏi có từ chỉ ĂN UỐNG/LƯU TRÚ để không nuốt "di tích nào nổi tiếng nhất".
   {
-    const svc = has(q, 'nha hang', 'quan', 'quan an', 'quan nao', 'khach san', 'dich vu', 'an uong', 'luu tru', 'cho an', 'an ngon', 'mon an', 'do an', 'an gi');
-    const priceHint = has(q, 'gia hop ly', 'hop ly', 'gia tot', 'gia re', 'binh dan', 'ngon re', 'ngon bo re', 'tiet kiem');
-    const qualHint = has(q, 'chat luong', 'dich vu tot', 'uy tin', 'ngon nhat', 'tot nhat', 'noi tieng nhat', 'nen chon', 'chon quan nao', 'quan ngon');
-    if ((priceHint && (svc || has(q, 'an', 'ngon'))) || (qualHint && svc)) {
-      const cheap = priceHint;
-      return { ...answerRecommend(corpus, cheap), matched: true };
+    const svc = has(q, 'nha hang', 'quan', 'quan an', 'quan nao', 'khach san', 'dich vu', 'an uong', 'luu tru', 'cho an', 'an ngon', 'mon an', 'do an', 'an gi', 'ca phe', 'cafe', 'tra sua', 'cho nghi', 'nha nghi');
+    const priceHint = has(q, 'gia hop ly', 'hop ly', 'gia tot', 'gia re', 'binh dan', 'ngon re', 'ngon bo re', 'tiet kiem', 'gia mem', 're nhat');
+    const qualHint = has(q, 'chat luong', 'dich vu tot', 'uy tin', 'ngon nhat', 'tot nhat', 'noi tieng nhat', 'nen chon', 'chon quan nao', 'quan ngon', 'danh gia cao', 'nhieu sao', 'may sao', 'danh gia tot', 'duoc danh gia', 'xep hang', 'dep nhat', 'review tot');
+    // `!strongName`: "Chùa quán Ngọc Thanh được xếp hạng gì" chứa chữ "quán"
+    // (trong tên di tích) lẫn "xếp hạng" nên từng bị hiểu thành xin gợi ý quán ăn.
+    // Gọi đích danh một mục thì luôn ưu tiên tra cứu mục đó.
+    if (!strongName && ((priceHint && (svc || has(q, 'an', 'ngon'))) || (qualHint && svc))) {
+      const kind = has(q, 'khach san', 'nha nghi', 'luu tru', 'cho nghi', 'homestay')
+        ? 'lodging'
+        : has(q, 'ca phe', 'cafe', 'tra sua', 'do uong')
+          ? 'cafe'
+          : 'restaurant';
+      return { matched: true, ...answerRecommend(corpus, { mode: priceHint ? 'cheap' : 'quality', kind }) };
     }
   }
 
@@ -1131,8 +1771,11 @@ export async function ask(question) {
     const month = detectLunarMonth(q);
     if (month) return { ...answerFestivalsInMonth(corpus, month), matched: true };
     // Hỏi đích danh một hội ("hội làng Vân Động là gì") → trả lời riêng hội đó
-    if (top?.doc.kind === 'festival' && top.titleCoverage >= 0.4)
+    if (top?.doc.kind === 'festival' && top.titleCoverage >= 0.4) {
+      const aspect = detectFestivalAspect(q);
+      if (aspect) return { matched: true, ...answerFestivalAspect(top.doc.raw, aspect, top.doc.url) };
       return { ...describeDoc(top.doc), intent: 'lookup_festival', matched: true };
+    }
     if (!strongName) return { ...answerListFestivals(corpus), matched: true };
   }
 
@@ -1151,22 +1794,42 @@ export async function ask(question) {
   //     để mục tra cứu riêng cơ sở đó.
   const wantKind = has(q, 'khach san', 'nha nghi', 'luu tru', 'homestay', 'ngu o dau', 'o dau qua dem', 'dat phong')
     ? 'lodging'
-    : has(q, 'nha hang', 'quan an', 'quan nao', 'an o dau', 'an trua o dau', 'an toi o dau', 'an sang o dau', 'dia diem an', 'cho an', 'hai san', 'an uong', 'lau', 'nuong', 'buffet', 'an ngon')
-      ? 'restaurant'
-      : has(q, 'dac san', 'am thuc', 'an gi', 'mon gi', 'mon ngon', 'do an', 'qua gi', 'mua gi ve')
-        ? 'cuisine'
-        : // "ăn ... ở đâu" (động từ ăn) — chỉ khi KHÔNG phải tên riêng, để "Đền An Biên ở đâu"
-          // (token 'an' trong tên) không bị hiểu thành hỏi chỗ ăn
-          !strongName && has(q, 'an') && has(q, 'o dau')
-          ? 'restaurant'
-          : null;
-  if (wantKind && !(strongName && top?.doc.kind === wantKind)) {
-    // Khách hỏi "gần <di tích>" → truyền tên di tích để ghi chú trung thực
-    const placeHint = strongName && top?.doc.kind === 'heritage' ? top.doc.raw.name : null;
-    if (wantKind === 'lodging') return { ...answerListLodgings(corpus, placeHint), matched: true };
-    if (wantKind === 'restaurant') return { ...answerListRestaurants(corpus, placeHint), matched: true };
-    return { ...answerListCuisines(corpus), matched: true };
+    : // Cà phê / trà sữa tách riêng khỏi nhà hàng — trước đây lẫn vào nhau nên
+      // "quán cà phê nào đẹp" ra danh sách nhà hàng.
+      has(q, 'ca phe', 'cafe', 'tra sua', 'quan nuoc', 'do uong', 'sinh to', 'coffee')
+      ? 'cafe'
+      : has(q, 'nha hang', 'quan an', 'quan nao', 'an o dau', 'an trua o dau', 'an toi o dau', 'an sang o dau', 'dia diem an', 'cho an', 'hai san', 'an uong', 'lau', 'nuong', 'buffet', 'an ngon')
+        ? 'restaurant'
+        : has(q, 'dac san', 'am thuc', 'an gi', 'mon gi', 'mon ngon', 'do an', 'qua gi', 'mua gi ve')
+          ? 'cuisine'
+          : // "ăn ... ở đâu" (động từ ăn) — chỉ khi KHÔNG phải tên riêng, để "Đền An Biên ở đâu"
+            // (token 'an' trong tên) không bị hiểu thành hỏi chỗ ăn
+            !strongName && has(q, 'an') && has(q, 'o dau')
+            ? 'restaurant'
+            : null;
+  // Quán cà phê nằm chung bảng Restaurant (type = CAFE), nên khi đối chiếu
+  // "khách có đang gọi đích danh một cơ sở cùng loại không" phải quy về đúng
+  // loại tài liệu, nếu không "Nhớ Coffee ở đâu" sẽ ra danh sách cà phê.
+  const DOC_KIND = { lodging: 'lodging', cafe: 'restaurant', restaurant: 'restaurant', cuisine: 'cuisine' };
+  if (wantKind && wantKind !== 'cuisine' && !(strongName && top?.doc.kind === DOC_KIND[wantKind])) {
+    // Khách hỏi "gần <di tích>" → nay tính được khoảng cách thật hoặc xếp theo
+    // cùng khu phố, thay vì chỉ liệt kê chung như trước.
+    const place =
+      strongName && ['heritage', 'attraction'].includes(top?.doc.kind) ? top.doc.raw : null;
+    if (place && has(q, 'gan', 'canh', 'quanh', 'ke ben', 'sat', 'lan can'))
+      return { matched: true, ...answerNear(corpus, place, wantKind) };
+
+    if (wantKind === 'lodging') return { ...answerListLodgings(corpus, place?.name ?? null), matched: true };
+    if (wantKind === 'cafe') return { ...answerListCafes(corpus), matched: true };
+    return { ...answerListRestaurants(corpus, place?.name ?? null), matched: true };
   }
+  // "Thanh Lan Palace có món gì" chứa "món gì" nên rơi vào nhóm đặc sản, nhưng
+  // khách đang hỏi thực đơn của MỘT cơ sở cụ thể → để mục tra cứu trả lời.
+  if (
+    wantKind === 'cuisine' &&
+    !(strongName && ['cuisine', 'restaurant', 'lodging'].includes(top?.doc.kind))
+  )
+    return { ...answerListCuisines(corpus), matched: true };
 
   // 9b. Nhóm rộng/mơ hồ — chỉ khi câu hỏi KHÔNG nhắc tên riêng cụ thể, vì
   //     "chùa Mỹ Cụ có những gì" phải là tra cứu di tích chứ không phải danh sách.
@@ -1189,7 +1852,15 @@ export async function ask(question) {
   //    Đòi hỏi độ phủ đủ cao: câu "thủ đô nước Pháp là gì" tuy khớp chữ "Pháp"
   //    trong hồ sơ Đồn Cao nhưng chỉ phủ 1/4 từ khoá → coi như ngoài phạm vi,
   //    thà nói không biết còn hơn trả lời lạc đề.
-  if (top && top.score >= 2 && (top.exactName || top.titleCoverage >= 0.4)) {
+  // Điều kiện: hoặc gọi đúng tên, hoặc câu hỏi phủ gần hết tên, hoặc chạm được
+  // ÍT NHẤT HAI từ trong tên. Yêu cầu hai từ để loại các va chạm ngẫu nhiên —
+  // "tỷ giá đô la hôm nay" từng khớp "Phở Bò Xuân Tỵ" chỉ nhờ đúng một tiếng
+  // "tỵ/tỷ" và cho ra một câu trả lời hoàn toàn lạc đề.
+  if (
+    top &&
+    top.score >= 2 &&
+    (top.exactName || top.titleCoverage >= 0.75 || (top.titleHits >= 2 && top.titleCoverage >= 0.4))
+  ) {
     const answer = describeDoc(top.doc);
     const others = hits.slice(1, 3).map((h) => ({ label: h.doc.title, url: h.doc.url }));
     return {

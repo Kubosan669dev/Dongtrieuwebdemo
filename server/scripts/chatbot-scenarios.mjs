@@ -165,6 +165,72 @@ const SCENARIOS = [
       ['bãi đỗ xe ở đâu', 'graceful'],
       ['giá vé máy bay đi Đà Nẵng', 'graceful'],
       ['thủ đô nước Pháp là gì', 'graceful'],
+      // Va chạm tên ngẫu nhiên: "tỷ" trùng "Tỵ" trong "Phở Bò Xuân Tỵ"
+      ['tỷ giá đô la hôm nay', 'graceful'],
+    ],
+  },
+
+  // ── Nhóm N–R: năng lực mở ra nhờ bộ dữ liệu khảo sát 2026 ──
+
+  {
+    group: 'N. Đánh giá & xếp hạng cơ sở',
+    items: [
+      ['quán nào đánh giá cao nhất', 'answer'],
+      ['nhà hàng nào ngon nhất Đông Triều', 'answer'],
+      ['khách sạn nào được đánh giá tốt', 'answer'],
+      ['quán ăn nào giá mềm', 'answer'],
+      ['chỗ nào ăn ngon bổ rẻ', 'answer'],
+      // Hỏi đích danh cơ sở điểm thấp → vẫn phải trả lời đầy đủ, không né
+      ['Ốc 94 thế nào', 'answer'],
+      // Chưa có trong dữ liệu → phải từ chối, không được bịa
+      ['quán nào wifi mạnh nhất', 'graceful'],
+    ],
+  },
+  {
+    group: 'O. Giờ mở cửa',
+    items: [
+      ['giờ này còn quán nào mở không', 'answer'],
+      ['quán nào mở 24/24', 'answer'],
+      ['ăn khuya ở đâu', 'answer'],
+      ['quán nào mở sớm để ăn sáng', 'answer'],
+      ['quán cà phê nào đang mở', 'answer'],
+      ['nhà nghỉ nào nhận phòng 24h', 'answer'],
+    ],
+  },
+  {
+    group: 'P. Tìm quanh một di tích',
+    items: [
+      // Có toạ độ → khoảng cách thật
+      ['quán ăn gần đền Yết Kiêu', 'answer'],
+      // Không có toạ độ nhưng quy được khu phố
+      ['quán ăn gần chùa Quán Ngọc Thanh', 'answer'],
+      // Không có cả hai → vẫn phải trả lời trung thực, không bịa thứ tự gần nhất
+      ['quán ăn gần Đồn Cao', 'answer'],
+      ['khách sạn gần miếu Hậu', 'answer'],
+    ],
+  },
+  {
+    group: 'Q. Khu phố (cơ cấu hành chính 2025)',
+    items: [
+      ['phường có bao nhiêu khu phố', 'answer'],
+      ['khu phố Mỹ Cụ gồm những khu nào', 'answer'],
+      ['ăn gì ở khu phố Nguyễn Bình', 'answer'],
+      ['nhà nghỉ khu phố Đạm Thuỷ', 'answer'],
+      ['khu phố Đông Mai có bao nhiêu hộ', 'answer'],
+    ],
+  },
+  {
+    group: 'R. Cà phê & lễ hội chi tiết',
+    items: [
+      ['quán cà phê nào đẹp', 'answer'],
+      ['trà sữa ở đâu ngon', 'answer'],
+      ['lễ hội đền An Sinh thờ ai', 'answer'],
+      ['lễ hội chùa Quỳnh Lâm có nghi lễ gì', 'answer'],
+      ['đi lễ hội Ngọa Vân cần lưu ý gì', 'answer'],
+      ['lễ hội Thái Miếu phần hội có gì', 'answer'],
+      ['lễ hội Ngọc Thanh có ý nghĩa gì', 'answer'],
+      // Hội làng nhỏ chưa có hồ sơ chi tiết → phải nói thật là chưa có
+      ['hội làng Bình Lục có kinh nghiệm gì cho du khách', 'graceful'],
     ],
   },
 ];

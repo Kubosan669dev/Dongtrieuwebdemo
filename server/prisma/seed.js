@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
+import { SITE_NAME } from '../src/lib/site.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -19,10 +20,37 @@ const DATA = path.join(__dirname, 'seed-data');
 
 const read = (name) => JSON.parse(fs.readFileSync(path.join(DATA, name), 'utf8'));
 
+/** Độ dài tối thiểu của mật khẩu quản trị lúc khởi tạo. */
+const MIN_PASSWORD_LEN = 10;
+
+/**
+ * Những mật khẩu quá phổ biến, chặn thẳng. Danh sách ngắn thôi — mục đích là
+ * bắt trường hợp chép nguyên từ tài liệu hướng dẫn, không phải làm bộ lọc đầy đủ.
+ */
+const WEAK_PASSWORDS = new Set(['123456', '12345678', 'password', 'admin', 'admin123', 'matkhau', 'quantri']);
+
 async function seedAdmin() {
   const username = process.env.ADMIN_USERNAME || 'admin';
-  const password = process.env.ADMIN_PASSWORD || '123456';
   const name = process.env.ADMIN_NAME || 'Quản trị viên';
+  const password = process.env.ADMIN_PASSWORD;
+
+  // Dừng hẳn thay vì lặng lẽ dùng mật khẩu mặc định.
+  //
+  // Bản trước rơi về '123456' khi biến môi trường trống, nên một lần seed vội
+  // trên máy chủ thật là tạo ra tài khoản quản trị mật khẩu 123456 mà không ai
+  // biết. Yêu cầu "mỗi lần vào trang quản trị phải nhập mật khẩu" chỉ có ý nghĩa
+  // khi mật khẩu đó thực sự khó đoán.
+  const complain = (lyDo) => {
+    console.error(`\n  ✗ Không tạo được tài khoản quản trị: ${lyDo}\n`);
+    console.error('    Đặt ADMIN_PASSWORD trong server/.env rồi chạy lại. Sinh mật khẩu mạnh:');
+    console.error("      node -e \"console.log(require('crypto').randomBytes(12).toString('base64url'))\"\n");
+    process.exit(1);
+  };
+
+  if (!password) complain('chưa đặt ADMIN_PASSWORD.');
+  if (password.length < MIN_PASSWORD_LEN) complain(`mật khẩu phải dài ít nhất ${MIN_PASSWORD_LEN} ký tự.`);
+  if (WEAK_PASSWORDS.has(password.toLowerCase())) complain('mật khẩu này nằm trong danh sách quá dễ đoán.');
+
   const passwordHash = await bcrypt.hash(password, 10);
 
   await prisma.user.upsert({
@@ -97,7 +125,7 @@ async function seedFestivals() {
 }
 
 /** Ghép lễ hội ↔ di tích qua từ khoá tên. */
-async function matchHeritageByName(festivalName, location) {
+async function matchHeritageByName(festivalName, _location) {
   const map = [
     [/An Biên|làng Vẻn/i, 'chua-an-bien-bao-an-tu'],
     [/đền An Biên|Lê Chân/i, 'den-an-bien-den-nu-tuong-le-chan'],
@@ -231,6 +259,184 @@ async function seedArticles() {
   console.log(`  ✓ Bài viết: ${items.length}`);
 }
 
+// ─── Lớp phủ: bộ dữ liệu khảo sát 2026 ─────────────────────────────────────
+// Do `npm run build-dataset` sinh ra từ data/sources/. Áp SAU các seed cơ bản:
+// bản ghi nào đã có thì bổ sung thông tin (sao, toạ độ, khu phố, giờ mở cửa),
+// chưa có thì thêm mới. Nhờ vậy `npm run extract` sinh lại file .docx gốc cũng
+// không làm mất dữ liệu này.
+
+/** Khoá ghép tên: bỏ dấu và bỏ tiền tố loại hình để "Hotel Thành Đạt" khớp
+ *  "Khách sạn Thành Đạt", "Thanh Hue Hostel" khớp "Nhà nghỉ Thanh Huệ". */
+const coreName = (s) =>
+  String(s ?? '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .toLowerCase()
+    .replace(/\b(khach san|nha nghi|nha tro|homestay|hostel|hotel|motel|quan|nha hang)\b/g, ' ')
+    .replace(/[^a-z0-9]/g, '');
+
+/** Chỉ lấy giá trị mới khi nó thực sự có nội dung — tránh xoá dữ liệu đã nhập tay. */
+const prefer = (fresh, current) =>
+  fresh === null || fresh === undefined || (Array.isArray(fresh) && fresh.length === 0) ? current : fresh;
+
+async function seedPlaces() {
+  let places;
+  try {
+    places = read('places.json');
+  } catch {
+    console.log('  · Bỏ qua lớp cơ sở khảo sát (chưa chạy `npm run build-dataset`)');
+    return;
+  }
+
+  const [lodgings, restaurants] = await Promise.all([
+    prisma.lodging.findMany(),
+    prisma.restaurant.findMany(),
+  ]);
+  const lodgingBy = new Map(lodgings.map((x) => [coreName(x.name), x]));
+  const restaurantBy = new Map(restaurants.map((x) => [coreName(x.name), x]));
+
+  const stat = { updated: 0, created: 0 };
+
+  for (const p of places) {
+    if (p.target === 'lodging') {
+      const cur = lodgingBy.get(coreName(p.name));
+      const data = {
+        // Giữ TÊN và LOẠI của bản ghi cũ: đó là tên đăng ký với UBND, đáng tin
+        // hơn tên hiển thị trên Google Maps.
+        name: cur?.name ?? p.name,
+        type: cur?.type ?? p.type,
+        address: prefer(p.address, cur?.address),
+        owner: prefer(p.owner, cur?.owner),
+        phones: prefer(p.phones, cur?.phones ?? []),
+        openHours: p.openHours,
+        priceRange: prefer(p.priceRange, cur?.priceRange),
+        description: prefer(p.description, cur?.description),
+        lat: prefer(p.lat, cur?.lat),
+        lng: prefer(p.lng, cur?.lng),
+        rating: p.rating,
+        ratingCount: p.ratingCount,
+        khuPho: p.khuPho,
+        khuPhoEstimated: p.khuPhoEstimated,
+        area: p.area,
+        tags: p.tags,
+        placeId: p.placeId,
+        mapsUrl: p.mapsUrl,
+        registeredWithWard: p.registeredWithWard,
+        sourceNote: p.sourceNote,
+        order: p.order,
+        published: p.published,
+      };
+      if (cur) {
+        await prisma.lodging.update({ where: { id: cur.id }, data });
+        stat.updated++;
+      } else {
+        await prisma.lodging.create({ data });
+        stat.created++;
+      }
+    } else if (p.target === 'restaurant') {
+      const cur = restaurantBy.get(coreName(p.name));
+      const data = {
+        name: cur?.name ?? p.name,
+        type: cur?.type ?? p.type,
+        address: prefer(p.address, cur?.address),
+        area: p.area,
+        phone: prefer(p.phone, cur?.phone),
+        openHours: prefer(p.openHours, cur?.openHours),
+        priceRange: prefer(p.priceRange, cur?.priceRange),
+        specialties: prefer(cur?.specialties, p.specialties), // món do người nhập ưu tiên hơn
+        description: prefer(p.description, cur?.description),
+        lat: prefer(p.lat, cur?.lat),
+        lng: prefer(p.lng, cur?.lng),
+        rating: p.rating,
+        ratingCount: p.ratingCount,
+        khuPho: p.khuPho,
+        khuPhoEstimated: p.khuPhoEstimated,
+        tags: p.tags,
+        placeId: p.placeId,
+        mapsUrl: p.mapsUrl,
+        sourceNote: p.sourceNote,
+        isVerified: cur?.isVerified ?? false,
+        isPlaceholder: false,
+        order: p.order,
+        published: p.published,
+      };
+      if (cur) {
+        await prisma.restaurant.update({ where: { id: cur.id }, data });
+        stat.updated++;
+      } else {
+        await prisma.restaurant.create({ data });
+        stat.created++;
+      }
+    } else if (p.target === 'attraction') {
+      const data = {
+        name: p.name,
+        type: p.type,
+        ward: p.ward,
+        address: p.address,
+        summary: p.summary,
+        description: p.description,
+        highlights: p.highlights,
+        lat: p.lat,
+        lng: p.lng,
+        phone: p.phone,
+        openHours: p.openHours,
+        rating: p.rating,
+        ratingCount: p.ratingCount,
+        placeId: p.placeId,
+        mapsUrl: p.mapsUrl,
+        tags: p.tags,
+        // Xếp sau các điểm di sản đã biên soạn tay
+        order: 100 + p.order,
+        published: p.published,
+      };
+      const exists = await prisma.attraction.findUnique({ where: { slug: p.slug } });
+      await prisma.attraction.upsert({ where: { slug: p.slug }, update: data, create: { slug: p.slug, ...data } });
+      exists ? stat.updated++ : stat.created++;
+    }
+  }
+
+  console.log(`  ✓ Cơ sở khảo sát 2026: ${stat.created} thêm mới, ${stat.updated} bổ sung thông tin`);
+}
+
+async function seedFestivalDetails() {
+  let details;
+  try {
+    details = read('festival-details.json');
+  } catch {
+    return;
+  }
+  let applied = 0;
+  const missing = [];
+  for (const d of details) {
+    const f = await prisma.festival.findUnique({ where: { slug: d.slug } });
+    if (!f) {
+      missing.push(d.sourceName);
+      continue;
+    }
+    await prisma.festival.update({
+      where: { slug: d.slug },
+      data: {
+        duration: d.duration,
+        history: d.history,
+        worship: d.worship,
+        meaningCultural: d.meaningCultural,
+        meaningSpiritual: d.meaningSpiritual,
+        rituals: prefer(d.rituals, f.rituals),
+        activities: d.activities,
+        participants: d.participants,
+        visitorTips: d.visitorTips,
+        heritageNote: d.heritageNote,
+        wardNote: d.wardNote,
+        sourceNote: d.sourceNote,
+      },
+    });
+    applied++;
+  }
+  console.log(`  ✓ Hồ sơ chi tiết lễ hội: ${applied}/${details.length}`);
+  if (missing.length) console.warn(`    ! Không tìm thấy lễ hội: ${missing.join(', ')}`);
+}
+
 async function seedSlides() {
   const heritages = await prisma.heritage.findMany({
     where: { featured: true, published: true },
@@ -258,7 +464,18 @@ async function seedSettings() {
   let about = { sections: [] };
   try {
     about = read('about.json');
-  } catch {}
+  } catch {
+    /* chưa chạy `npm run extract` thì chưa có file — để mảng rỗng, seed vẫn chạy */
+  }
+  // Cơ cấu 11 khu phố sau sắp xếp 2025 — chatbot dùng để trả lời câu hỏi hành
+  // chính ("phường có bao nhiêu khu phố", "khu phố Mỹ Cụ gồm những khu nào")
+  // và để xác định cơ sở nào cùng khu phố với một di tích.
+  let khuPho = null;
+  try {
+    khuPho = read('khu-pho.json');
+  } catch {
+    /* chưa chạy `npm run build-dataset` thì chưa có file — bỏ qua, không chặn seed */
+  }
   const settings = {
     contact: {
       name: 'UBND phường Đông Triều',
@@ -278,11 +495,16 @@ async function seedSettings() {
       label: 'Cửa Nam Triệu – Bạch Đằng (tham chiếu cho vùng sông Kinh Thầy – Đá Bạc)',
     },
     seo: {
-      title: 'Du lịch phường Đông Triều — Quảng Ninh',
+      // Tên lấy từ nguồn duy nhất, không gõ lại — xem `server/src/lib/site.js`.
+      title: `${SITE_NAME} — Quảng Ninh`,
+      // Cố ý KHÔNG nêu "13 cụm di tích": con số đó đổi khi có di tích được xếp
+      // hạng thêm, mà chuỗi này thì nằm im trong cơ sở dữ liệu. Cùng lý do đã bỏ
+      // dải số liệu ghi cứng ở trang chủ.
       description:
-        'Cổng thông tin du lịch phường Đông Triều: 13 cụm di tích đã xếp hạng, lịch lễ hội, ẩm thực đặc sản, lưu trú, bản đồ và dự báo thời tiết – triều cường.',
+        'Cổng thông tin chính thức về du lịch phường Đông Triều, tỉnh Quảng Ninh: di tích đã xếp hạng, lịch lễ hội theo âm lịch, ẩm thực đặc sản, lưu trú, bản đồ số và dự báo thời tiết – triều cường.',
     },
     about,
+    ...(khuPho ? { khuPho } : {}),
   };
   for (const [key, valueJson] of Object.entries(settings)) {
     await prisma.siteSetting.upsert({ where: { key }, update: { valueJson }, create: { key, valueJson } });
@@ -300,6 +522,9 @@ async function main() {
   await seedRestaurants();
   await seedAttractions();
   await seedArticles();
+  // Lớp phủ khảo sát 2026 — phải chạy SAU các seed cơ bản để ghép được bản ghi
+  await seedPlaces();
+  await seedFestivalDetails();
   await seedSlides();
   await seedSettings();
   console.log('\n✓ Hoàn tất seed.\n');

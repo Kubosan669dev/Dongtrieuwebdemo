@@ -180,7 +180,9 @@ async function main() {
   if (fs.existsSync(MANIFEST)) {
     try {
       manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
-    } catch {}
+    } catch {
+      /* manifest hỏng thì coi như chưa có, tải lại từ đầu */
+    }
   }
 
   // Slug đã có ảnh trong thư mục (kể cả ảnh thật người dùng tự thêm với tên tiếng Việt)

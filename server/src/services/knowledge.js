@@ -9,6 +9,8 @@
 
 import { prisma } from '../lib/prisma.js';
 import { norm, tokenize } from '../lib/vitext.js';
+import { isAllDay, opensAt, closesAt } from '../lib/hours.js';
+import { resolveKhuPho } from '../lib/geo.js';
 
 const TTL = 5 * 60 * 1000; // 5 phút
 let cache = null;
@@ -51,6 +53,36 @@ const LODGING_TYPE_WORDS = {
   NHA_NGHI: 'nhà nghỉ',
   HOMESTAY: 'homestay',
 };
+
+/**
+ * Giờ mở cửa → những cách du khách thật sự hỏi về nó.
+ *
+ * Chuỗi "24 giờ" tự nó không giúp tìm được gì; phải rải thêm các từ mà người ta
+ * gõ khi cần ("ăn khuya", "mở sớm", "xuyên đêm") thì BM25 mới khớp được.
+ */
+function hourWords(openHours) {
+  if (!openHours) return '';
+  const words = [openHours];
+  if (isAllDay(openHours)) {
+    words.push('24h 24/24 mở cả ngày cả đêm xuyên đêm ăn khuya ăn đêm bất cứ lúc nào');
+  } else {
+    const from = opensAt(openHours);
+    const to = closesAt(openHours);
+    if (from !== null && from <= 6 * 60 + 30) words.push('mở sớm ăn sáng sáng sớm');
+    if (to !== null && to >= 22 * 60 + 30) words.push('mở khuya ăn khuya ăn đêm tối muộn');
+  }
+  return words.join('. ');
+}
+
+/** Điểm sao → từ khoá, để "quán nào được đánh giá cao" khớp đúng cơ sở có sao. */
+function ratingWords(rating, count) {
+  if (rating == null) return '';
+  const words = ['đánh giá', 'sao', `${rating} sao`];
+  if (count) words.push(`${count} lượt đánh giá`);
+  if (rating >= 4.5) words.push('đánh giá rất cao được khen nhiều');
+  else if (rating >= 4) words.push('đánh giá cao');
+  return words.join(' ');
+}
 
 /**
  * Một tài liệu tìm kiếm. Các trường được tách riêng để đánh trọng số:
@@ -105,6 +137,12 @@ async function build() {
   // địa phương và số điện thoại, giống trợ lý của các cổng thông tin chính quyền.
   const settings = Object.fromEntries(settingRows.map((r) => [r.key, r.valueJson]));
 
+  // Cơ cấu 11 khu phố sau sắp xếp 2025. Chỉ 1/13 di tích có toạ độ, nên khu phố
+  // là cách duy nhất để biết cơ sở nào ở gần di tích nào — quy đổi sẵn một lần
+  // ở đây thay vì tính lại mỗi câu hỏi.
+  const khuPho = settings.khuPho ?? null;
+  for (const h of heritages) h.khuPho = resolveKhuPho(h, khuPho);
+
   const docs = [];
 
   for (const h of heritages) {
@@ -140,8 +178,26 @@ async function build() {
         kind: 'festival',
         title: f.name,
         url: `/le-hoi/${f.slug}`,
-        keywords: ['lễ hội', 'hội làng', f.lunarTimeText, f.solarEstimate],
-        body: join(f.intro, f.location, f.rituals, f.lunarTimeText, f.solarEstimate, f.heritage?.name),
+        keywords: ['lễ hội', 'hội làng', f.lunarTimeText, f.solarEstimate, ...(f.worship ?? [])],
+        body: join(
+          f.intro,
+          f.location,
+          f.rituals,
+          f.lunarTimeText,
+          f.solarEstimate,
+          f.heritage?.name,
+          // Hồ sơ chi tiết 2026 — nhờ các trường này bot trả lời được "thờ ai",
+          // "phần hội có gì", "đi lễ cần lưu ý gì" thay vì đọc lại đoạn mở đầu.
+          f.history,
+          f.worship,
+          f.meaningCultural,
+          f.meaningSpiritual,
+          f.activities,
+          f.participants,
+          f.visitorTips,
+          f.heritageNote,
+          f.duration,
+        ),
         raw: f,
       }),
     );
@@ -168,8 +224,25 @@ async function build() {
         kind: 'lodging',
         title: l.name,
         url: '/luu-tru',
-        keywords: ['lưu trú', 'nghỉ', LODGING_TYPE_WORDS[l.type] ?? ''],
-        body: join(l.address, l.owner, l.description, l.priceRange, l.amenities, l.phones),
+        keywords: [
+          'lưu trú',
+          'nghỉ',
+          LODGING_TYPE_WORDS[l.type] ?? '',
+          ...(l.tags ?? []),
+          l.khuPho ? `khu phố ${l.khuPho}` : '',
+        ],
+        body: join(
+          l.address,
+          l.owner,
+          l.description,
+          l.priceRange,
+          l.amenities,
+          l.phones,
+          l.khuPho,
+          l.area,
+          hourWords(l.openHours),
+          ratingWords(l.rating, l.ratingCount),
+        ),
         raw: l,
       }),
     );
@@ -182,8 +255,23 @@ async function build() {
         kind: 'restaurant',
         title: r.name,
         url: '/am-thuc',
-        keywords: ['ăn uống', RESTAURANT_TYPE_WORDS[r.type] ?? ''],
-        body: join(r.address, r.area, r.description, r.specialties, r.openHours, r.priceRange, r.phone),
+        keywords: [
+          'ăn uống',
+          RESTAURANT_TYPE_WORDS[r.type] ?? '',
+          ...(r.tags ?? []),
+          r.khuPho ? `khu phố ${r.khuPho}` : '',
+        ],
+        body: join(
+          r.address,
+          r.area,
+          r.description,
+          r.specialties,
+          r.priceRange,
+          r.phone,
+          r.khuPho,
+          hourWords(r.openHours),
+          ratingWords(r.rating, r.ratingCount),
+        ),
         raw: r,
       }),
     );
@@ -196,8 +284,16 @@ async function build() {
         kind: 'attraction',
         title: a.name,
         url: '/di-tich',
-        keywords: ['điểm đến lân cận', 'tham quan', a.ward],
-        body: join(a.summary, a.description, a.highlights, a.ward, a.address),
+        keywords: ['điểm đến lân cận', 'tham quan', a.ward, ...(a.tags ?? [])],
+        body: join(
+          a.summary,
+          a.description,
+          a.highlights,
+          a.ward,
+          a.address,
+          hourWords(a.openHours),
+          ratingWords(a.rating, a.ratingCount),
+        ),
         raw: a,
       }),
     );
@@ -227,6 +323,7 @@ async function build() {
     attractions,
     articles,
     settings,
+    khuPho,
     builtAt: Date.now(),
   };
 }

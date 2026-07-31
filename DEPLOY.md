@@ -80,7 +80,7 @@ Các giá trị **bắt buộc sửa** trước khi chạy tiếp:
 | `NODE_ENV` | `production` |
 | `PUBLIC_SITE_URL` | `https://<TEN-MIEN>` — dùng cho sitemap và thẻ Open Graph |
 | `JWT_SECRET` | Chuỗi ngẫu nhiên vừa sinh ở trên |
-| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Tài khoản quản trị đầu tiên. Mặc định là `admin` / `123456` — **bắt buộc đổi mật khẩu trước khi seed** |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Tài khoản quản trị đầu tiên. **Không có mật khẩu mặc định** — `db:seed` sẽ dừng nếu `ADMIN_PASSWORD` trống, ngắn hơn 10 ký tự, hoặc quá dễ đoán |
 
 ## 5. Nạp dữ liệu
 
@@ -192,7 +192,8 @@ crontab -e
 | Trang trắng, `/api/health` vẫn OK | Chưa chạy `npm run build`, hoặc thư mục `client/dist` bị thiếu |
 | Lỗi 502 Bad Gateway | Tiến trình Node đã chết: `pm2 restart dongtrieu` |
 | Tải ảnh báo lỗi 413 | Tăng `client_max_body_size` trong Nginx và `UPLOAD_MAX_MB` trong `server/.env` |
-| Đăng nhập admin không giữ phiên | Kiểm tra site chạy HTTPS (cookie đặt `secure` khi `NODE_ENV=production`) |
+| Tải lại trang `/admin` là phải đăng nhập lại | **Đúng thiết kế**, không phải lỗi. Token chỉ nằm trong bộ nhớ trình duyệt, không dùng cookie hay `localStorage`, nên đóng tab hay tải lại là mất phiên |
+| Đang thao tác thì bị đá về màn hình đăng nhập | Token hết hạn giữa chừng — kéo dài `JWT_EXPIRES_IN` trong `server/.env` (mặc định `8h`) |
 
 ## Ghi chú vận hành
 

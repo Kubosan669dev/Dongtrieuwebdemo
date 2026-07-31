@@ -37,17 +37,33 @@ export const STOPWORDS = new Set(
   (
     // "cho" (nghĩa "for") rất hay xuất hiện trong từ đệm ("cho mình hỏi", "cho tôi")
     // và sau khi bỏ dấu lại trùng "chợ" → gây khớp nhầm "Chợ trung tâm". Bỏ đi.
+    // Cố ý KHÔNG có "van": sau khi bỏ dấu, "vẫn" (hư từ) trùng "Vân" trong
+    // Ngọa Vân, Vân Động, Vân Giang, Vân Quế. Bỏ nó đi thì "Ngọa Vân" chỉ còn
+    // đúng một tiếng "ngoa" và không đủ để gọi tên đích danh di tích nữa.
     'la va voi trong ngoai tren duoi ra vao thi ma nhung cac mot nay kia ay ' +
-    'the nhe duoc bi se dang roi lai cung van con hoac neu boi hon nhat cho ' +
+    'the nhe duoc bi se dang roi lai cung con hoac neu boi hon nhat cho ' +
     'xin vui giup minh toi rat'
   )
     .split(/\s+/)
     .filter(Boolean),
 );
 
+/**
+ * Gộp biến thể chính tả "y" ↔ "i" khi TÌM KIẾM: Mỹ/Mĩ, Kỹ/Kĩ, Lý/Lí, Sỹ/Sĩ đều
+ * đúng chính tả và du khách gõ cả hai kiểu.
+ *
+ * Chỉ đổi khi "y" đứng CUỐI từ và trước nó là phụ âm. Cố ý không đụng tới
+ * "may", "tay", "hay" (trước y là nguyên âm) — nếu gộp cả những từ đó thì "mấy"
+ * sẽ thành "mai" và câu "mấy giờ mở cửa" bị hiểu thành hỏi thời tiết ngày mai.
+ *
+ * Chỉ áp dụng cho token đưa vào bộ tìm kiếm, KHÔNG áp dụng cho `has()` nhận
+ * diện ý định.
+ */
+const foldSpelling = (w) => w.replace(/([bcdghklmnprstvx])y$/, '$1i');
+
 /** Tách câu thành các từ có nghĩa (đã chuẩn hoá, đã bỏ hư từ, bỏ từ 1 ký tự). */
 export function tokenize(s, { keepStopwords = false } = {}) {
-  const words = norm(s).split(' ').filter(Boolean);
+  const words = norm(s).split(' ').filter(Boolean).map(foldSpelling);
   if (keepStopwords) return words;
   return words.filter((w) => w.length > 1 && !STOPWORDS.has(w));
 }
@@ -84,7 +100,24 @@ const SYNONYMS = {
   lau: ['nha hang', 'quan an'],
   nuong: ['nha hang', 'quan an'],
   bbq: ['nha hang', 'quan an'],
-  caphe: ['cafe'],
+  caphe: ['cafe', 'ca phe'],
+  cafe: ['ca phe'],
+  coffee: ['ca phe', 'cafe'],
+  trasua: ['tra sua', 'cafe'],
+  sinhto: ['cafe', 'do uong'],
+  douong: ['cafe', 'tra sua'],
+  // ── Giờ mở cửa ──
+  ankhuya: ['24h', 'mo khuya', 'an dem'],
+  andem: ['24h', 'mo khuya'],
+  dangmo: ['gio mo cua', '24h'],
+  conmo: ['gio mo cua', '24h'],
+  mosom: ['mo som', 'an sang'],
+  // ── Đánh giá ──
+  danhgia: ['danh gia', 'sao'],
+  review: ['danh gia', 'sao'],
+  xephang: ['danh gia', 'sao'],
+  // ── Khu phố ──
+  khupho: ['khu pho'],
   // ── Di tích ──
   ditich: ['di tich'],
   thamquan: ['di tich', 'diem den'],

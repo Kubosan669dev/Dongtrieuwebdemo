@@ -36,6 +36,11 @@ function docxToLines(filePath) {
   const text = decodeEntities(withBreaks.replace(/<[^>]+>/g, ''));
   return text
     .split('\n')
+    // Ký tự trong lớp thay thế dưới đây là U+00A0 (dấu cách không ngắt) — cố ý,
+    // không phải gõ nhầm. Word rải rất nhiều ký tự này trong file .docx; để
+    // nguyên thì `.trim()` không cắt được và mọi phép so khớp tên di tích sau
+    // đó đều trượt. Phải là ký tự thật vì đây là dữ liệu cần khớp.
+    // eslint-disable-next-line no-irregular-whitespace
     .map((l) => l.replace(/ /g, ' ').trim())
     .filter((l) => l.length > 0);
 }

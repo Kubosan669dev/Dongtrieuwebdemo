@@ -31,13 +31,21 @@ router.post(
       throw new HttpError(401, 'Tên đăng nhập hoặc mật khẩu không đúng.');
     }
     await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
-    res.cookie(COOKIE_NAME, signToken(user), cookieOptions);
-    res.json({ user: { id: user.id, username: user.username, name: user.name, role: user.role } });
+
+    // Trả token trong thân phản hồi để client giữ trong bộ nhớ. KHÔNG đặt cookie:
+    // cookie sống qua các lần tải trang, mà yêu cầu là mở lại trang quản trị thì
+    // phải nhập mật khẩu lại. Xoá luôn cookie của bản cũ nếu máy còn giữ.
+    res.clearCookie(COOKIE_NAME, cookieOptions);
+    res.json({
+      user: { id: user.id, username: user.username, name: user.name, role: user.role },
+      token: signToken(user),
+    });
   }),
 );
 
 router.post('/logout', (_req, res) => {
-  res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: undefined });
+  // Token nằm ở phía client nên chỉ cần client tự xoá; ở đây dọn nốt cookie cũ.
+  res.clearCookie(COOKIE_NAME, cookieOptions);
   res.json({ ok: true });
 });
 

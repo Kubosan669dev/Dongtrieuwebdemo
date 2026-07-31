@@ -1,6 +1,6 @@
-# Cổng thông tin du lịch phường Đông Triều
+# Khám phá Đông Triều
 
-Website du lịch của phường Đông Triều, tỉnh Quảng Ninh — giới thiệu **13 cụm di tích đã xếp hạng**, **17 lễ hội truyền thống**, **15 cơ sở lưu trú**, **8 đặc sản tiêu biểu**, **6 điểm đến lân cận**, kèm bản đồ, dự báo thời tiết – triều cường theo thời gian thực (có gợi ý điểm tham quan phù hợp với thời tiết) và trang quản trị nội dung.
+Cổng thông tin du lịch của phường Đông Triều, tỉnh Quảng Ninh — giới thiệu **13 cụm di tích đã xếp hạng**, **17 lễ hội truyền thống**, **21 cơ sở lưu trú**, **41 nơi ăn uống**, **8 đặc sản tiêu biểu**, **7 điểm đến lân cận**, kèm **bản đồ số** (Leaflet + OpenStreetMap), **đánh giá của du khách có kiểm duyệt**, biểu mẫu liên hệ, dự báo thời tiết – triều cường theo thời gian thực (có gợi ý điểm tham quan phù hợp với thời tiết) và trang quản trị nội dung.
 
 Toàn bộ nội dung di tích được biên soạn từ **hồ sơ lý lịch di tích và quyết định xếp hạng chính thức** (thư mục `Ly lich di tich phuong Dong Trieu/`).
 
@@ -14,7 +14,7 @@ Toàn bộ nội dung di tích được biên soạn từ **hồ sơ lý lịch 
 | Thành phần | Swiper (slider) · Recharts (biểu đồ) · TipTap (soạn thảo) · Lucide (icon) |
 | Máy chủ | Node 20 · Express 4 |
 | Dữ liệu | PostgreSQL 16 · Prisma ORM |
-| Khác | JWT (cookie httpOnly) · Multer + Sharp (ảnh) · Zod (kiểm tra dữ liệu) |
+| Khác | JWT (token giữ trong bộ nhớ) · Multer + Sharp (ảnh) · Zod (kiểm tra dữ liệu) |
 
 Dữ liệu thời tiết & triều cường: [Open-Meteo](https://open-meteo.com) (miễn phí, không cần API key).
 Bản đồ: Google Maps nhúng qua iframe (không cần API key).
@@ -31,12 +31,13 @@ Bản đồ: Google Maps nhúng qua iframe (không cần API key).
 │   └── src/{components,pages,pages/admin,hooks,lib,styles}
 ├── server/                              # API Express
 │   ├── prisma/{schema.prisma,seed.js,seed-data/}
-│   ├── scripts/                         # extract-docx · fetch-images · import-images · test-chatbot
+│   ├── scripts/                         # extract-docx · build-dataset · fetch-images · test-chatbot
 │   ├── src/
-│   │   ├── lib/                         # vitext.js (xử lý tiếng Việt) · lunar.js (âm lịch)
+│   │   ├── lib/                         # vitext.js (tiếng Việt) · lunar.js (âm lịch) · hours.js · geo.js
 │   │   ├── services/                    # chatbot.js · knowledge.js · retrieval.js · weather · tide
 │   │   ├── routes/ · middleware/
 │   ├── data/knowledge_base.md           # bản xuất tĩnh kho tri thức (tham khảo/đối chiếu)
+│   ├── data/sources/                     # bộ dữ liệu khảo sát 2026 + logo gốc của phường
 │   └── uploads/                         # ảnh admin tải lên (không commit)
 ├── ecosystem.config.cjs                 # cấu hình PM2
 ├── nginx.conf.example                   # cấu hình Nginx mẫu
@@ -75,7 +76,8 @@ DATABASE_URL="postgresql://postgres:MAT_KHAU@127.0.0.1:5432/dongtrieu?schema=pub
 npm run setup
 ```
 
-Lệnh này chạy tuần tự: `npm install` → `extract` (đọc 29 file .docx) → `db:migrate` → `db:seed`.
+Lệnh này chạy tuần tự: `npm install` → `extract` (đọc 29 file .docx) → `build-dataset`
+(chuyển bộ dữ liệu khảo sát 2026) → `db:migrate` → `db:seed`.
 
 ### 4. Khởi động
 
@@ -87,15 +89,24 @@ npm run dev
 - API: <http://localhost:4000/api/health>
 - Trang quản trị: <http://localhost:5173/admin>
 
-**Tài khoản admin mặc định** (đặt trong `server/.env`):
+**Tài khoản quản trị** được tạo lúc seed từ hai biến trong `server/.env`:
 
 ```
-Tên đăng nhập: admin
-Mật khẩu:      123456
+ADMIN_USERNAME="admin"
+ADMIN_PASSWORD="…"      # bắt buộc, tối thiểu 10 ký tự
 ```
 
-> ⚠️ Mật khẩu này chỉ phù hợp khi chạy thử trên máy local. **Trước khi đưa lên VPS
-> hãy đổi `ADMIN_PASSWORD` trong `server/.env` thành mật khẩu mạnh** — xem [DEPLOY.md](DEPLOY.md).
+Không có mật khẩu mặc định: `npm run db:seed` sẽ dừng và báo lỗi nếu
+`ADMIN_PASSWORD` còn trống, quá ngắn, hoặc nằm trong danh sách dễ đoán. Sinh
+một mật khẩu mạnh:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(12).toString('base64url'))"
+```
+
+> ⚠️ Trang quản trị bắt nhập lại mật khẩu mỗi lần tải trang (token chỉ nằm trong
+> bộ nhớ, không lưu cookie hay `localStorage`). Điều đó chỉ có tác dụng khi mật
+> khẩu đủ mạnh — xem thêm [DEPLOY.md](DEPLOY.md).
 
 ---
 
@@ -103,11 +114,13 @@ Mật khẩu:      123456
 
 | Lệnh | Tác dụng |
 |---|---|
-| `npm run setup` | Cài đặt + trích xuất + migrate + seed (chạy lần đầu) |
+| `npm run setup` | Cài đặt + trích xuất + chuyển dữ liệu + migrate + seed (chạy lần đầu) |
 | `npm run dev` | Chạy song song server (:4000) và client (:5173) |
 | `npm run build` | Build giao diện React ra `client/dist` |
 | `npm start` | Chạy production — 1 process phục vụ cả API lẫn giao diện |
 | `npm run extract` | Đọc lại 29 file `.docx` → `server/prisma/seed-data/*.json` |
+| `npm run build-dataset` | Chuyển `server/data/sources/*.json` (khảo sát 2026) → 3 lớp phủ seed |
+| `npm run make-favicon` | Sinh lại favicon, logo header/footer và ảnh chia sẻ từ logo phường |
 | `npm run db:migrate` | Tạo & áp dụng migration (khi sửa `schema.prisma`) |
 | `npm run db:seed` | Nạp lại dữ liệu (an toàn khi chạy nhiều lần) |
 | `npm run db:studio` | Mở Prisma Studio để xem/sửa database trực quan |
@@ -115,7 +128,8 @@ Mật khẩu:      123456
 | `npm run import-images` | Nén ảnh sang WebP, đưa vào `server/uploads/` và gán ảnh bìa theo slug |
 | `npm run test-chatbot` | Chạy thử trợ lý AI với ~40 câu hỏi mẫu, in ra câu trả lời |
 | `npm run test-chatbot "câu hỏi"` | Hỏi trợ lý một câu bất kỳ ngay trên terminal |
-| `npm run test-scenarios` | Bộ kịch bản 67 câu theo 13 nhóm (kiểu cổng du lịch); báo nhóm nào chưa đạt |
+| `npm run test-scenarios` | Bộ kịch bản ~110 câu theo 18 nhóm (kiểu cổng du lịch); báo nhóm nào chưa đạt |
+| `npm run test-scenarios-bulk` | Bộ sinh tự động ~1.400 câu từ dữ liệu thật; báo tỷ lệ đạt theo nhóm |
 
 Chạy thử production trên máy local:
 
@@ -128,7 +142,13 @@ NODE_ENV=production npm start     # mở http://localhost:4000
 
 ## API
 
-Tất cả endpoint ghi dữ liệu (`POST` / `PATCH` / `DELETE`) đều yêu cầu đăng nhập bằng cookie JWT.
+Tất cả endpoint ghi dữ liệu (`POST` / `PATCH` / `DELETE`) đều yêu cầu gửi kèm header
+`Authorization: Bearer <token>`; token lấy từ `POST /api/auth/login`.
+
+Cố ý **không dùng cookie**: cookie sống qua các lần tải trang nên mở `/admin` là đã
+đăng nhập sẵn, trong khi yêu cầu của phường là mỗi lần vào phải nhập lại mật khẩu.
+Giao diện giữ token trong bộ nhớ (không `localStorage`), tải lại trang là mất phiên.
+Bỏ cookie cũng loại luôn nguy cơ CSRF cho toàn bộ API quản trị.
 
 | Method | Đường dẫn | Ghi chú |
 |---|---|---|
@@ -156,7 +176,10 @@ Tất cả endpoint ghi dữ liệu (`POST` / `PATCH` / `DELETE`) đều yêu c�
 
 Một số điểm đáng chú ý:
 
+- **Bảng màu**: nút 🎨 trên thanh đầu (cả trang công khai lẫn trang quản trị) mở hộp chọn **8 bảng màu** — Paper Heritage, Coral Sunrise, Teal Paradise, Hạ Long Blue, Forest Zen, Rose Lotus, Zen Neutral, Midnight Crimson — kèm công tắc nền sáng/tối. Lựa chọn lưu theo máy, admin và trang công khai dùng chung.
+- **Đăng nhập lại mỗi lần vào**: khu quản trị không giữ phiên qua lần tải trang. Bấm F5 hay mở tab mới đều phải nhập lại mật khẩu.
 - **Thư viện ảnh**: tải lên nhiều ảnh cùng lúc, tự nén WebP, gán mô tả (alt), chọn làm ảnh bìa.
+- **Ảnh minh hoạ kèm chú thích**: cả 6 loại nội dung (di tích · lễ hội · điểm lân cận · nhà hàng · ẩm thực · lưu trú) đều có ô **Thư viện ảnh** — mỗi ảnh nhập được chú thích riêng và đổi được thứ tự. Chú thích hiện ngay dưới ảnh ở trang chi tiết, không chỉ nằm trong `alt`. Nhà hàng và điểm lân cận trước đây không có trang chi tiết, nay bấm **"Xem chi tiết"** trên thẻ để mở cửa sổ đầy đủ.
 - **Form di tích**: có ô nhập `lat`/`lng` kèm nút *"Xem thử trên bản đồ"* để ghim toạ độ chính xác.
 - **Lưu trú**: trang `/luu-tru` cho bấm vào từng cơ sở để xem **chi tiết** (mô tả, giá phòng, tiện nghi, ảnh, bản đồ). Các trường này lấy từ form Lưu trú trong admin — điền càng đầy đủ, cửa sổ chi tiết càng phong phú (hiện dữ liệu gốc mới có tên/địa chỉ/điện thoại).
 - **Bài viết**: soạn thảo trực quan (in đậm, tiêu đề, danh sách, chèn ảnh, liên kết).
@@ -174,10 +197,36 @@ Những điểm sau là **hiện trạng dữ liệu nguồn**, không phải l�
 | Hạng mục | Hiện trạng | Cách khắc phục |
 |---|---|---|
 | **Ảnh** | **1/27 mục có ảnh thật** (chùa quán Ngọc Thanh). 26 mục còn lại dùng ảnh bìa placeholder tự vẽ — gradient theo loại hình + badge xếp hạng, trông vẫn chỉn chu. Đã thử tải tự động từ Wikimedia Commons nhưng **kết quả sai lệch nghiêm trọng** (trả về đền Sikh ở Ấn Độ, ảnh đường phố, ảnh người) nên đã gỡ bỏ. | Xem mục [Thêm ảnh cho website](#thêm-ảnh-cho-website) — **cần key Pexels** |
-| **Toạ độ GPS** | Chỉ 1/13 di tích có toạ độ trong hồ sơ (đền, chùa Kênh Giang). 12 điểm còn lại ghim theo địa chỉ chữ nên có thể lệch vài trăm mét. | Admin → Di tích → nhập `lat`/`lng`, có nút *"Xem thử trên bản đồ"* |
-| **Nhà hàng, quán ăn** | Hồ sơ gốc không có danh sách. Hiện có **9 mục**: 5 cơ sở thật (tên, địa chỉ, SĐT tổng hợp từ nguồn công khai) + 4 mô tả theo khu vực. Tất cả đang gắn cờ `isVerified=false` và hiện nhãn *"chưa xác minh"*. Một số cơ sở thuộc **phường Mạo Khê / Xuân Sơn** sau sáp nhập — đã ghi rõ ở trường `area`. | Gọi kiểm tra SĐT → Admin → Nhà hàng → bật công tắc *"Đã gọi xác minh"* |
+| **Toạ độ GPS** | Chỉ 1/13 di tích có toạ độ trong hồ sơ (đền, chùa Kênh Giang). 12 điểm còn lại ghim theo địa chỉ chữ nên có thể lệch vài trăm mét. Các cơ sở ăn uống, lưu trú thì **46/62 đã có toạ độ** từ bộ khảo sát 2026, nên trợ lý tính được khoảng cách thật khi hỏi *"quán ăn gần đền Yết Kiêu"*. | Admin → Di tích → nhập `lat`/`lng`, có nút *"Xem thử trên bản đồ"* |
+| **Nhà hàng, quán ăn** | Hồ sơ .docx gốc không có danh sách. Nay có **41 mục** (27 quán ăn/nhà hàng + 11 cà phê, trà sữa + 3 điểm dừng chân) từ bộ khảo sát 2026, kèm điểm sao Google, giờ mở cửa, toạ độ và khu phố. Tất cả vẫn gắn cờ `isVerified=false` và hiện nhãn *"chưa xác minh"*. Cơ sở thuộc **phường An Sinh / Bình Khê / Mạo Khê** sau sáp nhập đã ghi rõ ở trường `area`. | Gọi kiểm tra SĐT → Admin → Nhà hàng → bật công tắc *"Đã gọi xác minh"* |
+| **Khu phố** | Trợ lý quy đổi được **11/13 di tích** về khu phố mới (qua bảng gộp khu cũ). Còn *Đồn Cao* và *làng Vân Động* chưa quy được vì hồ sơ chỉ ghi "trung tâm phường" / tên thôn không có trong bảng. Khu phố của quán ăn, cà phê phần lớn là **ước tính** từ tên đường và toạ độ. | Đối chiếu sơ đồ khu phố chính thức → Admin → sửa trường `khuPho` |
+| **Đánh giá sao** | Điểm sao lấy từ Google Maps chốt ngày 27/07/2026, **không phải đánh giá chính thức của phường**. 42/62 cơ sở có điểm; số còn lại chưa ai đánh giá. | Cập nhật định kỳ bằng `npm run build-dataset` sau khi làm mới file nguồn |
 | **Triều cường** | Toạ độ Đông Triều nằm sâu trong đất liền, ngoài lưới hải văn của Open-Meteo (trả về `null`). Hệ thống dùng điểm **cửa Nam Triệu – Bạch Đằng** (20.70, 106.80) làm số liệu **tham chiếu** cho vùng sông Kinh Thầy – Đá Bạc, ghi rõ trên giao diện. | Không cần sửa — đã ghi nhãn minh bạch |
 | **Trợ lý AI** | Đã hoạt động, chạy hoàn toàn trên dữ liệu của phường. Vì không dùng mô hình ngôn ngữ nên trợ lý **chỉ hiểu những cách hỏi đã được dạy** — gặp câu lạ sẽ nói thật là chưa biết chứ không bịa. | Xem mục [Trợ lý AI](#trợ-lý-ai-chatbot) để biết cách mở rộng |
+
+---
+
+## Logo và favicon
+
+Logo phường nằm ở `server/data/sources/logo-dong-trieu.png` (953×953, nền trong suốt).
+Thay file đó rồi chạy `npm run make-favicon` là sinh lại toàn bộ:
+
+| File trong `client/public/` | Dùng ở đâu |
+|---|---|
+| `favicon-32.png` | biểu tượng trên tab trình duyệt |
+| `favicon-180.png` | biểu tượng khi lưu ra màn hình chính iOS/Android |
+| `favicon-512.png` | biểu tượng độ phân giải cao |
+| `logo.png` | logo ở header và footer |
+| `og-image.png` | ảnh xem trước khi chia sẻ link lên Zalo / Facebook |
+
+Ruột logo vốn trong suốt (chỉ vòng tròn, dãy núi và dòng chữ được vẽ), nên script **lót thêm
+một đĩa trắng đúng bằng vòng tròn** — nếu không, đặt lên header chế độ tối hoặc footer
+(`bg-jade-950`) thì viền xanh đậm gần như biến mất. Bốn góc vẫn trong suốt nên logo giữ được
+hình huy hiệu tròn.
+
+Thẻ `og:image` trong [`client/index.html`](client/index.html) đang dùng đường dẫn tương đối.
+Khi lên tên miền thật, nên đổi thành URL tuyệt đối (`https://<tên-miền>/og-image.png`) để chắc
+chắn Zalo và Facebook lấy được ảnh.
 
 ---
 
@@ -261,15 +310,36 @@ lấy từ một bản ghi cụ thể trong database. Không tìm được thì 
 | Di tích | *"chùa Mỹ Cụ có gì đặc biệt"* · *"đền Yết Kiêu thờ ai"* · *"Đông Triều có bao nhiêu di tích"* |
 | Lễ hội | *"lễ hội nào sắp diễn ra"* (kèm **số ngày còn lại**) · *"lễ hội tháng Giêng có những gì"* |
 | Ẩm thực, lưu trú | *"ăn gì ở Đông Triều"* · *"na mùa nào"* · *"khách sạn ở đâu"* (kèm SĐT) |
+| **Đánh giá & xếp hạng** | *"quán nào đánh giá cao nhất"* · *"khách sạn nào được đánh giá tốt"* · *"quán nào giá mềm"* — xếp theo sao Google **có xét số lượt đánh giá** |
+| **Giờ mở cửa cơ sở** | *"giờ này còn quán nào mở không"* · *"chỗ nào mở 24/24"* · *"ăn khuya ở đâu"* · *"quán nào mở sớm"* |
+| **Tìm quanh một di tích** | *"quán ăn gần đền Yết Kiêu"* (khoảng cách thật) · *"chỗ nghỉ gần chùa Quán Ngọc Thanh"* (cùng khu phố) |
+| **Khu phố** | *"phường có bao nhiêu khu phố"* · *"khu phố Mỹ Cụ gồm những khu nào"* · *"ăn gì ở khu phố Nguyễn Bình"* |
+| **Cà phê, trà sữa** | *"quán cà phê nào đẹp"* · *"trà sữa ở đâu ngon"* |
 | Đường đi | *"đi từ Hà Nội thế nào"* · *"Đông Triều cách Hà Nội bao xa"* |
-| **Lộ trình cá nhân hoá** | Vẽ đúng khoảng thời gian hỏi và điều chỉnh theo người: *"lộ trình 1 buổi sáng"* (chỉ vẽ sáng) · *"lịch trình cho người lớn tuổi"* (bỏ điểm leo trèo) · *"lộ trình thiên về tâm linh / lịch sử"* · *"gia đình có trẻ nhỏ nên đi đâu"* · *"tôi có 2 triệu thì vạch lộ trình + ăn uống"* (chọn nhà hàng theo giá thực đơn) |
-| Gợi ý dịch vụ | *"gợi ý quán giá hợp lý"* · *"nhà hàng nào chất lượng"* |
+| **Lộ trình cá nhân hoá** | Vẽ đúng khoảng thời gian hỏi và điều chỉnh theo người: *"lộ trình 1 buổi sáng"* (chỉ vẽ sáng) · *"lịch trình cho người lớn tuổi"* (bỏ điểm leo trèo) · *"lộ trình thiên về tâm linh / lịch sử"* · *"gia đình có trẻ nhỏ nên đi đâu"* · *"tôi có 2 triệu thì vạch lộ trình + ăn uống"* (chọn quán theo **giá và đánh giá**) |
+| **Lễ hội chi tiết** | *"lễ hội đền An Sinh thờ ai"* · *"lễ hội chùa Quỳnh Lâm có nghi lễ gì"* · *"đi lễ hội Ngọa Vân cần lưu ý gì"* · *"lễ hội Thái Miếu phần hội có gì"* |
 | Giới thiệu, vé, giờ mở cửa | *"giới thiệu về Đông Triều"* · *"vé vào cửa bao nhiêu"* · *"mấy giờ mở cửa"* |
 | Liên hệ & khẩn cấp | *"số điện thoại UBND phường"* · *"gọi cấp cứu số mấy"* (113/114/115) |
 
 Hiểu cả **chữ không dấu** (*"chua my cu o dau"*) và **lỗi gõ nhẹ** (*"chùa mĩ cụ"*).
 
-Những gì **ngoài phạm vi** (thủ tục hành chính, ATM/bãi đỗ, chuyện ngoài Đông Triều) thì trợ lý **từ chối trung thực và chỉ hướng đúng chỗ** thay vì bịa — ví dụ hỏi làm căn cước thì hướng sang UBND phường / Cổng dịch vụ công.
+Những gì **ngoài phạm vi** (thủ tục hành chính, ATM/bãi đỗ, chuyện ngoài Đông Triều) thì trợ lý **từ chối trung thực và chỉ hướng đúng chỗ** thay vì bịa — ví dụ hỏi làm căn cước thì hướng sang UBND phường / Cổng dịch vụ công. Hỏi xếp hạng theo tiêu chí không có trong dữ liệu (*"quán nào wifi mạnh nhất"*) cũng nói thẳng là chưa có, thay vì trả về một danh sách trông như đã trả lời.
+
+#### Ba nguyên tắc khi dùng dữ liệu đánh giá
+
+Bộ dữ liệu khảo sát 2026 có điểm sao Google Maps cho phần lớn cơ sở. Trợ lý dùng nó theo ba quy tắc:
+
+1. **Xếp hạng có xét độ tin cậy** — quán 5★ với 2 lượt đánh giá không được thắng quán 4,2★ với 80
+   lượt. Điểm được kéo về trung bình chung theo số lượt (Bayesian shrinkage) trước khi so sánh.
+2. **Không chủ động chê** — đây là cổng thông tin chính thức của phường, nên các câu **gợi ý** chỉ
+   lấy cơ sở từ **3,5★ trở lên**. Cơ sở *chưa có lượt đánh giá nào* vẫn được gợi ý (chưa có ≠ dở) và
+   không bao giờ hiển thị là "0 sao".
+3. **Hỏi đích danh thì trả lời đầy đủ** — hỏi thẳng một quán điểm thấp, trợ lý vẫn đưa nguyên nhận
+   xét kể cả phần chưa hay. Giấu thông tin lúc khách hỏi thẳng còn tệ hơn.
+
+Với câu *"gần di tích X"*, trợ lý đi theo đúng thứ tự đáng tin: có toạ độ hai đầu thì **tính khoảng
+cách thật**; chỉ biết khu phố thì xếp **cùng khu phố** và nói rõ là cùng khu phố chứ không hứa là gần
+nhất; không có gì thì nói thẳng lý do. Hồ sơ di tích hiện chỉ có 1/13 điểm có toạ độ.
 
 ### Cách "dạy" thêm cho trợ lý
 
@@ -282,6 +352,14 @@ lại gì cả. Có 3 mức:
    `mam: ['am thuc', 'dac san']`.
 3. **Thêm dạng câu trả lời mới** — [`server/src/services/chatbot.js`](server/src/services/chatbot.js),
    phần cuối file là danh sách ý định xếp theo thứ tự ưu tiên.
+4. **Làm mới bộ dữ liệu khảo sát** — thay file trong `server/data/sources/` rồi chạy
+   `npm run build-dataset && npm run db:seed`. Dùng khi cập nhật lại điểm sao, giờ mở cửa
+   hoặc bổ sung cơ sở mới từ Google Maps / danh sách UBND phường.
+
+Bộ dữ liệu khảo sát được nạp thành **lớp phủ** (`places.json`, `festival-details.json`,
+`khu-pho.json`) chứ không ghi đè `seed-data/` sinh từ .docx — nhờ vậy chạy lại `npm run extract`
+không làm mất dữ liệu mới. Khi ghép, bản ghi giữ **tên và loại theo đăng ký UBND** (đáng tin hơn tên
+hiển thị trên Google Maps) và lấy sao, toạ độ, giờ mở cửa từ Google.
 
 ### Xem trợ lý còn yếu chỗ nào
 
@@ -295,18 +373,18 @@ Kiểm tra nhanh chất lượng sau khi sửa dữ liệu:
 ```bash
 npm run test-chatbot                      # chạy ~40 câu mẫu, in câu trả lời
 npm run test-chatbot "na mùa nào?"        # hỏi thử một câu
-npm run test-scenarios                    # bộ kịch bản CURATED ~79 câu theo nhóm
-npm run test-scenarios-bulk               # bộ SINH TỰ ĐỘNG ~950 câu (mẫu × dữ liệu × biến thể)
+npm run test-scenarios                    # bộ kịch bản CURATED ~110 câu theo nhóm
+npm run test-scenarios-bulk               # bộ SINH TỰ ĐỘNG ~1.400 câu (mẫu × dữ liệu × biến thể)
 npm run test-scenarios-bulk -- --fails    # in chi tiết câu chưa đạt
 npm run test-scenarios-bulk -- --drift    # in cả cảnh báo lệch ý định
 ```
 
 Hai lớp kiểm thử:
 
-- **Curated** (`chatbot-scenarios.mjs`, ~79 câu) — viết tay, mô phỏng các nhóm câu hỏi của một cổng
+- **Curated** (`chatbot-scenarios.mjs`, ~110 câu) — viết tay, mô phỏng các nhóm câu hỏi của một cổng
   du lịch chính quyền (giới thiệu, di tích, lễ hội, ẩm thực, lưu trú, vé & giờ, thời tiết, đường đi,
   **lộ trình cá nhân hoá**, liên hệ & khẩn cấp, và **các câu ngoài phạm vi phải từ chối trung thực**).
-- **Sinh tự động** (`gen-scenarios.mjs`, ~950 câu) — ghép **mẫu câu × dữ liệu thật trong database ×
+- **Sinh tự động** (`gen-scenarios.mjs`, ~1.400 câu) — ghép **mẫu câu × dữ liệu thật trong database ×
   biến thể** (có dấu / không dấu / thêm từ đệm). Tự phình theo dữ liệu: thêm một di tích là có thêm
   vài chục câu test. Đây là "bản đồ" phát hiện định tuyến sai ở quy mô lớn — mỗi lần chạy báo tỷ lệ
   đạt theo nhóm và liệt kê câu trượt để khoanh vùng.

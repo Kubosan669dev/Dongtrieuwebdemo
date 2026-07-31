@@ -6,11 +6,17 @@ import mediaRouter from './media.js';
 import { weatherHandler, tideHandler } from './forecast.js';
 import settingsRouter from './settings.js';
 import chatRouter from './chat.js';
+import mapPointsRouter from './mapPoints.js';
+import geocodeRouter from './geocode.js';
+import reviewsRouter from './reviews.js';
+import contactRouter from './contact.js';
 import { asyncHandler } from '../lib/http.js';
 import { prisma } from '../lib/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const api = Router();
+
+const sum = (arr) => arr.reduce((a, b) => a + b, 0);
 
 api.get('/health', (_req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
@@ -18,6 +24,10 @@ api.use('/auth', authRouter);
 api.use('/media', mediaRouter);
 api.use('/settings', settingsRouter);
 api.use('/chat', chatRouter);
+api.use('/map-points', mapPointsRouter);
+api.use('/geocode', geocodeRouter);
+api.use('/reviews', reviewsRouter);
+api.use('/contact', contactRouter);
 
 // Dự báo (public, cache phía server)
 api.get('/weather', asyncHandler(weatherHandler));
@@ -29,7 +39,6 @@ api.use(
   createResourceRouter({
     model: 'heritage',
     hasSlug: true,
-    includeOne: { images: { orderBy: { order: 'asc' } } },
     filter: (q) => {
       const where = {};
       if (q.type) where.type = q.type;
@@ -138,8 +147,9 @@ api.use(
   '/slides',
   createResourceRouter({
     model: 'slide',
-    // Public chỉ thấy slide đang kích hoạt; admin xem tất cả với ?all=1
-    filter: (q) => (q.all === '1' ? {} : { active: true }),
+    // Lọc theo `active` do `createResourceRouter` lo (xem VISIBILITY_FIELD):
+    // khách chỉ thấy slide đang bật, quản trị viên đã đăng nhập thêm ?all=1
+    // thì thấy cả slide đã tắt.
     createSchema: S.slideCreate,
     updateSchema: S.slideUpdate,
   }),
@@ -154,12 +164,44 @@ api.post(
   }),
 );
 
+/**
+ * GET /api/stats — số liệu công khai cho dải thống kê trang chủ.
+ *
+ * Chỉ đếm mục đã xuất bản, đúng những gì khách nhìn thấy. Trước đây trang chủ
+ * ghi cứng "13 di tích · 17 lễ hội · 15 lưu trú · 8 đặc sản" trong mã nguồn, nên
+ * quản trị viên thêm một di tích là con số trên trang thành sai mà không ai biết.
+ *
+ * Tách khỏi `/api/admin/stats` (cần đăng nhập, đếm cả mục đang ẩn và kèm số liệu
+ * nội bộ như nhật ký chatbot) — những thứ đó không nên lộ ra ngoài.
+ */
+api.get(
+  '/stats',
+  asyncHandler(async (_req, res) => {
+    const where = { published: true };
+    const [heritages, festivals, lodgings, cuisines, attractions, restaurants] = await Promise.all([
+      prisma.heritage.count({ where }),
+      prisma.festival.count({ where }),
+      prisma.lodging.count({ where }),
+      prisma.cuisine.count({ where }),
+      prisma.attraction.count({ where }),
+      prisma.restaurant.count({ where }),
+    ]);
+    res.json({ counts: { heritages, festivals, lodgings, cuisines, attractions, restaurants } });
+  }),
+);
+
 // Thống kê cho dashboard admin
 api.get(
   '/admin/stats',
   requireAuth,
   asyncHandler(async (_req, res) => {
-    const [heritages, festivals, attractions, lodgings, cuisines, restaurants, articles, media, noCover, unverified, chatTotal, chatUnmatched] =
+    // Bốn model có toạ độ, dùng cho hai ô việc-cần-làm "thiếu toạ độ" và "toạ độ
+    // chưa xác minh" trên trang Tổng quan. Đây là chỗ đóng vòng lặp của bản đồ
+    // số: bản đồ chỉ tốt khi toạ độ được điền, nên Tổng quan phải nhắc việc đó.
+    const MODEL_CO_TOA_DO = ['heritage', 'attraction', 'lodging', 'restaurant'];
+    const thieuToaDo = { published: true, OR: [{ lat: null }, { lng: null }] };
+
+    const [heritages, festivals, attractions, lodgings, cuisines, restaurants, articles, media, noCover, unverified, chatTotal, chatUnmatched, reviewsPending, contactsPending, coordsMissing, coordsEstimated] =
       await Promise.all([
         prisma.heritage.count(),
         prisma.festival.count(),
@@ -173,6 +215,10 @@ api.get(
         prisma.restaurant.count({ where: { isVerified: false } }),
         prisma.chatLog.count(),
         prisma.chatLog.count({ where: { matched: false } }),
+        prisma.review.count({ where: { status: 'PENDING' } }),
+        prisma.contactMessage.count({ where: { handled: false } }),
+        Promise.all(MODEL_CO_TOA_DO.map((m) => prisma[m].count({ where: thieuToaDo }))).then(sum),
+        Promise.all(MODEL_CO_TOA_DO.map((m) => prisma[m].count({ where: { published: true, coordsEstimated: true } }))).then(sum),
       ]);
     const recentArticles = await prisma.article.findMany({
       orderBy: { updatedAt: 'desc' },
@@ -184,6 +230,9 @@ api.get(
       heritagesWithoutCover: noCover,
       restaurantsUnverified: unverified,
       chat: { total: chatTotal, unmatched: chatUnmatched },
+      // Việc cần làm: mỗi con số ứng với một ô trên trang Tổng quan, bấm vào là
+      // đi đúng chỗ để xử lý.
+      todo: { reviewsPending, contactsPending, coordsMissing, coordsEstimated },
       recentArticles,
     });
   }),

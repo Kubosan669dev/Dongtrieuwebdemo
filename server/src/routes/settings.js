@@ -1,10 +1,74 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
-import { asyncHandler } from '../lib/http.js';
+import { asyncHandler, HttpError } from '../lib/http.js';
 import { requireAuth } from '../middleware/auth.js';
 import { invalidateCorpus } from '../services/knowledge.js';
 
 const router = Router();
+
+const optStr = z.string().trim().max(2000).optional().nullable();
+
+/** Toạ độ cho dự báo thời tiết / triều cường. Sai vĩ độ là hỏng cả trang dự báo. */
+const coords = z.object({
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+  label: optStr,
+});
+
+/**
+ * Danh sách trắng các khoá cài đặt, kèm dạng dữ liệu của từng khoá.
+ *
+ * Bản trước nhận khoá bất kỳ và ghi thẳng `req.body` vào cột JSONB, không kiểm
+ * tra gì. Hai lý do phải siết:
+ *
+ *  1. `GET /api/settings` là công khai — mọi thứ ghi vào đây đều lộ ra ngoài.
+ *  2. Nội dung các khoá này chảy thẳng vào kho tri thức của trợ lý AI
+ *     (`services/knowledge.js`), nên dữ liệu rác ở đây làm hỏng câu trả lời.
+ *
+ * Gõ nhầm tên khoá giờ báo lỗi 400 ngay thay vì lặng lẽ tạo ra một bản ghi mồ
+ * côi mà không ai đọc tới.
+ */
+const SETTING_SCHEMAS = {
+  contact: z.object({
+    name: optStr,
+    email: z.string().trim().email('Địa chỉ thư không hợp lệ.').or(z.literal('')).optional().nullable(),
+    phone: optStr,
+    address: optStr,
+  }),
+  social: z.object({
+    facebook: optStr,
+    youtube: optStr,
+    zalo: optStr,
+  }),
+  weather: coords,
+  tide: coords,
+  seo: z.object({ title: optStr, description: optStr }),
+  about: z.object({
+    /**
+     * Đoạn giới thiệu ngắn ở khối mở đầu trang chủ.
+     *
+     * Tách khỏi `sections` vì hai chỗ dùng khác nhau: `sections` là bài giới
+     * thiệu dài ở trang /gioi-thieu, còn đây là hai ba câu đứng cạnh dải số liệu
+     * trên trang chủ. Cắt ngắn `sections[0]` để dùng thay thì phần cắt luôn rơi
+     * giữa câu, mà cắt Markdown thì còn để lại dấu định dạng hở.
+     */
+    intro: optStr,
+    sections: z.array(z.object({ title: optStr, body: z.string().max(20000) })).max(50).optional(),
+  }),
+  // Danh sách 11 khu phố sau sắp xếp. Cấu trúc do `build-dataset` sinh ra; ở đây
+  // chỉ ràng buộc phần trợ lý AI thật sự đọc tới, phần còn lại để mở.
+  khuPho: z
+    .object({
+      tongSo: z.number().int().min(0).max(200).optional(),
+      ghiChu: optStr,
+      capNhat: optStr,
+      danhSach: z.array(z.object({}).passthrough()).max(200).optional(),
+    })
+    .passthrough(),
+};
+
+export const SETTING_KEYS = Object.keys(SETTING_SCHEMAS);
 
 // ── Lấy toàn bộ cài đặt (public) ──
 router.get(
@@ -22,7 +86,15 @@ router.put(
   requireAuth,
   asyncHandler(async (req, res) => {
     const { key } = req.params;
-    const valueJson = req.body?.value ?? req.body;
+    const schema = SETTING_SCHEMAS[key];
+    if (!schema) {
+      throw new HttpError(400, `Khoá cài đặt không hợp lệ: "${key}". Các khoá dùng được: ${SETTING_KEYS.join(', ')}.`);
+    }
+
+    // Trang quản trị gửi `{ value: {...} }`; vẫn nhận cả dạng gửi thẳng object
+    // cho các script nhập liệu đang dùng.
+    const valueJson = schema.parse(req.body?.value ?? req.body);
+
     const row = await prisma.siteSetting.upsert({
       where: { key },
       update: { valueJson },

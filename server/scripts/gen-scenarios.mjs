@@ -72,13 +72,14 @@ export function buildBulkScenarios(corpus) {
 
   // ── Lưu trú ──
   add(lNames.flatMap((n) => [`${n} ở đâu`, `số điện thoại ${n}`, `${n} giá phòng bao nhiêu`]), 'answer', 'Lưu trú', ['lookup_lodging', 'list_lodging']);
-  add(['khách sạn ở đâu', 'có nhà nghỉ nào không', 'ngủ ở đâu qua đêm', 'có homestay không', 'đặt phòng ở đâu', 'khách sạn nào tốt', 'nhà nghỉ giá rẻ'], 'answer', 'Lưu trú', ['list_lodging']);
-  add(hNames.slice(0, 8).map((n) => `khách sạn gần ${n}`), 'answer', 'Lưu trú', ['list_lodging']);
+  add(['khách sạn ở đâu', 'có nhà nghỉ nào không', 'ngủ ở đâu qua đêm', 'có homestay không', 'đặt phòng ở đâu', 'khách sạn nào tốt', 'nhà nghỉ giá rẻ'], 'answer', 'Lưu trú', ['list_lodging', 'recommend']);
+  // Nay đã xếp được theo khoảng cách thật hoặc theo cùng khu phố → ý định `near`
+  add(hNames.slice(0, 8).map((n) => `khách sạn gần ${n}`), 'answer', 'Lưu trú', ['near', 'list_lodging']);
 
   // ── Nhà hàng ──
-  add(rNames.flatMap((n) => [`${n} ở đâu`, `${n} có món gì`, `${n} giá bao nhiêu`]), 'answer', 'Nhà hàng', ['lookup_restaurant', 'list_restaurant']);
+  add(rNames.flatMap((n) => [`${n} ở đâu`, `${n} có món gì`, `${n} giá bao nhiêu`]), 'answer', 'Nhà hàng', ['lookup_restaurant', 'list_restaurant', 'lookup_cuisine']);
   add(['nhà hàng nào ngon', 'quán ăn ở đâu', 'ăn hải sản ở đâu', 'quán lẩu nướng', 'ăn trưa ở đâu', 'quán ăn bình dân'], 'answer', 'Nhà hàng', ['list_restaurant']);
-  add(hNames.slice(0, 6).map((n) => `quán ăn gần ${n}`), 'answer', 'Nhà hàng', ['list_restaurant']);
+  add(hNames.slice(0, 6).map((n) => `quán ăn gần ${n}`), 'answer', 'Nhà hàng', ['near', 'list_restaurant']);
 
   // ── Điểm lân cận ──
   add(aNames.flatMap((n) => [`${n} ở đâu`, `${n} đi thế nào`, `giới thiệu ${n}`, `${n} cách bao xa`]), 'answer', 'Điểm lân cận', ['lookup_attraction', 'directions', 'list_attraction']);
@@ -113,6 +114,74 @@ export function buildBulkScenarios(corpus) {
   add(['lộ trình buổi sáng cho người lớn tuổi', 'lộ trình cả ngày thiên về tâm linh', '2 triệu lộ trình lịch sử', 'gia đình có trẻ nhỏ nên đi đâu', 'đi nhẹ nhàng ít leo trèo'], 'answer', 'Lộ trình', ['route']);
   add(['gợi ý nhà hàng giá hợp lý', 'quán nào ngon bổ rẻ', 'gợi ý dịch vụ chất lượng tốt', 'nhà hàng nào uy tín'], 'answer', 'Gợi ý dịch vụ', ['recommend', 'list_restaurant']);
 
+  // ── Đánh giá & xếp hạng (bộ dữ liệu khảo sát 2026) ──
+  add(
+    ['quán nào đánh giá cao nhất', 'nhà hàng nào ngon nhất', 'khách sạn nào đánh giá tốt', 'quán ăn nào nhiều sao nhất', 'chỗ ăn nào uy tín nhất', 'quán nào được review tốt'],
+    'answer',
+    'Đánh giá',
+    ['recommend', 'list_restaurant', 'list_lodging'],
+  );
+  add(
+    ['quán nào giá mềm', 'ăn ngon bổ rẻ ở đâu', 'quán ăn bình dân giá rẻ', 'chỗ nghỉ giá rẻ'],
+    'answer',
+    'Đánh giá',
+    ['recommend', 'list_restaurant', 'list_lodging'],
+  );
+
+  // ── Giờ mở cửa (trường openHours) ──
+  add(
+    ['giờ này còn quán nào mở không', 'quán nào đang mở cửa', 'chỗ nào mở 24/24', 'quán nào mở cả đêm', 'ăn khuya ở đâu', 'ăn đêm ở đâu', 'quán nào mở sớm', 'ăn sáng sớm ở đâu', 'quán cà phê nào đang mở', 'nhà nghỉ nào mở 24h'],
+    'answer',
+    'Giờ mở cửa cơ sở',
+    ['open_now', 'open_late', 'open_early', 'open_allday'],
+  );
+
+  // ── Cà phê & trà sữa (nhóm CAFE tách riêng) ──
+  add(
+    ['quán cà phê nào đẹp', 'cà phê ở đâu', 'trà sữa ở đâu ngon', 'quán nước nào view đẹp', 'cafe nào có chỗ đậu xe', 'quán cà phê để làm việc'],
+    'answer',
+    'Cà phê',
+    ['list_cafe', 'recommend', 'lookup_restaurant', 'open_now'],
+  );
+
+  // ── Khu phố (cơ cấu hành chính 2025) ──
+  const kpNames = (corpus.khuPho?.danhSach ?? []).map((k) => k.ten);
+  add(
+    ['phường có bao nhiêu khu phố', 'kể tên các khu phố', 'danh sách khu phố Đông Triều', 'khu phố là gì'],
+    'answer',
+    'Khu phố',
+    ['khu_pho_info', 'about'],
+  );
+  add(kpNames.map((n) => `khu phố ${n} gồm những khu nào`), 'answer', 'Khu phố', ['khu_pho_info']);
+
+  // Kỳ vọng bám DỮ LIỆU THẬT: khu phố nào chưa có cơ sở nào thì bot PHẢI từ chối
+  // trung thực ("chưa ghi nhận quán ăn nào ở khu phố này"), không được bịa.
+  // Bộ lọc phải khớp đúng bộ lọc trong answerByKhuPho (chỉ nhà hàng/quán ăn, và
+  // chỉ cơ sở từ 3,5★ trở lên).
+  const usable = (x) => x.rating == null || x.rating >= 3.5;
+  const hasFood = (n) =>
+    corpus.restaurants.some((r) => r.khuPho === n && ['NHA_HANG', 'QUAN_AN'].includes(r.type) && usable(r));
+  const hasStay = (n) => corpus.lodgings.some((l) => l.khuPho === n && usable(l));
+
+  add(kpNames.filter(hasFood).map((n) => `ăn gì ở khu phố ${n}`), 'answer', 'Khu phố', ['khu_pho_list']);
+  add(kpNames.filter((n) => !hasFood(n)).map((n) => `ăn gì ở khu phố ${n}`), 'graceful', 'Khu phố');
+  add(kpNames.filter(hasStay).map((n) => `nhà nghỉ khu phố ${n}`), 'answer', 'Khu phố', ['khu_pho_list']);
+  add(kpNames.filter((n) => !hasStay(n)).map((n) => `nhà nghỉ khu phố ${n}`), 'graceful', 'Khu phố');
+
+  // ── Tìm quanh một di tích (toạ độ / khu phố) ──
+  add(hNames.map((n) => `quán ăn gần ${n}`), 'answer', 'Gần di tích', ['near', 'list_restaurant']);
+  add(hNames.slice(0, 8).map((n) => `chỗ nghỉ gần ${n}`), 'answer', 'Gần di tích', ['near', 'list_lodging']);
+
+  // ── Lễ hội: hồ sơ chi tiết (6 lễ hội lớn) ──
+  // Chỉ 6 lễ hội có hồ sơ chi tiết; các hội làng khác phải từ chối trung thực,
+  // nên ở đây chấp nhận cả hai kết quả và để kỳ vọng ở mức 'answer' cho 6 hội lớn.
+  const bigFestivals = corpus.festivals.filter((f) => f.visitorTips?.length).map((f) => f.name);
+  add(bigFestivals.map((n) => `${n} thờ ai`), 'answer', 'Lễ hội chi tiết', ['festival_aspect', 'lookup_festival']);
+  add(bigFestivals.map((n) => `${n} có nghi lễ gì`), 'answer', 'Lễ hội chi tiết', ['festival_aspect', 'lookup_festival']);
+  add(bigFestivals.map((n) => `đi ${n} cần lưu ý gì`), 'answer', 'Lễ hội chi tiết', ['festival_aspect', 'lookup_festival']);
+  add(bigFestivals.map((n) => `${n} phần hội có gì`), 'answer', 'Lễ hội chi tiết', ['festival_aspect', 'lookup_festival']);
+  add(bigFestivals.map((n) => `${n} có ý nghĩa gì`), 'answer', 'Lễ hội chi tiết', ['festival_aspect', 'lookup_festival']);
+
   // ── Giới thiệu địa phương ──
   add(['giới thiệu về Đông Triều', 'Đông Triều ở đâu', 'Đông Triều thuộc tỉnh nào', 'Đông Triều nổi tiếng về gì', 'Đông Triều có gì đặc biệt', 'lịch sử Đông Triều', 'Đông Triều là vùng đất thế nào'], 'answer', 'Giới thiệu', ['about']);
 
@@ -130,6 +199,12 @@ export function buildBulkScenarios(corpus) {
   const facs = ['ATM', 'cây xăng', 'nhà vệ sinh', 'bãi đỗ xe', 'trạm xăng', 'chỗ rút tiền', 'chỗ gửi xe'];
   add(facs.flatMap((f) => [`${f} gần đây`, `${f} ở đâu`]), 'graceful', 'Ngoài phạm vi: tiện ích');
   add(['giá vé máy bay đi Đà Nẵng', 'thủ đô nước Pháp là gì', 'tỷ giá đô la hôm nay', 'kết quả xổ số', 'giá vàng hôm nay', 'lịch chiếu phim', 'đặt vé xem phim'], 'graceful', 'Ngoài phạm vi: khác');
+  // Dữ liệu chỉ có điểm sao TỔNG THỂ, không chấm riêng từng tiêu chí
+  add(
+    ['quán nào wifi mạnh nhất', 'khách sạn nào sạch sẽ nhất', 'quán nào có bãi đỗ xe rộng nhất', 'chỗ nào điều hoà mát nhất'],
+    'graceful',
+    'Ngoài phạm vi: xếp hạng',
+  );
 
   return rows;
 }
