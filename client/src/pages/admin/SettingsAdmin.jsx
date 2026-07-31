@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save } from 'lucide-react';
+import { AlertTriangle, Save } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { Spinner } from '../../components/ui.jsx';
 import { Field, Text, Textarea, Number_ } from './fields.jsx';
@@ -25,7 +25,7 @@ export default function SettingsAdmin() {
     mutationFn: async () => {
       // Lưu từng khoá
       await Promise.all(
-        ['contact', 'social', 'weather', 'tide', 'seo'].map((key) =>
+        ['contact', 'social', 'weather', 'tide', 'seo', 'maps'].map((key) =>
           api.put(`/settings/${key}`, { value: form[key] }),
         ),
       );
@@ -52,7 +52,7 @@ export default function SettingsAdmin() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-serif text-2xl font-bold">Cài đặt chung</h1>
-          <p className="mt-1 text-sm text-jade-500">Thông tin liên hệ, mạng xã hội và cấu hình dự báo.</p>
+          <p className="mt-1 text-sm text-jade-500">Thông tin liên hệ, mạng xã hội, bản đồ và cấu hình dự báo.</p>
         </div>
         <button onClick={() => save.mutate()} disabled={save.isPending} className="btn-primary disabled:opacity-60">
           <Save size={16} /> {save.isPending ? 'Đang lưu…' : saved ? 'Đã lưu ✓' : 'Lưu thay đổi'}
@@ -92,6 +92,38 @@ export default function SettingsAdmin() {
             <Field label="Nhãn hiển thị"><Text value={form.tide?.label} onChange={(v) => setField('tide', 'label', v)} /></Field>
           </div>
           <p className="mt-2 text-xs text-jade-400">Lưu ý: toạ độ Đông Triều nằm ngoài lưới hải văn của Open-Meteo. Nên giữ điểm cửa Nam Triệu – Bạch Đằng (~20.70, 106.80) để có dữ liệu triều.</p>
+        </Card>
+
+        <Card title="Bản đồ">
+          <p className="rounded-lg bg-jade-50 px-3 py-2 text-xs leading-relaxed text-jade-600 dark:bg-jade-900/40 dark:text-jade-300">
+            Để trống hai ô này thì bản đồ chạy trên nền OpenStreetMap — miễn phí, không cần khoá, nhưng vùng
+            Đông Triều còn thiếu nhiều tên đường và tên xóm. Điền khoá Google là bản đồ đổi ngay, không cần
+            dựng lại trang.
+          </p>
+          <Field
+            label="Khoá Google Maps API"
+            hint="Lấy trong Google Cloud Console: bật Maps JavaScript API rồi tạo khoá."
+          >
+            <Text value={form.maps?.apiKey} onChange={(v) => setField('maps', 'apiKey', v)} />
+          </Field>
+          {/* Cảnh báo này KHÔNG được bỏ. Khoá đi thẳng ra trình duyệt mọi khách —
+              không tránh được với Maps JavaScript API — nên thứ duy nhất chặn
+              người khác tiêu tiền của phường là giới hạn tên miền. Người dán khoá
+              vào đây phải đọc được câu này ngay tại chỗ, không phải trong tài liệu. */}
+          <p className="flex items-start gap-1.5 rounded-lg bg-gold-50 px-3 py-2 text-xs leading-relaxed text-gold-800 dark:bg-gold-900/25 dark:text-gold-200">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+            <span>
+              Khoá này hiện công khai trong trang — Google thiết kế như vậy. Bắt buộc vào Cloud Console đặt{' '}
+              <strong>giới hạn theo tên miền</strong> (HTTP referrer) cho đúng địa chỉ của cổng, nếu không ai
+              chép được khoá cũng dùng được và phường phải trả tiền.
+            </span>
+          </p>
+          <Field
+            label="Map ID"
+            hint="Không bắt buộc. Tạo trong Cloud Console → Map Management để đặt kiểu dáng riêng cho bản đồ. Để trống thì dùng Map ID thử nghiệm của Google."
+          >
+            <Text value={form.maps?.mapId} onChange={(v) => setField('maps', 'mapId', v)} />
+          </Field>
         </Card>
 
         <Card title="Giới thiệu ngắn ở trang chủ">

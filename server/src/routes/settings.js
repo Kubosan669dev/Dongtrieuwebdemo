@@ -44,6 +44,28 @@ const SETTING_SCHEMAS = {
   weather: coords,
   tide: coords,
   seo: z.object({ title: optStr, description: optStr }),
+  /**
+   * Google Maps cho bản đồ số.
+   *
+   * ── KHOÁ NÀY LỘ RA NGOÀI, VÀ ĐÓ LÀ ĐÚNG ───────────────────────────────────
+   *
+   * `GET /api/settings` là công khai, nên khoá đi thẳng ra trình duyệt mọi khách.
+   * Với Maps JavaScript API thì không tránh được: trình duyệt phải gửi khoá lên
+   * Google mới lấy được bản đồ, tức khoá luôn nằm trong mã nguồn trang dù ta có
+   * cất nó ở đâu. Google thiết kế đúng như vậy, và cái thay cho việc giấu khoá là
+   * **giới hạn theo tên miền** (HTTP referrer) trong Cloud Console.
+   *
+   * Vì thế KHÔNG được nhét khoá nào khác vào đây — khoá máy chủ (Geocoding,
+   * Places) mà lọt vào là ai cũng tiêu tiền của phường được. Việc dò toạ độ vẫn
+   * chạy phía máy chủ qua Nominatim, xem `routes/geocode.js`.
+   */
+  maps: z.object({
+    apiKey: z.string().trim().max(200).optional().nullable(),
+    // Map ID quyết định kiểu dáng bản đồ, và bắt buộc phải có thì ghim tự vẽ
+    // (AdvancedMarkerElement) mới hiện lên. Để trống thì máy khách dùng Map ID
+    // thử nghiệm của Google — xem `client/src/hooks/useMapsConfig.js`.
+    mapId: z.string().trim().max(120).optional().nullable(),
+  }),
   about: z.object({
     /**
      * Đoạn giới thiệu ngắn ở khối mở đầu trang chủ.

@@ -1,6 +1,6 @@
 # Khám phá Đông Triều
 
-Cổng thông tin du lịch của phường Đông Triều, tỉnh Quảng Ninh — giới thiệu **13 cụm di tích đã xếp hạng**, **17 lễ hội truyền thống**, **21 cơ sở lưu trú**, **41 nơi ăn uống**, **8 đặc sản tiêu biểu**, **7 điểm đến lân cận**, kèm **bản đồ số** (Leaflet + OpenStreetMap), **đánh giá của du khách có kiểm duyệt**, biểu mẫu liên hệ, dự báo thời tiết – triều cường theo thời gian thực (có gợi ý điểm tham quan phù hợp với thời tiết) và trang quản trị nội dung.
+Cổng thông tin du lịch của phường Đông Triều, tỉnh Quảng Ninh — giới thiệu **13 cụm di tích đã xếp hạng**, **17 lễ hội truyền thống**, **21 cơ sở lưu trú**, **41 nơi ăn uống**, **8 đặc sản tiêu biểu**, **7 điểm đến lân cận**, kèm **bản đồ số** (Google Maps, tự rơi về OpenStreetMap khi chưa có khoá), **đánh giá của du khách có kiểm duyệt**, biểu mẫu liên hệ, dự báo thời tiết – triều cường theo thời gian thực (có gợi ý điểm tham quan phù hợp với thời tiết) và trang quản trị nội dung.
 
 Toàn bộ nội dung di tích được biên soạn từ **hồ sơ lý lịch di tích và quyết định xếp hạng chính thức** (thư mục `Ly lich di tich phuong Dong Trieu/`).
 
@@ -17,7 +17,32 @@ Toàn bộ nội dung di tích được biên soạn từ **hồ sơ lý lịch 
 | Khác | JWT (token giữ trong bộ nhớ) · Multer + Sharp (ảnh) · Zod (kiểm tra dữ liệu) |
 
 Dữ liệu thời tiết & triều cường: [Open-Meteo](https://open-meteo.com) (miễn phí, không cần API key).
-Bản đồ: Google Maps nhúng qua iframe (không cần API key).
+
+### Bản đồ số
+
+Bản đồ chạy trên **Google Maps JavaScript API**, và **tự rơi về Leaflet + OpenStreetMap**
+khi chưa có khoá, khi khoá bị từ chối, hoặc khi Google không tải được. Cổng không
+bao giờ có một ô trống ở chỗ đáng lẽ là bản đồ.
+
+| | Google Maps | OpenStreetMap |
+|---|---|---|
+| Cần khoá API | có (phải bật thanh toán) | không |
+| Dữ liệu vùng Đông Triều | đủ tên đường, tên xóm, cơ sở kinh doanh | thưa, nhiều chỗ gần như trắng |
+| Chi phí | miễn phí trong hạn mức tháng, vượt thì tính tiền | miễn phí |
+
+**Điền khoá ở đâu:** Khu quản trị → *Cài đặt chung → Bản đồ*. Dán khoá vào là bản
+đồ đổi ngay, không phải dựng lại trang. Bản triển khai muốn ghim sẵn khoá lúc dựng
+thì đặt `VITE_GOOGLE_MAPS_API_KEY` (và `VITE_GOOGLE_MAPS_MAP_ID` nếu có) trong
+`client/.env` — ô trong Cài đặt được ưu tiên, biến môi trường là giá trị rơi về.
+
+> ⚠️ Khoá Maps JavaScript API **luôn công khai trong mã nguồn trang** — Google
+> thiết kế như vậy và không có cách nào giấu. Bắt buộc vào Cloud Console đặt
+> **giới hạn theo tên miền** (HTTP referrer) cho đúng địa chỉ của cổng, nếu không
+> ai chép được khoá cũng dùng được và phường phải trả tiền.
+
+Việc **dò toạ độ từ địa chỉ** (nút *"Dò từ địa chỉ"* trong khu quản trị) không đi
+qua Google mà dùng [Nominatim](https://nominatim.org) của OpenStreetMap, chạy phía
+máy chủ — miễn phí, và không lộ địa chỉ IP của người dùng cho bên thứ ba.
 
 ## Cấu trúc thư mục
 
@@ -180,7 +205,7 @@ Một số điểm đáng chú ý:
 - **Đăng nhập lại mỗi lần vào**: khu quản trị không giữ phiên qua lần tải trang. Bấm F5 hay mở tab mới đều phải nhập lại mật khẩu.
 - **Thư viện ảnh**: tải lên nhiều ảnh cùng lúc, tự nén WebP, gán mô tả (alt), chọn làm ảnh bìa.
 - **Ảnh minh hoạ kèm chú thích**: cả 6 loại nội dung (di tích · lễ hội · điểm lân cận · nhà hàng · ẩm thực · lưu trú) đều có ô **Thư viện ảnh** — mỗi ảnh nhập được chú thích riêng và đổi được thứ tự. Chú thích hiện ngay dưới ảnh ở trang chi tiết, không chỉ nằm trong `alt`. Nhà hàng và điểm lân cận trước đây không có trang chi tiết, nay bấm **"Xem chi tiết"** trên thẻ để mở cửa sổ đầy đủ.
-- **Form di tích**: có ô nhập `lat`/`lng` kèm nút *"Xem thử trên bản đồ"* để ghim toạ độ chính xác.
+- **Form di tích**: đặt toạ độ bằng cách **bấm thẳng lên bản đồ** hoặc kéo ghim, kèm nút *"Dò từ địa chỉ"*. Hai ô số `lat`/`lng` vẫn giữ cho ai muốn dán toạ độ chính xác từ nguồn khác.
 - **Lưu trú**: trang `/luu-tru` cho bấm vào từng cơ sở để xem **chi tiết** (mô tả, giá phòng, tiện nghi, ảnh, bản đồ). Các trường này lấy từ form Lưu trú trong admin — điền càng đầy đủ, cửa sổ chi tiết càng phong phú (hiện dữ liệu gốc mới có tên/địa chỉ/điện thoại).
 - **Bài viết**: soạn thảo trực quan (in đậm, tiêu đề, danh sách, chèn ảnh, liên kết).
 - **Công tắc "Ảnh minh hoạ"**: bật khi ảnh không phải chụp chính địa điểm đó — trang công khai sẽ hiện nhãn nhỏ để du khách không hiểu nhầm.
@@ -197,7 +222,7 @@ Những điểm sau là **hiện trạng dữ liệu nguồn**, không phải l�
 | Hạng mục | Hiện trạng | Cách khắc phục |
 |---|---|---|
 | **Ảnh** | **1/27 mục có ảnh thật** (chùa quán Ngọc Thanh). 26 mục còn lại dùng ảnh bìa placeholder tự vẽ — gradient theo loại hình + badge xếp hạng, trông vẫn chỉn chu. Đã thử tải tự động từ Wikimedia Commons nhưng **kết quả sai lệch nghiêm trọng** (trả về đền Sikh ở Ấn Độ, ảnh đường phố, ảnh người) nên đã gỡ bỏ. | Xem mục [Thêm ảnh cho website](#thêm-ảnh-cho-website) — **cần key Pexels** |
-| **Toạ độ GPS** | Chỉ 1/13 di tích có toạ độ trong hồ sơ (đền, chùa Kênh Giang). 12 điểm còn lại ghim theo địa chỉ chữ nên có thể lệch vài trăm mét. Các cơ sở ăn uống, lưu trú thì **46/62 đã có toạ độ** từ bộ khảo sát 2026, nên trợ lý tính được khoảng cách thật khi hỏi *"quán ăn gần đền Yết Kiêu"*. | Admin → Di tích → nhập `lat`/`lng`, có nút *"Xem thử trên bản đồ"* |
+| **Toạ độ GPS** | Chỉ 1/13 di tích có toạ độ trong hồ sơ (đền, chùa Kênh Giang). 12 điểm còn lại ghim theo địa chỉ chữ nên có thể lệch vài trăm mét. Các cơ sở ăn uống, lưu trú thì **46/62 đã có toạ độ** từ bộ khảo sát 2026, nên trợ lý tính được khoảng cách thật khi hỏi *"quán ăn gần đền Yết Kiêu"*. | Admin → Di tích → *"Chọn trên bản đồ"*, bấm lên bản đồ hoặc kéo ghim |
 | **Nhà hàng, quán ăn** | Hồ sơ .docx gốc không có danh sách. Nay có **41 mục** (27 quán ăn/nhà hàng + 11 cà phê, trà sữa + 3 điểm dừng chân) từ bộ khảo sát 2026, kèm điểm sao Google, giờ mở cửa, toạ độ và khu phố. Tất cả vẫn gắn cờ `isVerified=false` và hiện nhãn *"chưa xác minh"*. Cơ sở thuộc **phường An Sinh / Bình Khê / Mạo Khê** sau sáp nhập đã ghi rõ ở trường `area`. | Gọi kiểm tra SĐT → Admin → Nhà hàng → bật công tắc *"Đã gọi xác minh"* |
 | **Khu phố** | Trợ lý quy đổi được **11/13 di tích** về khu phố mới (qua bảng gộp khu cũ). Còn *Đồn Cao* và *làng Vân Động* chưa quy được vì hồ sơ chỉ ghi "trung tâm phường" / tên thôn không có trong bảng. Khu phố của quán ăn, cà phê phần lớn là **ước tính** từ tên đường và toạ độ. | Đối chiếu sơ đồ khu phố chính thức → Admin → sửa trường `khuPho` |
 | **Đánh giá sao** | Điểm sao lấy từ Google Maps chốt ngày 27/07/2026, **không phải đánh giá chính thức của phường**. 42/62 cơ sở có điểm; số còn lại chưa ai đánh giá. | Cập nhật định kỳ bằng `npm run build-dataset` sau khi làm mới file nguồn |

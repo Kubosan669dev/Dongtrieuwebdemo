@@ -503,11 +503,31 @@ async function seedSettings() {
       description:
         'Cổng thông tin chính thức về du lịch phường Đông Triều, tỉnh Quảng Ninh: di tích đã xếp hạng, lịch lễ hội theo âm lịch, ẩm thực đặc sản, lưu trú, bản đồ số và dự báo thời tiết – triều cường.',
     },
+    maps: {
+      apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
+      mapId: process.env.GOOGLE_MAPS_MAP_ID || '',
+    },
     about,
     ...(khuPho ? { khuPho } : {}),
   };
+
+  /**
+   * Khoá chỉ tạo lần đầu, seed sau KHÔNG ghi đè.
+   *
+   * `maps.apiKey` là thứ quản trị viên dán vào qua khu quản trị. Nếu để nhánh
+   * `update` ghi đè như các khoá khác thì mỗi lần chạy lại seed — việc vẫn làm
+   * khi bổ sung dữ liệu — là xoá sạch khoá đang chạy và bản đồ tụt về
+   * OpenStreetMap mà không ai hiểu vì sao. Cùng lý do với mật khẩu quản trị:
+   * thứ do người vận hành đặt thì seed không được đụng vào.
+   */
+  const chiTaoLanDau = new Set(['maps']);
+
   for (const [key, valueJson] of Object.entries(settings)) {
-    await prisma.siteSetting.upsert({ where: { key }, update: { valueJson }, create: { key, valueJson } });
+    await prisma.siteSetting.upsert({
+      where: { key },
+      update: chiTaoLanDau.has(key) ? {} : { valueJson },
+      create: { key, valueJson },
+    });
   }
   console.log(`  ✓ Cài đặt chung: ${Object.keys(settings).length} khoá`);
 }

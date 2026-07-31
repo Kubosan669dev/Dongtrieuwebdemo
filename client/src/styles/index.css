@@ -209,8 +209,12 @@ html.dt-co-hieu-ung [data-vao].dt-vao {
   }
 }
 
-/* Ghim phải nhìn thấy được viền hội tụ khi đi bằng bàn phím. */
-.leaflet-marker-icon:focus-visible {
+/* Ghim phải nhìn thấy được viền hội tụ khi đi bằng bàn phím.
+   Hai bộ chọn cho hai bộ máy bản đồ: Leaflet gắn class `leaflet-marker-icon`,
+   Google dựng phần tử riêng `<gmp-advanced-marker>`. Cùng một viền vàng cho cả
+   hai, để đi Tab qua bản đồ nào cũng thấy như nhau. */
+.leaflet-marker-icon:focus-visible,
+gmp-advanced-marker:focus-visible {
   outline: 3px solid rgb(var(--c-gold-400));
   outline-offset: 2px;
   border-radius: 6px;

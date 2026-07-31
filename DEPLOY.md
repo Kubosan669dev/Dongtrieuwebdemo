@@ -82,6 +82,27 @@ Các giá trị **bắt buộc sửa** trước khi chạy tiếp:
 | `JWT_SECRET` | Chuỗi ngẫu nhiên vừa sinh ở trên |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Tài khoản quản trị đầu tiên. **Không có mật khẩu mặc định** — `db:seed` sẽ dừng nếu `ADMIN_PASSWORD` trống, ngắn hơn 10 ký tự, hoặc quá dễ đoán |
 
+### Khoá Google Maps (không bắt buộc lúc triển khai)
+
+Bỏ trống thì bản đồ vẫn chạy trên nền OpenStreetMap, chỉ là vùng Đông Triều còn
+thưa tên đường và tên xóm. Điền được **bất cứ lúc nào sau khi lên mạng**, ngay
+trong khu quản trị — *Cài đặt chung → Bản đồ* — không phải dựng lại hay khởi động
+lại gì.
+
+Muốn ghim sẵn khoá ngay từ lần seed đầu tiên thì đặt `GOOGLE_MAPS_API_KEY` (và
+`GOOGLE_MAPS_MAP_ID` nếu có) trong `server/.env` **trước khi chạy `db:seed`**.
+Seed chỉ ghi giá trị này **lần đầu**; các lần seed sau không đụng tới, để không
+xoá mất khoá mà người vận hành đã dán vào qua khu quản trị.
+
+Ba việc phải làm trong [Google Cloud Console](https://console.cloud.google.com):
+
+1. Bật **Maps JavaScript API** và gắn tài khoản thanh toán (hạn mức miễn phí hằng
+   tháng thừa cho lưu lượng một cổng phường, nhưng Google vẫn bắt bật thanh toán).
+2. Đặt **giới hạn theo tên miền** (HTTP referrer) cho khoá, đúng `https://<TEN-MIEN>/*`.
+   Khoá này công khai trong mã nguồn trang — không tránh được — nên giới hạn tên
+   miền là thứ duy nhất chặn người khác tiêu tiền của phường.
+3. Đặt **hạn mức chi tiêu** (quota) để một đợt bị lạm dụng không thành hoá đơn lớn.
+
 ## 5. Nạp dữ liệu
 
 ```bash
