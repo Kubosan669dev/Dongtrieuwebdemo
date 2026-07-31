@@ -33,9 +33,30 @@ export const phoneHref = (phone) => 'tel:' + (phone || '').replace(/[^0-9+]/g, '
  */
 export const formatRating = (n) => Number(n).toFixed(1).replace('.', ',');
 
-/** Bản đồ Google nhúng không cần API key. */
-export function mapEmbedUrl({ lat, lng, query }) {
+/**
+ * Bản đồ Google nhúng cho trang chi tiết — một điểm, chỉ để xem.
+ *
+ * Hai dạng URL, chọn theo việc đã cấu hình khoá hay chưa:
+ *
+ *  · **Có khoá → Maps Embed API.** Bản nhúng chính danh, **miễn phí không giới
+ *    hạn lượt**, và quan trọng là nó KHÔNG ăn vào hạn mức tháng của bản đồ động
+ *    (Maps JavaScript API). Trang chi tiết là nhóm trang đông khách nhất của
+ *    cổng — để chúng tiêu hạn mức bản đồ động là đốt hạn mức ở đúng chỗ chẳng
+ *    cần tới bản đồ động.
+ *
+ *  · **Chưa có khoá → `output=embed`.** Dạng URL cũ Google KHÔNG có tài liệu
+ *    chính thức. Nó chạy đã nhiều năm nhưng không có gì bảo đảm, nên chỉ giữ làm
+ *    đường lui để cổng vẫn có bản đồ trong lúc chưa kịp lấy khoá.
+ *
+ * Luật chọn `q` giống nhau ở cả hai dạng: có toạ độ thì lấy toạ độ cho chính xác,
+ * không thì dùng chuỗi tra cứu nơi gọi truyền vào (`mapQuery`, hoặc tên + địa chỉ).
+ */
+export function mapEmbedUrl({ lat, lng, query, apiKey }) {
   const q = lat != null && lng != null ? `${lat},${lng}` : query || 'Đông Triều, Quảng Ninh';
+  if (apiKey) {
+    const p = new URLSearchParams({ key: apiKey, q, zoom: '16', language: 'vi', region: 'VN' });
+    return `https://www.google.com/maps/embed/v1/place?${p}`;
+  }
   return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=16&output=embed`;
 }
 

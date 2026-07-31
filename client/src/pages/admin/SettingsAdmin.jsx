@@ -100,9 +100,12 @@ export default function SettingsAdmin() {
             Đông Triều còn thiếu nhiều tên đường và tên xóm. Điền khoá Google là bản đồ đổi ngay, không cần
             dựng lại trang.
           </p>
+          {/* Cái bẫy dễ sập nhất: bật mỗi Maps JavaScript API thì trang Bản đồ số
+              chạy Google ngon lành, còn ba trang chi tiết lại hiện khung báo lỗi
+              của Google. Hai chỗ đó cách nhau vài cú bấm nên rất dễ tưởng đã xong. */}
           <Field
             label="Khoá Google Maps API"
-            hint="Lấy trong Google Cloud Console: bật Maps JavaScript API rồi tạo khoá."
+            hint="Lấy trong Google Cloud Console. Phải bật CẢ HAI: Maps JavaScript API (trang Bản đồ số) và Maps Embed API (bản đồ ở trang di tích, lưu trú, quán ăn — miễn phí không giới hạn lượt). Thiếu Embed API thì ba trang đó hiện khung báo lỗi của Google."
           >
             <Text value={form.maps?.apiKey} onChange={(v) => setField('maps', 'apiKey', v)} />
           </Field>

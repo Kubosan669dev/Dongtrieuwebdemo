@@ -94,14 +94,25 @@ Muốn ghim sẵn khoá ngay từ lần seed đầu tiên thì đặt `GOOGLE_MA
 Seed chỉ ghi giá trị này **lần đầu**; các lần seed sau không đụng tới, để không
 xoá mất khoá mà người vận hành đã dán vào qua khu quản trị.
 
-Ba việc phải làm trong [Google Cloud Console](https://console.cloud.google.com):
+Bốn việc phải làm trong [Google Cloud Console](https://console.cloud.google.com):
 
-1. Bật **Maps JavaScript API** và gắn tài khoản thanh toán (hạn mức miễn phí hằng
-   tháng thừa cho lưu lượng một cổng phường, nhưng Google vẫn bắt bật thanh toán).
-2. Đặt **giới hạn theo tên miền** (HTTP referrer) cho khoá, đúng `https://<TEN-MIEN>/*`.
+1. Gắn **tài khoản thanh toán**. Hạn mức miễn phí hằng tháng thừa cho lưu lượng
+   một cổng phường, nhưng Google vẫn bắt bật thanh toán mới cấp khoá dùng được.
+2. Bật **cả hai** API — thiếu một cái là gãy một nửa:
+
+   | API | Dùng cho | Chi phí |
+   |---|---|---|
+   | **Maps JavaScript API** | `/ban-do`, bản đồ trang chủ, chọn toạ độ trong admin | miễn phí trong hạn mức tháng |
+   | **Maps Embed API** | bản đồ ở trang di tích, lưu trú, quán ăn | **miễn phí không giới hạn lượt** |
+
+   Bật mỗi JavaScript API là trang Bản đồ số chạy Google ngon lành, còn ba trang
+   chi tiết hiện khung báo lỗi của Google — hai chỗ đó cách nhau vài cú bấm nên
+   rất dễ tưởng đã xong.
+3. Đặt **giới hạn theo tên miền** (HTTP referrer) cho khoá, đúng `https://<TEN-MIEN>/*`.
    Khoá này công khai trong mã nguồn trang — không tránh được — nên giới hạn tên
-   miền là thứ duy nhất chặn người khác tiêu tiền của phường.
-3. Đặt **hạn mức chi tiêu** (quota) để một đợt bị lạm dụng không thành hoá đơn lớn.
+   miền là thứ duy nhất chặn người khác tiêu tiền của phường. Ở mục *API restrictions*
+   nhớ chọn **cả hai** API vừa bật.
+4. Đặt **hạn mức chi tiêu** (quota) để một đợt bị lạm dụng không thành hoá đơn lớn.
 
 ## 5. Nạp dữ liệu
 

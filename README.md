@@ -20,15 +20,32 @@ Dữ liệu thời tiết & triều cường: [Open-Meteo](https://open-meteo.co
 
 ### Bản đồ số
 
-Bản đồ chạy trên **Google Maps JavaScript API**, và **tự rơi về Leaflet + OpenStreetMap**
-khi chưa có khoá, khi khoá bị từ chối, hoặc khi Google không tải được. Cổng không
-bao giờ có một ô trống ở chỗ đáng lẽ là bản đồ.
+Cổng dùng **hai** API bản đồ của Google, cho hai việc khác nhau. Khi lấy khoá phải
+bật **cả hai** trong Cloud Console, kể cả ở mục *API restrictions* của khoá.
+
+| | Dùng ở đâu | Chi phí |
+|---|---|---|
+| **Maps JavaScript API** | `/ban-do`, khối bản đồ trang chủ, công cụ chọn toạ độ trong khu quản trị | miễn phí trong hạn mức tháng, vượt thì tính tiền |
+| **Maps Embed API** | bản đồ một điểm ở trang di tích, lưu trú, quán ăn | **miễn phí không giới hạn lượt** |
+
+Tách làm hai là cố ý: trang chi tiết là nhóm trang đông khách nhất, mà ở đó bản đồ
+chỉ để nhìn chứ không bấm. Cho chúng dùng Embed API thì hạn mức bản đồ động để
+dành trọn cho `/ban-do` — nơi thật sự cần ghim tự vẽ, bộ lọc và danh sách đồng bộ.
+
+Bản đồ số **tự rơi về Leaflet + OpenStreetMap** khi chưa có khoá, khi khoá bị từ
+chối, hoặc khi Google không tải được. Cổng không bao giờ có một ô trống ở chỗ đáng
+lẽ là bản đồ.
 
 | | Google Maps | OpenStreetMap |
 |---|---|---|
 | Cần khoá API | có (phải bật thanh toán) | không |
 | Dữ liệu vùng Đông Triều | đủ tên đường, tên xóm, cơ sở kinh doanh | thưa, nhiều chỗ gần như trắng |
 | Chi phí | miễn phí trong hạn mức tháng, vượt thì tính tiền | miễn phí |
+
+Riêng bản đồ trang chi tiết **không có đường lui tự động**: nó là `<iframe>` khác
+tên miền nên cổng không đọc được vào trong để biết Google có từ chối hay không.
+Quên bật Maps Embed API thì ba trang đó hiện khung báo lỗi của Google, và dấu hiệu
+duy nhất là nhìn bằng mắt. Chưa có khoá thì vẫn dùng dạng URL cũ `output=embed`.
 
 **Điền khoá ở đâu:** Khu quản trị → *Cài đặt chung → Bản đồ*. Dán khoá vào là bản
 đồ đổi ngay, không phải dựng lại trang. Bản triển khai muốn ghim sẵn khoá lúc dựng
