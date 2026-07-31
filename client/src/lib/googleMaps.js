@@ -44,8 +44,7 @@ export function ngheLoiXacThuc(fn) {
  * Nạp API và trả về `google.maps`.
  *
  * Ném lỗi khi chưa có khoá, thay vì trả về `null` lặng lẽ: nơi gọi phải quyết
- * định hiển thị gì, và bộ điều phối `DigitalMap` đã lọc trường hợp không có khoá
- * từ trước rồi.
+ * định hiển thị gì, và `MapPicker` đã lọc trường hợp không có khoá từ trước rồi.
  */
 export function napGoogleMaps(khoa, { language = 'vi', region = 'VN' } = {}) {
   if (!khoa) return Promise.reject(new Error('Chưa cấu hình khoá Google Maps API.'));

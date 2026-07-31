@@ -5,15 +5,15 @@ import { useMapsConfig } from '../hooks/useMapsConfig.js';
 /**
  * Bản đồ Google nhúng cho trang chi tiết + nút chỉ đường.
  *
- * Cố ý KHÔNG dùng `DigitalMap` như trang /ban-do: ở đây chỉ có một điểm và không
- * có gì để bấm, nên một tấm ảnh bản đồ nhúng là đủ. Đổi lại, mỗi lượt xem trang
- * chi tiết KHÔNG tiêu một lượt bản đồ động — xem `mapEmbedUrl` trong lib/format.js
- * để biết vì sao chỗ này lại là chỗ đáng tiết kiệm hạn mức nhất.
+ * Đây là cách nhúng bản đồ DUY NHẤT của cả cổng — trang chi tiết, trang Liên hệ,
+ * khối bản đồ trang chủ và trang /ban-do đều đi qua đây. Nhờ vậy chỉ có một chỗ
+ * quyết định dùng Maps Embed API hay dạng URL cũ, xem `mapEmbedUrl` trong
+ * lib/format.js.
  *
  * Nút "Chỉ đường" không cần khoá và không phụ thuộc cài đặt, nên luôn dựng ngay,
  * kể cả trong lúc còn chờ cài đặt về.
  */
-export default function MapEmbed({ lat, lng, query, title, height = 320, showDirections = true }) {
+export default function MapEmbed({ lat, lng, query, title, height = 320, zoom = 16, showDirections = true }) {
   const { apiKey, dangCho } = useMapsConfig();
 
   return (
@@ -36,7 +36,7 @@ export default function MapEmbed({ lat, lng, query, title, height = 320, showDir
       ) : (
         <iframe
           title={title || 'Bản đồ'}
-          src={mapEmbedUrl({ lat, lng, query, apiKey })}
+          src={mapEmbedUrl({ lat, lng, query, apiKey, zoom })}
           width="100%"
           height={height}
           style={{ border: 0 }}

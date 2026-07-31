@@ -91,7 +91,8 @@ export default function GooglePicker({ lat, lng, onPick, mode = 'light', height 
     return () => {
       setMap(null);
       markerRef.current = null;
-      // Google Maps không có hàm huỷ — dọn DOM bằng tay, xem GoogleDigitalMap.jsx.
+      // Google Maps không có hàm huỷ bản đồ. Dọn DOM bằng tay, nếu không thì đổi
+      // sáng/tối vài lần là có mấy bản đồ xếp chồng lên nhau trong cùng một ô.
       box.innerHTML = '';
     };
   }, [api, mapId, mode]);

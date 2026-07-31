@@ -20,42 +20,56 @@ Dữ liệu thời tiết & triều cường: [Open-Meteo](https://open-meteo.co
 
 ### Bản đồ số
 
-Cổng dùng **hai** API bản đồ của Google, cho hai việc khác nhau. Khi lấy khoá phải
-bật **cả hai** trong Cloud Console, kể cả ở mục *API restrictions* của khoá.
+**Mọi bản đồ trên trang công khai đều là bản đồ Google, và không cần khoá API.**
+Tất cả đi qua một thành phần duy nhất — [`MapEmbed.jsx`](client/src/components/MapEmbed.jsx)
+— nhúng bản đồ bằng `<iframe>`.
 
-| | Dùng ở đâu | Chi phí |
+| Trang | Bản đồ hiện gì |
+|---|---|
+| `/ban-do` | điểm đang chọn trong danh sách; đổi mục là bản đồ chạy theo |
+| Trang chủ | toàn phường ở mức phóng 13 |
+| Di tích · lưu trú · quán ăn | đúng địa điểm đang xem |
+| Liên hệ | trung tâm phường (mức 14 — toạ độ là tâm phường, không phải cửa trụ sở) |
+
+### Vì sao khung bản đồ chỉ hiện một điểm
+
+Nhúng bằng `<iframe>` là cách **duy nhất** lấy được nền Google mà không cần khoá.
+Đổi lại, khối đó khác tên miền nên bị niêm phong: cổng không gắn được ghim của
+mình vào, không bắt được cú bấm, và mỗi lần chỉ hiện được một điểm.
+
+Việc "xem toàn cảnh" vì thế do phần còn lại của trang `/ban-do` gánh — bộ lọc bốn
+nhóm bật/tắt cùng lúc, ô tìm không dấu, và danh sách đủ 66 điểm kèm màu theo
+nhóm. Bấm một mục thì bản đồ chạy tới đó.
+
+> Bản đồ nhiều ghim tự vẽ (Leaflet/Google JS API, ghim bốn màu, lọc trực tiếp
+> trên bản đồ) từng được làm xong ở commit `933b9d1`–`0226ad0` nhưng đã gỡ bỏ:
+> bản Google của nó bắt buộc phải có khoá API. Cần lấy lại thì lấy từ đó.
+
+### Khoá API — không bắt buộc, nhưng nên có
+
+Bỏ trống thì mọi thứ vẫn chạy như trên. Điền khoá vào *Cài đặt chung → Bản đồ*
+thì được hai thứ:
+
+| | Không khoá | Có khoá |
 |---|---|---|
-| **Maps JavaScript API** | `/ban-do`, khối bản đồ trang chủ, công cụ chọn toạ độ trong khu quản trị | miễn phí trong hạn mức tháng, vượt thì tính tiền |
-| **Maps Embed API** | bản đồ một điểm ở trang di tích, lưu trú, quán ăn | **miễn phí không giới hạn lượt** |
+| Bản đồ công khai | URL `output=embed` — dạng cũ Google **không có tài liệu chính thức**, chạy nhiều năm nhưng không hứa giữ | **Maps Embed API** chính danh, miễn phí không giới hạn lượt |
+| Chọn toạ độ trong khu quản trị | nền OpenStreetMap (vùng Đông Triều khá thưa tên đường) | nền Google, thấy rõ tên đình chùa để đặt ghim cho đúng |
 
-Tách làm hai là cố ý: trang chi tiết là nhóm trang đông khách nhất, mà ở đó bản đồ
-chỉ để nhìn chứ không bấm. Cho chúng dùng Embed API thì hạn mức bản đồ động để
-dành trọn cho `/ban-do` — nơi thật sự cần ghim tự vẽ, bộ lọc và danh sách đồng bộ.
+Cần bật **Maps JavaScript API** *và* **Maps Embed API** trong Cloud Console — thiếu
+Embed API thì bản đồ công khai hiện khung báo lỗi của Google. Bản triển khai muốn
+ghim sẵn khoá lúc dựng thì đặt `VITE_GOOGLE_MAPS_API_KEY` (và
+`VITE_GOOGLE_MAPS_MAP_ID`) trong `client/.env` — ô trong Cài đặt được ưu tiên,
+biến môi trường là giá trị rơi về.
 
-Bản đồ số **tự rơi về Leaflet + OpenStreetMap** khi chưa có khoá, khi khoá bị từ
-chối, hoặc khi Google không tải được. Cổng không bao giờ có một ô trống ở chỗ đáng
-lẽ là bản đồ.
+> ⚠️ Khoá Maps API **luôn công khai trong mã nguồn trang** — Google thiết kế như
+> vậy và không có cách nào giấu. Bắt buộc vào Cloud Console đặt **giới hạn theo
+> tên miền** (HTTP referrer) cho đúng địa chỉ của cổng, nếu không ai chép được
+> khoá cũng dùng được và phường phải trả tiền.
 
-| | Google Maps | OpenStreetMap |
-|---|---|---|
-| Cần khoá API | có (phải bật thanh toán) | không |
-| Dữ liệu vùng Đông Triều | đủ tên đường, tên xóm, cơ sở kinh doanh | thưa, nhiều chỗ gần như trắng |
-| Chi phí | miễn phí trong hạn mức tháng, vượt thì tính tiền | miễn phí |
-
-Riêng bản đồ trang chi tiết **không có đường lui tự động**: nó là `<iframe>` khác
-tên miền nên cổng không đọc được vào trong để biết Google có từ chối hay không.
-Quên bật Maps Embed API thì ba trang đó hiện khung báo lỗi của Google, và dấu hiệu
-duy nhất là nhìn bằng mắt. Chưa có khoá thì vẫn dùng dạng URL cũ `output=embed`.
-
-**Điền khoá ở đâu:** Khu quản trị → *Cài đặt chung → Bản đồ*. Dán khoá vào là bản
-đồ đổi ngay, không phải dựng lại trang. Bản triển khai muốn ghim sẵn khoá lúc dựng
-thì đặt `VITE_GOOGLE_MAPS_API_KEY` (và `VITE_GOOGLE_MAPS_MAP_ID` nếu có) trong
-`client/.env` — ô trong Cài đặt được ưu tiên, biến môi trường là giá trị rơi về.
-
-> ⚠️ Khoá Maps JavaScript API **luôn công khai trong mã nguồn trang** — Google
-> thiết kế như vậy và không có cách nào giấu. Bắt buộc vào Cloud Console đặt
-> **giới hạn theo tên miền** (HTTP referrer) cho đúng địa chỉ của cổng, nếu không
-> ai chép được khoá cũng dùng được và phường phải trả tiền.
+Công cụ chọn toạ độ là chỗ **duy nhất** còn dùng Maps JavaScript API: ở đó cần bắt
+cú bấm lên bản đồ và cần ghim kéo được — hai việc `<iframe>` không làm được. Nó tự
+rơi về Leaflet + OpenStreetMap khi không có khoá, nên Leaflet chỉ nằm trong gói
+của khu quản trị, trang công khai không tải.
 
 Việc **dò toạ độ từ địa chỉ** (nút *"Dò từ địa chỉ"* trong khu quản trị) không đi
 qua Google mà dùng [Nominatim](https://nominatim.org) của OpenStreetMap, chạy phía

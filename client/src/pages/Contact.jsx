@@ -1,16 +1,12 @@
-import { lazy, Suspense } from 'react';
 import { MapPin, Phone, Mail, Clock, Facebook, Youtube, MessageCircle } from 'lucide-react';
 import { useSettings } from '../hooks/useSettings.js';
-import { useTheme } from '../hooks/useTheme.js';
 import PageHero from '../components/PageHero.jsx';
 import ContactForm from '../components/ContactForm.jsx';
+import MapEmbed from '../components/MapEmbed.jsx';
 import Seo from '../components/Seo.jsx';
 import { phoneHref } from '../lib/format.js';
 import { SITE_OWNER } from '../lib/site.js';
 import { MAP_CENTER } from '../lib/mapKinds.js';
-
-/** Cùng một `lazy` với trang chủ và /ban-do nên ba nơi dùng chung gói Leaflet đã tách. */
-const DigitalMap = lazy(() => import('../components/DigitalMap.jsx'));
 
 /**
  * Trang Liên hệ.
@@ -18,29 +14,13 @@ const DigitalMap = lazy(() => import('../components/DigitalMap.jsx'));
  * Bản trước chỉ có một thẻ thông tin và một iframe Google Maps — trong khi thẻ SEO
  * của chính trang đó đã hứa "biểu mẫu gửi phản hồi". Nay lời hứa đó thành thật.
  *
- * Bản đồ đổi từ iframe Google sang Leaflet cho nhất quán với bản đồ số: cùng nền
- * bản đồ, cùng ghim, cùng cách đổi theo chế độ sáng/tối. Một điểm duy nhất là trụ
- * sở phường, đánh dấu bằng nhóm `heritage` vì đó là màu chủ đạo.
+ * Bản đồ dùng chung `MapEmbed` với trang chi tiết và /ban-do: cả cổng chỉ còn một
+ * cách nhúng bản đồ, và cùng tự nâng lên Maps Embed API khi có khoá.
  */
 export default function Contact() {
   const settings = useSettings();
-  const { mode } = useTheme();
   const c = settings.contact ?? {};
   const s = settings.social ?? {};
-
-  const diemTruSo = [
-    {
-      id: 'tru-so',
-      kind: 'heritage',
-      name: c.name || SITE_OWNER,
-      lat: MAP_CENTER[0],
-      lng: MAP_CENTER[1],
-      address: c.address || 'Phường Đông Triều, tỉnh Quảng Ninh',
-      // Toạ độ là tâm phường, không phải cửa trụ sở — nói thẳng bằng chính cơ chế
-      // đã có cho ghim ước tính, thay vì để khách tưởng đây là địa chỉ chính xác.
-      coordsEstimated: true,
-    },
-  ];
 
   return (
     <div>
@@ -79,15 +59,17 @@ export default function Contact() {
             </div>
 
             <div>
-              <Suspense
-                fallback={<div className="grid h-[320px] place-items-center rounded-3xl bg-jade-100 text-sm text-jade-500 dark:bg-jade-900/50">Đang tải bản đồ…</div>}
-              >
-                <DigitalMap points={diemTruSo} mode={mode} height={320} showPopup={false} />
-              </Suspense>
-              {/* Nói thẳng bằng chữ. Ghim có mang cờ `coordsEstimated` nên vẽ nét
-                  đứt, nhưng ở đây tắt khung thông tin nên câu giải thích trong
-                  khung đó không ai đọc được — một đường viền nét đứt tự nó không
-                  nói lên điều gì. */}
+              {/* Mức phóng 14, không phải 16 mặc định: toạ độ là tâm phường chứ
+                  không phải cửa trụ sở, phóng sát vào là bày ra một độ chính xác
+                  không có thật. */}
+              <MapEmbed
+                lat={MAP_CENTER[0]}
+                lng={MAP_CENTER[1]}
+                query={c.address || 'Phường Đông Triều, tỉnh Quảng Ninh'}
+                title={c.name || SITE_OWNER}
+                height={320}
+                zoom={14}
+              />
               <p className="mt-2 text-xs text-jade-500 dark:text-jade-400">
                 Ghim đặt ở trung tâm phường, không phải cửa trụ sở. Vui lòng gọi trước khi đến.
               </p>

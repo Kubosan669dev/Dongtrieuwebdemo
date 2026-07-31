@@ -96,16 +96,17 @@ export default function SettingsAdmin() {
 
         <Card title="Bản đồ">
           <p className="rounded-lg bg-jade-50 px-3 py-2 text-xs leading-relaxed text-jade-600 dark:bg-jade-900/40 dark:text-jade-300">
-            Để trống hai ô này thì bản đồ chạy trên nền OpenStreetMap — miễn phí, không cần khoá, nhưng vùng
-            Đông Triều còn thiếu nhiều tên đường và tên xóm. Điền khoá Google là bản đồ đổi ngay, không cần
-            dựng lại trang.
+            <strong>Không bắt buộc.</strong> Để trống thì bản đồ trên trang công khai vẫn là bản đồ Google, chỉ
+            khác là dùng dạng nhúng cũ Google không cam kết duy trì. Điền khoá thì chuyển sang Maps Embed API
+            chính danh, và bản đồ trong ô chọn toạ độ bên dưới đổi từ OpenStreetMap sang nền Google — thấy rõ
+            tên đình chùa nên đặt ghim đỡ lệch. Dán vào là có tác dụng ngay, không cần dựng lại trang.
           </p>
-          {/* Cái bẫy dễ sập nhất: bật mỗi Maps JavaScript API thì trang Bản đồ số
-              chạy Google ngon lành, còn ba trang chi tiết lại hiện khung báo lỗi
-              của Google. Hai chỗ đó cách nhau vài cú bấm nên rất dễ tưởng đã xong. */}
+          {/* Cái bẫy dễ sập nhất: bật mỗi Maps JavaScript API thì ô chọn toạ độ
+              chạy Google ngon lành, còn bản đồ ngoài trang công khai lại hiện khung
+              báo lỗi — tệ hơn hẳn lúc để trống. Nói rõ phải bật cả hai. */}
           <Field
             label="Khoá Google Maps API"
-            hint="Lấy trong Google Cloud Console. Phải bật CẢ HAI: Maps JavaScript API (trang Bản đồ số) và Maps Embed API (bản đồ ở trang di tích, lưu trú, quán ăn — miễn phí không giới hạn lượt). Thiếu Embed API thì ba trang đó hiện khung báo lỗi của Google."
+            hint="Lấy trong Google Cloud Console. Phải bật CẢ HAI: Maps Embed API (mọi bản đồ trên trang công khai — miễn phí không giới hạn lượt) và Maps JavaScript API (công cụ chọn toạ độ ngay trong khu quản trị này). Thiếu Embed API thì bản đồ công khai hiện khung báo lỗi của Google."
           >
             <Text value={form.maps?.apiKey} onChange={(v) => setField('maps', 'apiKey', v)} />
           </Field>
@@ -123,7 +124,7 @@ export default function SettingsAdmin() {
           </p>
           <Field
             label="Map ID"
-            hint="Không bắt buộc. Tạo trong Cloud Console → Map Management để đặt kiểu dáng riêng cho bản đồ. Để trống thì dùng Map ID thử nghiệm của Google."
+            hint="Không bắt buộc, và chỉ dùng cho ô chọn toạ độ trong khu quản trị. Tạo trong Cloud Console → Map Management. Để trống thì dùng Map ID thử nghiệm của Google."
           >
             <Text value={form.maps?.mapId} onChange={(v) => setField('maps', 'mapId', v)} />
           </Field>

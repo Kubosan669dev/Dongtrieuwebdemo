@@ -20,9 +20,15 @@ import { googleMapsHongXacThuc } from '../../lib/googleMaps.js';
  * chuột, nên nó quyết định bản đồ số có sống được về lâu dài hay không.
  *
  * Phần nút bấm và việc dò theo địa chỉ nằm ở đây; mặt bản đồ do một trong hai bộ
- * máy trong `maps/` lo, chọn theo cùng một luật với trang công khai — xem
- * `components/DigitalMap.jsx`. Khác một điểm: ở đây sự cố Google được **nói ra**,
- * vì quản trị viên chính là người sửa được khoá.
+ * máy trong `maps/` lo: có khoá thì Google, chưa có thì OpenStreetMap.
+ *
+ * Đây là chỗ DUY NHẤT trong cổng còn dùng Maps JavaScript API. Bản đồ công khai
+ * đều nhúng bằng `<iframe>` (xem `components/MapEmbed.jsx`) nên không cần khoá;
+ * riêng ở đây phải là bản đồ chạy bằng JavaScript, vì cần bắt cú bấm và cần ghim
+ * kéo được — hai việc iframe không làm được.
+ *
+ * Khác trang công khai một điểm: sự cố Google ở đây được **nói ra**, vì quản trị
+ * viên chính là người sửa được khoá.
  */
 const GooglePicker = lazy(() => import('./maps/GooglePicker.jsx'));
 const OsmPicker = lazy(() => import('./maps/OsmPicker.jsx'));

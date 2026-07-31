@@ -84,10 +84,15 @@ Các giá trị **bắt buộc sửa** trước khi chạy tiếp:
 
 ### Khoá Google Maps (không bắt buộc lúc triển khai)
 
-Bỏ trống thì bản đồ vẫn chạy trên nền OpenStreetMap, chỉ là vùng Đông Triều còn
-thưa tên đường và tên xóm. Điền được **bất cứ lúc nào sau khi lên mạng**, ngay
-trong khu quản trị — *Cài đặt chung → Bản đồ* — không phải dựng lại hay khởi động
-lại gì.
+**Bỏ trống vẫn chạy, và vẫn là bản đồ Google.** Mọi bản đồ trên trang công khai
+nhúng bằng `<iframe>` nên không cần khoá. Điền khoá được **bất cứ lúc nào sau khi
+lên mạng**, ngay trong khu quản trị — *Cài đặt chung → Bản đồ* — không phải dựng
+lại hay khởi động lại gì.
+
+Có khoá thì đổi lấy hai thứ: bản đồ công khai chuyển từ URL `output=embed` (dạng
+cũ Google không có tài liệu chính thức) sang **Maps Embed API** chính danh, và
+công cụ chọn toạ độ trong khu quản trị đổi từ nền OpenStreetMap sang nền Google —
+vùng Đông Triều trên OSM thưa tên đường nên đặt ghim rất dễ lệch.
 
 Muốn ghim sẵn khoá ngay từ lần seed đầu tiên thì đặt `GOOGLE_MAPS_API_KEY` (và
 `GOOGLE_MAPS_MAP_ID` nếu có) trong `server/.env` **trước khi chạy `db:seed`**.
@@ -102,12 +107,12 @@ Bốn việc phải làm trong [Google Cloud Console](https://console.cloud.goog
 
    | API | Dùng cho | Chi phí |
    |---|---|---|
-   | **Maps JavaScript API** | `/ban-do`, bản đồ trang chủ, chọn toạ độ trong admin | miễn phí trong hạn mức tháng |
-   | **Maps Embed API** | bản đồ ở trang di tích, lưu trú, quán ăn | **miễn phí không giới hạn lượt** |
+   | **Maps Embed API** | mọi bản đồ trên trang công khai | **miễn phí không giới hạn lượt** |
+   | **Maps JavaScript API** | chỉ công cụ chọn toạ độ trong khu quản trị | miễn phí trong hạn mức tháng |
 
-   Bật mỗi JavaScript API là trang Bản đồ số chạy Google ngon lành, còn ba trang
-   chi tiết hiện khung báo lỗi của Google — hai chỗ đó cách nhau vài cú bấm nên
-   rất dễ tưởng đã xong.
+   Bật thiếu **Maps Embed API** thì mọi bản đồ công khai hiện khung báo lỗi của
+   Google — tệ hơn hẳn lúc chưa điền khoá. Bật thiếu **JavaScript API** thì công
+   cụ chọn toạ độ lặng lẽ lùi về nền OpenStreetMap, có báo trong khu quản trị.
 3. Đặt **giới hạn theo tên miền** (HTTP referrer) cho khoá, đúng `https://<TEN-MIEN>/*`.
    Khoá này công khai trong mã nguồn trang — không tránh được — nên giới hạn tên
    miền là thứ duy nhất chặn người khác tiêu tiền của phường. Ở mục *API restrictions*

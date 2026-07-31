@@ -51,13 +51,16 @@ export const formatRating = (n) => Number(n).toFixed(1).replace('.', ',');
  * Luật chọn `q` giống nhau ở cả hai dạng: có toạ độ thì lấy toạ độ cho chính xác,
  * không thì dùng chuỗi tra cứu nơi gọi truyền vào (`mapQuery`, hoặc tên + địa chỉ).
  */
-export function mapEmbedUrl({ lat, lng, query, apiKey }) {
+export function mapEmbedUrl({ lat, lng, query, apiKey, zoom = 16 }) {
   const q = lat != null && lng != null ? `${lat},${lng}` : query || 'Đông Triều, Quảng Ninh';
   if (apiKey) {
-    const p = new URLSearchParams({ key: apiKey, q, zoom: '16', language: 'vi', region: 'VN' });
+    const p = new URLSearchParams({ key: apiKey, q, zoom: String(zoom), language: 'vi', region: 'VN' });
     return `https://www.google.com/maps/embed/v1/place?${p}`;
   }
-  return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=16&output=embed`;
+  // `hl=vi` cho chính giao diện của Google trong khung nhúng — không có nó thì
+  // "Keyboard shortcuts", "Terms", "Report a map error" hiện bằng tiếng Anh giữa
+  // một trang tiếng Việt. Bản Embed API dùng tham số `language` thay cho `hl`.
+  return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=${zoom}&hl=vi&output=embed`;
 }
 
 /** Liên kết chỉ đường mở Google Maps. */
