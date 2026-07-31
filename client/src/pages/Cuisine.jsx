@@ -3,10 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import { CuisineCard, RestaurantCard } from '../components/cards.jsx';
-import { SectionHeading, SkeletonCard, EmptyState } from '../components/ui.jsx';
+import { SectionHeading, SkeletonCard, EmptyState, ErrorNote, FilterChip } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { RESTAURANT_TYPES } from '../lib/constants.js';
-import { cx } from '../lib/format.js';
 
 export default function Cuisine() {
   const [restType, setRestType] = useState('');
@@ -30,6 +29,8 @@ export default function Cuisine() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
+        ) : cuisines.isError ? (
+          <ErrorNote onRetry={cuisines.refetch} />
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {cuisines.data?.items?.map((c) => <CuisineCard key={c.id} item={c} />)}
@@ -43,9 +44,9 @@ export default function Cuisine() {
             description="Gợi ý địa điểm thưởng thức đặc sản và mua quà. Danh sách đang được cập nhật thêm."
           />
           <div className="mb-6 flex flex-wrap gap-2">
-            <TypeChip active={!restType} onClick={() => setRestType('')}>Tất cả</TypeChip>
+            <FilterChip tone="terra" active={!restType} onClick={() => setRestType('')}>Tất cả</FilterChip>
             {Object.entries(RESTAURANT_TYPES).map(([key, v]) => (
-              <TypeChip key={key} active={restType === key} onClick={() => setRestType(key)}>{v.label}</TypeChip>
+              <FilterChip tone="terra" key={key} active={restType === key} onClick={() => setRestType(key)}>{v.label}</FilterChip>
             ))}
           </div>
           {rItems.length === 0 ? (
@@ -61,16 +62,3 @@ export default function Cuisine() {
   );
 }
 
-function TypeChip({ active, onClick, children }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cx(
-        'rounded-full px-4 py-2 text-sm font-medium transition',
-        active ? 'bg-terra-500 text-white' : 'bg-white text-jade-700 ring-1 ring-jade-200 hover:bg-jade-50 dark:bg-jade-900/50 dark:text-jade-100 dark:ring-jade-700',
-      )}
-    >
-      {children}
-    </button>
-  );
-}

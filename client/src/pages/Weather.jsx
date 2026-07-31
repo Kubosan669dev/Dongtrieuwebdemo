@@ -12,6 +12,7 @@ import Seo from '../components/Seo.jsx';
 import { weatherInfo } from '../lib/constants.js';
 import { getWeatherAdvice } from '../../../shared/weather.js';
 import { formatHour, formatDate, formatTime, cx } from '../lib/format.js';
+import { useChartColors } from '../hooks/useTheme.js';
 
 const TABS = [
   { key: 'hourly', label: 'Theo giờ', icon: Clock },
@@ -180,6 +181,7 @@ function Metric({ icon: Icon, label, value }) {
 
 function HourlyTab({ data }) {
   const chartData = data.hourly.map((h) => ({ hour: formatHour(h.time), temp: Math.round(h.temp), rain: h.rainProb }));
+  const color = useChartColors();
   return (
     <div className="space-y-6">
       <div className="card p-5">
@@ -189,15 +191,15 @@ function HourlyTab({ data }) {
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0e7c5e" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#0e7c5e" stopOpacity={0} />
+                  <stop offset="0%" stopColor={color.line} stopOpacity={0.35} />
+                  <stop offset="100%" stopColor={color.line} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(14,124,94,0.1)" />
+              <CartesianGrid strokeDasharray="3 3" stroke={color.grid} />
               <XAxis dataKey="hour" tick={{ fontSize: 12 }} interval={2} />
               <YAxis tick={{ fontSize: 12 }} unit="°" width={48} domain={['dataMin - 1', 'dataMax + 1']} />
               <Tooltip formatter={(v, n) => (n === 'temp' ? [`${v}°C`, 'Nhiệt độ'] : [`${v}%`, 'Khả năng mưa'])} />
-              <Area type="monotone" dataKey="temp" stroke="#0e7c5e" strokeWidth={2.5} fill="url(#tempGrad)" />
+              <Area type="monotone" dataKey="temp" stroke={color.line} strokeWidth={2.5} fill="url(#tempGrad)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -253,6 +255,8 @@ function DailyTab({ data }) {
 }
 
 function TideTab({ data }) {
+  // Gọi hook trước mọi nhánh return — quy tắc hook của React không cho gọi có điều kiện
+  const color = useChartColors();
   if (!data.hasData) {
     return <ErrorNote message="Hiện chưa lấy được dữ liệu triều cường. Vui lòng thử lại sau." />;
   }
@@ -277,12 +281,12 @@ function TideTab({ data }) {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(14,124,94,0.1)" />
+              <CartesianGrid strokeDasharray="3 3" stroke={color.grid} />
               <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={5} />
               <YAxis tick={{ fontSize: 12 }} unit="m" width={45} />
               <Tooltip formatter={(v) => [`${v} m`, 'Mực nước']} />
-              <ReferenceLine y={0} stroke="#94a3b8" strokeDasharray="4 4" />
-              <Line type="monotone" dataKey="height" stroke="#0e7c5e" strokeWidth={2} dot={false} />
+              <ReferenceLine y={0} stroke={color.zero} strokeDasharray="4 4" />
+              <Line type="monotone" dataKey="height" stroke={color.line} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

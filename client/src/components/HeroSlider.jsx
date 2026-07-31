@@ -45,12 +45,15 @@ export default function HeroSlider({ slides = [], coverBySlug = {} }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-jade-950/85 via-jade-950/30 to-transparent" />
                 <div className="container-page relative flex h-full items-end pb-20 sm:items-center sm:pb-0">
                   <div className="max-w-2xl animate-fade-up">
-                    <span className="inline-block rounded-full bg-gold-400/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-jade-950">
+                    <span className="inline-block rounded-full bg-gold-400/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-jade-950">
                       Di sản Đông Triều
                     </span>
-                    <h2 className="mt-4 font-serif text-4xl font-bold leading-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl">
+                    {/* Slide đầu là <h1> của trang chủ — trước đây cả trang không
+                        có <h1> nào, thiệt cho cả SEO lẫn trình đọc màn hình.
+                        Các slide sau là <h2> để không có nhiều <h1> trên một trang. */}
+                    <Heading level={i === 0 ? 1 : 2} className="display-1 mt-4 text-white drop-shadow-lg">
                       {s.title}
-                    </h2>
+                    </Heading>
                     {s.subtitle && (
                       <p className="mt-4 max-w-xl text-base text-jade-50/90 sm:text-lg">{s.subtitle}</p>
                     )}
@@ -68,4 +71,10 @@ export default function HeroSlider({ slides = [], coverBySlug = {} }) {
       </Swiper>
     </section>
   );
+}
+
+/** Thẻ tiêu đề đổi cấp theo `level` — để slide đầu là <h1>, các slide sau là <h2>. */
+function Heading({ level, className, children }) {
+  const Tag = `h${level}`;
+  return <Tag className={className}>{children}</Tag>;
 }

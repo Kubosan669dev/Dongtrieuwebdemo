@@ -3,10 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import { ArticleCard } from '../components/cards.jsx';
-import { SkeletonCard, EmptyState } from '../components/ui.jsx';
+import { SkeletonCard, EmptyState, FilterChip } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { ARTICLE_CATEGORIES } from '../lib/constants.js';
-import { cx } from '../lib/format.js';
 
 export default function News() {
   const [cat, setCat] = useState('');
@@ -23,9 +22,9 @@ export default function News() {
 
       <div className="container-page py-10">
         <div className="mb-6 flex flex-wrap gap-2">
-          <Chip active={!cat} onClick={() => setCat('')}>Tất cả</Chip>
+          <FilterChip active={!cat} onClick={() => setCat('')}>Tất cả</FilterChip>
           {Object.entries(ARTICLE_CATEGORIES).map(([key, v]) => (
-            <Chip key={key} active={cat === key} onClick={() => setCat(key)}>{v.label}</Chip>
+            <FilterChip key={key} active={cat === key} onClick={() => setCat(key)}>{v.label}</FilterChip>
           ))}
         </div>
 
@@ -45,16 +44,3 @@ export default function News() {
   );
 }
 
-function Chip({ active, onClick, children }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cx(
-        'rounded-full px-4 py-2 text-sm font-medium transition',
-        active ? 'bg-jade-600 text-white' : 'bg-white text-jade-700 ring-1 ring-jade-200 hover:bg-jade-50 dark:bg-jade-900/50 dark:text-jade-100 dark:ring-jade-700',
-      )}
-    >
-      {children}
-    </button>
-  );
-}

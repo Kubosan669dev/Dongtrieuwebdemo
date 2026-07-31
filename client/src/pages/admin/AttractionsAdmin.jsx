@@ -1,5 +1,5 @@
 import ResourceManager, { PublishedBadge } from './ResourceManager.jsx';
-import { Field, Text, Textarea, Select, Toggle, ArrayInput, ImageField, LatLngField, Number_ } from './fields.jsx';
+import { Field, Text, Textarea, Select, Toggle, ArrayInput, ImageField, GalleryField, LatLngField, Number_ } from './fields.jsx';
 import { slugify } from '../../lib/format.js';
 
 const typeOptions = [
@@ -20,7 +20,7 @@ export default function AttractionsAdmin() {
     name: '', slug: '', type: 'TAM_LINH', ward: '', distanceKm: null,
     address: '', mapQuery: '', lat: null, lng: null,
     summary: '', description: '', highlights: [],
-    coverUrl: null, coverIsIllustrative: false, order: 0, published: true,
+    coverUrl: null, coverIsIllustrative: false, images: [], order: 0, published: true,
   });
 
   const renderForm = (d, set) => (
@@ -37,10 +37,22 @@ export default function AttractionsAdmin() {
 
       <Field label="Ảnh bìa"><ImageField value={d.coverUrl} onChange={(v) => set('coverUrl', v)} /></Field>
       <Toggle value={d.coverIsIllustrative} onChange={(v) => set('coverIsIllustrative', v)} label="Ảnh minh hoạ" />
+      <Field label="Thư viện ảnh" hint="Hiện ở cuối trang chi tiết, mỗi ảnh kèm chú thích">
+        <GalleryField value={d.images} onChange={(v) => set('images', v)} name={d.name} />
+      </Field>
 
       <Field label="Địa chỉ"><Text value={d.address} onChange={(v) => set('address', v)} /></Field>
       <Field label="Chuỗi tra Google Maps" hint="Dùng khi chưa có toạ độ"><Text value={d.mapQuery} onChange={(v) => set('mapQuery', v)} /></Field>
-      <LatLngField lat={d.lat} lng={d.lng} onChange={({ lat, lng }) => { set('lat', lat); set('lng', lng); }} />
+      <LatLngField
+        lat={d.lat}
+        lng={d.lng}
+        onChange={({ lat, lng }) => { set('lat', lat); set('lng', lng); }}
+        name={d.name}
+        address={d.address}
+        ward={d.ward}
+        estimated={d.coordsEstimated}
+        onEstimatedChange={(v) => set('coordsEstimated', v)}
+      />
 
       <Field label="Tóm tắt" required><Textarea value={d.summary} onChange={(v) => set('summary', v)} rows={3} /></Field>
       <Field label="Mô tả chi tiết"><Textarea value={d.description} onChange={(v) => set('description', v)} rows={6} /></Field>

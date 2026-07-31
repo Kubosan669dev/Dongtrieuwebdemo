@@ -28,8 +28,16 @@ export default function LodgingsAdmin() {
       <Field label="Số điện thoại"><ArrayInput value={d.phones} onChange={(v) => set('phones', v)} placeholder="Thêm số điện thoại…" /></Field>
       <Field label="Mô tả"><Textarea value={d.description} onChange={(v) => set('description', v)} rows={3} /></Field>
       <Field label="Tiện nghi"><ArrayInput value={d.amenities} onChange={(v) => set('amenities', v)} placeholder="Wifi, điều hoà…" /></Field>
-      <Field label="Hình ảnh"><GalleryField value={d.images} onChange={(v) => set('images', v)} /></Field>
-      <LatLngField lat={d.lat} lng={d.lng} onChange={({ lat, lng }) => { set('lat', lat); set('lng', lng); }} />
+      <Field label="Hình ảnh"><GalleryField value={d.images} onChange={(v) => set('images', v)} name={d.name} /></Field>
+      <LatLngField
+        lat={d.lat}
+        lng={d.lng}
+        onChange={({ lat, lng }) => { set('lat', lat); set('lng', lng); }}
+        name={d.name}
+        address={d.address}
+        estimated={d.coordsEstimated}
+        onEstimatedChange={(v) => set('coordsEstimated', v)}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Thứ tự"><Number_ value={d.order} onChange={(v) => set('order', v ?? 0)} /></Field>
         <div className="flex items-end"><Toggle value={d.published} onChange={(v) => set('published', v)} label="Hiển thị" /></div>

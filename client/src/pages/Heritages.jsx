@@ -4,10 +4,9 @@ import { Search, X } from 'lucide-react';
 import { fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import { HeritageCard, AttractionCard } from '../components/cards.jsx';
-import { SkeletonCard, EmptyState, ErrorNote } from '../components/ui.jsx';
+import { SkeletonCard, EmptyState, ErrorNote, FilterChip } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { HERITAGE_TYPES, RANK_LEVELS } from '../lib/constants.js';
-import { cx } from '../lib/format.js';
 
 export default function Heritages() {
   const [params, setParams] = useSearchParams();
@@ -111,14 +110,3 @@ export default function Heritages() {
   );
 }
 
-function FilterChip({ active, onClick, children, tone = 'jade' }) {
-  const tones = {
-    jade: active ? 'bg-jade-600 text-white' : 'bg-white text-jade-700 ring-1 ring-jade-200 hover:bg-jade-50 dark:bg-jade-900/50 dark:text-jade-100 dark:ring-jade-700',
-    gold: active ? 'bg-gold-400 text-jade-950' : 'bg-white text-jade-700 ring-1 ring-jade-200 hover:bg-jade-50 dark:bg-jade-900/50 dark:text-jade-100 dark:ring-jade-700',
-  };
-  return (
-    <button onClick={onClick} className={cx('rounded-full px-4 py-2 text-sm font-medium transition', tones[tone])}>
-      {children}
-    </button>
-  );
-}

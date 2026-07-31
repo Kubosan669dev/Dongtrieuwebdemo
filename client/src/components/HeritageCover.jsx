@@ -19,14 +19,23 @@ export function IllustrativeBadge({ className }) {
   );
 }
 
-// Bảng màu gradient theo loại hình di tích (dùng khi chưa có ảnh thật).
+/**
+ * Nền chuyển sắc theo loại hình di tích, dùng khi chưa có ảnh thật.
+ *
+ * Trỏ vào biến CSS của bảng màu thay vì mã hex cứng như trước — bản cũ luôn ra
+ * màu xanh ngọc và nâu đất kể cả khi khách đã chọn bảng Hạ Long Blue hay Rose
+ * Lotus, khiến ảnh thay thế lạc hẳn khỏi phần còn lại của trang.
+ *
+ * Vẫn giữ khác biệt giữa các loại hình bằng cách lấy các nấc khác nhau trên hai
+ * dải màu chủ đạo và màu đất — chùa vẫn khác đền, đình vẫn khác miếu.
+ */
 const GRADIENTS = {
-  CHUA: ['#0e7c5e', '#0b4134'],
-  DEN: ['#b4543a', '#63371f'],
-  DINH: ['#cc8c2e', '#754121'],
-  MIEU: ['#6d5590', '#3b2c56'],
-  CUM_DI_TICH: ['#1f9a6d', '#0b634c'],
-  LICH_SU_CACH_MANG: ['#b23a3a', '#5f1d1d'],
+  CHUA: ['--c-jade-600', '--c-jade-900'],
+  DEN: ['--c-terra-500', '--c-gold-900'],
+  DINH: ['--c-gold-500', '--c-gold-800'],
+  MIEU: ['--c-jade-700', '--c-jade-950'],
+  CUM_DI_TICH: ['--c-jade-500', '--c-jade-700'],
+  LICH_SU_CACH_MANG: ['--c-terra-600', '--c-jade-950'],
 };
 
 /**
@@ -62,20 +71,21 @@ export default function HeritageCover({
 
   return (
     <div className={cx('relative h-full w-full overflow-hidden', rounded, className)}>
-      <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" className="h-full w-full">
+      {/* Nền chuyển sắc để ở CSS chứ không trong SVG: thuộc tính SVG không phải
+          trình duyệt nào cũng hiểu var(--…), còn ở đây thì chạy khắp nơi. */}
+      <div
+        className="absolute inset-0"
+        style={{ backgroundImage: `linear-gradient(135deg, rgb(var(${from})), rgb(var(${to})))` }}
+      />
+      <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" className="relative h-full w-full">
         <defs>
-          <linearGradient id={`g-${type}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={from} />
-            <stop offset="100%" stopColor={to} />
-          </linearGradient>
           <pattern id={`p-${type}`} width="28" height="28" patternUnits="userSpaceOnUse">
             <circle cx="2" cy="2" r="1.4" fill="rgba(255,255,255,0.10)" />
           </pattern>
         </defs>
-        <rect width="400" height="300" fill={`url(#g-${type})`} />
         <rect width="400" height="300" fill={`url(#p-${type})`} />
-        {/* Mái đình/chùa cách điệu */}
-        <g opacity="0.22" fill="none" stroke="#faf7f0" strokeWidth="2.5">
+        {/* Mái đình/chùa cách điệu — cùng mô-típ với PagodaMotif.jsx */}
+        <g opacity="0.22" fill="none" stroke="rgba(255,255,255,0.92)" strokeWidth="2.5" strokeLinecap="round">
           <path d="M120 150 L200 108 L280 150" />
           <path d="M110 156 L200 100 L290 156" />
           <line x1="150" y1="160" x2="150" y2="205" />

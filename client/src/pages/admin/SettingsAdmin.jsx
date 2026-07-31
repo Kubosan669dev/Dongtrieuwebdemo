@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save } from 'lucide-react';
 import { api } from '../../lib/api.js';
@@ -11,9 +11,15 @@ export default function SettingsAdmin() {
   const [form, setForm] = useState(null);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    if (data?.settings) setForm(structuredClone(data.settings));
-  }, [data]);
+  // Nạp bản nháp từ dữ liệu máy chủ khi câu truy vấn trả về lần đầu, và mỗi khi
+  // máy chủ trả về bản mới. Đặt state ngay trong render (mẫu "state phái sinh")
+  // thay vì trong useEffect: qua effect thì có một nhịp form còn rỗng bị vẽ ra
+  // trước, người dùng thấy các ô trắng loé lên rồi mới có giá trị.
+  const [loadedFrom, setLoadedFrom] = useState(null);
+  if (data?.settings && data.settings !== loadedFrom) {
+    setLoadedFrom(data.settings);
+    setForm(structuredClone(data.settings));
+  }
 
   const save = useMutation({
     mutationFn: async () => {
@@ -23,6 +29,12 @@ export default function SettingsAdmin() {
           api.put(`/settings/${key}`, { value: form[key] }),
         ),
       );
+      // `about` lưu riêng: biểu mẫu này chỉ sửa `intro`, còn `sections` (bài giới
+      // thiệu dài ở trang /gioi-thieu) phải giữ nguyên. Gửi thiếu `sections` là
+      // xoá trắng nội dung trang đó.
+      await api.put('/settings/about', {
+        value: { intro: form.about?.intro ?? '', sections: form.about?.sections ?? [] },
+      });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['settings'] });
@@ -82,9 +94,28 @@ export default function SettingsAdmin() {
           <p className="mt-2 text-xs text-jade-400">Lưu ý: toạ độ Đông Triều nằm ngoài lưới hải văn của Open-Meteo. Nên giữ điểm cửa Nam Triệu – Bạch Đằng (~20.70, 106.80) để có dữ liệu triều.</p>
         </Card>
 
+        <Card title="Giới thiệu ngắn ở trang chủ">
+          <Field
+            label="Đoạn mở đầu"
+            hint="Hai đến ba câu, hiện ngay dưới thanh tìm kiếm cùng dải số liệu. Bài giới thiệu dài ở trang /gioi-thieu không đổi theo ô này."
+          >
+            <Textarea value={form.about?.intro} onChange={(v) => setField('about', 'intro', v)} rows={4} maxLength={2000} />
+          </Field>
+        </Card>
+
         <Card title="SEO">
-          <Field label="Tiêu đề mặc định"><Text value={form.seo?.title} onChange={(v) => setField('seo', 'title', v)} /></Field>
-          <Field label="Mô tả mặc định"><Textarea value={form.seo?.description} onChange={(v) => setField('seo', 'description', v)} rows={2} /></Field>
+          <Field
+            label="Tên site trong tiêu đề trang"
+            hint='Hiện sau tên trang con: "Lễ hội — <tên này>". Để trống thì dùng "Khám phá Đông Triều".'
+          >
+            <Text value={form.seo?.title} onChange={(v) => setField('seo', 'title', v)} />
+          </Field>
+          <Field
+            label="Mô tả mặc định"
+            hint="Dùng cho thẻ mô tả và ảnh xem trước khi chia sẻ link, ở những trang không có mô tả riêng."
+          >
+            <Textarea value={form.seo?.description} onChange={(v) => setField('seo', 'description', v)} rows={3} />
+          </Field>
         </Card>
       </div>
     </div>

@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2, X, Search, Eye, EyeOff } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { Spinner } from '../../components/ui.jsx';
-import { cx } from '../../lib/format.js';
 
 /**
  * Trang quản lý CRUD dùng chung cho mọi loại tài nguyên.
@@ -68,7 +67,7 @@ export default function ResourceManager({ title, description, resource, columns,
       {isLoading ? (
         <Spinner />
       ) : (
-        <div className="overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-jade-900/5 dark:bg-jade-900/40 dark:ring-white/5">
+        <div className="card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>

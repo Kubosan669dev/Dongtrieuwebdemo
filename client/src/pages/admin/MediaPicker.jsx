@@ -1,3 +1,8 @@
+// Lớp nền phủ của hộp thoại đóng được bằng cách bấm ra ngoài. Cố ý KHÔNG gắn
+// thêm xử lý bàn phím lên lớp nền: bàn phím đã có hai lối thoát đúng chuẩn là
+// phím Esc và nút đóng có thể Tab tới. Biến lớp nền thành phần tử hội tụ được
+// chỉ thêm một chặng Tab vô nghĩa trước khi tới nội dung thật của hộp thoại.
+/* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Upload, X, Check, Trash2, ImagePlus } from 'lucide-react';
@@ -47,7 +52,10 @@ export default function MediaPicker({ open, onClose, onSelect, mode = 'single' }
     setPicked((p) => (p.includes(url) ? p.filter((x) => x !== url) : [...p, url]));
   };
 
-  const confirm = () => {
+  // Trước đây hàm này tên là `confirm`, che mất `window.confirm` của trình duyệt.
+  // Hậu quả: nút xoá ảnh bên dưới gọi nhầm vào đây — không xoá được ảnh nào, mà
+  // còn lặng lẽ chèn danh sách đang chọn rồi đóng hộp thoại.
+  const confirmSelection = () => {
     onSelect(picked);
     setPicked([]);
     onClose();
@@ -59,14 +67,22 @@ export default function MediaPicker({ open, onClose, onSelect, mode = 'single' }
   };
 
   const del = async (id) => {
-    if (!confirm('Xoá ảnh này khỏi thư viện?')) return;
+    if (!window.confirm('Xoá ảnh này khỏi thư viện?')) return;
     await api.del(`/media/${id}`);
     qc.invalidateQueries({ queryKey: ['media'] });
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="flex max-h-[85vh] w-full max-w-4xl flex-col rounded-2xl bg-white shadow-lift dark:bg-jade-900" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Thư viện ảnh"
+        className="flex max-h-[85vh] w-full max-w-4xl flex-col rounded-2xl bg-white shadow-lift dark:bg-jade-900"
+      >
         <div className="flex items-center justify-between border-b border-jade-900/5 p-4 dark:border-white/5">
           <h3 className="font-serif text-lg font-semibold">Thư viện ảnh</h3>
           <div className="flex items-center gap-2">
@@ -112,7 +128,7 @@ export default function MediaPicker({ open, onClose, onSelect, mode = 'single' }
         {mode === 'multiple' && (
           <div className="flex items-center justify-between border-t border-jade-900/5 p-4 dark:border-white/5">
             <span className="text-sm text-jade-500">Đã chọn {picked.length} ảnh</span>
-            <button onClick={confirm} className="btn-primary !py-2" disabled={picked.length === 0}>Thêm ảnh đã chọn</button>
+            <button onClick={confirmSelection} className="btn-primary !py-2" disabled={picked.length === 0}>Thêm ảnh đã chọn</button>
           </div>
         )}
       </div>

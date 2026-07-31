@@ -9,7 +9,7 @@ const STORAGE_KEY = 'dt_chat';
 const WELCOME = {
   role: 'bot',
   text:
-    'Xin chào 👋 Mình là **trợ lý du lịch phường Đông Triều**.\n\n' +
+    'Xin chào 👋 Mình là **trợ lý Khám phá Đông Triều**.\n\n' +
     'Mình trả lời dựa trên dữ liệu chính thức của phường — hồ sơ di tích, lịch lễ hội, ẩm thực, lưu trú — cùng **số liệu thời tiết và triều cường cập nhật theo giờ**.',
   suggestions: ['Hôm nay nên đi đâu?', 'Thời tiết hôm nay thế nào?', 'Lễ hội nào sắp diễn ra?', 'Đặc sản Đông Triều có gì?'],
 };
@@ -17,7 +17,10 @@ const WELCOME = {
 /**
  * Hiển thị văn bản trả lời của bot.
  *
- * Bot trả về text thuần có đánh dấu **in đậm** và dòng bắt đầu bằng "• ".
+ * Bot trả về text thuần có đánh dấu **in đậm**, _in nghiêng_ và dòng bắt đầu
+ * bằng "• ". In nghiêng dùng cho các ghi chú phụ: nhãn loại hình _(Nhà hàng)_,
+ * cảnh báo _(ước tính)_, nguồn số liệu đánh giá.
+ *
  * Cố ý KHÔNG dùng dangerouslySetInnerHTML — nội dung tuy do server sinh ra
  * nhưng có lẫn dữ liệu người dùng nhập trong trang quản trị, nên render bằng
  * React cho an toàn tuyệt đối trước XSS.
@@ -36,13 +39,16 @@ function RichText({ text }) {
               isBullet && 'relative pl-3.5 before:absolute before:left-0 before:content-["•"]',
             )}
           >
-            {content.split(/(\*\*[^*]+\*\*)/g).map((part, j) =>
-              part.startsWith('**') && part.endsWith('**') ? (
-                <strong key={j} className="font-semibold">{part.slice(2, -2)}</strong>
-              ) : (
-                <Fragment key={j}>{part}</Fragment>
-              ),
-            )}
+            {/* Tách cả hai kiểu đánh dấu trong một lần để không phải lồng nhiều
+                lớp split. Dấu _ chỉ tính khi ôm trọn một cụm, nên số điện thoại
+                hay slug có gạch dưới không bị hiểu nhầm. */}
+            {content.split(/(\*\*[^*]+\*\*|_[^_\n]+_)/g).map((part, j) => {
+              if (part.startsWith('**') && part.endsWith('**'))
+                return <strong key={j} className="font-semibold">{part.slice(2, -2)}</strong>;
+              if (part.length > 2 && part.startsWith('_') && part.endsWith('_'))
+                return <em key={j} className="opacity-75">{part.slice(1, -1)}</em>;
+              return <Fragment key={j}>{part}</Fragment>;
+            })}
           </p>
         );
       })}

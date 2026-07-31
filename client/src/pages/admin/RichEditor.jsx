@@ -7,6 +7,25 @@ import { Bold, Italic, List, ListOrdered, Heading2, Heading3, Quote, Link2, Imag
 import MediaPicker from './MediaPicker.jsx';
 import { cx } from '../../lib/format.js';
 
+/**
+ * Nút trên thanh công cụ.
+ *
+ * Định nghĩa ở cấp module chứ KHÔNG lồng trong thân `RichEditor`: component khai
+ * báo trong lúc render bị React coi là một loại mới sau mỗi lần render, nên cả
+ * thanh công cụ bị tháo ra gắn lại liên tục — gõ một ký tự là mất hội tụ bàn phím.
+ */
+function Btn({ onClick, active, children, title }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className={cx('grid h-8 w-8 place-items-center rounded-lg text-sm', active ? 'bg-jade-600 text-white' : 'text-jade-600 hover:bg-jade-100 dark:text-jade-200 dark:hover:bg-jade-800')}
+    >
+      {children}
+    </button>
+  );
+}
 /** Trình soạn thảo nội dung bài viết (TipTap) — xuất ra HTML. */
 export default function RichEditor({ value, onChange }) {
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -23,21 +42,10 @@ export default function RichEditor({ value, onChange }) {
   // Đồng bộ khi mở item khác
   useEffect(() => {
     if (editor && value !== editor.getHTML()) editor.commands.setContent(value || '', false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, editor]);
 
   if (!editor) return null;
 
-  const Btn = ({ onClick, active, children, title }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      className={cx('grid h-8 w-8 place-items-center rounded-lg text-sm', active ? 'bg-jade-600 text-white' : 'text-jade-600 hover:bg-jade-100 dark:text-jade-200 dark:hover:bg-jade-800')}
-    >
-      {children}
-    </button>
-  );
 
   const addLink = () => {
     const url = prompt('Nhập đường dẫn (URL):', 'https://');

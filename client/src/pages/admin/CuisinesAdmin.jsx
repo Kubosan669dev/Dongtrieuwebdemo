@@ -26,7 +26,7 @@ export default function CuisinesAdmin() {
         <Field label="Mùa vụ"><Text value={d.season} onChange={(v) => set('season', v)} placeholder="Tháng 7–9" /></Field>
       </div>
       <Field label="Mua / thưởng thức tại"><ArrayInput value={d.whereToBuy} onChange={(v) => set('whereToBuy', v)} placeholder="Thêm địa điểm…" /></Field>
-      <Field label="Hình ảnh"><GalleryField value={d.images} onChange={(v) => set('images', v)} /></Field>
+      <Field label="Hình ảnh"><GalleryField value={d.images} onChange={(v) => set('images', v)} name={d.name} /></Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Thứ tự"><Number_ value={d.order} onChange={(v) => set('order', v ?? 0)} /></Field>
         <div className="flex items-end"><Toggle value={d.published} onChange={(v) => set('published', v)} label="Hiển thị" /></div>

@@ -49,8 +49,16 @@ export default function RestaurantsAdmin() {
       </div>
       <Field label="Mô tả"><Textarea value={d.description} onChange={(v) => set('description', v)} rows={3} /></Field>
       <Field label="Món / đặc sản"><ArrayInput value={d.specialties} onChange={(v) => set('specialties', v)} placeholder="Thêm món…" /></Field>
-      <Field label="Hình ảnh"><GalleryField value={d.images} onChange={(v) => set('images', v)} /></Field>
-      <LatLngField lat={d.lat} lng={d.lng} onChange={({ lat, lng }) => { set('lat', lat); set('lng', lng); }} />
+      <Field label="Hình ảnh"><GalleryField value={d.images} onChange={(v) => set('images', v)} name={d.name} /></Field>
+      <LatLngField
+        lat={d.lat}
+        lng={d.lng}
+        onChange={({ lat, lng }) => { set('lat', lat); set('lng', lng); }}
+        name={d.name}
+        address={d.address}
+        estimated={d.coordsEstimated}
+        onEstimatedChange={(v) => set('coordsEstimated', v)}
+      />
 
       <Field label="Ghi chú nguồn" hint="Hiển thị cho du khách khi chưa xác minh">
         <Text value={d.sourceNote} onChange={(v) => set('sourceNote', v)} />

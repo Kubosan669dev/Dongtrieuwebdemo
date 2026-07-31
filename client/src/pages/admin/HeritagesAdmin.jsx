@@ -1,5 +1,5 @@
 import ResourceManager, { PublishedBadge } from './ResourceManager.jsx';
-import { Field, Text, Textarea, Select, Toggle, ArrayInput, ImageField, LatLngField, Number_ } from './fields.jsx';
+import { Field, Text, Textarea, Select, Toggle, ArrayInput, ImageField, GalleryField, LatLngField, Number_ } from './fields.jsx';
 import { HERITAGE_TYPES, RANK_LEVELS } from '../../lib/constants.js';
 import { slugify } from '../../lib/format.js';
 
@@ -20,7 +20,7 @@ export default function HeritagesAdmin() {
     altNames: [], worship: [], keywords: [], highlights: [],
     summary: '', history: '', architecture: '',
     featured: false, published: true, order: 0,
-    coverUrl: null, coverIsIllustrative: false, travelTips: '', lat: null, lng: null, mapQuery: '',
+    coverUrl: null, coverIsIllustrative: false, images: [], travelTips: '', lat: null, lng: null, mapQuery: '',
     rankLevelText: '', rankDecision: '', rankAuthority: '', rankNote: '', typeText: '', wardOld: '', festivalNote: '',
   });
 
@@ -40,8 +40,12 @@ export default function HeritagesAdmin() {
         label="Ảnh minh hoạ"
       />
       <p className="-mt-2 text-xs text-jade-400">
-        Bật khi ảnh không phải chụp chính di tích này — giao diện sẽ hiện nhãn "Ảnh minh hoạ" cho du khách.
+        Bật khi ảnh không phải chụp chính di tích này — giao diện sẽ hiện nhãn “Ảnh minh hoạ” cho du khách.
       </p>
+
+      <Field label="Thư viện ảnh" hint="Hiện ở cuối trang chi tiết, mỗi ảnh kèm chú thích">
+        <GalleryField value={d.images} onChange={(v) => set('images', v)} name={d.name} />
+      </Field>
 
       <Field label="Tên gọi khác"><ArrayInput value={d.altNames} onChange={(v) => set('altNames', v)} placeholder="Thêm tên gọi khác…" /></Field>
       <Field label="Địa chỉ" required><Text value={d.address} onChange={(v) => set('address', v)} /></Field>
@@ -51,7 +55,15 @@ export default function HeritagesAdmin() {
         <Field label="Chuỗi tra Google Maps" hint="Dùng khi chưa có toạ độ"><Text value={d.mapQuery} onChange={(v) => set('mapQuery', v)} /></Field>
       </div>
 
-      <LatLngField lat={d.lat} lng={d.lng} onChange={({ lat, lng }) => { set('lat', lat); set('lng', lng); }} />
+      <LatLngField
+        lat={d.lat}
+        lng={d.lng}
+        onChange={({ lat, lng }) => { set('lat', lat); set('lng', lng); }}
+        name={d.name}
+        address={d.address}
+        estimated={d.coordsEstimated}
+        onEstimatedChange={(v) => set('coordsEstimated', v)}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Xếp hạng (nguyên văn)"><Text value={d.rankLevelText} onChange={(v) => set('rankLevelText', v)} /></Field>
@@ -80,7 +92,10 @@ export default function HeritagesAdmin() {
   );
 
   const toPayload = (d) => {
-    const { id, createdAt, updatedAt, images, festivals, ...rest } = d;
+    // `festivals` là dữ liệu quan hệ chỉ để đọc, không gửi lên khi lưu.
+    // `images` thì có gửi — trước đây bị loại ở đây nên quản trị viên chỉnh ảnh
+    // di tích xong bấm lưu là mất trắng.
+    const { id, createdAt, updatedAt, festivals, ...rest } = d;
     return rest;
   };
 

@@ -4,15 +4,14 @@ import { fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import { LodgingCard } from '../components/cards.jsx';
 import LodgingDetail from '../components/LodgingDetail.jsx';
-import { SkeletonCard, EmptyState } from '../components/ui.jsx';
+import { SkeletonCard, EmptyState, ErrorNote, FilterChip } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { LODGING_TYPES } from '../lib/constants.js';
-import { cx } from '../lib/format.js';
 
 export default function Lodging() {
   const [type, setType] = useState('');
   const [selected, setSelected] = useState(null);
-  const { data, isLoading } = useQuery({ queryKey: ['lodgings'], queryFn: () => fetchList('lodgings') });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['lodgings'], queryFn: () => fetchList('lodgings') });
   const items = (data?.items ?? []).filter((l) => !type || l.type === type);
 
   return (
@@ -26,11 +25,11 @@ export default function Lodging() {
 
       <div className="container-page py-10">
         <div className="mb-6 flex flex-wrap gap-2">
-          <Chip active={!type} onClick={() => setType('')}>Tất cả ({data?.items?.length ?? 0})</Chip>
+          <FilterChip active={!type} onClick={() => setType('')}>Tất cả ({data?.items?.length ?? 0})</FilterChip>
           {Object.entries(LODGING_TYPES).map(([key, v]) => {
             const count = (data?.items ?? []).filter((l) => l.type === key).length;
             if (count === 0) return null;
-            return <Chip key={key} active={type === key} onClick={() => setType(key)}>{v.label} ({count})</Chip>;
+            return <FilterChip key={key} active={type === key} onClick={() => setType(key)}>{v.label} ({count})</FilterChip>;
           })}
         </div>
 
@@ -38,6 +37,8 @@ export default function Lodging() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
+        ) : isError ? (
+          <ErrorNote onRetry={refetch} />
         ) : items.length === 0 ? (
           <EmptyState title="Chưa có cơ sở lưu trú" />
         ) : (
@@ -57,16 +58,3 @@ export default function Lodging() {
   );
 }
 
-function Chip({ active, onClick, children }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cx(
-        'rounded-full px-4 py-2 text-sm font-medium transition',
-        active ? 'bg-jade-600 text-white' : 'bg-white text-jade-700 ring-1 ring-jade-200 hover:bg-jade-50 dark:bg-jade-900/50 dark:text-jade-100 dark:ring-jade-700',
-      )}
-    >
-      {children}
-    </button>
-  );
-}

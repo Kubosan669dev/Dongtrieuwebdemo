@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import ResourceManager, { PublishedBadge } from './ResourceManager.jsx';
-import { Field, Text, Textarea, Select, Toggle, ArrayInput, ImageField, Number_ } from './fields.jsx';
+import { Field, Text, Textarea, Select, Toggle, ArrayInput, ImageField, GalleryField, Number_ } from './fields.jsx';
 import { FESTIVAL_SCALES, LUNAR_MONTH_LABELS } from '../../lib/constants.js';
 import { api } from '../../lib/api.js';
 import { slugify } from '../../lib/format.js';
@@ -31,6 +31,9 @@ export default function FestivalsAdmin() {
       </div>
       <Field label="Ảnh bìa"><ImageField value={d.coverUrl} onChange={(v) => set('coverUrl', v)} /></Field>
       <Toggle value={d.coverIsIllustrative} onChange={(v) => set('coverIsIllustrative', v)} label="Ảnh minh hoạ" />
+      <Field label="Thư viện ảnh" hint="Hiện ở cuối trang chi tiết lễ hội, mỗi ảnh kèm chú thích">
+        <GalleryField value={d.images} onChange={(v) => set('images', v)} name={d.name} />
+      </Field>
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label="Tháng âm lịch" hint="1–12"><Number_ value={d.lunarMonth} onChange={(v) => set('lunarMonth', v)} min={1} max={12} /></Field>
         <Field label="Ngày âm lịch"><Number_ value={d.lunarDay} onChange={(v) => set('lunarDay', v)} min={1} max={30} /></Field>
