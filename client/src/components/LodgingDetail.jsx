@@ -1,9 +1,17 @@
+// Lớp nền phủ của hộp thoại đóng được bằng cách bấm ra ngoài. Cố ý KHÔNG gắn
+// thêm xử lý bàn phím lên lớp nền: bàn phím đã có hai lối thoát đúng chuẩn là
+// phím Esc và nút đóng có thể Tab tới. Biến lớp nền thành phần tử hội tụ được
+// chỉ thêm một chặng Tab vô nghĩa trước khi tới nội dung thật của hộp thoại.
+/* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, MapPin, Phone, User, Tag, CheckCircle2 } from 'lucide-react';
 import { LODGING_TYPES } from '../lib/constants.js';
 import { phoneHref } from '../lib/format.js';
+import { useScrollLock } from '../hooks/useScrollLock.js';
 import MapEmbed from './MapEmbed.jsx';
+import Gallery from './Gallery.jsx';
+import Reviews from './Reviews.jsx';
 import { Badge } from './ui.jsx';
 
 /**
@@ -14,14 +22,11 @@ import { Badge } from './ui.jsx';
  * quản trị viên bổ sung mô tả, tiện nghi, giá phòng, ảnh… thì tự hiện thêm.
  */
 export default function LodgingDetail({ item, onClose }) {
+  useScrollLock();
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
+    return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
   if (!item) return null;
@@ -31,14 +36,15 @@ export default function LodgingDetail({ item, onClose }) {
   return createPortal(
     <div
       className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Chi tiết ${item.name}`}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
+      {/* `role="dialog"` thuộc về khung nội dung chứ không phải lớp nền phủ.
+          Đặt nhầm lên nền thì trình đọc màn hình coi cả màn hình tối là hộp thoại. */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Chi tiết ${item.name}`}
         className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white shadow-lift dark:bg-jade-900 sm:rounded-3xl"
-        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 border-b border-jade-900/5 p-5 dark:border-white/5">
           <div>
@@ -93,13 +99,18 @@ export default function LodgingDetail({ item, onClose }) {
             </div>
           )}
 
-          {item.images?.length > 0 && (
-            <div className="grid grid-cols-2 gap-2">
-              {item.images.map((src, i) => (
-                <img key={i} src={src} alt={`${item.name} ${i + 1}`} loading="lazy" className="h-32 w-full rounded-xl object-cover" />
-              ))}
-            </div>
-          )}
+          {/* `item.rating` là điểm lấy từ Google Maps. Trước đây cửa sổ này không
+              hiện nó ở đâu cả, nên `Reviews` là chỗ đầu tiên và duy nhất nó xuất
+              hiện — kèm nhãn nguồn, cạnh điểm của khách trên cổng. */}
+          <Reviews
+            targetType="LODGING"
+            targetId={item.id}
+            googleRating={item.rating}
+            googleRatingCount={item.ratingCount}
+            className="border-t border-jade-900/5 pt-4 dark:border-white/5"
+          />
+
+          <Gallery images={item.images} name={item.name} className="mt-0" />
 
           {item.phones?.length > 0 && (
             <div className="flex flex-wrap gap-2">

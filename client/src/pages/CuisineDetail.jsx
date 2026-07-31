@@ -5,6 +5,8 @@ import { fetchOne } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import { Spinner, ErrorNote } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
+import Gallery from '../components/Gallery.jsx';
+import Reviews from '../components/Reviews.jsx';
 
 export default function CuisineDetail() {
   const { slug } = useParams();
@@ -21,16 +23,23 @@ export default function CuisineDetail() {
   return (
     <div>
       <Seo title={c.name} description={c.summary} type="article" />
-      <PageHero title={c.name} breadcrumb={[{ label: 'Ẩm thực', to: '/am-thuc' }, { label: c.name }]} />
+      <PageHero
+        title={c.name}
+        image={c.coverUrl}
+        illustrative={c.coverIsIllustrative}
+        breadcrumb={[{ label: 'Ẩm thực', to: '/am-thuc' }, { label: c.name }]}
+      />
 
       <div className="container-page py-10">
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            {c.coverUrl && (
-              <img src={c.coverUrl} alt={c.name} className="mb-6 aspect-[16/9] w-full rounded-2xl object-cover shadow-soft" />
-            )}
+            {/* Ảnh bìa đã nằm ở hero phía trên, không lặp lại ở đây nữa. */}
             <p className="text-lg font-medium text-jade-700 dark:text-jade-200">{c.summary}</p>
             <p className="mt-4 leading-relaxed text-jade-800 dark:text-jade-100">{c.description}</p>
+
+            <Gallery images={c.images} name={c.name} />
+
+            <Reviews targetType="CUISINE" targetId={c.id} className="mt-10" />
           </div>
 
           <aside className="space-y-5">

@@ -5,6 +5,8 @@ import { fetchOne } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import { Badge, Spinner, ErrorNote } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
+import Gallery from '../components/Gallery.jsx';
+import Reviews from '../components/Reviews.jsx';
 import { FESTIVAL_SCALES, LUNAR_MONTH_LABELS } from '../lib/constants.js';
 
 export default function FestivalDetail() {
@@ -23,7 +25,12 @@ export default function FestivalDetail() {
   return (
     <div>
       <Seo title={f.name} description={f.intro} type="article" />
-      <PageHero title={f.name} breadcrumb={[{ label: 'Lễ hội', to: '/le-hoi' }, { label: f.name }]} />
+      <PageHero
+        title={f.name}
+        image={f.coverUrl}
+        illustrative={f.coverIsIllustrative}
+        breadcrumb={[{ label: 'Lễ hội', to: '/le-hoi' }, { label: f.name }]}
+      />
 
       <div className="container-page py-10">
         <div className="grid gap-8 lg:grid-cols-3">
@@ -41,7 +48,7 @@ export default function FestivalDetail() {
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {f.rituals.map((r, i) => (
-                    <div key={i} className="flex items-start gap-3 rounded-xl bg-white p-4 shadow-soft ring-1 ring-jade-900/5 dark:bg-jade-900/40 dark:ring-white/5">
+                    <div key={i} className="card-sm flex items-start gap-3 p-4">
                       <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-jade-100 text-xs font-bold text-jade-700 dark:bg-jade-800">{i + 1}</span>
                       <span className="text-jade-800 dark:text-jade-100">{r}</span>
                     </div>
@@ -49,6 +56,10 @@ export default function FestivalDetail() {
                 </div>
               </div>
             )}
+
+            <Gallery images={f.images} name={f.name} />
+
+            <Reviews targetType="FESTIVAL" targetId={f.id} className="mt-10" />
           </div>
 
           <aside className="space-y-5">

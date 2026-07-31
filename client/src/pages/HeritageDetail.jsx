@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { MapPin, Award, Landmark, Sparkles, CalendarDays, ScrollText, Building2, Route } from 'lucide-react';
 import { fetchOne, fetchList } from '../lib/api.js';
@@ -10,6 +10,8 @@ import MapEmbed from '../components/MapEmbed.jsx';
 import { HeritageCard } from '../components/cards.jsx';
 import { Badge, Spinner, ErrorNote } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
+import Gallery from '../components/Gallery.jsx';
+import Reviews from '../components/Reviews.jsx';
 import { HERITAGE_TYPES, RANK_LEVELS } from '../lib/constants.js';
 import { cx } from '../lib/format.js';
 
@@ -45,6 +47,9 @@ export default function HeritageDetail() {
   const images = h.images ?? [];
   const relatedItems = (related.data?.items ?? []).filter((x) => x.slug !== h.slug).slice(0, 3);
 
+  // Không bọc `useMemo` được vì đoạn này nằm sau các nhánh `return` ở trên —
+  // hook phải chạy vô điều kiện. `Seo` so sánh JSON-LD theo nội dung chứ không
+  // theo định danh object, nên dựng lại mỗi lần render ở đây không sao.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'TouristAttraction',
@@ -57,24 +62,27 @@ export default function HeritageDetail() {
   return (
     <div>
       <Seo title={h.name} description={h.summary} type="article" jsonLd={jsonLd} image={h.coverUrl} />
-      <PageHero title={h.name} breadcrumb={[{ label: 'Di tích', to: '/di-tich' }, { label: h.name }]} />
+      <PageHero
+        title={h.name}
+        image={h.coverUrl}
+        illustrative={h.coverIsIllustrative}
+        breadcrumb={[{ label: 'Di tích', to: '/di-tich' }, { label: h.name }]}
+      />
 
       <div className="container-page py-10">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Nội dung chính */}
           <div className="lg:col-span-2">
-            <div className="aspect-[16/9] overflow-hidden rounded-2xl shadow-soft">
-              <HeritageCover
-                src={h.coverUrl}
-                name={h.name}
-                type={h.type}
-                rounded="rounded-2xl"
-                illustrative={h.coverIsIllustrative}
-              />
-            </div>
+            {/* Di tích chưa có ảnh thật thì hero là nền chuyển sắc, nên vẫn cần
+                hình vẽ thay thế ở đây. Có ảnh rồi thì hero đã hiện — không lặp lại. */}
+            {!h.coverUrl && (
+              <div className="mb-5 aspect-[16/9] overflow-hidden rounded-2xl shadow-soft">
+                <HeritageCover src={null} name={h.name} type={h.type} rounded="rounded-2xl" />
+              </div>
+            )}
 
             {/* Badge hàng đầu */}
-            <div className="mt-5 flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge tone={type?.color}>{type?.label}</Badge>
               <Badge tone={rank?.color}>{rank?.label}</Badge>
               {h.altNames?.map((n) => (
@@ -112,7 +120,7 @@ export default function HeritageDetail() {
               {tab === 'highlights' && (
                 <ul className="space-y-3">
                   {h.highlights?.map((x, i) => (
-                    <li key={i} className="flex items-start gap-3 rounded-xl bg-white p-4 shadow-soft ring-1 ring-jade-900/5 dark:bg-jade-900/40 dark:ring-white/5">
+                    <li key={i} className="card-sm flex items-start gap-3 p-4">
                       <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold-100 text-xs font-bold text-gold-700">{i + 1}</span>
                       <span className="text-jade-800 dark:text-jade-100">{x}</span>
                     </li>
@@ -121,19 +129,9 @@ export default function HeritageDetail() {
               )}
             </div>
 
-            {/* Thư viện ảnh */}
-            {images.length > 0 && (
-              <div className="mt-8">
-                <h3 className="mb-3 font-serif text-lg font-semibold">Hình ảnh</h3>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {images.map((img) => (
-                    <a key={img.id} href={img.url} target="_blank" rel="noreferrer" className="aspect-square overflow-hidden rounded-xl">
-                      <img src={img.url} alt={img.caption || h.name} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
+            <Gallery images={images} name={h.name} />
+
+            <Reviews targetType="HERITAGE" targetId={h.id} className="mt-10" />
           </div>
 
           {/* Cột thông tin */}
