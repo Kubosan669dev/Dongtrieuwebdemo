@@ -1,19 +1,39 @@
+@import './themes.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    color-scheme: light;
-  }
   html {
     scroll-behavior: smooth;
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
   }
   body {
     @apply bg-paper text-ink font-sans antialiased;
   }
   .dark body {
     @apply bg-jade-950 text-jade-50;
+  }
+  /* Đổi bảng màu thì nền và chữ chuyển mượt thay vì nhảy phắt một cái.
+     Chỉ áp cho nền/chữ/viền — không áp cho `all` để hoạt ảnh, ảnh nền và
+     các hiệu ứng hover sẵn có không bị chậm lại theo. */
+  body,
+  header,
+  footer,
+  main {
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body,
+    header,
+    footer,
+    main {
+      transition: none;
+    }
   }
   h1, h2, h3, h4 {
     @apply font-serif;
@@ -40,17 +60,50 @@
   .btn-ghost {
     @apply btn border border-jade-200 bg-white/70 text-jade-800 hover:bg-white dark:border-jade-700 dark:bg-jade-900/50 dark:text-jade-100;
   }
+  /* Nút nhỏ trong thẻ. Trước đây mỗi chỗ tự ghi `!px-3 !py-1.5 text-xs` đè lên
+     `.btn` — lặp 5 lần chỉ riêng trong cards.jsx, và mỗi lần lệch một chút. */
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
   .card {
     @apply rounded-2xl bg-white shadow-soft ring-1 ring-jade-900/5 transition dark:bg-jade-900/40 dark:ring-white/5;
   }
   .card-hover {
     @apply card hover:-translate-y-1 hover:shadow-lift;
   }
+  /* Cùng công thức với `.card`, chỉ bo góc nhỏ hơn — dành cho thẻ nằm BÊN TRONG
+     một thẻ khác (mục điểm nhấn, ô ảnh trong thư viện, bảng dữ liệu).
+     Bốn chỗ trong dự án từng tự gõ lại nguyên chuỗi
+     `rounded-xl bg-white shadow-soft ring-1 ring-jade-900/5 dark:bg-jade-900/40 dark:ring-white/5`,
+     và mỗi chỗ lệch nhau một chút. Bo góc lồng nhau cũng cần nhỏ dần, nếu bằng
+     nhau thì góc trong trông như lệch khỏi góc ngoài. */
+  .card-sm {
+    @apply rounded-xl bg-white shadow-soft ring-1 ring-jade-900/5 transition dark:bg-jade-900/40 dark:ring-white/5;
+  }
   .chip {
     @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium;
   }
+  /* ── Thang chữ ────────────────────────────────────────────────────────────
+     Trước đây cả site chỉ dùng ba độ đậm 400/500/600 và hai cỡ tiêu đề, nên
+     không có cấp bậc nào nổi lên. Ba bậc dưới đây tạo khoảng cách rõ ràng.
+
+     `leading` cố ý rộng hơn mức thường thấy ở chữ display tiếng Anh. Tiếng Việt
+     có dấu chồng hai tầng (ế, ộ, ữ, ằ) — đặt `leading-none` hay `leading-[1.05]`
+     như các bộ mẫu tiếng Anh là dấu mũ đâm vào đáy dòng trên. 1.15 là mức thấp
+     nhất còn an toàn với Lora ở cỡ lớn. */
+  .display-1 {
+    @apply font-serif text-4xl font-bold leading-[1.15] tracking-[-0.02em] sm:text-5xl md:text-6xl;
+  }
+  .display-2 {
+    @apply font-serif text-3xl font-bold leading-[1.18] tracking-[-0.015em] sm:text-4xl;
+  }
   .section-title {
-    @apply font-serif text-2xl font-semibold text-jade-900 sm:text-3xl dark:text-jade-50;
+    @apply font-serif text-2xl font-bold leading-[1.2] tracking-[-0.01em] text-jade-900 sm:text-3xl dark:text-jade-50;
+  }
+  /* Nhãn nhỏ phía trên tiêu đề mục. Giãn chữ rộng để đọc được ở cỡ nhỏ — chữ
+     hoa tiếng Việt có dấu rất dễ dính nhau khi nén. */
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-gold-600 dark:text-gold-400;
   }
   .prose-vn {
     @apply prose max-w-none prose-headings:font-serif prose-headings:text-jade-900 prose-a:text-jade-600
@@ -70,9 +123,36 @@
 
   /* Nền hoa văn mờ trang trí */
   .pattern-bg {
-    background-image: radial-gradient(circle at 1px 1px, rgba(14, 124, 94, 0.08) 1px, transparent 0);
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgb(var(--c-jade-600) / 0.08) 1px,
+      transparent 0
+    );
     background-size: 22px 22px;
   }
+}
+
+/* ── Chuyển động lúc cuộn tới ─────────────────────────────────────────────────
+   Một hiệu ứng duy nhất: mờ dần + nhích lên 12px, chạy đúng một lần khi khối
+   vào tầm nhìn. Cố ý không có trượt ngang, không phóng to, không so le từng
+   thẻ — trên một cổng thông tin thì mỗi hiệu ứng thêm vào là một lần trang trả
+   lời chậm hơn cho người chỉ muốn đọc.
+
+   ── VÌ SAO PHẢI CÓ CLASS `dt-co-hieu-ung` TRÊN <html> ────────────────────────
+   Nếu ẩn khối bằng `opacity: 0` ngay trong CSS thì JavaScript lỗi, bị chặn, hay
+   IntersectionObserver không chạy là nội dung **biến mất vĩnh viễn** — đúng loại
+   lỗi tệ nhất: trang trắng mà không báo gì. Nên phần ẩn chỉ có tác dụng sau khi
+   JS đã tự khẳng định là nó chạy được (xem Layout.jsx). Không JS → hiện đủ. */
+html.dt-co-hieu-ung [data-vao] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+html.dt-co-hieu-ung [data-vao].dt-vao {
+  opacity: 1;
+  transform: none;
 }
 
 /* Thanh cuộn mềm */
@@ -86,14 +166,102 @@
   }
 }
 
+/* ── Bản đồ số (Leaflet) ──────────────────────────────────────────────────────
+   Leaflet dựng DOM ngoài cây React nên phải nhắm bằng CSS toàn cục, không dùng
+   được class Tailwind ở nơi khai báo component. */
+
+.dt-map {
+  /* Màu viền ghim: cùng màu nền trang nên ghim luôn nổi trên mọi lớp nền bản đồ,
+     sáng hay tối. Đây là mẹo bản đồ học quen thuộc — viền cùng màu nền tạo
+     khoảng thở quanh hình, thay vì kẻ thêm một màu thứ ba. */
+  --dt-pin-vien: rgb(var(--c-paper));
+  background: rgb(var(--c-jade-100));
+  z-index: 0; /* giữ dưới khung thông tin và thanh điều hướng dính */
+}
+.dark .dt-map {
+  --dt-pin-vien: rgb(var(--c-jade-950));
+  background: rgb(var(--c-jade-900));
+}
+
+/* `divIcon` mặc định có nền trắng và viền — bỏ hết, chỉ để lại hình SVG. */
+.dt-pin-wrap {
+  background: transparent;
+  border: 0;
+}
+.dt-pin {
+  display: block;
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.35));
+  transition: transform 0.15s ease;
+  transform-origin: 50% 100%; /* phóng từ chân ghim, không phải từ giữa */
+}
+.dt-pin-wrap:hover .dt-pin {
+  transform: scale(1.12);
+}
+.dt-pin-active {
+  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.45));
+}
+@media (prefers-reduced-motion: reduce) {
+  .dt-pin {
+    transition: none;
+  }
+  .dt-pin-wrap:hover .dt-pin {
+    transform: none;
+  }
+}
+
+/* Ghim phải nhìn thấy được viền hội tụ khi đi bằng bàn phím. */
+.leaflet-marker-icon:focus-visible {
+  outline: 3px solid rgb(var(--c-gold-400));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Khối điều khiển và dòng ghi nguồn theo tông màu site, không dùng màu mặc định. */
+.leaflet-container {
+  font-family: inherit;
+  background: transparent;
+}
+.leaflet-bar a,
+.leaflet-control-attribution {
+  background: rgb(var(--c-paper) / 0.92) !important;
+  color: rgb(var(--c-jade-700)) !important;
+}
+.dark .leaflet-bar a,
+.dark .leaflet-control-attribution {
+  background: rgb(var(--c-jade-950) / 0.9) !important;
+  color: rgb(var(--c-jade-200)) !important;
+}
+.leaflet-bar a:hover {
+  background: rgb(var(--c-jade-100)) !important;
+}
+.dark .leaflet-bar a:hover {
+  background: rgb(var(--c-jade-800)) !important;
+}
+.leaflet-control-attribution a {
+  color: rgb(var(--c-jade-600)) !important;
+}
+.dark .leaflet-control-attribution a {
+  color: rgb(var(--c-jade-300)) !important;
+}
+.leaflet-control-scale-line {
+  background: rgb(var(--c-paper) / 0.85) !important;
+  border-color: rgb(var(--c-jade-600)) !important;
+  color: rgb(var(--c-jade-700)) !important;
+}
+.dark .leaflet-control-scale-line {
+  background: rgb(var(--c-jade-950) / 0.85) !important;
+  border-color: rgb(var(--c-jade-400)) !important;
+  color: rgb(var(--c-jade-200)) !important;
+}
+
 /* Swiper: nút điều hướng & bullet theo tông màu site */
 .swiper-button-next,
 .swiper-button-prev {
-  color: #faf7f0 !important;
+  color: rgb(var(--c-paper)) !important;
 }
 .swiper-pagination-bullet {
-  background: rgba(250, 247, 240, 0.6) !important;
+  background: rgb(var(--c-paper) / 0.6) !important;
 }
 .swiper-pagination-bullet-active {
-  background: #d9a441 !important;
+  background: rgb(var(--c-gold-400)) !important;
 }

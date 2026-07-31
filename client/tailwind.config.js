@@ -1,3 +1,22 @@
+/**
+ * Toàn bộ màu trỏ vào biến CSS khai báo trong `src/styles/themes.css`, nhờ vậy
+ * đổi bảng màu chỉ là đổi thuộc tính `data-theme` trên thẻ <html> — không phải
+ * biên dịch lại, cũng không phải sửa 599 chỗ đang dùng `bg-jade-*` trong mã.
+ *
+ * Tên `jade` / `gold` / `terra` giữ nguyên cho mã cũ khỏi phải đổi hàng loạt, nên
+ * ở bảng màu khác thì `jade` không còn là màu ngọc nữa. Mã mới nên dùng bí danh
+ * `primary` / `accent` / `earth` — cùng biến, tên đúng nghĩa hơn.
+ */
+
+/** Một dải màu Tailwind đầy đủ trỏ vào nhóm biến `--c-<name>-*`. */
+const ramp = (name, stops) =>
+  Object.fromEntries(stops.map((s) => [s, `rgb(var(--c-${name}-${s}) / <alpha-value>)`]));
+
+const FULL = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+const primary = ramp('jade', FULL);
+const accent = ramp('gold', FULL.slice(0, -1)); // vàng son không có nấc 950
+const earth = ramp('terra', [400, 500, 600]);
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
@@ -5,52 +24,26 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Ngọc lục bảo — mái chùa, cây cối vùng Yên Tử
-        jade: {
-          50: '#eefaf5',
-          100: '#d5f2e5',
-          200: '#aee5cd',
-          300: '#78d0ac',
-          400: '#43b487',
-          500: '#1f9a6d',
-          600: '#0e7c5e', // chủ đạo
-          700: '#0b634c',
-          800: '#0c4f3e',
-          900: '#0b4134',
-          950: '#04251d',
-        },
-        // Vàng son — sơn son thếp vàng, hoành phi câu đối
-        gold: {
-          50: '#fbf7ed',
-          100: '#f5ebcf',
-          200: '#ecd79c',
-          300: '#e2be63',
-          400: '#d9a441', // nhấn
-          500: '#cc8c2e',
-          600: '#b06e26',
-          700: '#8d5122',
-          800: '#754121',
-          900: '#63371f',
-        },
-        // Đất nung — gốm Đông Triều
-        terra: {
-          400: '#c9694f',
-          500: '#b4543a',
-          600: '#9a4430',
-        },
-        paper: '#faf7f0',
-        ink: '#16211e',
+        jade: primary,
+        gold: accent,
+        terra: earth,
+        primary,
+        accent,
+        earth,
+        paper: 'rgb(var(--c-paper) / <alpha-value>)',
+        ink: 'rgb(var(--c-ink) / <alpha-value>)',
       },
       fontFamily: {
         serif: ['Lora', 'Georgia', 'serif'],
         sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        soft: '0 4px 24px -8px rgba(11, 65, 52, 0.18)',
-        lift: '0 18px 40px -16px rgba(11, 65, 52, 0.35)',
+        soft: '0 4px 24px -8px rgb(var(--c-jade-900) / 0.18)',
+        lift: '0 18px 40px -16px rgb(var(--c-jade-900) / 0.35)',
       },
       backgroundImage: {
-        'jade-radial': 'radial-gradient(ellipse at top, rgba(14,124,94,0.12), transparent 60%)',
+        'jade-radial':
+          'radial-gradient(ellipse at top, rgb(var(--c-jade-600) / 0.12), transparent 60%)',
       },
       keyframes: {
         'ken-burns': {

@@ -14,6 +14,9 @@
     "build": "npm --workspace client run build",
     "start": "npm --workspace server run start",
     "extract": "npm --workspace server run extract",
+    "build-dataset": "npm --workspace server run build-dataset",
+    "make-favicon": "npm --workspace server run make-favicon",
+    "check-contrast": "npm --workspace client run check-contrast",
     "fetch-images": "npm --workspace server run fetch-images",
     "import-images": "npm --workspace server run import-images",
     "test-chatbot": "npm --workspace server run test-chatbot",
@@ -22,10 +25,19 @@
     "db:migrate": "npm --workspace server run db:migrate",
     "db:seed": "npm --workspace server run db:seed",
     "db:studio": "npm --workspace server run db:studio",
-    "setup": "npm install && npm run extract && npm run db:migrate && npm run db:seed"
+    "setup": "npm install && npm run extract && npm run build-dataset && npm run db:migrate && npm run db:seed",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "geocode": "npm --workspace server run geocode --"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@eslint/js": "^9.39.5",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.8.0"
   },
   "engines": {
     "node": ">=20"
