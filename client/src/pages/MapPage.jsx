@@ -1,34 +1,39 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Search, MapPin, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Search, AlertTriangle, ArrowRight, ChevronDown, Info, MapPin, Navigation } from 'lucide-react';
 import { api } from '../lib/api.js';
-import PageHero from '../components/PageHero.jsx';
 import MapEmbed from '../components/MapEmbed.jsx';
-import { ErrorNote, EmptyState } from '../components/ui.jsx';
+import { ErrorNote } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { MAP_KINDS, MAP_KIND_ORDER } from '../lib/mapKinds.js';
-import { cx, deaccentLower } from '../lib/format.js';
+import { cx, deaccentLower, mapDirectionsUrl } from '../lib/format.js';
 
 /**
- * Trang bản đồ số.
+ * Trang bản đồ số — bố cục tràn màn hình, thanh bên tra cứu bên trái.
  *
  * ── VÌ SAO KHUNG BẢN ĐỒ CHỈ HIỆN MỘT ĐIỂM ───────────────────────────────────
  *
- * Nền bản đồ là Google, nhúng bằng `<iframe>`. Đó là cách DUY NHẤT lấy được nền
- * Google mà không cần khoá API — nhưng iframe khác tên miền nên trang không gắn
- * được ghim của mình vào, không bắt được cú bấm, và mỗi lần chỉ hiện được một
- * điểm. Đây là đánh đổi đã cân nhắc: nền bản đồ đủ nhãn tiếng Việt cho vùng Đông
- * Triều, đổi lấy việc không xem được cả 66 điểm cùng lúc.
+ * Nền bản đồ là Google, nhúng bằng `<iframe>` — cách duy nhất lấy được nền Google
+ * mà không cần khoá API. Iframe khác tên miền nên trang không gắn được ghim của
+ * mình vào, không bắt được cú bấm, và mỗi lần chỉ hiện được một điểm.
  *
- * Phần còn lại của trang giữ nguyên và chính nó gánh việc "xem toàn cảnh": bộ lọc
- * bật/tắt nhiều nhóm cùng lúc, ô tìm không dấu, và danh sách bên cạnh có đủ 66
- * điểm kèm màu theo nhóm. Bấm một mục thì khung bản đồ chạy tới điểm đó.
+ * Việc "xem có những gì" vì thế do thanh bên gánh, và đó là lý do mỗi mục ở đây
+ * mang theo cả đoạn giới thiệu chứ không chỉ tên với địa chỉ: danh sách phải tự
+ * nó đủ để chọn, vì bản đồ không bày ra được 66 điểm cùng lúc.
+ *
+ * ── VỀ CHIỀU CAO ────────────────────────────────────────────────────────────
+ *
+ * Từ khổ `lg` trở lên, cả khối cao đúng phần màn hình còn lại dưới thanh điều
+ * hướng (`h-16` = 4rem, xem Header.jsx) và tự cuộn bên trong. Dưới khổ đó thì bỏ
+ * khoá chiều cao: chia đôi một màn hình điện thoại là cả bản đồ lẫn danh sách
+ * đều chật, nên xếp dọc theo thứ tự tiêu đề → bản đồ → danh sách.
  */
 export default function MapPage() {
   const [kinds, setKinds] = useState(MAP_KIND_ORDER);
   const [tim, setTim] = useState('');
   const [chonId, setChonId] = useState(null);
+  const [hienChiTiet, setHienChiTiet] = useState(true);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['map-points'],
@@ -39,9 +44,6 @@ export default function MapPage() {
   const thieuToaDo = nhom.reduce((a, g) => a + g.missing, 0);
 
   // Lọc theo nhóm + từ khoá. Tìm không dấu để "den yet kieu" cũng ra "Đền Yết Kiêu".
-  //
-  // `data?.points ?? []` nằm TRONG useMemo, không tách ra ngoài: để ngoài thì mỗi
-  // lần render lại sinh một mảng rỗng mới và phụ thuộc của useMemo đổi liên tục.
   const locDiem = useMemo(() => {
     const q = deaccentLower(tim.trim());
     return (data?.points ?? []).filter((p) => {
@@ -51,211 +53,327 @@ export default function MapPage() {
     });
   }, [data, kinds, tim]);
 
-  // Tìm trong danh sách ĐÃ LỌC chứ không trong toàn bộ điểm: tắt một nhóm hay gõ
-  // từ khoá mới thì điểm đang xem có thể không còn trong danh sách nữa, lúc đó
-  // phải rơi về điểm đầu tiên chứ không giữ một điểm mà bên cạnh không còn thấy.
+  // Tìm trong danh sách ĐÃ LỌC: tắt một nhóm hay gõ từ khoá mới thì điểm đang xem
+  // có thể không còn trong danh sách nữa, lúc đó phải rơi về điểm đầu tiên chứ
+  // không giữ một điểm mà bên cạnh không còn thấy.
   const diemXem = locDiem.find((p) => p.id === chonId) ?? locDiem[0] ?? null;
-  const kindXem = diemXem ? (MAP_KINDS[diemXem.kind] ?? MAP_KINDS.heritage) : null;
 
   const doiNhom = (k) =>
     setKinds((cur) => (cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k]));
 
+  if (isError) {
+    return (
+      <div className="container-page py-16">
+        <ErrorNote onRetry={refetch} />
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <>
       <Seo
         title="Bản đồ số"
-        description="Bản đồ số phường Đông Triều: di tích, điểm lân cận, cơ sở lưu trú và điểm ẩm thực trên cùng một trang, kèm chỉ đường."
-      />
-      <PageHero
-        title="Bản đồ số Đông Triều"
-        description="Toàn bộ di tích, điểm lân cận, cơ sở lưu trú và điểm ẩm thực — chọn một điểm để xem trên bản đồ và lấy chỉ đường."
-        breadcrumb={[{ label: 'Bản đồ số' }]}
+        description="Bản đồ số phường Đông Triều: di tích, điểm lân cận, cơ sở lưu trú và điểm ẩm thực — tra cứu vị trí, xem giới thiệu và lấy chỉ đường."
       />
 
-      <div className="container-page py-10">
-        {isError ? (
-          <ErrorNote onRetry={refetch} />
-        ) : (
-          <>
-            {/* Bộ lọc nhóm — bật/tắt được nhiều nhóm cùng lúc, khác bản cũ chỉ
-                cho chọn đúng một nhóm tại một thời điểm. */}
-            <div className="mb-5 flex flex-wrap items-center gap-2">
-              {MAP_KIND_ORDER.map((k) => {
-                const kind = MAP_KINDS[k];
-                const g = nhom.find((x) => x.kind === k);
-                const bat = kinds.includes(k);
-                return (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() => doiNhom(k)}
-                    aria-pressed={bat}
+      <div className="grid lg:h-[calc(100vh-4rem)] lg:grid-cols-[24rem_1fr] lg:grid-rows-[auto_minmax(0,1fr)] xl:grid-cols-[27rem_1fr]">
+        {/* ── Tiêu đề + tìm kiếm + bộ lọc ── */}
+        <div className="border-b border-jade-900/10 bg-paper px-5 pb-4 pt-6 lg:col-start-1 lg:row-start-1 lg:border-r dark:border-white/10 dark:bg-jade-950 lg:dark:border-r-white/10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-terra-600 dark:text-terra-400">
+            Tra cứu vị trí
+          </p>
+          <h1 className="mt-1 font-serif text-2xl font-bold leading-tight text-jade-900 xl:text-3xl dark:text-jade-50">
+            Bản đồ số Đông Triều
+          </h1>
+
+          <div className="mt-4 flex items-center gap-2 rounded-full bg-jade-50 px-4 ring-1 ring-jade-900/10 focus-within:ring-jade-500 dark:bg-jade-900/60 dark:ring-white/10">
+            <Search size={16} className="shrink-0 text-jade-400" />
+            <input
+              value={tim}
+              onChange={(e) => setTim(e.target.value)}
+              placeholder="Tìm di tích, quán ăn, nhà nghỉ…"
+              aria-label="Tìm điểm trên bản đồ"
+              className="w-full bg-transparent py-2.5 text-sm outline-none placeholder:text-jade-400"
+            />
+          </div>
+
+          {/* Bật/tắt được nhiều nhóm cùng lúc, không phải chọn một. Chấm màu là
+              khoá màu cho danh sách bên dưới — mỗi mục mang đúng màu này. */}
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {MAP_KIND_ORDER.map((k) => {
+              const kind = MAP_KINDS[k];
+              const g = nhom.find((x) => x.kind === k);
+              const bat = kinds.includes(k);
+              return (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => doiNhom(k)}
+                  aria-pressed={bat}
+                  className={cx(
+                    'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition',
+                    bat
+                      ? 'bg-jade-600 text-white shadow-soft'
+                      : 'bg-jade-50 text-jade-600 ring-1 ring-jade-900/10 hover:bg-jade-100 dark:bg-jade-900/60 dark:text-jade-300 dark:ring-white/10 dark:hover:bg-jade-800',
+                  )}
+                >
+                  <span
+                    aria-hidden="true"
                     className={cx(
-                      'inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition',
-                      bat
-                        ? 'bg-jade-600 text-white shadow-soft'
-                        : 'bg-white text-jade-600 ring-1 ring-jade-200 hover:bg-jade-50 dark:bg-jade-900/50 dark:text-jade-300 dark:ring-jade-700',
+                      'h-2 w-2 shrink-0 rounded-full bg-current ring-1',
+                      kind.pinClass,
+                      bat ? 'ring-white/80' : 'ring-black/15 dark:ring-white/30',
+                    )}
+                  />
+                  {kind.label}
+                  <span className={cx('tabular-nums', bat ? 'text-jade-100/80' : 'text-jade-400')}>
+                    {g?.count ?? 0}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/*
+          ── Bản đồ ──
+
+          Khung chi tiết NỔI trên bản đồ từ khổ `lg` trở lên, còn dưới khổ đó thì
+          nằm dưới bản đồ theo dòng chảy bình thường. Bắt buộc phải tách hai kiểu:
+          trên điện thoại khung này cao hơn cả vùng bản đồ (46vh), để nó nổi thì
+          nó tràn ngược lên che mất dải chip lọc, mà bản đồ thì gần như không còn
+          nhìn thấy gì.
+
+          Vì thế `relative` chỉ bật từ `lg`, và bản đồ có chiều cao riêng thay vì
+          lấp đầy ô lưới.
+        */}
+        <div className="lg:relative lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <div className="h-[46vh] min-h-[18rem] lg:h-full">
+            {diemXem ? (
+              /* `query` chỉ là chuỗi tra cứu dự phòng — mọi điểm ở đây đều có toạ
+                 độ (API `/map-points` chỉ trả về điểm đã có toạ độ) nên URL luôn
+                 dựng theo toạ độ. */
+              <MapEmbed
+                fill
+                showDirections={false}
+                lat={diemXem.lat}
+                lng={diemXem.lng}
+                query={diemXem.address || diemXem.name}
+                title={diemXem.name}
+                className="h-full"
+              />
+            ) : (
+              <div className="grid h-full place-items-center bg-jade-50 text-sm text-jade-500 dark:bg-jade-900/40">
+                {isLoading ? 'Đang tải bản đồ…' : 'Bật ít nhất một nhóm để xem bản đồ.'}
+              </div>
+            )}
+          </div>
+
+          {/* `lg:bottom-24` chứ không phải `bottom-4`: nút trợ lý AI là
+              `fixed bottom-5 right-5 h-14 w-14` (xem ChatWidget.jsx), tức nó chiếm
+              đúng góc dưới phải tới 76px. Để khung ở `bottom-4` là nút trợ lý nằm
+              đè lên nút "Khám phá chi tiết". */}
+          {diemXem &&
+            (hienChiTiet ? (
+              <KhungChiTiet point={diemXem} onAn={() => setHienChiTiet(false)} />
+            ) : (
+              <div className="p-3 lg:absolute lg:bottom-24 lg:right-4 lg:z-20 lg:p-0">
+                <button
+                  type="button"
+                  onClick={() => setHienChiTiet(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-jade-900/90 px-4 py-2 text-xs font-semibold text-white shadow-lift backdrop-blur hover:bg-jade-900"
+                >
+                  <Info size={14} /> Hiện thông tin
+                </button>
+              </div>
+            ))}
+        </div>
+
+        {/* ── Danh sách ── */}
+        <div className="flex min-h-0 flex-col bg-paper lg:col-start-1 lg:row-start-2 lg:border-r lg:border-white/10 dark:bg-jade-950 lg:dark:border-r-white/10">
+          <p className="shrink-0 border-b border-jade-900/5 px-5 py-2.5 text-xs text-jade-500 lg:border-r-0 dark:border-white/5">
+            {locDiem.length} điểm{tim ? ` khớp “${tim}”` : ''}
+          </p>
+
+          {/* `id` là mốc ổn định cho bài kiểm tự động bám vào. Trước đây bộ kiểm
+              trỏ vào class Tailwind của danh sách, nên đổi thiết kế một cái là 16
+              phép kiểm khớp 0 phần tử mà không ai biết. Class đổi theo thiết kế là
+              chuyện bình thường; một `id` thì không. */}
+          <ul id="danh-sach-diem" className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4 lg:p-3">
+            {locDiem.map((p) => {
+              const kind = MAP_KINDS[p.kind];
+              const dangXem = diemXem?.id === p.id;
+              return (
+                <li key={p.id}>
+                  {/* Bấm là chọn, không bật/tắt: khung bản đồ luôn phải hiện một
+                      điểm nào đó, nên "bỏ chọn" không còn nghĩa gì. */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setChonId(p.id);
+                      setHienChiTiet(true);
+                    }}
+                    aria-pressed={dangXem}
+                    // Mốc cho bài kiểm bám vào. Dò theo chữ không được: nhãn nhóm
+                    // in hoa bằng CSS nên `innerText` trả về "ĐIỂM LÂN CẬN", mà
+                    // đoạn giới thiệu thì lại có thể chứa đúng chữ của nhóm khác.
+                    data-kind={p.kind}
+                    className={cx(
+                      'w-full rounded-xl border-l-4 p-3.5 text-left transition',
+                      dangXem
+                        ? 'border-jade-600 bg-jade-600/10 dark:border-jade-400 dark:bg-jade-400/10'
+                        : 'border-transparent bg-jade-50/70 hover:bg-jade-100 dark:bg-jade-900/50 dark:hover:bg-jade-800/60',
                     )}
                   >
-                    {/* Chấm màu là khoá màu cho danh sách bên dưới — mỗi mục trong
-                        danh sách mang đúng màu này ở biểu tượng ghim của nó.
-                        Viền quanh chấm là bắt buộc: chip đang bật có nền jade-600,
-                        mà hai nhóm Di tích (jade-700) và Lưu trú (jade-500) cùng họ
-                        màu đó nên chấm chìm hẳn vào nền. */}
-                    <span
-                      aria-hidden="true"
-                      className={cx(
-                        'h-2.5 w-2.5 shrink-0 rounded-full bg-current ring-1',
-                        kind.pinClass,
-                        bat ? 'ring-white/80' : 'ring-black/15 dark:ring-white/30',
-                      )}
-                    />
-                    <kind.icon size={15} />
-                    {kind.label}
-                    <span className={cx('tabular-nums', bat ? 'text-jade-100/80' : 'text-jade-400')}>
-                      {g?.count ?? 0}
-                    </span>
-                  </button>
-                );
-              })}
-
-              <div className="ml-auto flex min-w-[13rem] flex-1 items-center gap-2 rounded-full bg-white px-4 ring-1 ring-jade-200 sm:flex-none dark:bg-jade-900/50 dark:ring-jade-700">
-                <Search size={16} className="shrink-0 text-jade-400" />
-                <input
-                  value={tim}
-                  onChange={(e) => setTim(e.target.value)}
-                  placeholder="Tìm theo tên hoặc địa chỉ…"
-                  aria-label="Tìm điểm trên bản đồ"
-                  className="w-full bg-transparent py-2 text-sm outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Trên điện thoại: bản đồ lên trước, danh sách xuống dưới (order-*). */}
-            <div className="grid gap-5 lg:grid-cols-[20rem_1fr]">
-              <div className="order-2 lg:order-1">
-                <p className="mb-2 text-xs text-jade-500">
-                  {locDiem.length} điểm{tim ? ` khớp “${tim}”` : ''}
-                </p>
-                <ul className="no-scrollbar max-h-[30rem] space-y-1.5 overflow-y-auto pr-1 lg:max-h-[34rem]">
-                  {locDiem.map((p) => {
-                    const kind = MAP_KINDS[p.kind];
-                    const dangXem = diemXem?.id === p.id;
-                    return (
-                      <li key={p.id}>
-                        {/* Bấm là chọn, không bật/tắt: khung bản đồ luôn phải hiện
-                            một điểm nào đó, nên "bỏ chọn" không còn nghĩa gì. */}
-                        <button
-                          type="button"
-                          onClick={() => setChonId(p.id)}
-                          aria-pressed={dangXem}
+                    <span className="flex items-start gap-2">
+                      <MapPin size={15} className={cx('mt-0.5 shrink-0', kind.textClass)} />
+                      <span className="min-w-0 flex-1">
+                        <span
                           className={cx(
-                            'flex w-full items-start gap-2.5 rounded-xl p-2.5 text-left transition',
+                            'block font-serif text-[0.95rem] font-semibold leading-snug',
                             dangXem
-                              ? 'bg-jade-600 text-white shadow-soft'
-                              : 'bg-white ring-1 ring-jade-900/5 hover:bg-jade-50 dark:bg-jade-900/40 dark:ring-white/5 dark:hover:bg-jade-800/50',
+                              ? 'text-jade-700 dark:text-jade-200'
+                              : 'text-jade-900 dark:text-jade-50',
                           )}
                         >
-                          <MapPin
-                            size={16}
-                            className={cx('mt-0.5 shrink-0', dangXem ? 'text-gold-300' : kind.textClass)}
-                          />
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-sm font-semibold leading-snug">{p.name}</span>
-                            <span
-                              className={cx(
-                                'mt-0.5 block text-xs',
-                                dangXem ? 'text-jade-100/80' : 'text-jade-500',
-                              )}
-                            >
-                              {kind.label}
-                              {p.address ? ` · ${p.address}` : ''}
-                            </span>
-                          </span>
-                          {p.coordsEstimated && (
-                            <AlertTriangle
-                              size={13}
-                              className={cx('mt-0.5 shrink-0', dangXem ? 'text-gold-300' : 'text-gold-500')}
-                              aria-label="Vị trí ước tính, chưa xác minh"
-                            />
-                          )}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-                {locDiem.length === 0 && !isLoading && (
-                  <EmptyState
-                    title="Không có điểm nào"
-                    description={tim ? 'Thử từ khoá khác hoặc bật thêm nhóm.' : 'Hãy bật ít nhất một nhóm.'}
-                  />
-                )}
-              </div>
-
-              <div className="order-1 lg:order-2">
-                {diemXem ? (
-                  <>
-                    {/* Đang xem điểm nào — bắt buộc phải nói ra. Khung bản đồ chỉ
-                        hiện một điểm, mà trên khổ máy tính danh sách nằm bên trái
-                        nên bấm một mục xong rất dễ không nhận ra bản đồ vừa đổi. */}
-                    <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className={cx('chip', kindXem.tintClass)}>
-                        <kindXem.icon size={14} /> {kindXem.label}
-                      </span>
-                      <span className="font-serif text-base font-semibold text-jade-900 dark:text-jade-50">
-                        {diemXem.name}
-                      </span>
-                      {/* Ghim ước tính từng vẽ nét đứt trên bản đồ cũ. Nền Google
-                          nhúng thì ghim là của Google, không đổi kiểu được — nên
-                          cảnh báo phải chuyển thành chữ, không được lặng lẽ mất. */}
-                      {diemXem.coordsEstimated && (
-                        <span className="inline-flex items-center gap-1 text-xs text-gold-700 dark:text-gold-300">
-                          <AlertTriangle size={12} /> vị trí ước tính theo địa chỉ, chưa xác minh
+                          {p.name}
                         </span>
+                        <span className="mt-0.5 block text-[11px] uppercase tracking-wide text-jade-400">
+                          {kind.label}
+                        </span>
+                      </span>
+                      {p.coordsEstimated && (
+                        <AlertTriangle
+                          size={13}
+                          className="mt-0.5 shrink-0 text-gold-500"
+                          aria-label="Vị trí ước tính, chưa xác minh"
+                        />
                       )}
-                      {/* Lối vào trang chi tiết. Trước đây nút này nằm trong khung
-                          thông tin nổi trên bản đồ; nền Google nhúng không gắn được
-                          khung đó nữa nên phải đưa ra ngoài, không thì đường đi từ
-                          bản đồ sang bài viết về di tích biến mất. Chỉ di tích mới
-                          có trang riêng — xem `hasPage` trong lib/mapKinds.js. */}
-                      {kindXem.hasPage && diemXem.slug && (
-                        <Link to={`${kindXem.basePath}/${diemXem.slug}`} className="btn-ghost btn-sm ml-auto">
-                          <ExternalLink size={13} /> Xem chi tiết
-                        </Link>
-                      )}
-                    </div>
-                    {/* `query` chỉ dùng làm nhãn dưới bản đồ và làm chuỗi tra cứu
-                        dự phòng — mọi điểm ở đây đều có toạ độ (API `/map-points`
-                        chỉ trả về điểm đã có toạ độ) nên URL luôn dựng theo toạ độ. */}
-                    <MapEmbed
-                      lat={diemXem.lat}
-                      lng={diemXem.lng}
-                      query={diemXem.address || diemXem.name}
-                      title={diemXem.name}
-                      height={520}
-                    />
-                  </>
-                ) : (
-                  <div className="grid h-[520px] place-items-center rounded-2xl bg-jade-50 text-sm text-jade-500 ring-1 ring-jade-900/5 dark:bg-jade-900/40 dark:ring-white/5">
-                    {isLoading ? 'Đang tải bản đồ…' : 'Bật ít nhất một nhóm để xem bản đồ.'}
-                  </div>
-                )}
-              </div>
-            </div>
+                    </span>
+                    {/* Đoạn giới thiệu là thứ làm danh sách tự đứng được. Máy chủ
+                        đã cắt sẵn ~320 ký tự (xem routes/mapPoints.js); ở đây cắt
+                        tiếp còn ba dòng, phần đầy đủ nằm trong khung trên bản đồ. */}
+                    {p.summary ? (
+                      <span className="mt-2 block line-clamp-3 text-[13px] leading-relaxed text-jade-600 dark:text-jade-300">
+                        {p.summary}
+                      </span>
+                    ) : (
+                      p.address && (
+                        <span className="mt-2 block line-clamp-2 text-[13px] leading-relaxed text-jade-500">
+                          {p.address}
+                        </span>
+                      )
+                    )}
+                  </button>
+                </li>
+              );
+            })}
 
-            {/* Nói thẳng số điểm còn thiếu toạ độ thay vì im lặng bỏ qua: khách
-                thấy danh sách ngắn thì biết dữ liệu đang được bổ sung, chứ không
-                nghĩ phường chỉ có mấy điểm đó. */}
-            {thieuToaDo > 0 && (
-              <p className="mt-5 flex items-start gap-2 rounded-xl bg-gold-50 p-4 text-sm text-gold-800 dark:bg-gold-900/20 dark:text-gold-200">
-                <AlertTriangle size={16} className="mt-0.5 shrink-0" />
-                <span>
-                  Còn <strong>{thieuToaDo} địa điểm</strong> chưa có toạ độ nên chưa lên bản đồ. Mục mang dấu
-                  tam giác là vị trí ước tính theo địa chỉ, đang được xác minh dần tại thực địa.
-                </span>
-              </p>
+            {locDiem.length === 0 && !isLoading && (
+              <li className="rounded-xl bg-jade-50 p-6 text-center text-sm text-jade-500 dark:bg-jade-900/50">
+                {tim ? `Không tìm thấy điểm nào khớp “${tim}”.` : 'Hãy bật ít nhất một nhóm.'}
+              </li>
             )}
-          </>
+          </ul>
+
+          {/* Nói thẳng số điểm còn thiếu toạ độ thay vì im lặng bỏ qua: khách thấy
+              danh sách ngắn thì biết dữ liệu đang được bổ sung, chứ không nghĩ
+              phường chỉ có mấy điểm đó. */}
+          {thieuToaDo > 0 && (
+            <p className="flex shrink-0 items-start gap-2 border-t border-jade-900/5 bg-gold-50 px-5 py-3 text-[11px] leading-relaxed text-gold-800 dark:border-white/5 dark:bg-gold-900/20 dark:text-gold-200">
+              <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+              <span>
+                Còn <strong>{thieuToaDo} địa điểm</strong> chưa có toạ độ nên chưa lên bản đồ. Mục mang dấu
+                tam giác là vị trí ước tính theo địa chỉ.
+              </span>
+            </p>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+/**
+ * Khung thông tin nổi trên bản đồ.
+ *
+ * Là HTML của chính trang, không phải popup do Google dựng — iframe khác tên miền
+ * nên không chèn được gì vào trong. Nhờ vậy `<Link>` ở đây vẫn là điều hướng phía
+ * máy khách, bấm "Khám phá chi tiết" không tải lại cả trang.
+ *
+ * Ẩn được, vì trên màn hình hẹp nó che mất một góc bản đồ đáng kể.
+ */
+function KhungChiTiet({ point: p, onAn }) {
+  const kind = MAP_KINDS[p.kind] ?? MAP_KINDS.heritage;
+  // Chỉ di tích có trang chi tiết riêng. Ba nhóm còn lại hiện chi tiết bằng cửa
+  // sổ trong trang danh sách, nên nút chính đổi thành chỉ đường — thứ khách cần
+  // nhất ở một quán ăn hay nhà nghỉ.
+  const duongDanChiTiet = kind.hasPage && p.slug ? `${kind.basePath}/${p.slug}` : null;
+
+  return (
+    <div id="khung-chi-tiet" className="p-3 lg:absolute lg:bottom-24 lg:right-4 lg:z-20 lg:w-[21rem] lg:p-0">
+      <div className="overflow-hidden rounded-2xl bg-paper shadow-lift ring-1 ring-jade-900/10 dark:bg-jade-950 dark:ring-white/10">
+        <div className="flex items-start gap-2 px-4 pt-3.5">
+          <div className="min-w-0 flex-1">
+            <p className={cx('text-[10px] font-semibold uppercase tracking-wider', kind.textClass)}>
+              {kind.label}
+            </p>
+            <p className="mt-0.5 font-serif text-[0.95rem] font-bold leading-snug text-jade-900 dark:text-jade-50">
+              {p.name}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onAn}
+            className="-mr-1 inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-jade-500 hover:bg-jade-100 dark:hover:bg-jade-800"
+          >
+            Ẩn <ChevronDown size={13} />
+          </button>
+        </div>
+
+        {p.thumb && (
+          <img src={p.thumb} alt="" className="mt-3 h-32 w-full object-cover" />
+        )}
+
+        <div className="px-4 py-3">
+          {/* `max-h-32` ≈ 6–7 dòng: máy chủ đã cắt `summary` còn 320 ký tự nên
+              phần lớn điểm vừa trọn, cuộn chỉ là trường hợp lẻ. Để thấp hơn thì
+              gần như mục nào cũng bị cắt ngang câu, trông như lỗi dựng trang. */}
+          {p.summary && (
+            <p className="no-scrollbar max-h-32 overflow-y-auto text-[13px] leading-relaxed text-jade-600 dark:text-jade-300">
+              {p.summary}
+            </p>
+          )}
+          {p.address && (
+            <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-snug text-jade-500">
+              <MapPin size={12} className="mt-0.5 shrink-0" />
+              {p.address}
+            </p>
+          )}
+          {p.coordsEstimated && (
+            <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-snug text-gold-700 dark:text-gold-300">
+              <AlertTriangle size={12} className="mt-0.5 shrink-0" />
+              Vị trí ước tính theo địa chỉ, chưa xác minh tại thực địa.
+            </p>
+          )}
+        </div>
+
+        {duongDanChiTiet ? (
+          <Link
+            to={duongDanChiTiet}
+            className="flex items-center justify-center gap-2 bg-jade-600 px-4 py-3 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-jade-700"
+          >
+            Khám phá chi tiết <ArrowRight size={14} />
+          </Link>
+        ) : (
+          <a
+            href={mapDirectionsUrl({ lat: p.lat, lng: p.lng, query: p.name })}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-center gap-2 bg-jade-600 px-4 py-3 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-jade-700"
+          >
+            <Navigation size={14} /> Chỉ đường tới đây
+          </a>
         )}
       </div>
     </div>

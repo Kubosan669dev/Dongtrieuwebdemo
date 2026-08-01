@@ -37,9 +37,20 @@ Nhúng bằng `<iframe>` là cách **duy nhất** lấy được nền Google m�
 Đổi lại, khối đó khác tên miền nên bị niêm phong: cổng không gắn được ghim của
 mình vào, không bắt được cú bấm, và mỗi lần chỉ hiện được một điểm.
 
-Việc "xem toàn cảnh" vì thế do phần còn lại của trang `/ban-do` gánh — bộ lọc bốn
-nhóm bật/tắt cùng lúc, ô tìm không dấu, và danh sách đủ 66 điểm kèm màu theo
-nhóm. Bấm một mục thì bản đồ chạy tới đó.
+Việc "xem toàn cảnh" vì thế do **thanh bên** của trang `/ban-do` gánh, và đó là lý
+do trang này được dựng theo lối tràn màn hình thay vì một trang bài viết thường:
+
+- thanh bên bên trái, bản đồ chiếm trọn phần màn hình còn lại dưới thanh điều hướng
+- bộ lọc bốn nhóm bật/tắt được nhiều nhóm cùng lúc, ô tìm không dấu
+- mỗi mục trong danh sách mang theo **đoạn giới thiệu**, không chỉ tên với địa chỉ
+  — danh sách phải tự nó đủ để chọn, vì bản đồ không bày ra được 66 điểm cùng lúc
+- khung chi tiết **nổi trên bản đồ**: ảnh, mô tả, cảnh báo toạ độ ước tính, và một
+  nút hành động đổi theo nhóm — di tích thì *Khám phá chi tiết* vào trang riêng,
+  ba nhóm còn lại thì *Chỉ đường tới đây* (chúng không có trang riêng)
+
+Đoạn giới thiệu được **cắt sẵn ở máy chủ** còn 320 ký tự (`server/src/routes/mapPoints.js`).
+Hồ sơ một di tích dài hàng nghìn chữ; nhân 66 điểm là mấy trăm KB cho một trang
+chỉ hiện vài dòng mỗi mục.
 
 > Bản đồ nhiều ghim tự vẽ (Leaflet/Google JS API, ghim bốn màu, lọc trực tiếp
 > trên bản đồ) từng được làm xong ở commit `933b9d1`–`0226ad0` nhưng đã gỡ bỏ:

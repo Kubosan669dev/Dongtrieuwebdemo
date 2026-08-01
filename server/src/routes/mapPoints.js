@@ -16,37 +16,57 @@ const GROUPS = [
     model: 'heritage',
     label: 'Di tích',
     hasSlug: true,
-    select: { id: true, slug: true, name: true, type: true, address: true, lat: true, lng: true, coverUrl: true, coordsEstimated: true, rankLevel: true },
-    map: (r) => ({ type: r.type, rankLevel: r.rankLevel }),
+    select: { id: true, slug: true, name: true, type: true, address: true, lat: true, lng: true, coverUrl: true, coordsEstimated: true, rankLevel: true, summary: true },
+    map: (r) => ({ type: r.type, rankLevel: r.rankLevel, summary: gonLai(r.summary) }),
   },
   {
     kind: 'attraction',
     model: 'attraction',
     label: 'Điểm lân cận',
     hasSlug: true,
-    select: { id: true, slug: true, name: true, type: true, address: true, ward: true, lat: true, lng: true, coverUrl: true, coordsEstimated: true },
-    map: (r) => ({ type: r.type, area: r.ward }),
+    select: { id: true, slug: true, name: true, type: true, address: true, ward: true, lat: true, lng: true, coverUrl: true, coordsEstimated: true, summary: true },
+    map: (r) => ({ type: r.type, area: r.ward, summary: gonLai(r.summary) }),
   },
   {
     kind: 'lodging',
     model: 'lodging',
     label: 'Lưu trú',
     hasSlug: false,
-    select: { id: true, name: true, type: true, address: true, phones: true, lat: true, lng: true, images: true, coordsEstimated: true, priceRange: true },
-    map: (r) => ({ type: r.type, phone: r.phones?.[0] ?? null, priceRange: r.priceRange }),
+    select: { id: true, name: true, type: true, address: true, phones: true, lat: true, lng: true, images: true, coordsEstimated: true, priceRange: true, description: true },
+    map: (r) => ({ type: r.type, phone: r.phones?.[0] ?? null, priceRange: r.priceRange, summary: gonLai(r.description) }),
   },
   {
     kind: 'restaurant',
     model: 'restaurant',
     label: 'Ẩm thực',
     hasSlug: false,
-    select: { id: true, name: true, type: true, address: true, phone: true, lat: true, lng: true, coverUrl: true, coordsEstimated: true, priceRange: true, rating: true },
-    map: (r) => ({ type: r.type, phone: r.phone, priceRange: r.priceRange, googleRating: r.rating }),
+    select: { id: true, name: true, type: true, address: true, phone: true, lat: true, lng: true, coverUrl: true, coordsEstimated: true, priceRange: true, rating: true, description: true },
+    map: (r) => ({ type: r.type, phone: r.phone, priceRange: r.priceRange, googleRating: r.rating, summary: gonLai(r.description) }),
   },
 ];
 
 /** Ảnh đại diện cho khung thông tin trên bản đồ: ưu tiên ảnh bìa, không có thì ảnh đầu tiên. */
 const thumbOf = (r) => r.coverUrl || normalizeImages(r.images)[0]?.url || null;
+
+/**
+ * Cắt đoạn giới thiệu cho vừa thẻ trong danh sách và khung chi tiết trên bản đồ.
+ *
+ * Cắt ở MÁY CHỦ chứ không gửi nguyên rồi cắt bằng CSS: hồ sơ một di tích dài hàng
+ * nghìn chữ, nhân 66 điểm là mấy trăm KB chảy qua mạng cho một trang chỉ hiện vài
+ * dòng mỗi điểm. Đây đúng là lý do `/map-points` tồn tại thay vì gọi ba API danh
+ * sách đầy đủ.
+ *
+ * Cắt ở khoảng trắng gần nhất để không đứt giữa chữ.
+ */
+const DAI_TOI_DA = 320;
+function gonLai(s) {
+  const t = String(s ?? '').trim();
+  if (!t) return null;
+  if (t.length <= DAI_TOI_DA) return t;
+  const cat = t.slice(0, DAI_TOI_DA);
+  const khoang = cat.lastIndexOf(' ');
+  return (khoang > DAI_TOI_DA * 0.6 ? cat.slice(0, khoang) : cat).trimEnd() + '…';
+}
 
 /**
  * GET /api/map-points — mọi điểm để vẽ bản đồ số, trong MỘT lời gọi.
