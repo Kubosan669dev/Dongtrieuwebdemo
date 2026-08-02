@@ -25,6 +25,27 @@ const WELCOME = {
  * nhưng có lẫn dữ liệu người dùng nhập trong trang quản trị, nên render bằng
  * React cho an toàn tuyệt đối trước XSS.
  */
+/**
+ * Tách một dòng thành các mảnh đậm / nghiêng / chữ thường.
+ *
+ * `dam` = false là lượt gọi BÊN TRONG một cụm nghiêng: lúc đó chỉ còn tách đậm,
+ * không tách nghiêng nữa, để dừng đúng sau một tầng.
+ *
+ * Cần đúng một tầng lồng vì bot có viết kiểu `_Theo **tên sách** — tác giả_`
+ * (dòng đóng dấu nguồn của địa chí 1896). Bản trước tách một lượt duy nhất nên
+ * cụm ấy khớp nhánh nghiêng rồi nhả nguyên hai dấu sao ra màn hình.
+ */
+function tachDinhDang(content, dam = true) {
+  const mau = dam ? /(\*\*[^*]+\*\*|_[^_\n]+_)/g : /(\*\*[^*]+\*\*)/g;
+  return content.split(mau).map((part, j) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={j} className="font-semibold">{part.slice(2, -2)}</strong>;
+    if (dam && part.length > 2 && part.startsWith('_') && part.endsWith('_'))
+      return <em key={j} className="opacity-75">{tachDinhDang(part.slice(1, -1), false)}</em>;
+    return <Fragment key={j}>{part}</Fragment>;
+  });
+}
+
 function RichText({ text }) {
   return (
     <>
@@ -39,16 +60,9 @@ function RichText({ text }) {
               isBullet && 'relative pl-3.5 before:absolute before:left-0 before:content-["•"]',
             )}
           >
-            {/* Tách cả hai kiểu đánh dấu trong một lần để không phải lồng nhiều
-                lớp split. Dấu _ chỉ tính khi ôm trọn một cụm, nên số điện thoại
-                hay slug có gạch dưới không bị hiểu nhầm. */}
-            {content.split(/(\*\*[^*]+\*\*|_[^_\n]+_)/g).map((part, j) => {
-              if (part.startsWith('**') && part.endsWith('**'))
-                return <strong key={j} className="font-semibold">{part.slice(2, -2)}</strong>;
-              if (part.length > 2 && part.startsWith('_') && part.endsWith('_'))
-                return <em key={j} className="opacity-75">{part.slice(1, -1)}</em>;
-              return <Fragment key={j}>{part}</Fragment>;
-            })}
+            {/* Dấu _ chỉ tính khi ôm trọn một cụm, nên số điện thoại hay slug
+                có gạch dưới không bị hiểu nhầm. */}
+            {tachDinhDang(content)}
           </p>
         );
       })}
@@ -104,10 +118,20 @@ export default function ChatWidget() {
         ...m,
         { role: 'bot', text: res.reply, links: res.links, suggestions: res.suggestions },
       ]);
-    } catch {
+    } catch (err) {
+      // Máy chủ có câu giải thích riêng thì dùng câu đó. Trường hợp hay gặp
+      // nhất là bị chặn spam (429): máy chủ nói "Bạn hỏi hơi nhanh, chờ một
+      // chút rồi thử lại nhé" — đúng việc cần làm. Câu chung chung ở dưới lại
+      // khiến người dùng tưởng trợ lý hỏng và bỏ đi luôn.
       setMessages((m) => [
         ...m,
-        { role: 'bot', text: 'Xin lỗi, hiện chưa thể phản hồi. Bạn thử lại sau một chút nhé.' },
+        {
+          role: 'bot',
+          text:
+            err?.status && err.status < 500 && err.message && !/^Lỗi \d+$/.test(err.message)
+              ? err.message
+              : 'Xin lỗi, hiện chưa thể phản hồi. Bạn thử lại sau một chút nhé.',
+        },
       ]);
     } finally {
       setSending(false);
