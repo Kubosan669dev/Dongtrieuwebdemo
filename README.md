@@ -60,6 +60,37 @@ Khoảng cách tới Hà Nội / Hạ Long lấy theo **hồ sơ 13 di tích đ�
 phố cũ). Cố ý giữ một con số duy nhất trên toàn cổng; bài kiểm đối chiếu hai nguồn
 này với nhau.
 
+### Địa chí Hán Nôm 1896 — và một đơn vị hành chính THỨ BA
+
+Khoá cài đặt `diaChi1896` ([`seed-data/dia-chi-1896.json`](server/prisma/seed-data/dia-chi-1896.json))
+là **"Đông Triều huyện địa chí"** — Tri huyện **Ngô Sinh** chép ngày 8 tháng 8 năm
+Thành Thái thứ 8 (**1896**), ký hiệu A.1940. Sách chép đủ thành trì, 9 ngọn núi,
+6 con sông, 13 cây cầu, 6 cái chợ, đường sá, diên cách, 18 mục nhân vật, phong tục,
+7 cổ tích, kỹ nghệ và 15 thứ thổ sản.
+
+⚠️ **Huyện Đông Triều năm 1896 KHÔNG phải phường Đông Triều, cũng không phải thành
+phố Đông Triều cũ.** Khi ấy nó thuộc tỉnh **Hải Dương**, còn 5 tổng với 52 xã thôn —
+gồm cả núi Yên Tử, Mạo Khê, Hồ Thiên, nay thuộc Uông Bí và các phường xã khác. Gần
+như mọi địa danh trong sách không nằm trong địa giới phường. Nên mọi chỗ hiện dữ
+liệu này — cả trang lẫn câu trả lời của trợ lý — đều đóng dấu năm và phạm vi.
+
+**Phần đáng giá nhất không phải núi sông, mà là bảng đối chiếu khu phố.** 8 trong 11
+khu phố hôm nay mang đúng tên xã sách đã chép (Mỹ Cụ, Mễ Xá, Đoàn Xá, Bình Lục, Yên
+Lâm, Đạm Thuỷ, Đông Mai, An Biên ← Yên Biên); 2 khu là **phỏng đoán** và được đánh
+dấu rõ như vậy (Trạo Hà ← thôn Điệu Hà, Vân Giang ← Vân Động + Kênh Giang); khu
+Nguyễn Bình thì nói thẳng là không có trong sách. Mỗi dòng dẫn thẳng tới hồ sơ di
+tích còn đứng trong khu đó.
+
+**Văn bản qua OCR, và cổng đã sửa 6 chỗ.** Mục *Hiệu đính* ở cuối trang liệt kê từng
+chỗ kèm lý do — ví dụ *Tự Đức thứ 13 (1850)* là điều không thể vì năm thứ 13 không
+thể trước năm thứ 5, và chính mục Diên cách trong cùng văn bản chép đúng là **1860**;
+*Minh Mạng thứ 11 (1812)* cũng vậy, vua Minh Mạng lên ngôi năm 1820 nên năm thứ 11 là
+**1830**. Đây là cổng thông tin chính thức của phường: sửa chữ của một văn bản gốc
+thì phải nói rõ sửa chỗ nào, vì sao.
+
+`flow-diachi.mjs` (73 phép) giữ tất cả những điều trên, kể cả việc mọi liên kết chéo
+phải trỏ tới bản ghi có thật chứ không phải slug chết.
+
 ### Bản đồ số
 
 **Mọi bản đồ trên trang công khai đều là bản đồ Google, và không cần khoá API.**
@@ -148,6 +179,9 @@ máy chủ — miễn phí, và không lộ địa chỉ IP của người dùng
 │   ├── data/knowledge_base.md           # bản xuất tĩnh kho tri thức (tham khảo/đối chiếu)
 │   ├── data/sources/                     # bộ dữ liệu khảo sát 2026 + logo gốc của phường
 │   └── uploads/                         # ảnh admin tải lên (không commit)
+├── bot-python/                          # Trợ lý Python — lớp thứ hai, thuần thư viện chuẩn
+│   ├── run.py · kiemtra.py              # chat · serve · hoi · kho  ·  bộ kiểm 65 phép
+│   └── troly/                           # vitext · khotritthuc (cắt đoạn) · timkiem (BM25) · traloi
 ├── ecosystem.config.cjs                 # cấu hình PM2
 ├── nginx.conf.example                   # cấu hình Nginx mẫu
 └── DEPLOY.md                            # hướng dẫn lên VPS
@@ -411,6 +445,33 @@ Câu hỏi  →  ① Nhận diện ý định (luật tiếng Việt)
 Hệ quả quan trọng: **trợ lý không bịa**. Mọi số điện thoại, địa chỉ, con số trong câu trả lời đều
 lấy từ một bản ghi cụ thể trong database. Không tìm được thì nói thẳng là chưa biết.
 
+#### Lớp thứ hai: trợ lý Python
+
+Cách làm ở trên rất tốt cho nhóm câu hỏi lặp lại — thời tiết, giờ mở cửa, lễ hội sắp tới — vì những
+câu đó cần **tính theo giờ hiện tại** chứ không phải tra chữ. Nhưng đúng vì thế nó chỉ trả lời được
+câu nào đã có luật, còn câu hỏi lẻ nằm sâu trong một đoạn văn dài thì rơi vào *"chưa biết"*.
+
+[`bot-python/`](bot-python/) là bộ máy thứ hai, viết bằng **Python thuần thư viện chuẩn** (không cần
+`pip install` gì). Nó cắt mọi bản ghi thành **đoạn** rồi xếp hạng từng đoạn, nên trả về đúng câu chứa
+câu trả lời:
+
+```bash
+cd bot-python
+python run.py chat                        # trò chuyện trong cửa sổ lệnh
+python run.py serve                       # dịch vụ HTTP ở cổng 5005
+python kiemtra.py                         # bộ kiểm, 65 phép
+```
+
+`server/src/services/pybot.js` gọi sang đây **chỉ khi bộ luật đã chịu thua**. Thứ tự đó quan trọng:
+gọi Python trước sẽ cướp mất các câu cần tính theo giờ. Không bật Python thì cổng chạy y như trước —
+có cầu dao, hai lần gọi hỏng liên tiếp thì nghỉ 60 giây. Câu nào do Python đỡ thì nhật ký chat ghi ý
+định có tiền tố `py_`, tức là danh sách việc cần bổ sung cho bộ luật.
+
+Ví dụ bộ luật chịu thua mà Python trả lời được: *"chùa Quỳnh Lâm do ai dựng"* · *"ai đỗ bảng nhãn đời
+Trần"* · *"bia miếu Đạm Thuỷ dựng năm nào"* · *"làng nào giỏi đấu vật"*. Chi tiết ở
+[`bot-python/README.md`](bot-python/README.md), trong đó có hai cái bẫy tiếng Việt đã vấp và cách sửa
+(danh sách hư từ dài cắt mất chính chữ `chùa`/`lâm`/`vua`; bảng đồng nghĩa có `cổ` ≡ `có`).
+
 ### Trả lời được những gì
 
 | Nhóm | Ví dụ câu hỏi |
@@ -430,6 +491,8 @@ lấy từ một bản ghi cụ thể trong database. Không tìm được thì 
 | **Lộ trình cá nhân hoá** | Vẽ đúng khoảng thời gian hỏi và điều chỉnh theo người: *"lộ trình 1 buổi sáng"* (chỉ vẽ sáng) · *"lịch trình cho người lớn tuổi"* (bỏ điểm leo trèo) · *"lộ trình thiên về tâm linh / lịch sử"* · *"gia đình có trẻ nhỏ nên đi đâu"* · *"tôi có 2 triệu thì vạch lộ trình + ăn uống"* (chọn quán theo **giá và đánh giá**) |
 | **Lễ hội chi tiết** | *"lễ hội đền An Sinh thờ ai"* · *"lễ hội chùa Quỳnh Lâm có nghi lễ gì"* · *"đi lễ hội Ngọa Vân cần lưu ý gì"* · *"lễ hội Thái Miếu phần hội có gì"* |
 | Giới thiệu, vé, giờ mở cửa | *"giới thiệu về Đông Triều"* · *"vé vào cửa bao nhiêu"* · *"mấy giờ mở cửa"* |
+| **Địa chí Hán Nôm 1896** | *"địa chí 1896 là sách gì"* · *"Đông Triều có núi nào"* · *"núi Quy Sơn ở đâu"* · *"danh nhân Đông Triều là ai"* · *"thổ sản Đông Triều xưa có gì"* · *"phong tục Đông Triều xưa thế nào"* · *"Đông Triều xưa là phủ hay huyện"* |
+| **Tên làng cũ** | *"Mỹ Cụ nghĩa là gì"* (Ưu Đà → Mỹ Cụ, 1802) · *"tên cũ của Mễ Xá"* · *"khu phố Trạo Hà xưa tên gì"* · *"khu phố nào có tên từ xưa"* |
 | Liên hệ & khẩn cấp | *"số điện thoại UBND phường"* · *"gọi cấp cứu số mấy"* (113/114/115) |
 
 Hiểu cả **chữ không dấu** (*"chua my cu o dau"*) và **lỗi gõ nhẹ** (*"chùa mĩ cụ"*).

@@ -26,6 +26,17 @@ const INTENT_LABELS = {
   about_transport: 'Giao thông',
   about_size: 'Diện tích & dân số',
   khu_pho_info: 'Cơ cấu khu phố',
+  // Địa chí 1896 — nguồn Hán Nôm, xem `server/prisma/seed-data/dia-chi-1896.json`
+  about_diachi: 'Địa chí 1896 (giới thiệu sách)',
+  about_diencach: 'Địa chí 1896 · diên cách',
+  about_nui: 'Địa chí 1896 · núi non',
+  about_song: 'Địa chí 1896 · sông, cầu, chợ',
+  about_cotich: 'Địa chí 1896 · cổ tích',
+  about_nhanvat: 'Địa chí 1896 · nhân vật',
+  about_phongtuc: 'Địa chí 1896 · phong tục',
+  about_thosan: 'Địa chí 1896 · kỹ nghệ & thổ sản',
+  about_tenlang: 'Tên làng cũ',
+  about_khupho_xua: 'Khu phố hôm nay ↔ xã cũ',
   contact: 'Liên hệ',
   contact_emergency: 'Số khẩn cấp',
   ticket: 'Vé tham quan',
@@ -50,7 +61,28 @@ const INTENT_LABELS = {
   lookup_article: 'Tra cứu bài viết',
   fallback: 'Không trả lời được',
 };
-const intentLabel = (i) => INTENT_LABELS[i] ?? i;
+
+/**
+ * Ý định bắt đầu bằng `py_` là câu do trợ lý Python đỡ, sau khi bộ luật đã chịu
+ * thua (xem server/src/services/pybot.js). Cần thấy được ngay trên nhật ký: đó
+ * là danh sách câu hỏi mà bộ luật còn thiếu, tức việc cần làm tiếp.
+ */
+const NHOM_PY = {
+  py_doan_dia_chi: 'trích địa chí 1896',
+  py_doan_heritage: 'trích hồ sơ di tích',
+  py_doan_festival: 'trích hồ sơ lễ hội',
+  py_doan_cuisine: 'trích hồ sơ đặc sản',
+  py_doan_attraction: 'trích hồ sơ điểm đến',
+  py_doan_khu_pho: 'trích danh sách khu phố',
+  py_doan_vung_dat: 'trích bối cảnh vùng đất',
+  py_doan_article: 'trích bài viết',
+};
+
+const intentLabel = (i) => {
+  if (INTENT_LABELS[i]) return INTENT_LABELS[i];
+  if (String(i).startsWith('py_')) return `Trợ lý Python — ${NHOM_PY[i] ?? String(i).slice(3)}`;
+  return i;
+};
 
 function Stat({ icon: Icon, value, label, tone = 'jade' }) {
   return (

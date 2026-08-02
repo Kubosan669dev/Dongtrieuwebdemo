@@ -4,6 +4,7 @@ import { asyncHandler } from '../lib/http.js';
 import { prisma } from '../lib/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { ask } from '../services/chatbot.js';
+import { hoiPybot } from '../services/pybot.js';
 import { getCorpus } from '../services/knowledge.js';
 import { ASSISTANT_NAME } from '../lib/site.js';
 
@@ -34,7 +35,16 @@ router.post(
       return res.status(400).json({ error: 'Bạn chưa nhập câu hỏi.' });
     }
 
-    const answer = await ask(message);
+    let answer = await ask(message);
+
+    // Bản luật chịu thua thì nhờ trợ lý Python tra theo ĐOẠN (xem services/pybot.js).
+    // Chỉ chạy ở nhánh này: gọi trước sẽ cướp mất các câu cần tính theo giờ hiện
+    // tại (thời tiết, quán còn mở), mà đó mới là nhóm câu hỏi nhiều nhất. Python
+    // không chạy hoặc cũng không biết thì giữ nguyên câu từ chối của bản JS.
+    if (!answer.matched) {
+      const py = await hoiPybot(message);
+      if (py) answer = py;
+    }
 
     // Ghi nhật ký để quản trị viên biết còn thiếu dữ liệu gì.
     // Lỗi ghi log không được phép làm hỏng câu trả lời cho du khách.

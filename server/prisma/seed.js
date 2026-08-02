@@ -486,6 +486,16 @@ async function seedSettings() {
   } catch {
     /* không có file thì bỏ qua — trang Giới thiệu tự ẩn khối này */
   }
+  // “Đông Triều huyện địa chí” — Tri huyện Ngô Sinh chép năm 1896 (ký hiệu
+  // A.1940). Núi sông, chợ búa, cổ tích, nhân vật, thổ sản của huyện thời ấy.
+  // Lưu ý: đây là huyện Đông Triều thuộc HẢI DƯƠNG năm 1896, rộng hơn phường
+  // hiện nay rất nhiều — mọi chỗ hiện dữ liệu này đều phải kèm `canhBao`.
+  let diaChi1896 = null;
+  try {
+    diaChi1896 = read('dia-chi-1896.json');
+  } catch {
+    /* không có file thì bỏ qua — trang Giới thiệu tự ẩn khối này */
+  }
   const settings = {
     contact: {
       name: 'UBND phường Đông Triều',
@@ -520,6 +530,7 @@ async function seedSettings() {
     about,
     ...(khuPho ? { khuPho } : {}),
     ...(vungDat ? { vungDat } : {}),
+    ...(diaChi1896 ? { diaChi1896 } : {}),
   };
 
   /**

@@ -1,0 +1,276 @@
+{
+  "capNhat": "2026-08-02",
+  "nguon": "Đông Triều huyện địa chí",
+  "tacGia": "Ngô Sinh — Tri huyện huyện Đông Triều",
+  "nienDai": "Ngày 8 tháng 8 năm Thành Thái thứ 8 (1896)",
+  "kyHieu": "A.1940, tờ 76a–87a",
+  "trichTu": "“Địa phương chí tỉnh Hải Dương qua tư liệu Hán Nôm”, bản in tr. 445–458",
+
+  "canhBao": "Huyện Đông Triều năm 1896 thuộc tỉnh Hải Dương và RỘNG HƠN RẤT NHIỀU so với phường Đông Triều hiện nay: khi đó còn 5 tổng với 52 xã thôn, bao gồm cả núi Yên Tử, Mạo Khê, Hồ Thiên — nay thuộc Uông Bí và các phường xã khác. Các địa danh dưới đây là địa danh của năm 1896, phần lớn không còn nằm trong địa giới phường.",
+
+  "luuYVanBan": "Toàn văn được trích xuất bằng OCR từ bản scan rồi hiệu đính. Vẫn có thể còn sai sót ở tên riêng, địa danh, chức tước và niên đại — nên đối chiếu bản gốc trước khi dùng chính thức. Các chỗ đã hiệu đính được liệt kê ở mục cuối trang.",
+
+  "phamVi": {
+    "tong": 5,
+    "tenTong": ["Mễ Sơn", "Đạm Thuỷ", "Nội Hoàng", "Yên Lãng", "Yên Quảng"],
+    "xaThon": 52,
+    "tongCu": 11,
+    "xaCu": 99,
+    "ghiChu": "Vốn 11 tổng 99 xã. Năm Thành Thái thứ 2 (1890) cắt 3 tổng Kim Lỗi, Thượng Chiều, Hạ Chiếu về Kinh Môn và tổng Vĩnh Lại về Chí Linh; tổng Bí Giang 9 xã khi ấy còn lưu lạc chưa về. Còn lại 5 tổng, 52 xã thôn."
+  },
+
+  "thanhTri": {
+    "moTa": "Huyện lỵ vốn dựng ở xã Đông Triều — trước mặt là sông Lâm Trà (tục gọi Bến Triều), sau lưng dựa núi Tráng Sơn (tục gọi núi Dữ). Năm Tự Đức thứ 13 (1860) chia lại huyện, đặt huyện lỵ ở thôn Điệu Hà dưới chân núi Mang; đến khi chép sách này thì huyện lỵ ở địa phận xã Yên Lâm.",
+    "thanhDat": "Thành phòng vệ cũ ở xã Hoàng Xá. Năm Tự Đức thứ 32 (1879) dựng lại bằng đất: rộng 12 mẫu, cao 6 thước, hào rộng 1 trượng sâu 5 thước vòng quanh ngoài thành. Đến năm 1896 thành đã hoang phế sụt lở; dân đến ở đặt tên là ấp Đông Lâm."
+  },
+
+  "dienCach": [
+    { "moc": "Xưa", "viec": "Đông Triều vốn là một Đạo." },
+    { "moc": "1741", "viec": "Đời Lê Cảnh Hưng năm thứ 2, chia Hải Dương thành 4 phủ: Thượng Hồng, Hạ Hồng, Yên Lão và Đông Triều. Đông Triều là một trong bốn phủ của trấn Hải Dương." },
+    { "moc": "Triều Quang Trung", "viec": "Đổi cho thuộc về Quảng Yên." },
+    { "moc": "1802", "viec": "Triều Nguyễn, năm Gia Long thứ 1, đổi phủ Đông Triều làm huyện." },
+    { "moc": "1852", "viec": "Năm Tự Đức thứ 5, huyện Đông Triều nhập cho huyện Kinh Môn quản." },
+    { "moc": "1860", "viec": "Năm Tự Đức thứ 13, lại tách ra thành huyện riêng, huyện lỵ đặt ở thôn Điệu Hà." },
+    { "moc": "1890", "viec": "Năm Thành Thái thứ 2, cắt 3 tổng Kim Lỗi (13 xã), Thượng Chiều (9 xã), Hạ Chiếu (6 xã) về Kinh Môn; cắt tổng Vĩnh Lại (10 xã thôn) về Chí Linh, nhưng giữ lại 3 xã Đông Mai, Vân Động, Yên Biên cho hạt cũ." },
+    { "moc": "1896", "viec": "Khi chép sách này, huyện còn 5 tổng với 52 xã thôn, dân đinh 1.008 suất, ruộng đất 9.429 mẫu. Sách ghi: “đất hiện nay đang hoang phế, dân đinh phiêu bạt bỏ ruộng đồng”." }
+  ],
+
+  "doiTen": [
+    { "xua": "Nguyễn Xá", "nay": "Mễ Xá" },
+    {
+      "xua": "Ưu Đà",
+      "nay": "Mỹ Cụ",
+      "nam": "1802",
+      "ghiChu": "Xưa vua Trần qua đây, được thôn này dâng thức ăn ngon, nhân đó đặt tên là Mỹ Cụ (“mâm cỗ đẹp”). Chính xã còn được ban thêm một khu núi Lộc Đầu.",
+      "slug": ["chua-my-cu-sung-khanh-tu", "dinh-my-cu"]
+    },
+    { "xua": "Dương Cức", "nay": "Quế Cức", "nam": "1889" },
+    { "xua": "Hương Đường", "nay": "Dương Đễ", "nam": "1889" },
+    { "xua": "Cự Lạc", "nay": "Đông Khê", "ghiChu": "Theo bia Yên Sinh thần đạo, đây là quê của Trần Tiên Đế. Nguyên bản chỗ này chép “Cự Tạc”." }
+  ],
+
+  "khuPhoXua": {
+    "tieuDe": "Tám trong mười một khu phố hôm nay mang tên xã mà sách đã chép",
+    "moTa": "Đối chiếu danh sách 11 khu phố của phường Đông Triều sau sắp xếp năm 2025 với các địa danh trong địa chí 1896. Đây là đối chiếu do cổng tự làm để bạn tra tên làng mình, KHÔNG phải kết luận của một công trình khảo cứu.",
+    "danhSach": [
+      { "khu": "Mỹ Cụ", "xua": "xã Mỹ Cụ", "chac": true, "trong": "Diên cách · Nhân vật · Thổ sản", "viec": "Vốn tên Ưu Đà, đổi thành Mỹ Cụ năm 1802 vì dâng thức ăn ngon lên vua Trần. Quê của Tiến sĩ Nguyễn Thuần Khiết." },
+      { "khu": "Mễ Xá", "xua": "xã Mễ Xá", "chac": true, "trong": "Diên cách · Nhân vật · Lý lộ", "viec": "Tên cũ là Nguyễn Xá. Quê ba anh em họ Phạm cùng đỗ đại khoa, được dân thờ làm Phúc Thần." },
+      { "khu": "Đoàn Xá", "xua": "xã Đoàn Xá", "chac": true, "trong": "Lý lộ", "viec": "Nằm trên đường công từ sông Triều vượt đồn Đoàn Sơn về huyện thành, đi mất khoảng một giờ." },
+      { "khu": "Bình Lục", "xua": "xã Bình Lục", "chac": true, "trong": "Sơn xuyên · Phong tục", "viec": "Có núi Quy Sơn hình con rùa. Sách xếp Bình Lục cùng Điệu Hà là hai xã nổi trội về văn chương học hành.", "slug": ["dinh-chua-binh-luc"] },
+      { "khu": "Yên Lâm", "xua": "xã Yên Lâm", "chac": true, "trong": "Thành trì · Chợ · Nhân vật", "viec": "Năm 1896 huyện lỵ đặt ở địa phận xã này; có chợ Yên Lâm. Quê danh tướng Nguyễn Quang Huy và Nguyễn Hữu Lộc." },
+      { "khu": "Đạm Thuỷ", "xua": "xã Đạm Thuỷ", "chac": true, "trong": "Chợ · Cổ tích · Nhân vật", "viec": "Có chợ Đạm Thuỷ, chùa quán Ngọc Thanh và miếu Đạm Thuỷ với bia năm 1674.", "slug": ["chua-quan-ngoc-thanh"] },
+      { "khu": "Đông Mai", "xua": "xã Đông Mai", "chac": true, "trong": "Chợ · Phong tục · Thổ sản", "viec": "Có chợ Đông Mai và bến Bộ. Sách chép Đông Mai cùng Xuân Viên nổi tiếng vũ dũng, “thường chống cự với quân giặc, khiến chúng nghe tiếng mà sợ”. Thổ sản có cây tùng.", "slug": ["dinh-chua-nghe-dong-mai"] },
+      { "khu": "An Biên", "xua": "xã Yên Biên", "chac": true, "trong": "Sông ngòi · Nhân vật · Thổ sản", "viec": "Sách chép là Yên Biên — lối viết An/Yên đổi nhau thường gặp trong văn bản Hán Nôm. Có bến đò Kinh Viễn; quê Hương cống Nguyễn Mại; thổ sản nhãn trắng và ba la mật ở núi Sơn Cương.", "slug": ["den-an-bien-den-nu-tuong-le-chan", "chua-an-bien-bao-an-tu"] },
+      { "khu": "Trạo Hà", "xua": "thôn Điệu Hà", "chac": false, "trong": "Thành trì · Nhân vật · Lý lộ", "viec": "Rất có thể là một nơi: chữ Hán 棹 đọc được cả “trạo” lẫn “điệu”. Năm 1860 huyện lỵ đặt ở thôn Điệu Hà; thôn này lập đền thờ Nguyễn Quang Huy. Cổng ghi là PHỎNG ĐOÁN, chưa có căn cứ khảo cứu.", "slug": ["dinh-trao-ha-den-di-ai"] },
+      { "khu": "Vân Giang", "xua": "xã Vân Động · Kênh Giang", "chac": false, "trong": "Sông ngòi · Diên cách", "viec": "Phỏng đoán là tên ghép của hai làng cũ. Sách chép bến đò xã Vân Động (tục gọi bến Đáy); năm 1890 Vân Động là một trong ba xã được giữ lại cho hạt Đông Triều.", "slug": ["dinh-chua-nghe-lang-van-dong", "den-chua-kenh-giang-den-yet-kieu"] },
+      { "khu": "Nguyễn Bình", "xua": null, "chac": false, "viec": "Không có trong địa chí 1896 — đây là tên đặt theo Trung tướng Nguyễn Bình, thuộc lớp địa danh sau Cách mạng tháng Tám." }
+    ]
+  },
+
+  "nui": [
+    {
+      "ten": "Yên Tử",
+      "o": "lâm phận xã Nam Mẫu",
+      "moTa": "Sách Nhạc Hải gọi là Sơn Đồ, coi là đất phúc thứ 4 của Giao Châu. Tương truyền An Kỳ Sinh tu luyện ở đây nên có tên như vậy. Trên núi có Am Ngoạ Long, chùa Sài Tuyết, chùa Long Động, suối Khánh Bao, bàn cờ tiên, chợ trời, sen thu. Dưới núi có suối Giải Oan (biệt hiệu Khe Hồ) — nơi Huyền Quang trụ trì. Vua Trần Nhân Tông khi lánh ngôi đi tu có làm am bên cạnh động; chùa Đồng trên đỉnh là cao nhất. Nguyễn Trãi từng có thơ về chốn này.",
+      "cauNoi": "Đông Triều là nơi có nhiều sông núi tự nhiên rất đẹp. — Phạm Sư Mạnh",
+      "nayThuoc": "Uông Bí — ngoài địa giới phường Đông Triều hiện nay",
+      "slug": ["am-chua-ngoa-van"]
+    },
+    {
+      "ten": "Núi Độn",
+      "o": "xã Độn Sơn",
+      "moTa": "Đứng cao chót vót bên bến sông. Bên kia bờ các đỉnh bày la liệt như một đàn ngựa, giữa đồng có một đỉnh hình con mèo; đối diện là núi Ngưu Ngoạ. Cách bờ có núi đất Bái Thạch (tục gọi núi Đồng), bốn mùa cây cối xanh tươi.",
+      "cauNoi": "Độn Sơn xanh thắm, có lắm Công Hầu."
+    },
+    {
+      "ten": "Núi Lộc Đầu",
+      "o": "xã Trung Lương",
+      "moTa": "Tương truyền vua Trần Nhân Tông ngự giá qua đây, được dân dâng đầu hươu, nhân đó đặt tên. Một khu núi Lộc Đầu về sau được ban thêm cho xã Mỹ Cụ."
+    },
+    {
+      "ten": "Núi Tượng Đầu",
+      "o": "lâm phận trong huyện",
+      "moTa": "Dưới núi có một dòng suối bao quanh, các núi liền kề hai bên đều chầu về đỉnh. Tục truyền có mộ họ Chu — nghe nói là mộ tổ của Chu Đình Hoè. Thời Lê, Trịnh Vương qua đây thấy hình thế kỳ lạ bèn cho đào lấy hài cốt ném xuống nước."
+    },
+    {
+      "ten": "Núi Ngũ Hồng",
+      "o": "lâm phận xã An Sinh",
+      "moTa": "Tục gọi Hồng Lĩnh (năm con): một đỉnh đứng giữa, xung quanh bốn ngọn nhỏ. Dưới chân núi còn di tích một ngôi chùa, tục gọi chùa Sẽ.",
+      "slug": ["den-an-sinh"]
+    },
+    {
+      "ten": "Núi Quy Sơn",
+      "o": "xã Bình Lục",
+      "moTa": "Núi có hình con rùa, trên đỉnh có chùa, cây cối um tùm. Nhìn ra xa là quán Ngọc Thanh ở xã Đạm Thuỷ.",
+      "cauNoi": "Bình Lục có núi con rùa, trông sang Đạm Thuỷ có chùa Ngọc Thanh.",
+      "slug": ["dinh-chua-binh-luc", "chua-quan-ngoc-thanh"]
+    },
+    {
+      "ten": "Núi Đoàn Sơn",
+      "o": "xã Đoàn Sơn",
+      "moTa": "Trên đỉnh có chùa cổ, dưới tục truyền có mộ khỉ. Xã Khinh Kính có mộ họ Phạm — các ông Phạm Sư Mạnh, Phạm Đình Trọng đều là một chi phái từ đó. Núi có sản vật là đá dò. Năm 1896 trên núi có đồn Pháp đóng."
+    },
+    {
+      "ten": "Núi Đông Sơn",
+      "o": "tổng Yên Lãng",
+      "moTa": "Núi cực cao to, một dải bò ngoằn ngoèo tới tận tổng Bí Giang. Bên cạnh núi có chùa Tường Quang (tục gọi chùa Non Đông) — tương truyền Trạng nguyên Huyền Quang hoá thân ở đây. Gần đó là chùa Dưỡng Mẫu xã Vĩnh Tuy, tục truyền Huyền Quang nuôi mẹ ở chùa này nên đặt tên vậy."
+    },
+    {
+      "ten": "Núi Hồ Thiên",
+      "o": "lâm phận xã Phú Ninh",
+      "moTa": "Dưới chân núi có chùa cổ, cũng là nơi danh thắng. Trước chùa là hồ sen, có đôi chim hạc thường lui tới. Xưa có câu thơ: “Đoá đoá hồng liên khai lạc khẩu / Song song bạch hạc tự quy nhàn”.",
+      "nayThuoc": "ngoài địa giới phường Đông Triều hiện nay"
+    }
+  ],
+
+  "song": [
+    { "ten": "Sông Mặc Động", "moTa": "Tục gọi bến Vạn, thuộc huyện Chí Linh, chảy xuôi qua bến đò xã Vân Động (tục gọi bến Đáy) và bến đò xã Yên Biên (tục gọi bến Viễn), rồi tới bến sông Đông Triều." },
+    { "ten": "Sông Đông Triều", "moTa": "Có bến đò ngang, bờ phải là xã Hán Xuyên, bờ trái là xã Đông Triều. Một dòng xuôi về bến Châu Khê, qua cầu Dịt thôn Điệu Hà rồi ra bến Kinh Triều — nơi năm 1896 vẫn còn thành đồn. Từ đó chảy vào sông Kinh Chủ thông ra biển." },
+    { "ten": "Sông Mộ", "moTa": "Bờ phải là xã Thượng Chiêm, bờ trái là xã Kim Liên, ở đó có chùa Tây Tân. Một dòng bắt nguồn từ đỉnh Vĩnh Tuy, vòng qua cầu Khê Mao rồi ra biển." },
+    { "ten": "Sông Thạc", "moTa": "Bờ phải là xã Hoàng Thạch, bờ trái là giang phận xã Vĩnh Tuy. Nước từ khe Thiều Lãng chảy xuôi, qua cầu Vịnh và cầu Lãng, đều ra biển." },
+    { "ten": "Sông Độn", "moTa": "Bờ trái là địa giới xã Độn Sơn, có chợ tục gọi chợ Độn. Một nhánh từ núi Trường Bạch quanh co qua cầu Trở, hợp dòng rồi đổ về sông Dương Trạm xuôi về huyện Thuỷ Nguyên." },
+    { "ten": "Sông Hang Sơn", "moTa": "Bốn bên đều là sông. Các dòng từ khe Thiểu Phù, đình Ngụ, suối Dưỡng hợp lưu rồi xuôi về sông Bí Giang, qua sông U Pha địa giới tổng Quảng An, cuối cùng đổ chung vào sông Bạch Đằng giáp địa phận tỉnh Quảng Yên." }
+  ],
+
+  "cau": ["Cầu Vàng (xã Hoàng Giản)", "Cầu Bác Mã (xã Nhất Bán)", "Cầu Cao", "Cầu Chử", "Cầu Vinh", "Cầu Trở", "Cầu Vàng (Cổ Lễ – Nội Hoàng)", "Cầu Lâm", "Cầu Thung (Xuân)", "Cầu Liên", "Cầu Cậy", "Cầu Lãng", "Cầu Đạt"],
+
+  "cho": [
+    { "ten": "Chợ Đông Mai", "slug": ["dinh-chua-nghe-dong-mai"] },
+    { "ten": "Chợ Đạm Thuỷ", "slug": ["chua-quan-ngoc-thanh"] },
+    { "ten": "Chợ Yên Lâm" },
+    { "ten": "Chợ Xuân Viên" },
+    { "ten": "Chợ Độn Sơn" },
+    { "ten": "Chợ Lâm Xá" }
+  ],
+  "choGhiChu": "Sách chép: “Có các chợ tiếp nhau như Đông Mai, Yên Lâm, Lâm Xá là có thể có đôi chút thắng cảnh.”",
+
+  "duong": {
+    "moTa": "Huyện có 2 đường công (đường lớn của nhà nước) và 6 đường tư, tính hành trình bằng GIỜ ĐI BỘ chứ không bằng cây số.",
+    "tuyen": [
+      { "ten": "Đường công phía tây", "chang": "Yên Dưỡng → Hoành Mô → Lâm Xá → Nội Hoàng → đồn Trường Bạch → Yên Lãng → Vĩnh Tuy → Mạo Khê → Kim Liên → Xuân Viên → Mễ Xá → Điệu Hà → Chí Linh → tỉnh lỵ Hải Dương", "gio": "khoảng 24 giờ đi bộ cho toàn tuyến" },
+      { "ten": "Đường công phía nam", "chang": "Sông Triều → xã Đoàn Xá → vượt đồn Đoàn Sơn → huyện thành", "gio": "khoảng 1 giờ" },
+      { "ten": "Đường rừng Yên Sinh", "chang": "Huyện lỵ → rừng Yên Sinh → trèo núi, xuyên rừng qua Thiều Ang → đồn Mai", "gio": "khoảng 13 giờ" },
+      { "ten": "Đường rừng Mai Sưu", "chang": "Đồn Mai Sưu → Miếu Vua Bà → Cửa Phủ → Rừng Vàng → xã Phúc An → huyện lỵ", "gio": "khoảng 13 giờ 30 phút" }
+    ],
+    "de": "Huyện không có đê chung, chỉ có đê riêng: tổng Yên Khánh 2 đoạn, tổng Yên Lãng 1 đoạn, tổng Bí Giang một số đoạn."
+  },
+
+  "coTich": [
+    {
+      "ten": "Đền An Sinh",
+      "o": "sườn núi Yên Sinh",
+      "moTa": "Thờ các vua nhà Trần. Đường vũ trang nghiêm, cây cối xum xuê, khe suối uốn lượn bao quanh. Gần đó là các chùa, quán, lăng tẩm của họ Trần. Ở núi Ngoạ Vân còn tháp Phật Hoàng, trong tháp có bia khắc: “Đệ nhất Tổ Trúc Lâm Đầu đà Tĩnh tuệ giác hoàng Trần triều Nhân Tông Thánh đế điều Ngự Vương Phật”; lại có bàn đá làm cõi Niết Bàn, ngựa đá, voi đá. Năm 1896 tất cả đã hỏng nát hoang tàn lẫn trong cây cỏ.",
+      "nayThuoc": "ngoài địa giới phường Đông Triều hiện nay",
+      "slug": ["den-an-sinh", "am-chua-ngoa-van", "thai-mieu-nha-tran"]
+    },
+    {
+      "ten": "Chùa Quỳnh Lâm",
+      "o": "xã Hà Lôi",
+      "moTa": "Kiến lập từ đời Trần, sách gọi là “danh lam đệ nhất”. Còn tượng Nhân Tông, Huyền Quang, Trạng nguyên Không Lộ; có chuông đồng, khánh đá; do Nguyễn Minh Không triều Lý dựng lên. Trùng tu năm Vĩnh Khánh thứ nhất (1729) và các năm Vĩnh Hựu (1735–1740).",
+      "nayThuoc": "ngoài địa giới phường Đông Triều hiện nay",
+      "slug": ["chua-quynh-lam"]
+    },
+    {
+      "ten": "Chùa cổ Ngọc Thanh",
+      "o": "xã Đạm Thuỷ",
+      "moTa": "Sách An Nam chí viết: “Đạm Thuỷ, động nước quanh co, hoa cỏ xanh tươi cùng hai núi Yên Tử và Ngọc Bình đều là thắng cảnh”. Năm 1896 chùa quán đã hỏng nát, chỉ còn bia đá khắc năm Minh Mạng thứ 13 (1832). Nguyễn Trãi từng có thơ ở đây.",
+      "slug": ["chua-quan-ngoc-thanh"]
+    },
+    {
+      "ten": "Miếu Đạm Thuỷ",
+      "o": "xã Đạm Thuỷ",
+      "moTa": "Trong miếu có tượng và bia dựng năm thứ 3 đời Lê Dương Đức (1674). Mặt trước bia tạc tượng người, nét khắc tinh xảo; mặt sau khắc chữ lớn: “Chính Phu nhân Đinh Thị Huệ Hào, hiệu Phương Dung Thần nữ”.",
+      "slug": ["chua-quan-ngoc-thanh"]
+    },
+    {
+      "ten": "Tượng thần núi Hang Tròn",
+      "o": "giang phận tổng Yên Khánh",
+      "moTa": "Tục gọi Thần Hang Tròn — nguồn nước của dân trong huyện, cầu mưa luôn linh ứng. Núi có sông bao bọc, tục truyền trên đỉnh có 99 ngọn; trong hang rộng phụng thờ tượng Thần bằng bích thạch, trên khắc ba chữ lớn “Bảo Phúc tự”.",
+      "cauNoi": "Đất Yên Khánh, Thanh Quy Khê."
+    },
+    {
+      "ten": "Mộ cổ ở núi đá",
+      "o": "xã Đền Sơn, núi Thiên Mã",
+      "moTa": "Trong núi có xứ Ma, rộng và dài ước 2 thước rưỡi, có hài cốt một người táng ở đấy, chưa rõ từ bao nhiêu năm. Năm 1896 xương trắng vẫn còn."
+    },
+    {
+      "ten": "Chùa Tây Tân",
+      "o": "xã Kim Liên",
+      "moTa": "Có phiến đá cao hơn 4 trượng, rộng 3 trượng, phía trước chạm hình người ngồi dựa vào đá, tục gọi Thần Khuy. Cầu mưa rất linh ứng — khi vào lễ phải thu đủ tiền cúng rồi hô: “Nỗi lòng khát nước, xin ông bầu nước”."
+    }
+  ],
+
+  "nhanVat": [
+    { "ten": "Họ Trần", "que": "xã Yên Sinh", "thoi": "trước đời Trần", "moTa": "Từ tỉnh Triết Giang nước Mân tới, làm nhà ở xã Yên Sinh huyện Đông Triều, làm nghề đánh bắt cá. Đến Trần Tông mới dời về thôn Tức Mặc (phủ Thiên Trường). Các vua Trần đều có lăng ở địa phận xã Yên Sinh. Theo bia Yên Sinh thần đạo, Trần Tiên Đế là người thôn Cự Lạc — nay là thôn Đông Khê." },
+    { "ten": "Trần Kiến", "que": "Đông Triều", "thoi": "đời Trần", "moTa": "Môn khách của Hưng Đạo Vương, được tiến cử làm An Phủ sứ phủ Thiên Trường. Làm quan liêm khiết, xét việc tận cùng lý lẽ, thăng đến Nhập nội Hành khiển; chức Giản nghị đại phu do vua Anh Tông ban thưởng." },
+    { "ten": "Ba anh em họ Phạm", "que": "xã Mễ Xá", "thoi": "đời Trần", "moTa": "Người thứ nhất đỗ Đệ Nhất giáp, làm tới Tham tri chính sự; người thứ hai đỗ Đệ Nhị giáp, làm tới Đồng Tri Bình chương sự, tước Quan Nội hầu; người thứ ba đỗ Đệ Tam giáp, làm tới Hàn lâm viện Tả thị lang. Cả ba được người làng thờ làm Phúc Thần." },
+    { "ten": "Lê Hiển Phủ", "que": "xã Trí Tri", "thoi": "đời Trần", "moTa": "Bảng nhãn, làm quan đến Trung trinh đại phu. Cuối đời Trần khi Hồ Quý Ly tiếm ngôi, ông trung nghĩa bất khuất nên bị hại; sau được truy phong Phúc Thần." },
+    { "ten": "Trần Thám", "que": "xã Phúc Đa", "thoi": "đời Trần", "moTa": "Thám hoa Cập đệ, làm tới Trung thư thị lang, An phủ sứ xứ Thanh Hoa kiêm Ngự sử tán. Khi nhà Hồ tiếm ngôi, ông giả điếc lánh hoạ." },
+    { "ten": "Nguyễn Quang Huy", "que": "xã Yên Lâm", "thoi": "triều Lê", "moTa": "Danh tướng, thuở nhỏ được suy tôn là thần y. Từ Xã trưởng đi lính dẹp loạn, nhiều lần lập công lớn, làm tới Trung trinh đại phu, tước Đông Phái bá; khâm mệnh làm Hiệp trấn xứ Yên Quảng, gia phong Đông Phái hầu. Sau khi mất, thôn Điệu Hà lập đền thờ, được ban sắc phong Dực bảo Trung hưng chi Thần." },
+    { "ten": "Nguyễn Hữu Lộc", "que": "xã Yên Lâm", "thoi": "triều Lê", "moTa": "Thời có loạn Nguyễn Hữu Cầu, ông tập hợp thổ hào dũng cảm theo Phạm Quận công truy lùng giặc. Được phong Trung uý, tặng “Hùng cứ Quả nghị Trung liệt Đại vương”. Dân làng vẫn thờ phụng." },
+    { "ten": "Nguyễn Thuần Khiết", "que": "xã Mỹ Cụ", "thoi": "đời Trần", "moTa": "Đỗ Tiến sĩ, làm quan đến Hiến sử ty Hiến sứ.", "slug": ["chua-my-cu-sung-khanh-tu", "dinh-my-cu"] },
+    { "ten": "Phạm Đức Long", "que": "xã Xuân Quang", "thoi": "", "moTa": "Đỗ Đồng Tiến sĩ, làm quan Ty lễ giám Tổng thái giám, tước Đông Khê hầu." },
+    { "ten": "Bùi Trùm Trứ", "que": "xã Nội Hoàng", "thoi": "", "moTa": "Đỗ Đồng Tiến sĩ, làm quan đến Thanh hình Hiến sát sứ." },
+    { "ten": "Phạm Duy Tân", "que": "xã Quế Cức", "thoi": "đời Mạc", "moTa": "Đỗ Tiến sĩ, làm quan đến Hàn Lâm viện Hiệu thư." },
+    { "ten": "Trần Cẩn · Trần Vũ", "que": "xã Phúc Đa", "thoi": "đời Trần", "moTa": "Cùng đỗ Tiến sĩ." },
+    { "ten": "Đinh Quang Bảo", "que": "xã Đạm Thuỷ", "thoi": "đời Trần", "moTa": "Đỗ Tiến sĩ." },
+    { "ten": "Đinh Ứng Mão · Đinh Ứng Vật", "que": "xã Đạm Thuỷ", "thoi": "đời Lê Hiến Tông (1498–1504)", "moTa": "Cùng giữ chức Đặc tiến Phụ quốc Thượng tướng quân Đô chỉ huy sứ, tước Hoằng Mỹ hầu." },
+    { "ten": "Hoàng Lâm Tuyền", "que": "xã Lâm Xá", "thoi": "đời Lê", "moTa": "Đỗ tứ trường, làm quan tới Trường Khánh phủ Huấn đạo." },
+    { "ten": "Bùi Đình Mãn", "que": "xã Quế Cức", "thoi": "đời Lê", "moTa": "Làm quan chức Tuần phủ, tước Triều Uy hầu." },
+    { "ten": "Nguyễn Mại", "que": "xã Yên Biên", "thoi": "triều Nguyễn", "moTa": "Đỗ Hương cống." },
+    { "ten": "Hoàng hậu đời Trần", "que": "thôn Cổ Lễ, xã Quế Cức", "thoi": "đời Trần", "moTa": "Tên họ và sự tích đều mất, không khảo được. Thế truyền mộ bà táng ở sơn phận xã này, gọi là xứ Cầu Vàng; năm 1896 mộ vẫn còn." }
+  ],
+
+  "phongTuc": {
+    "moTa": "Sách chép: người ở đây tuy hiền lành mộc mạc nhưng chí khí khá cứng rắn; khi không có chiến sự thì truyền nghề dạy nghiệp, khi có chiến sự lại vui vẻ lên đường. Tri huyện dẫn lời Phạm Lập Trai trong sách Phong vật chí: “Đạo nghĩa ở gần sự dũng mãnh, điều đó há không tin được ư?”.",
+    "lang": [
+      { "ten": "Điệu Hà · Bình Lục", "noiTroi": "Văn chương học hành", "slug": ["dinh-chua-binh-luc"] },
+      { "ten": "Đông Mai · Xuân Viên", "noiTroi": "Vũ dũng — thường chống cự với quân giặc, khiến chúng nghe tiếng mà sợ", "slug": ["dinh-chua-nghe-dong-mai"] },
+      { "ten": "Tứ Tráng", "noiTroi": "Rèn luyện săn bắn thiện xạ" },
+      { "ten": "Lâm Xá · Quế Cức", "noiTroi": "Đấu vật, nhờ sự tương trợ của Yên Khánh và Đôn Sơn" }
+    ],
+    "hocHanh": "Sách ghi thẳng: “Trong huyện dân đa số ít học thức, như khoa Tân Mão này hiện có 8 người đi thi, chỉ đỗ được 2 người.”"
+  },
+
+  "kyNghe": "Người ở sơn cước lấy đốt than kiếm củi làm nghề. Người gần thành thị có nghề nấu rượu và làm đồ sành sứ. Vùng đất bằng phẳng rộng hơn 10 dặm phần lớn làm nghề nông. Còn có nghề mộc nhưng chưa được tinh xảo.",
+
+  "thoSan": [
+    { "ten": "Trúc vằn", "o": "núi Yên Tử", "moTa": "Lớn thì làm gậy cho cụ già, nhỏ có thể dùng làm thức ăn." },
+    { "ten": "Hoa sen", "o": "Đạo Dương và Bắc Mã" },
+    { "ten": "Cây tùng", "o": "xã Đông Mai" },
+    { "ten": "Chè xanh", "o": "rừng Tiềm, xưa thuộc tổng Nội Hoàng" },
+    { "ten": "Đất đỏ", "o": "Mạo Khê và Thiên Lục" },
+    { "ten": "Đất trắng", "o": "Hồ Lao và Cổ Lễ" },
+    { "ten": "Than mỏ", "o": "trong núi xã Như Ý" },
+    { "ten": "Than đá", "o": "núi Trường Bạch, xã Yên Lãng" },
+    { "ten": "Nhãn trắng · ba la mật", "o": "núi Sơn Cương, Vân Động và Yên Biên" },
+    { "ten": "Hương phụ nam · tử hồ nam", "o": "đồng bãi Mỹ Cụ và Xuân Viên" },
+    { "ten": "Hải sản", "o": "giang phận tổng Bí Giang và Nội Hoàng" },
+    { "ten": "Mộc khách (con Sóc)", "o": "trong huyện" },
+    { "ten": "Con Gà Gô", "o": "trong huyện", "moTa": "Tên chữ của sản vật này bị nhoè, không đọc được trong bản gốc." },
+    { "ten": "Lôi Kê Hương", "o": "trong huyện", "moTa": "Hình như bạch đàn, dùng để làm hương." },
+    { "ten": "Vỏ cây chử", "o": "lâm phận xã Nam và Tứ Tráng", "moTa": "Dùng làm giấy." }
+  ],
+
+  "thueKhoa": {
+    "danDinh": 1008,
+    "dinhTrang": 953,
+    "dinhLao": 55,
+    "ruongDatMau": 9429,
+    "ghiChu": "Thuế thân 392 đồng 2 hào · thuế lúa công 20.016 đồng · thuế ruộng 6.416 đồng 6 hào 6 xu."
+  },
+
+  "noiTiepHomNay": {
+    "tieuDe": "Than ở Mạo Khê đã được chép từ năm 1896",
+    "noiDung": "Mục Thổ sản của địa chí liệt kê “than mỏ ở xã Như Ý” và “than đá ở núi Trường Bạch xã Yên Lãng”, cùng đất đỏ Mạo Khê và nghề làm đồ sành sứ. Hơn một thế kỷ sau, cơ cấu kinh tế vùng Đông Triều vẫn lấy khai thác than, xi măng và gốm sứ làm ngành chủ lực — xem khối Kinh tế ở trên."
+  },
+
+  "hieuDinh": [
+    { "chua": "Tự Đức thứ 5 (1853)", "sua": "Tự Đức thứ 5 (1852)", "vi": "Mục Thành trì chép 1853, nhưng mục Diên cách trong cùng văn bản chép 1852 — và Tự Đức thứ 5 đúng là năm 1852." },
+    { "chua": "Tự Đức thứ 13 (1850)", "sua": "Tự Đức thứ 13 (1860)", "vi": "Năm thứ 13 không thể trước năm thứ 5. Mục Diên cách chép đúng là 1860." },
+    { "chua": "Minh Mạng thứ 11 (1812)", "sua": "Minh Mạng thứ 11 (1830)", "vi": "Vua Minh Mạng lên ngôi năm 1820, nên năm thứ 11 là 1830; 1812 là điều không thể." },
+    { "chua": "Lê triều Hiển Tông (1498–1504)", "sua": "Lê Hiến Tông (1498–1504)", "vi": "Niên đại 1498–1504 là của vua Lê Hiến Tông. Lê Hiển Tông ở ngôi 1740–1786." },
+    { "chua": "Chùa Đông ở trên đỉnh", "sua": "Chùa Đồng ở trên đỉnh", "vi": "Ngôi chùa trên đỉnh Yên Tử là chùa Đồng." },
+    { "chua": "Nguyễn Ức Trai", "sua": "Nguyễn Trãi (hiệu Ức Trai)", "vi": "Nguyên bản chép cả họ lẫn hiệu; giữ tên thường dùng cho dễ tra." }
+  ]
+}

@@ -121,6 +121,42 @@ const SETTING_SCHEMAS = {
         .optional(),
     })
     .passthrough(),
+
+  /**
+   * “Đông Triều huyện địa chí” — địa chí Hán Nôm do Tri huyện Ngô Sinh chép năm
+   * Thành Thái thứ 8 (1896), ký hiệu A.1940. Dùng cho trang Giới thiệu và trợ lý AI.
+   *
+   * ── ĐÂY LÀ ĐƠN VỊ THỨ BA, KHÔNG PHẢI PHƯỜNG, CŨNG KHÔNG PHẢI THÀNH PHỐ CŨ ──
+   * Cổng này đã phải phân biệt hai “Đông Triều” (xem `vungDat`). Khoá này thêm
+   * một đơn vị nữa: HUYỆN Đông Triều năm 1896 thuộc tỉnh **Hải Dương**, còn 5
+   * tổng 52 xã thôn, trong đó có cả núi Yên Tử, Mạo Khê, Hồ Thiên — nay thuộc
+   * Uông Bí và các phường xã khác. Gần như mọi địa danh trong đây KHÔNG nằm
+   * trong địa giới phường hiện nay, nên `canhBao` là trường bắt buộc phải hiện.
+   *
+   * ── VĂN BẢN QUA OCR, KHÔNG PHẢI BẢN GỐC ────────────────────────────────────
+   * Nguồn là bản scan trích xuất bằng OCR. Mục `hieuDinh` ghi lại từng chỗ đã
+   * sửa kèm lý do (niên hiệu sai, tên vua sai), để cổng không lặng lẽ phát tán
+   * lỗi nhận dạng dưới danh nghĩa thông tin chính thức của phường.
+   */
+  diaChi1896: z
+    .object({
+      capNhat: optStr,
+      nguon: optStr,
+      tacGia: optStr,
+      nienDai: optStr,
+      kyHieu: optStr,
+      trichTu: optStr,
+      canhBao: optStr,
+      luuYVanBan: optStr,
+      dienCach: z.array(z.object({ moc: optStr, viec: z.string().max(2000) })).max(100).optional(),
+      nui: z.array(z.object({}).passthrough()).max(100).optional(),
+      song: z.array(z.object({}).passthrough()).max(100).optional(),
+      coTich: z.array(z.object({}).passthrough()).max(100).optional(),
+      nhanVat: z.array(z.object({}).passthrough()).max(200).optional(),
+      thoSan: z.array(z.object({}).passthrough()).max(100).optional(),
+      hieuDinh: z.array(z.object({}).passthrough()).max(100).optional(),
+    })
+    .passthrough(),
 };
 
 export const SETTING_KEYS = Object.keys(SETTING_SCHEMAS);

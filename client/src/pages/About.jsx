@@ -7,6 +7,7 @@ import { useSettings } from '../hooks/useSettings.js';
 import PageHero from '../components/PageHero.jsx';
 import Seo from '../components/Seo.jsx';
 import VungDat from '../components/VungDat.jsx';
+import DiaChi1896 from '../components/DiaChi1896.jsx';
 import { SectionHeading } from '../components/ui.jsx';
 import { RANK_LEVELS } from '../lib/constants.js';
 import { cx } from '../lib/format.js';
@@ -40,6 +41,14 @@ export default function About() {
     acc[h.rankLevel] = (acc[h.rankLevel] ?? 0) + 1;
     return acc;
   }, {});
+
+  // Địa danh trong địa chí 1896 nào còn bản ghi trên cổng thì dẫn thẳng tới đó.
+  // Chỉ tải khi có dữ liệu địa chí — trang này vốn không cần danh sách điểm đến.
+  const diemLanCan = useQuery({
+    queryKey: ['attractions'],
+    queryFn: () => fetchList('attractions'),
+    enabled: Boolean(settings.diaChi1896),
+  });
 
   return (
     <div>
@@ -139,6 +148,17 @@ export default function About() {
             Đặt SAU hai khối di sản vì đây là phần tra cứu, còn di sản mới là thứ
             người đọc tới trang này để xem trước tiên. */}
         <VungDat vungDat={settings.vungDat} />
+
+        {/* ── “Đông Triều huyện địa chí” 1896 ──
+            Đặt CUỐI phần tra cứu: đây là tư liệu Hán Nôm về huyện Đông Triều
+            thuộc Hải Dương năm 1896 — một đơn vị hành chính khác hẳn phường hôm
+            nay. Người đọc cần biết phường mình là gì trước, rồi mới đọc tới
+            vùng đất mà sách cổ mô tả. */}
+        <DiaChi1896
+          diaChi={settings.diaChi1896}
+          heritages={tatCa.data?.items ?? []}
+          attractions={diemLanCan.data?.items ?? []}
+        />
 
         {/* ── Nội dung dài, do quản trị viên nhập ── */}
         {sections.length > 0 && (

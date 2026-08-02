@@ -1492,6 +1492,349 @@ function answerQuyMo(corpus) {
   };
 }
 
+// ─── “Đông Triều huyện địa chí” 1896 ───────────────────────────────────────
+//
+// Khoá cài đặt `diaChi1896`: địa chí Hán Nôm do Tri huyện Ngô Sinh chép năm
+// Thành Thái thứ 8 (1896), ký hiệu A.1940.
+//
+// ── ĐÂY LÀ ĐƠN VỊ THỨ BA ──────────────────────────────────────────────────
+// Bot đã phải phân biệt phường Đông Triều với thành phố Đông Triều cũ. Nay thêm
+// HUYỆN Đông Triều năm 1896 — thuộc tỉnh **Hải Dương**, còn 5 tổng 52 xã thôn,
+// trong đó có cả Yên Tử, Mạo Khê, Hồ Thiên. Gần như mọi địa danh trong nguồn
+// này KHÔNG nằm trong phường hiện nay, nên mọi câu trả lời lấy từ đây đều phải
+// đóng dấu năm và nói rõ phạm vi — nếu không, bot sẽ khiến người hỏi tưởng núi
+// Yên Tử nằm trong phường mình.
+
+/** Dòng đóng dấu nguồn, gắn cuối MỌI câu trả lời lấy từ địa chí 1896. */
+function dauNguonXua(dc) {
+  return (
+    `\n\n📜 _Theo **${dc.nguon}** — ${dc.tacGia}, ${dc.nienDai}._` +
+    `\n_Địa danh trong sách là của huyện Đông Triều thuộc Hải Dương năm 1896, rộng hơn phường hiện nay rất nhiều._`
+  );
+}
+
+const LINK_XUA = [
+  { label: 'Địa chí 1896 trên trang Giới thiệu', url: '/gioi-thieu#dia-chi-1896' },
+  { label: 'Di tích của phường hôm nay', url: '/di-tich' },
+];
+
+/**
+ * Địa danh 1896 → bản ghi CÓ THẬT trên cổng hôm nay.
+ *
+ * Đây là chỗ nguồn cổ thành ra dùng được: sách chép “trông sang Đạm Thuỷ có chùa
+ * Ngọc Thanh”, mà chùa quán Ngọc Thanh thì vẫn đang có hồ sơ trên cổng. Di tích
+ * có trang riêng; điểm đến lân cận thì chưa, nên dẫn về trang danh mục.
+ */
+function noiDiemXua(corpus, slugs) {
+  const dt = new Map(corpus.heritages.map((h) => [h.slug, { label: h.name, url: `/di-tich/${h.slug}` }]));
+  const dd = new Map(corpus.attractions.map((a) => [a.slug, { label: a.name, url: '/di-tich' }]));
+  return (slugs ?? []).map((s) => dt.get(s) ?? dd.get(s)).filter(Boolean);
+}
+
+/**
+ * "Đông Triều có núi nào", "núi Quy Sơn ở đâu".
+ *
+ * `chiKhiGoiTen` — chỉ trả lời khi câu hỏi gọi đích danh một ngọn trong sách.
+ * Bật cờ này khi câu hỏi đã nhắc một tên riêng có bản ghi trên cổng: "Ngoạ Vân
+ * nằm trên núi nào" phải ra hồ sơ Ngoạ Vân đang có, không phải danh sách núi.
+ */
+function answerNuiXua(corpus, q, { chiKhiGoiTen = false } = {}) {
+  const dc = corpus.settings?.diaChi1896;
+  const ds = dc?.nui ?? [];
+  if (!ds.length) return null;
+
+  // Hỏi đích danh một ngọn → kể riêng ngọn đó, đầy đủ hơn là liệt kê chung.
+  // Khớp TRỌN TỪ chứ không phải chuỗi con: "Núi Độn" bỏ dấu thành "don", mà
+  // "don" thì nằm trong "đồn Cao" — khớp chuỗi con sẽ trả nhầm ngọn núi.
+  const mot = ds.find((n) => {
+    const t = norm(String(n.ten).replace(/^núi\s+/i, ''));
+    return t.length >= 3 && has(q, t);
+  });
+  if (mot) {
+    return {
+      intent: 'about_nui',
+      reply:
+        `⛰️ **${mot.ten}** — ${mot.o}\n\n${mot.moTa}` +
+        (mot.cauNoi ? `\n\n> _${mot.cauNoi}_` : '') +
+        (mot.nayThuoc ? `\n\n📍 Nay: ${mot.nayThuoc}.` : '') +
+        dauNguonXua(dc),
+      links: [...noiDiemXua(corpus, mot.slug), ...LINK_XUA].slice(0, 4),
+      suggestions: ['Địa chí 1896 chép những núi nào?', 'Sông nào chảy qua Đông Triều?', 'Danh nhân Đông Triều xưa là ai?'],
+    };
+  }
+
+  if (chiKhiGoiTen) return null;
+
+  return {
+    intent: 'about_nui',
+    reply:
+      `⛰️ **${ds.length} ngọn núi được chép trong địa chí 1896**\n\n` +
+      bullets(ds.map((n) => `**${n.ten}** (${n.o})${n.nayThuoc ? ' — nay ngoài địa giới phường' : ''}`)) +
+      `\n\nHỏi thẳng tên một ngọn (ví dụ “núi Quy Sơn”) để nghe sách chép gì về ngọn đó.` +
+      dauNguonXua(dc),
+    links: LINK_XUA,
+    suggestions: ['Núi Quy Sơn ở đâu?', 'Sông nào chảy qua Đông Triều?', 'Thổ sản Đông Triều xưa có gì?'],
+  };
+}
+
+/** "Sông nào chảy qua", "có mấy cây cầu", "chợ xưa ở đâu". */
+function answerSongChoXua(corpus) {
+  const dc = corpus.settings?.diaChi1896;
+  const song = dc?.song ?? [];
+  if (!song.length) return null;
+  const cho = dc.cho ?? [];
+  const cau = dc.cau ?? [];
+
+  return {
+    intent: 'about_song',
+    reply:
+      `🌊 **Sông ngòi, cầu và chợ theo địa chí 1896**\n\n` +
+      `Huyện khi ấy có **${song.length} con sông**, **${cau.length} cây cầu** và **${cho.length} cái chợ**.\n\n` +
+      bullets(song.map((s) => `**${s.ten}** — ${short(s.moTa, 150)}`)) +
+      (cho.length ? `\n\n🏮 Chợ: ${cho.map((c) => c.ten).join(' · ')}.` : '') +
+      (dc.choGhiChu ? `\n${dc.choGhiChu}` : '') +
+      `\n\nCác dòng nước trong huyện cuối cùng đều đổ về **sông Bạch Đằng**.` +
+      dauNguonXua(dc),
+    links: [{ label: 'Bản đồ số', url: '/ban-do' }, ...LINK_XUA].slice(0, 4),
+    suggestions: ['Đông Triều có núi nào?', 'Địa chí 1896 là sách gì?', 'Đường sá Đông Triều xưa thế nào?'],
+  };
+}
+
+/** "Danh nhân Đông Triều", "ai đỗ tiến sĩ", "người nổi tiếng xưa". */
+function answerNhanVatXua(corpus) {
+  const dc = corpus.settings?.diaChi1896;
+  const nv = dc?.nhanVat ?? [];
+  if (!nv.length) return null;
+
+  return {
+    intent: 'about_nhanvat',
+    reply:
+      `👤 **Nhân vật huyện Đông Triều trong địa chí 1896**\n\n` +
+      `Sách chép **${nv.length} mục nhân vật**. Mở đầu là gốc tích họ Trần:\n\n` +
+      `_${short(nv[0].moTa, 260)}_\n\n` +
+      bullets(
+        nv.slice(1, 8).map((n) => `**${n.ten}**${n.que ? ` (${n.que})` : ''}${n.thoi ? `, ${n.thoi}` : ''} — ${short(n.moTa, 120)}`),
+      ) +
+      `\n\n…và ${nv.length - 8} mục nữa — xem đầy đủ ở trang Giới thiệu.` +
+      dauNguonXua(dc),
+    links: LINK_XUA,
+    suggestions: ['Vì sao Đông Triều gắn với nhà Trần?', 'Đông Triều có núi nào?', 'Làng nào xưa nổi tiếng học hành?'],
+  };
+}
+
+/** "Xưa Đông Triều làm nghề gì", "thổ sản", "có than từ bao giờ". */
+function answerThoSanXua(corpus) {
+  const dc = corpus.settings?.diaChi1896;
+  const ts = dc?.thoSan ?? [];
+  if (!ts.length) return null;
+  const noi = dc.noiTiepHomNay;
+
+  return {
+    intent: 'about_thosan',
+    reply:
+      `🧺 **Nghề và thổ sản Đông Triều năm 1896**\n\n` +
+      (dc.kyNghe ? `${dc.kyNghe}\n\n` : '') +
+      `Sách liệt kê **${ts.length} thứ thổ sản**:\n` +
+      bullets(ts.map((t) => `**${t.ten}** — ${t.o}`)) +
+      (noi ? `\n\n🔗 **${noi.tieuDe}**\n${noi.noiDung}` : '') +
+      dauNguonXua(dc),
+    links: [{ label: 'Đặc sản Đông Triều hôm nay', url: '/am-thuc' }, ...LINK_XUA].slice(0, 4),
+    suggestions: ['Kinh tế Đông Triều thế nào?', 'Đặc sản Đông Triều có gì?', 'Đông Triều có núi nào?'],
+  };
+}
+
+/**
+ * "Mỹ Cụ nghĩa là gì", "làng tôi xưa tên gì", "tên cũ của Mễ Xá".
+ *
+ * Câu chuyện hay nhất trong cả cuốn sách nằm ở đây: Mỹ Cụ vốn tên Ưu Đà, đổi tên
+ * năm 1802 vì "vua Trần qua đây được thôn này dâng thức ăn ngon". Mà chùa Mỹ Cụ
+ * và đình Mỹ Cụ thì vẫn đang đứng trong phường, có hồ sơ trên chính cổng này.
+ */
+function answerTenLangXua(corpus, q, { chiKhiGoiTen = false } = {}) {
+  const dc = corpus.settings?.diaChi1896;
+  const ds = dc?.doiTen ?? [];
+  if (!ds.length) return null;
+
+  const mot = ds.find((d) => has(q, d.xua) || has(q, d.nay));
+
+  if (mot) {
+    return {
+      intent: 'about_tenlang',
+      reply:
+        `🏷️ **${mot.xua} → ${mot.nay}**\n\n` +
+        `Địa chí 1896 chép: xã **${mot.nay}** vốn tên cũ là **${mot.xua}**` +
+        (mot.nam ? `, đổi tên năm ${mot.nam}` : '') +
+        `.` +
+        (mot.ghiChu ? `\n\n${mot.ghiChu}` : '') +
+        dauNguonXua(dc),
+      links: [...noiDiemXua(corpus, mot.slug), ...LINK_XUA].slice(0, 4),
+      suggestions: ['Còn làng nào từng đổi tên?', 'Đông Triều có núi nào?', 'Danh nhân Đông Triều xưa là ai?'],
+    };
+  }
+
+  // Câu chỉ có cụm "nghĩa là gì" mà không nhắc làng nào thì đang hỏi chuyện
+  // khác ("OCOP nghĩa là gì") — trả về danh sách đổi tên là lạc đề.
+  if (chiKhiGoiTen) return null;
+
+  return {
+    intent: 'about_tenlang',
+    reply:
+      `🏷️ **Những làng từng đổi tên, theo địa chí 1896**\n\n` +
+      bullets(ds.map((d) => `**${d.xua}** → **${d.nay}**${d.nam ? ` (${d.nam})` : ''}`)) +
+      `\n\n${ds.find((d) => d.ghiChu)?.ghiChu ?? ''}` +
+      dauNguonXua(dc),
+    links: [{ label: '11 khu phố của phường', url: '/khu-pho' }, ...LINK_XUA].slice(0, 4),
+    suggestions: ['Mỹ Cụ nghĩa là gì?', 'Phường có bao nhiêu khu phố?', 'Đông Triều có núi nào?'],
+  };
+}
+
+/**
+ * "Khu phố Mỹ Cụ xưa tên gì", "khu phố nào có từ thời xưa".
+ *
+ * Câu hỏi mà người dân của phường quan tâm nhất ở nguồn này: làng mình có trong
+ * sách không. 8/11 khu phố hôm nay mang đúng tên xã sách đã chép.
+ */
+function answerKhuPhoXua(corpus, q) {
+  const dc = corpus.settings?.diaChi1896;
+  const ds = dc?.khuPhoXua?.danhSach ?? [];
+  if (!ds.length) return null;
+
+  const mot = ds.find((k) => has(q, k.khu));
+  if (mot) {
+    return {
+      intent: 'about_khupho_xua',
+      reply: mot.xua
+        ? `🏘️ **Khu phố ${mot.khu}** — địa chí 1896 chép là **${mot.xua}**` +
+          (mot.chac ? '' : ' _(cổng phỏng đoán, chưa có căn cứ khảo cứu)_') +
+          `\n\n${mot.viec}` +
+          (mot.trong ? `\n\nSách nhắc tới trong các mục: ${mot.trong}.` : '') +
+          dauNguonXua(dc)
+        : `🏘️ **Khu phố ${mot.khu}** không có trong địa chí 1896.\n\n${mot.viec}` + dauNguonXua(dc),
+      links: [...noiDiemXua(corpus, mot.slug), { label: '11 khu phố của phường', url: '/khu-pho' }].slice(0, 4),
+      suggestions: ['Khu phố nào có tên từ thời xưa?', 'Mỹ Cụ nghĩa là gì?', 'Đông Triều có núi nào?'],
+    };
+  }
+
+  const co = ds.filter((k) => k.xua && k.chac);
+  return {
+    intent: 'about_khupho_xua',
+    reply:
+      `🏘️ **${dc.khuPhoXua.tieuDe}**\n\n` +
+      bullets(
+        ds.map((k) =>
+          k.xua
+            ? `**${k.khu}** ← ${k.xua}${k.chac ? '' : ' _(phỏng đoán)_'}`
+            : `**${k.khu}** — không có trong sách`,
+        ),
+      ) +
+      `\n\n${co.length}/${ds.length} khu phố mang đúng tên xã sách đã chép cách đây ${new Date().getFullYear() - 1896} năm.` +
+      `\n\n_${dc.khuPhoXua.moTa}_` +
+      dauNguonXua(dc),
+    links: [{ label: '11 khu phố của phường', url: '/khu-pho' }, ...LINK_XUA].slice(0, 4),
+    suggestions: ['Khu phố Mỹ Cụ xưa tên gì?', 'Phường có bao nhiêu khu phố?', 'Danh nhân Đông Triều xưa là ai?'],
+  };
+}
+
+/** "Phong tục Đông Triều xưa", "làng nào giỏi võ", "làng nào học giỏi". */
+function answerPhongTucXua(corpus) {
+  const dc = corpus.settings?.diaChi1896;
+  const pt = dc?.phongTuc;
+  if (!pt?.lang?.length) return null;
+
+  return {
+    intent: 'about_phongtuc',
+    reply:
+      `🎎 **Phong tục các làng Đông Triều năm 1896**\n\n${pt.moTa}\n\n` +
+      `Tri huyện chép rõ làng nào nổi trội việc gì:\n` +
+      bullets(pt.lang.map((l) => `**${l.ten}** — ${l.noiTroi}`)) +
+      (pt.hocHanh ? `\n\n${pt.hocHanh}` : '') +
+      dauNguonXua(dc),
+    links: [...noiDiemXua(corpus, pt.lang.flatMap((l) => l.slug ?? [])), ...LINK_XUA].slice(0, 4),
+    suggestions: ['Danh nhân Đông Triều xưa là ai?', 'Đông Triều có núi nào?', 'Lễ hội nào sắp diễn ra?'],
+  };
+}
+
+/** "Chùa cổ Đông Triều", "cổ tích", "đền miếu xưa còn không". */
+function answerCoTichXua(corpus, q) {
+  const dc = corpus.settings?.diaChi1896;
+  const ds = dc?.coTich ?? [];
+  if (!ds.length) return null;
+
+  const mot = ds.find((c) => {
+    const t = norm(String(c.ten).replace(/^(chùa cổ|chùa|đền|miếu|tượng thần)\s+/i, ''));
+    return t.length >= 4 && has(q, t);
+  });
+  if (mot) {
+    return {
+      intent: 'about_cotich',
+      reply:
+        `🏯 **${mot.ten}** — ${mot.o}\n\n${mot.moTa}` +
+        (mot.cauNoi ? `\n\n> _${mot.cauNoi}_` : '') +
+        (mot.nayThuoc ? `\n\n📍 Nay: ${mot.nayThuoc}.` : '') +
+        dauNguonXua(dc),
+      links: [...noiDiemXua(corpus, mot.slug), ...LINK_XUA].slice(0, 4),
+      suggestions: ['Địa chí 1896 chép những cổ tích nào?', 'Đông Triều có núi nào?', 'Danh nhân Đông Triều xưa là ai?'],
+    };
+  }
+
+  return {
+    intent: 'about_cotich',
+    reply:
+      `🏯 **${ds.length} cổ tích trong địa chí 1896**\n\n` +
+      bullets(ds.map((c) => `**${c.ten}** (${c.o}) — ${short(c.moTa, 110)}`)) +
+      `\n\nMột số nơi vẫn còn và đã có hồ sơ trên cổng này; số còn lại năm 1896 đã “hỏng nát hoang tàn lẫn trong cây cỏ”.` +
+      dauNguonXua(dc),
+    links: [...noiDiemXua(corpus, ds.flatMap((c) => c.slug ?? [])), ...LINK_XUA].slice(0, 4),
+    suggestions: ['Chùa Ngọc Thanh có gì?', 'Đông Triều có núi nào?', 'Danh nhân Đông Triều xưa là ai?'],
+  };
+}
+
+/** "Địa chí 1896 là sách gì", "sách cổ viết về Đông Triều". */
+function answerDiaChi(corpus) {
+  const dc = corpus.settings?.diaChi1896;
+  if (!dc?.nguon) return null;
+  const pv = dc.phamVi ?? {};
+
+  return {
+    intent: 'about_diachi',
+    reply:
+      `📜 **${dc.nguon}**\n\n` +
+      bullets([
+        `Người chép: **${dc.tacGia}**`,
+        `Niên đại: **${dc.nienDai}**`,
+        `Ký hiệu: ${dc.kyHieu}`,
+        `Trích từ: ${dc.trichTu}`,
+      ]) +
+      (pv.tong
+        ? `\n\nKhi ấy huyện Đông Triều thuộc tỉnh **Hải Dương**, còn **${pv.tong} tổng** với **${pv.xaThon} xã thôn** ` +
+          `(vốn ${pv.tongCu} tổng ${pv.xaCu} xã).`
+        : '') +
+      `\n\nSách chép đủ các mục: thành trì, núi sông, cầu chợ, đường sá, diên cách, nhân vật, phong tục, cổ tích, kỹ nghệ và thổ sản.` +
+      `\n\n⚠️ ${dc.canhBao}` +
+      (dc.luuYVanBan ? `\n\nℹ️ ${dc.luuYVanBan}` : ''),
+    links: LINK_XUA,
+    suggestions: ['Đông Triều có núi nào?', 'Danh nhân Đông Triều xưa là ai?', 'Thổ sản Đông Triều xưa có gì?'],
+  };
+}
+
+/** "Đông Triều xưa thuộc tỉnh nào", "khi nào thành huyện", "phủ Đông Triều". */
+function answerDienCachXua(corpus) {
+  const dc = corpus.settings?.diaChi1896;
+  const ds = dc?.dienCach ?? [];
+  if (!ds.length) return null;
+
+  return {
+    intent: 'about_diencach',
+    reply:
+      `🏛️ **Đông Triều đổi thay qua các đời, theo địa chí 1896**\n\n` +
+      bullets(ds.map((d) => `**${d.moc}** — ${d.viec}`)) +
+      `\n\nPhần sau năm 1896 (Đệ Tứ Chiến khu 1945, về Quảng Ninh 1963, lên thành phố 2024, sắp xếp 2025) xem mục Dòng thời gian ở trang Giới thiệu.` +
+      dauNguonXua(dc),
+    links: [{ label: 'Dòng thời gian đầy đủ', url: '/gioi-thieu#dong-thoi-gian' }, ...LINK_XUA].slice(0, 4),
+    suggestions: ['Lịch sử Đông Triều ra sao?', 'Làng nào từng đổi tên?', 'Đông Triều có núi nào?'],
+  };
+}
+
 // ─── Giới thiệu địa phương ─────────────────────────────────────────────────
 
 function answerAbout(corpus) {
@@ -1837,8 +2180,14 @@ export async function ask(question) {
   //     Xét trước mục 9a vì "ăn gì ở khu phố Nguyễn Bình" vừa là hỏi chỗ ăn vừa
   //     là hỏi khu phố; và trước mục tra cứu tên riêng vì nhiều khu phố trùng
   //     tên di tích (Mỹ Cụ, An Biên, Bình Lục…).
+  //     Trừ khi câu hỏi nói rõ là hỏi chuyện XƯA ("khu phố Trạo Hà xưa tên gì"):
+  //     lúc đó nhường cho nhánh địa chí 1896 ở 9b-ter, vì `answerKhuPhoInfo` chỉ
+  //     có số hộ và diện tích hôm nay, không có tên làng cũ.
   {
-    const kp = detectKhuPho(q, corpus);
+    const hoiChuyenXua =
+      has(q, 'xua', 'ngay xua', 'thoi xua', 'truoc kia', '1896') &&
+      !has(q, 'bao nhieu', 'dien tich', 'dan so', 'nhan khau', 'so ho', 'may khu');
+    const kp = hoiChuyenXua ? null : detectKhuPho(q, corpus);
     const askListInKhuPho = has(q, 'an', 'an gi', 'quan', 'nha hang', 'ca phe', 'cafe', 'tra sua', 'khach san', 'nha nghi', 'luu tru', 'ngu', 'o dau', 'co gi');
     if (kp && askListInKhuPho) {
       const kind = has(q, 'khach san', 'nha nghi', 'luu tru', 'ngu', 'homestay')
@@ -1995,6 +2344,77 @@ export async function ask(question) {
     if (a) return { ...a, matched: true };
   }
 
+  // 9b-ter. “Đông Triều huyện địa chí” 1896 — nguồn Hán Nôm, khoá `diaChi1896`.
+  //
+  // ĐẶT TRƯỚC 9b-bis: nhánh vị trí ở dưới bắt cụm "ở đâu", mà "núi Quy Sơn ở
+  // đâu" thì phải ra ngọn núi chứ không phải toạ độ của cả phường. Ngược lại
+  // "lịch sử Đông Triều" vẫn ra dòng thời gian hiện đại ở 9b-bis, vì không từ
+  // khoá nào dưới đây chạm tới nó — nguồn 1896 chỉ nhận phần mà không nguồn nào
+  // khác trên cổng có: núi sông, cầu chợ, tên làng cũ, khoa bảng, thổ sản.
+  //
+  // ── BA CỤM TỪNG BỊ ĐỤNG NGHĨA SAU KHI BỎ DẤU ──────────────────────────────
+  // Không được dùng làm từ khoá, dù nghe rất hợp:
+  //   'dia chi'  ≡ **địa chỉ** → "địa chỉ chùa Mỹ Cụ" hoá ra hỏi sách địa chí
+  //   'chua co'  ≡ **chưa có** → "chưa có thông tin" hoá ra hỏi ngôi chùa cổ
+  //   'den co'   ≡ **đến có**  → "đi đến có xa không" hoá ra hỏi ngôi đền cổ
+  // Cùng một lớp lỗi với "ga tàu" ↔ "gà đồi" ở ngay trên.
+  {
+    const namXua = has(q, 'xua', 'ngay xua', 'thoi xua', 'truoc kia', 'ngay truoc', '1896', 'thoi phong kien', 'dia chi 1896');
+
+    if (has(q, 'dia chi 1896', 'huyen dia chi', 'sach dia chi', 'ngo sinh', 'sach co', 'han nom', 'thanh thai')) {
+      const a = answerDiaChi(corpus);
+      if (a) return { ...a, matched: true };
+    }
+    // Gọi đích danh một ngọn núi trong sách — xét cả khi câu nhắc tên riêng,
+    // vì "núi Quy Sơn" không trùng tên bản ghi nào đang có trên cổng.
+    if (has(q, 'nui', 'nui non', 'ngon nui', 'son xuyen')) {
+      const a = answerNuiXua(corpus, q, { chiKhiGoiTen: strongName });
+      if (a) return { ...a, matched: true };
+    }
+    // "Mỹ Cụ nghĩa là gì" khớp tên **chùa Mỹ Cụ** đủ mạnh để đặt cờ
+    // `strongName`, nhưng người hỏi đang hỏi CÁI TÊN, không hỏi ngôi chùa.
+    if (has(q, 'ten cu', 'ten xua', 'ten goi cu', 'xua ten gi', 'truoc goi la', 'nghia la gi', 'vi sao co ten', 'goc ten')) {
+      const a = answerTenLangXua(corpus, q, { chiKhiGoiTen: !has(q, 'ten cu', 'ten xua', 'doi ten', 'ten goi cu') });
+      if (a) return { ...a, matched: true };
+    }
+    // Khu phố hôm nay ↔ xã cũ trong sách: 8/11 khu mang đúng tên sách đã chép.
+    if (has(q, 'khu pho') && namXua) {
+      const a = answerKhuPhoXua(corpus, q);
+      if (a) return { ...a, matched: true };
+    }
+    if (has(q, 'tho san', 'san vat')) {
+      const a = answerThoSanXua(corpus);
+      if (a) return { ...a, matched: true };
+    }
+    if (has(q, 'danh nhan', 'tien si', 'trang nguyen', 'bang nhan', 'tham hoa', 'khoa bang', 'nguoi tai', 'ai do dat', 'nhan vat')) {
+      const a = answerNhanVatXua(corpus);
+      if (a) return { ...a, matched: true };
+    }
+    if (has(q, 'co tich', 'dau tich xua', 'thanh tri', 'ngoi chua co')) {
+      const a = answerCoTichXua(corpus, q);
+      if (a) return { ...a, matched: true };
+    }
+    if (has(q, 'phong tuc', 'tap tuc', 'dau vat', 'lang nao noi tieng', 'lang nao hoc gioi', 'lang nao gioi vo')) {
+      const a = answerPhongTucXua(corpus);
+      if (a) return { ...a, matched: true };
+    }
+    if (has(q, 'phu dong trieu', 'phu hay huyen', 'dien cach', 'gia long', 'tu duc', 'canh hung', 'la mot dao', 'khi nao thanh huyen')) {
+      const a = answerDienCachXua(corpus);
+      if (a) return { ...a, matched: true };
+    }
+    if (!strongName && namXua) {
+      if (has(q, 'song nao', 'con song', 'song ngoi', 'may con song', 'cay cau', 'ben do', 'cho nao', 'cho phien')) {
+        const a = answerSongChoXua(corpus);
+        if (a) return { ...a, matched: true };
+      }
+      // "Đông Triều xưa thế nào" — câu hỏi mở, đưa về giới thiệu cuốn sách.
+      if (has(q, 'dong trieu xua', 'the nao', 'ra sao', 'nhu the nao', 'co gi')) {
+        const a = answerDiaChi(corpus);
+        if (a) return { ...a, matched: true };
+      }
+    }
+  }
+
   if (!strongName) {
     // Diện tích / dân số xét ĐẦU TIÊN trong nhóm: đây là chỗ dễ trả lời nhầm
     // nhất, vì số của thành phố cũ và số của phường chênh nhau gần mười lần.
@@ -2019,6 +2439,7 @@ export async function ask(question) {
       if (a) return { ...a, matched: true };
     }
   }
+
 
   // 9c. Giới thiệu địa phương — chỉ khi không nhắc tên riêng cụ thể
   if (

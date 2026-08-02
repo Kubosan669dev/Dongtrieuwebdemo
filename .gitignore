@@ -19,3 +19,7 @@ server/uploads/*
 
 # Prisma
 server/prisma/dev.db*
+
+# Python: thu muc cache do trinh thong dich sinh ra
+__pycache__/
+*.py[cod]

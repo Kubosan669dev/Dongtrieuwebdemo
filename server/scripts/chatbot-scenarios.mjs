@@ -61,6 +61,40 @@ const SCENARIOS = [
     ],
   },
   {
+    /**
+     * “Đông Triều huyện địa chí” — Tri huyện Ngô Sinh chép năm 1896, khoá cài
+     * đặt `diaChi1896`. Núi sông, cầu chợ, cổ tích, nhân vật, thổ sản, tên làng cũ.
+     *
+     * ── BA CỤM ĐÃ PHẢI BỎ VÌ ĐỤNG NGHĨA SAU KHI BỎ DẤU ───────────────────────
+     * Hai câu cuối nhóm này canh đúng chỗ đó, và đều là lỗi CÓ THẬT:
+     *   'dia chi' ≡ **địa chỉ** → "địa chỉ chùa Mỹ Cụ" hoá ra hỏi sách địa chí
+     *   'chua co' ≡ **chưa có** · 'den co' ≡ **đến có**
+     * Cùng lớp lỗi với "ga tàu" ↔ "gà đồi" ở nhóm B2.
+     */
+    group: 'B3. Địa chí Hán Nôm 1896',
+    items: [
+      ['địa chí 1896 là sách gì', 'answer'],
+      ['Đông Triều có núi nào', 'answer'],
+      ['núi Quy Sơn ở đâu', 'answer'],
+      ['núi Yên Tử có gì', 'answer'],
+      ['sông nào chảy qua Đông Triều xưa', 'answer'],
+      ['danh nhân Đông Triều là ai', 'answer'],
+      ['ai đỗ tiến sĩ đời Trần', 'answer'],
+      ['thổ sản Đông Triều xưa có gì', 'answer'],
+      ['cổ tích Đông Triều gồm những gì', 'answer'],
+      ['phong tục Đông Triều xưa thế nào', 'answer'],
+      ['Đông Triều xưa là phủ hay huyện', 'answer'],
+      ['Mỹ Cụ nghĩa là gì', 'answer'],
+      ['tên cũ của Mễ Xá', 'answer'],
+      ['khu phố nào có tên từ xưa', 'answer'],
+      ['khu phố Trạo Hà xưa tên gì', 'answer'],
+      ['dia chi 1896 co nhung gi', 'answer'], // không dấu
+      // Hai câu canh: PHẢI ra di tích, KHÔNG được rơi vào nhánh địa chí.
+      ['địa chỉ chùa Mỹ Cụ', 'answer'],
+      ['chùa Ngọc Thanh ở đâu', 'answer'],
+    ],
+  },
+  {
     group: 'C. Di tích & danh thắng',
     items: [
       ['Đông Triều có bao nhiêu di tích', 'answer'],
