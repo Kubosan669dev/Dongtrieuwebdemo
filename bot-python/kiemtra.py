@@ -18,6 +18,7 @@ Hai nhóm quan trọng nhất:
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -29,9 +30,23 @@ for _l in (sys.stdout, sys.stderr):
     except (AttributeError, OSError):
         pass
 
-from troly import hoi, nap  # noqa: E402
-from troly.khotritthuc import cat_doan  # noqa: E402
+from troly import nap  # noqa: E402
+from troly import hoi as _hoi  # noqa: E402
+from troly.khotritthuc import API_MAC_DINH, THU_MUC_DU_PHONG, TEP_BO_QUA, TEP_DOC, cat_doan, dung_kho  # noqa: E402
 from troly.vitext import bo_dau, chuan, co_cum, tach_tu  # noqa: E402
+
+# Cùng biến môi trường với `run.py`, để chạy được ở nơi API nằm địa chỉ khác.
+API = os.environ.get("DONGTRIEU_API", API_MAC_DINH)
+
+
+def hoi(cau: str) -> dict:
+    """Luôn hỏi qua ĐÚNG địa chỉ API mà bộ kiểm đang dùng.
+
+    Gọi `_hoi(cau)` trần thì nó lấy địa chỉ mặc định, và chỉ tình cờ đúng nhờ
+    kho còn trong hạn cache. Đặt `DONGTRIEU_API` sang chỗ khác là hỏng ngay,
+    mà lại hỏng theo kiểu vẫn xanh — loại sai khó thấy nhất.
+    """
+    return _hoi(cau, API)
 
 dat = hong = 0
 CHI_HONG = "--hong" in sys.argv
@@ -81,9 +96,54 @@ kiem("đoạn dài bị cắt nhỏ", len(_ra) > 1, f"{len(_ra)} đoạn")
 kiem("không đoạn nào quá 400 ký tự", all(len(d) <= 400 for d in _ra), str(max(len(d) for d in _ra)))
 kiem("cắt theo câu, không cắt cụt giữa chừng", all(not d.endswith(("Câu", "số")) for d in _ra))
 
-# ═══ 3. Kho tri thức ═══
-nhom("3. Kho tri thức")
-kho, chi_muc = nap(ep=True)
+# ═══ 3. Đồng bộ với các tệp JSON của dự án ═══
+#
+# Trợ lý đọc dữ liệu từ API của máy chủ Node, và khi máy chủ không chạy thì đọc
+# thẳng `server/prisma/seed-data/*.json`. Đường thứ hai rất dễ trôi mà không ai
+# biết: chạy vẫn ra kết quả trông bình thường, chỉ là thiếu dữ liệu.
+#
+# Bản đầu bỏ sót `festival-details.json` và `places.json` — hai lớp bổ sung mà
+# `seed.js` gộp vào lúc gieo — nên hụt 130 trong 653 đoạn (một phần năm), mà
+# không có dấu hiệu gì.
+nhom("3. Đồng bộ với tệp JSON của dự án")
+co_tep = {p.name for p in THU_MUC_DU_PHONG.glob("*.json")}
+kiem("thấy thư mục seed-data", len(co_tep) > 5, str(THU_MUC_DU_PHONG))
+_quen = co_tep - TEP_DOC - set(TEP_BO_QUA)
+kiem(
+    "không có tệp JSON nào bị bỏ quên",
+    not _quen,
+    f"chưa khai trong TEP_DOC: {', '.join(sorted(_quen))}",
+)
+_thua = TEP_DOC - co_tep
+kiem("không khai tệp không tồn tại", not _thua, f"khai thừa: {', '.join(sorted(_thua))}")
+
+kho_tep = dung_kho(ep_tep=True)
+kiem("đọc tệp dựng được kho", len(kho_tep.doan) > 500, f"{len(kho_tep.doan)} đoạn")
+kiem("nguồn ghi đúng là tệp", kho_tep.nguon == "tep")
+_dem_tep: dict[str, int] = {}
+for d in kho_tep.doan:
+    _dem_tep[d.loai] = _dem_tep.get(d.loai, 0) + 1
+# Ba con số này chính là ba chỗ từng hụt. Ghi cứng để lần sau ai sửa bộ nạp mà
+# làm mất lớp bổ sung thì thấy ngay.
+kiem("gộp festival-details: lễ hội đủ dày", _dem_tep.get("festival", 0) >= 100, str(_dem_tep.get("festival")))
+kiem("gộp places: quán ăn đủ dày", _dem_tep.get("restaurant", 0) >= 80, str(_dem_tep.get("restaurant")))
+kiem("gộp places: lưu trú đủ dày", _dem_tep.get("lodging", 0) >= 40, str(_dem_tep.get("lodging")))
+# Gộp theo tên phải bỏ được tiền tố loại hình. `places.json` ghi tên như trên
+# Google Maps ("Nhà nghỉ Hải Yến"), `lodgings.json` ghi tên đăng ký với UBND
+# ("Hải Yến") — không cắt tiền tố thì một cơ sở bị đếm thành hai.
+_ten_co_so = {d.tieu_de for d in kho_tep.doan if d.loai in ("lodging", "restaurant")}
+_trung = sorted(t for t in _ten_co_so if any(o != t and chuan(o).endswith(" " + chuan(t)) for o in _ten_co_so))
+kiem("không cơ sở nào bị tách làm hai vì tiền tố loại hình", not _trung, " · ".join(_trung[:4]))
+
+# Nội dung CHỈ có trong hai tệp bổ sung — có thật sự vào kho không.
+_muc = {d.muc for d in kho_tep.doan}
+kiem("có mục “Ý nghĩa văn hoá” — chỉ festival-details.json mới có", "Ý nghĩa văn hoá" in _muc)
+kiem("có mục “Lưu ý khi đi” — chỉ festival-details.json mới có", "Lưu ý khi đi" in _muc)
+kiem("có mục “Món đặc trưng” — chỉ places.json mới có", "Món đặc trưng" in _muc)
+
+# ═══ 4. Kho tri thức ═══
+nhom("4. Kho tri thức")
+kho, chi_muc = nap(API, ep=True)
 kiem("dựng được kho", len(kho.doan) > 200, f"{len(kho.doan)} đoạn")
 loai = {d.loai for d in kho.doan}
 for l in ("heritage", "festival", "dia_chi", "khu_pho", "vung_dat"):
@@ -95,8 +155,8 @@ kiem("địa chí 1896 vào kho đủ dày", len(_dc) >= 80, f"{len(_dc)} đoạ
 kiem("có đoạn về núi Quy Sơn", any("Quy Sơn" in d.muc for d in _dc))
 kiem("có đoạn về khu phố xưa", any("Khu phố xưa" in d.muc for d in _dc))
 
-# ═══ 4. Trả lời được ═══
-nhom("4. Câu hỏi phải trả lời được")
+# ═══ 5. Trả lời được ═══
+nhom("5. Câu hỏi phải trả lời được")
 PHAI_TRA_LOI = [
     ("núi Quy Sơn hình gì", "rùa"),
     ("ai đỗ bảng nhãn đời Trần", "Lê Hiển Phủ"),
@@ -126,8 +186,8 @@ for cau, mong in PHAI_TRA_LOI:
     r = hoi(cau)
     kiem(f"“{cau}”", r["matched"] and mong in than_bai(r), r["intent"] if not r["matched"] else "thiếu " + mong)
 
-# ═══ 5. PHẢI TỪ CHỐI ═══
-nhom("5. Câu ngoài phạm vi — phải từ chối, không được bịa")
+# ═══ 6. PHẢI TỪ CHỐI ═══
+nhom("6. Câu ngoài phạm vi — phải từ chối, không được bịa")
 # Ba câu đầu là lỗi CÓ THẬT bắt được lúc dựng, giữ lại làm bài hồi quy.
 PHAI_TU_CHOI = [
     "thủ đô nước Pháp là gì",   # từng ra hồ sơ chùa Quỳnh Lâm, chỉ vì "nước ta" + "Pháp Loa"
@@ -145,8 +205,8 @@ for cau in PHAI_TU_CHOI:
     r = hoi(cau)
     kiem(f"từ chối “{cau}”", not r["matched"], f"lại trả lời: {r['intent']}")
 
-# ═══ 6. KHÔNG ĐƯỢC BỊA ═══
-nhom("6. Mọi câu trả lời phải trích nguyên văn từ kho")
+# ═══ 7. KHÔNG ĐƯỢC BỊA ═══
+nhom("7. Mọi câu trả lời phải trích nguyên văn từ kho")
 _kho_van = {d.noi_dung for d in kho.doan}
 _thieu = []
 for cau, _ in PHAI_TRA_LOI:
@@ -164,8 +224,8 @@ for cau, _ in PHAI_TRA_LOI:
             _thieu.append((cau, doan[:60]))
 kiem("không đoạn nào là chữ do máy tự viết", not _thieu, str(_thieu[:2]))
 
-# ═══ 7. Cảnh báo nguồn 1896 ═══
-nhom("7. Trích địa chí 1896 phải kèm cảnh báo phạm vi")
+# ═══ 8. Cảnh báo nguồn 1896 ═══
+nhom("8. Trích địa chí 1896 phải kèm cảnh báo phạm vi")
 # Huyện Đông Triều 1896 thuộc Hải Dương, gồm cả Yên Tử và Mạo Khê — rộng hơn
 # phường hôm nay rất nhiều. Trích mà không nói rõ là để người đọc hiểu nhầm.
 _co_1896 = 0
@@ -176,8 +236,8 @@ for cau in ("núi Quy Sơn hình gì", "ai đỗ bảng nhãn đời Trần", "t
         kiem(f"“{cau}” có câu cảnh báo phạm vi", "1896" in r["reply"] and "rộng hơn phường" in r["reply"])
 kiem("có ít nhất một câu lấy từ địa chí 1896", _co_1896 >= 1, str(_co_1896))
 
-# ═══ 8. Xã giao & vỏ bọc ═══
-nhom("8. Xã giao và trường hợp biên")
+# ═══ 9. Xã giao & vỏ bọc ═══
+nhom("9. Xã giao và trường hợp biên")
 kiem("chào hỏi", hoi("xin chào")["intent"] == "greeting")
 kiem("cảm ơn", hoi("cảm ơn bạn nhé")["intent"] == "thanks")
 kiem("hỏi bot là ai", hoi("bạn là ai")["intent"] == "help")
@@ -187,6 +247,34 @@ kiem("câu rất dài không nổ", isinstance(hoi("a" * 3000)["reply"], str))
 kiem("gõ KHÔNG DẤU vẫn ra", hoi("nui Quy Son hinh gi")["matched"])
 kiem("gõ SAI CHÍNH TẢ vẫn ra", hoi("nui Quy Sonn hinh gi")["matched"])
 kiem("mọi câu trả lời đều có gợi ý tiếp", all(hoi(c)["suggestions"] for c, _ in PHAI_TRA_LOI[:3]))
+
+# ═══ 10. Hai đường nạp phải cho ra như nhau ═══
+#
+# Phép kiểm mạnh nhất về đồng bộ, nhưng cần máy chủ Node đang chạy nên tự bỏ
+# qua khi không có — bộ kiểm này phải chạy được cả lúc ngoại tuyến.
+nhom("10. API và tệp JSON phải cho ra như nhau")
+kho_api = dung_kho(API)
+if kho_api.nguon != "api":
+    if not CHI_HONG:
+        print("  … bỏ qua: máy chủ Node chưa chạy (`npm run dev`)")
+else:
+    lech = abs(len(kho_tep.doan) - len(kho_api.doan)) / max(len(kho_api.doan), 1)
+    kiem(
+        "hai đường lệch không quá 5%",
+        lech <= 0.05,
+        f"API {len(kho_api.doan)} đoạn · tệp {len(kho_tep.doan)} đoạn · lệch {lech * 100:.1f}%",
+    )
+    _a: dict[str, int] = {}
+    _b: dict[str, int] = {}
+    for d in kho_api.doan:
+        _a[d.loai] = _a.get(d.loai, 0) + 1
+    for d in kho_tep.doan:
+        _b[d.loai] = _b.get(d.loai, 0) + 1
+    kiem("hai đường có cùng các loại nội dung", set(_a) == set(_b), f"chênh: {set(_a) ^ set(_b)}")
+    # Từng loại một: hụt hẳn một loại thì tổng vẫn có thể trong ngưỡng 5%.
+    for k in sorted(set(_a) | set(_b)):
+        x, y = _a.get(k, 0), _b.get(k, 0)
+        kiem(f"loại {k} khớp (API {x} · tệp {y})", abs(y - x) <= max(3, x * 0.1))
 
 print(f"\n{'✗' if hong else '✓'} {dat} đạt · {hong} hỏng")
 raise SystemExit(1 if hong else 0)

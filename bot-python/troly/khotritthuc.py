@@ -136,9 +136,75 @@ def _doc_tep(ten: str):
         return None
 
 
-def _lay_du_lieu(api: str, giay: float) -> tuple[dict, str]:
+# ── Tệp gieo dữ liệu mà đường ngoại tuyến ĐỌC ──────────────────────────────
+# Danh sách này có phép kiểm canh (xem `kiemtra.py`, muc 3): thêm tệp mới vào
+# `server/prisma/seed-data/` mà quên khai ở đây thì bo kiem đỏ, thay vì trợ lý
+# lặng lẽ thiếu dữ liệu mà không ai biết.
+TEP_DOC = {
+    "about.json", "khu-pho.json", "vung-dat.json", "dia-chi-1896.json",
+    "heritages.json", "festivals.json", "festival-details.json", "cuisines.json",
+    "attractions.json", "articles.json", "restaurants.json", "lodgings.json",
+    "places.json",
+}
+# Cố ý bỏ qua, kèm lý do — để phép kiểm chống trôi không báo nhầm.
+TEP_BO_QUA: dict[str, str] = {}
+
+
+def _ds(x):
+    """Tệp có thể là mảng thẳng, hoặc object bọc một mảng."""
+    if isinstance(x, list):
+        return x
+    if isinstance(x, dict):
+        for v in x.values():
+            if isinstance(v, list):
+                return v
+    return []
+
+
+def _khoa_ten(s: str) -> str:
+    """Khoá ghép theo tên cơ sở — bỏ dấu, bỏ tiền tố loại hình.
+
+    `places.json` ghi tên như trên Google Maps ("Nhà nghỉ Hải Yến"), còn
+    `lodgings.json` ghi tên đăng ký với UBND ("Hải Yến"). Không cắt tiền tố thì
+    hai bên thành hai cơ sở khác nhau và kho bị đếm trùng.
+    """
+    t = chuan(s)
+    for tien_to in ("nha hang ", "nha nghi ", "khach san ", "quan an ", "quan ", "homestay ", "cafe ", "ca phe "):
+        if t.startswith(tien_to):
+            t = t[len(tien_to):]
+    return t.strip()
+
+
+def _gop_co_so(co_ban: list, places: list, target: str) -> list:
+    """Gộp lớp khảo sát 2026 (`places.json`) lên trên tệp cơ sở.
+
+    `seed.js` làm đúng việc này khi gieo dữ liệu: `places.json` là lớp khảo sát
+    mới, ghép theo tên lên bản ghi cũ, và tạo mới cơ sở nào chưa có. Đọc mỗi
+    `restaurants.json` + `lodgings.json` thì trợ lý chỉ thấy 24 cơ sở trong khi
+    cơ sở dữ liệu có 55 — thiếu hơn một nửa.
+
+    Ở đây chỉ GỘP TRƯỜNG để tra cứu, không cần dựng lại toàn bộ luật ưu tiên
+    của `seed.js`: trợ lý đọc chữ, không ghi lại vào đâu cả.
+    """
+    theo_ten = {_khoa_ten(x.get("name", "")): dict(x) for x in co_ban if x.get("name")}
+    for p in places:
+        if p.get("target") != target or not p.get("name"):
+            continue
+        k = _khoa_ten(p["name"])
+        cu = theo_ten.get(k)
+        if cu is None:
+            theo_ten[k] = dict(p)
+            continue
+        # Giữ TÊN của bản ghi cũ — đó là tên đăng ký với UBND, đáng tin hơn tên
+        # hiển thị trên Google Maps. Cùng quy tắc với `seed.js`.
+        gop = {**{a: b for a, b in p.items() if b not in (None, "", [])}, **{"name": cu["name"]}}
+        theo_ten[k] = {**cu, **gop}
+    return list(theo_ten.values())
+
+
+def _lay_du_lieu(api: str, giay: float, ep_tep: bool = False) -> tuple[dict, str]:
     """Ưu tiên API đang chạy; không được thì đọc tệp gieo dữ liệu."""
-    cai_dat = _goi_api(api, "/settings", giay)
+    cai_dat = None if ep_tep else _goi_api(api, "/settings", giay)
     if cai_dat is not None:
         du = {"settings": cai_dat.get("settings", {})}
         for ten in ("heritages", "festivals", "cuisines", "attractions", "articles", "restaurants", "lodgings"):
@@ -146,15 +212,17 @@ def _lay_du_lieu(api: str, giay: float) -> tuple[dict, str]:
             du[ten] = (kq or {}).get("items", [])
         return du, "api"
 
-    # Ngoại tuyến: đọc thẳng các tệp gieo dữ liệu.
-    def ds(x):
-        if isinstance(x, list):
-            return x
-        if isinstance(x, dict):
-            for v in x.values():
-                if isinstance(v, list):
-                    return v
-        return []
+    # ── Ngoại tuyến: đọc thẳng các tệp gieo dữ liệu ──
+    # Hai tệp dưới đây KHÔNG phải bảng độc lập mà là lớp bổ sung, `seed.js` gộp
+    # chúng vào lúc gieo. Không gộp lại ở đây thì đường ngoại tuyến hụt đúng
+    # phần nội dung dày nhất.
+    places = _ds(_doc_tep("places.json"))
+    chi_tiet_le_hoi = {d["slug"]: d for d in _ds(_doc_tep("festival-details.json")) if d.get("slug")}
+
+    le_hoi = []
+    for f in _ds(_doc_tep("festivals.json")):
+        ct = chi_tiet_le_hoi.get(f.get("slug"))
+        le_hoi.append({**f, **{a: b for a, b in (ct or {}).items() if b not in (None, "", [])}})
 
     return (
         {
@@ -168,13 +236,13 @@ def _lay_du_lieu(api: str, giay: float) -> tuple[dict, str]:
                 )
                 if v is not None
             },
-            "heritages": ds(_doc_tep("heritages.json")),
-            "festivals": ds(_doc_tep("festivals.json")),
-            "cuisines": ds(_doc_tep("cuisines.json")),
-            "attractions": ds(_doc_tep("attractions.json")),
-            "articles": ds(_doc_tep("articles.json")),
-            "restaurants": ds(_doc_tep("restaurants.json")),
-            "lodgings": ds(_doc_tep("lodgings.json")),
+            "heritages": _ds(_doc_tep("heritages.json")),
+            "festivals": le_hoi,
+            "cuisines": _ds(_doc_tep("cuisines.json")),
+            "attractions": _gop_co_so(_ds(_doc_tep("attractions.json")), places, "attraction"),
+            "articles": _ds(_doc_tep("articles.json")),
+            "restaurants": _gop_co_so(_ds(_doc_tep("restaurants.json")), places, "restaurant"),
+            "lodgings": _gop_co_so(_ds(_doc_tep("lodgings.json")), places, "lodging"),
         },
         "tep",
     )
@@ -292,9 +360,9 @@ def _tu_cai_dat(ra: list[Doan], cd: dict) -> None:
               muc=s.get("title") or "Nội dung", noi_dung=s.get("body") or "", url="/gioi-thieu", stt=i)
 
 
-def dung_kho(api: str = API_MAC_DINH, giay: float = 4.0) -> Kho:
-    """Dựng toàn bộ kho đoạn."""
-    du, nguon = _lay_du_lieu(api, giay)
+def dung_kho(api: str = API_MAC_DINH, giay: float = 4.0, ep_tep: bool = False) -> Kho:
+    """Dựng toàn bộ kho đoạn. `ep_tep` bỏ qua API, đọc thẳng tệp gieo dữ liệu."""
+    du, nguon = _lay_du_lieu(api, giay, ep_tep)
     ra: list[Doan] = []
 
     _tu_ban_ghi(ra, du.get("heritages"), "heritage", "/di-tich", {

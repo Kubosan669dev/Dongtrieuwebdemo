@@ -459,8 +459,15 @@ câu trả lời:
 cd bot-python
 python run.py chat                        # trò chuyện trong cửa sổ lệnh
 python run.py serve                       # dịch vụ HTTP ở cổng 5005
-python kiemtra.py                         # bộ kiểm, 65 phép
+python run.py doi-chieu                   # so kho từ API với kho từ tệp JSON
+python kiemtra.py                         # bộ kiểm, 90 phép
 ```
+
+Nó đọc dữ liệu **qua API của máy chủ Node**, và khi máy chủ không chạy thì lùi về
+đọc thẳng `server/prisma/seed-data/*.json` (ép bằng cờ `--tep`). Hai đường phải
+cho ra như nhau — hiện **652 so với 653 đoạn**, lệch 0,2% — và có bộ kiểm canh:
+thêm tệp JSON mới vào `seed-data/` mà bộ nạp Python quên đọc thì `kiemtra.py` đỏ.
+Chi tiết ở [`bot-python/README.md`](bot-python/README.md).
 
 `server/src/services/pybot.js` gọi sang đây **chỉ khi bộ luật đã chịu thua**. Thứ tự đó quan trọng:
 gọi Python trước sẽ cướp mất các câu cần tính theo giờ. Không bật Python thì cổng chạy y như trước —

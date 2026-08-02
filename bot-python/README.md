@@ -11,8 +11,11 @@ python run.py chat                          # trò chuyện ngay trong cửa s�
 python run.py hoi "Đông Triều có núi nào"    # hỏi một câu rồi thoát
 python run.py serve                          # mở dịch vụ HTTP ở cổng 5005
 python run.py kho                            # xem kho tri thức đang có gì
-python kiemtra.py                            # chạy bộ kiểm (65 phép)
+python run.py doi-chieu                      # so kho từ API với kho từ tệp JSON
+python kiemtra.py                            # chạy bộ kiểm (90 phép)
 ```
+
+Thêm cờ `--tep` vào `chat` / `hoi` / `kho` để bỏ qua API và đọc thẳng tệp JSON.
 
 ## Nó khác bản JavaScript ở chỗ nào
 
@@ -71,14 +74,40 @@ từng khiến *"khu phố Trạo Hà **xưa** tên gì"* trả về số hộ c
 vì đoạn đó có chữ "**có** 1012 hộ". Đã loại: cổ · đế · đồi · ông · than · thờ ·
 bến · tự · ăn · ấp.
 
-## Nguồn dữ liệu
+## Nguồn dữ liệu — hai đường, phải cho ra như nhau
 
-Đọc qua **API công khai** của máy chủ Node — không nối thẳng vào cơ sở dữ liệu,
-không giữ bản sao riêng. Quản trị viên sửa nội dung trong trang quản trị là trợ
-lý Python đổi theo, giống hệt bản JS.
+**Đường chính: API công khai** của máy chủ Node. Không nối thẳng vào cơ sở dữ
+liệu, không giữ bản sao riêng. Quản trị viên sửa nội dung trong trang quản trị
+là trợ lý Python đổi theo, giống hệt bản JS.
 
-Máy chủ Node chưa chạy thì lùi về đọc `server/prisma/seed-data/*.json`, nên
-`python run.py chat` và `kiemtra.py` vẫn dùng được ngoại tuyến.
+**Đường dự phòng: đọc thẳng `server/prisma/seed-data/*.json`.** Máy chủ Node
+không chạy thì tự lùi về đường này, nên `python run.py chat` và `kiemtra.py` vẫn
+dùng được ngoại tuyến. Ép dùng đường này bằng cờ `--tep`.
+
+⚠️ **Hai tệp KHÔNG phải bảng độc lập mà là lớp bổ sung**, `seed.js` gộp chúng vào
+lúc gieo dữ liệu — nên đường đọc tệp phải gộp lại y như vậy:
+
+| Tệp | Gộp vào | Ghép theo |
+|---|---|---|
+| `festival-details.json` | `festivals.json` | `slug` |
+| `places.json` (55 cơ sở khảo sát 2026) | `restaurants.json` · `lodgings.json` · `attractions.json` | tên đã bỏ tiền tố loại hình |
+
+Bản đầu bỏ sót cả hai, hụt **130 trong 653 đoạn** — một phần năm kho — mà chạy
+vẫn ra kết quả trông hoàn toàn bình thường. Không có dấu hiệu gì. Nên bây giờ có
+ba lớp canh:
+
+```bash
+python run.py doi-chieu     # bảng so từng loại nội dung, ngưỡng lệch 5%
+python kiemtra.py           # mục 3 và mục 10 canh đúng chỗ này
+```
+
+- **Mục 3** — mọi `*.json` trong `seed-data/` phải được khai trong `TEP_DOC`
+  (hoặc `TEP_BO_QUA` kèm lý do). Thêm tệp mới mà quên khai là bộ kiểm đỏ.
+- **Mục 10** — dựng cả hai kho rồi so từng loại. Tự bỏ qua khi máy chủ Node tắt.
+
+Số hiện tại: **API 652 đoạn · tệp 653 đoạn**, lệch 0,2%. Chênh lệch còn lại là
+thật và chấp nhận được — `about.intro` chỉ có trong cơ sở dữ liệu chứ không có
+trong `about.json`, và cách ghép tên cơ sở khác `coreName` của `seed.js` đôi chút.
 
 ```
 DONGTRIEU_API=http://localhost:4000/api   # đổi địa chỉ API
@@ -110,8 +139,8 @@ không nên mở ra mạng ngoài.
 ## Cấu trúc
 
 ```
-run.py               chat · serve · hoi · kho
-kiemtra.py           bộ kiểm, 65 phép
+run.py               chat · serve · hoi · kho · doi-chieu   (cờ --tep)
+kiemtra.py           bộ kiểm, 90 phép (77 khi chạy ngoại tuyến)
 troly/
   vitext.py          bỏ dấu, tách từ, đồng nghĩa, khoảng cách sửa
   khotritthuc.py     nạp dữ liệu, cắt thành đoạn

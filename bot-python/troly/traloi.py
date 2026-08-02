@@ -61,12 +61,16 @@ _chi_muc: ChiMuc | None = None
 _api = API_MAC_DINH
 
 
-def nap(api: str = API_MAC_DINH, ep: bool = False):
-    """Lấy kho tri thức, dựng lại khi quá hạn hoặc khi bị ép."""
+def nap(api: str = API_MAC_DINH, ep: bool = False, ep_tep: bool = False):
+    """Lấy kho tri thức, dựng lại khi quá hạn hoặc khi bị ép.
+
+    `ep_tep` bỏ qua API, đọc thẳng tệp gieo dữ liệu — dùng để chạy ngoại tuyến
+    và để bộ kiểm đối chiếu hai nguồn với nhau.
+    """
     global _kho, _chi_muc, _api
     _api = api
-    if ep or _kho is None or time.time() - _kho.luc > TTL:
-        _kho = dung_kho(api)
+    if ep or ep_tep or _kho is None or time.time() - _kho.luc > TTL:
+        _kho = dung_kho(api, ep_tep=ep_tep)
         _chi_muc = ChiMuc(_kho.doan)
     return _kho, _chi_muc
 
