@@ -79,21 +79,22 @@ export default function MapPage() {
       <div className="grid lg:h-[calc(100vh-4rem)] lg:grid-cols-[24rem_1fr] lg:grid-rows-[auto_minmax(0,1fr)] xl:grid-cols-[27rem_1fr]">
         {/* ── Tiêu đề + tìm kiếm + bộ lọc ── */}
         <div className="border-b border-jade-900/10 bg-paper px-5 pb-4 pt-6 lg:col-start-1 lg:row-start-1 lg:border-r dark:border-white/10 dark:bg-jade-950 lg:dark:border-r-white/10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-terra-600 dark:text-terra-400">
-            Tra cứu vị trí
-          </p>
+          {/* Dùng lớp `.eyebrow` chung thay vì tự ghi lại: bản cũ ghi tay bằng
+              `text-terra-600`, mà terra tụt xuống 3.56 ở ba bảng màu. Nhãn chung
+              cũng mang sẵn gạch vàng mở đầu như mọi mục khác của cổng. */}
+          <p className="eyebrow">Tra cứu vị trí</p>
           <h1 className="mt-1 font-serif text-2xl font-bold leading-tight text-jade-900 xl:text-3xl dark:text-jade-50">
             Bản đồ số Đông Triều
           </h1>
 
-          <div className="mt-4 flex items-center gap-2 rounded-full bg-jade-50 px-4 ring-1 ring-jade-900/10 focus-within:ring-jade-500 dark:bg-jade-900/60 dark:ring-white/10">
-            <Search size={16} className="shrink-0 text-jade-400" />
+          <div className="mt-4 flex items-center gap-2 rounded-md bg-jade-50 px-4 ring-1 ring-jade-900/10 focus-within:ring-jade-500 dark:bg-jade-900/60 dark:ring-white/10">
+            <Search size={16} className="shrink-0 text-subtle" />
             <input
               value={tim}
               onChange={(e) => setTim(e.target.value)}
               placeholder="Tìm di tích, quán ăn, nhà nghỉ…"
               aria-label="Tìm điểm trên bản đồ"
-              className="w-full bg-transparent py-2.5 text-sm outline-none placeholder:text-jade-400"
+              className="w-full bg-transparent py-2.5 text-sm outline-none placeholder:text-ink/50 dark:placeholder:text-jade-50/50"
             />
           </div>
 
@@ -110,8 +111,9 @@ export default function MapPage() {
                   type="button"
                   onClick={() => doiNhom(k)}
                   aria-pressed={bat}
+                  data-loc-nhom={k}
                   className={cx(
-                    'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition',
+                    'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
                     bat
                       ? 'bg-jade-600 text-white shadow-soft'
                       : 'bg-jade-50 text-jade-600 ring-1 ring-jade-900/10 hover:bg-jade-100 dark:bg-jade-900/60 dark:text-jade-300 dark:ring-white/10 dark:hover:bg-jade-800',
@@ -126,7 +128,7 @@ export default function MapPage() {
                     )}
                   />
                   {kind.label}
-                  <span className={cx('tabular-nums', bat ? 'text-jade-100/80' : 'text-jade-400')}>
+                  <span className={cx('tabular-nums', bat ? 'text-jade-100/80' : 'text-subtle')}>
                     {g?.count ?? 0}
                   </span>
                 </button>
@@ -163,7 +165,7 @@ export default function MapPage() {
                 className="h-full"
               />
             ) : (
-              <div className="grid h-full place-items-center bg-jade-50 text-sm text-jade-500 dark:bg-jade-900/40">
+              <div className="grid h-full place-items-center bg-jade-50 text-sm text-muted dark:bg-jade-900/40">
                 {isLoading ? 'Đang tải bản đồ…' : 'Bật ít nhất một nhóm để xem bản đồ.'}
               </div>
             )}
@@ -181,7 +183,7 @@ export default function MapPage() {
                 <button
                   type="button"
                   onClick={() => setHienChiTiet(true)}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-jade-900/90 px-4 py-2 text-xs font-semibold text-white shadow-lift backdrop-blur hover:bg-jade-900"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-jade-900/90 px-4 py-2 text-xs font-semibold text-white shadow-lift backdrop-blur hover:bg-jade-900"
                 >
                   <Info size={14} /> Hiện thông tin
                 </button>
@@ -191,7 +193,7 @@ export default function MapPage() {
 
         {/* ── Danh sách ── */}
         <div className="flex min-h-0 flex-col bg-paper lg:col-start-1 lg:row-start-2 lg:border-r lg:border-white/10 dark:bg-jade-950 lg:dark:border-r-white/10">
-          <p className="shrink-0 border-b border-jade-900/5 px-5 py-2.5 text-xs text-jade-500 lg:border-r-0 dark:border-white/5">
+          <p className="shrink-0 border-b border-jade-900/5 px-5 py-2.5 text-xs text-muted lg:border-r-0 dark:border-white/5">
             {locDiem.length} điểm{tim ? ` khớp “${tim}”` : ''}
           </p>
 
@@ -219,7 +221,7 @@ export default function MapPage() {
                     // đoạn giới thiệu thì lại có thể chứa đúng chữ của nhóm khác.
                     data-kind={p.kind}
                     className={cx(
-                      'w-full rounded-xl border-l-4 p-3.5 text-left transition',
+                      'w-full rounded-md border-l-4 p-3.5 text-left transition',
                       dangXem
                         ? 'border-jade-600 bg-jade-600/10 dark:border-jade-400 dark:bg-jade-400/10'
                         : 'border-transparent bg-jade-50/70 hover:bg-jade-100 dark:bg-jade-900/50 dark:hover:bg-jade-800/60',
@@ -232,13 +234,13 @@ export default function MapPage() {
                           className={cx(
                             'block font-serif text-[0.95rem] font-semibold leading-snug',
                             dangXem
-                              ? 'text-jade-700 dark:text-jade-200'
+                              ? 'text-muted'
                               : 'text-jade-900 dark:text-jade-50',
                           )}
                         >
                           {p.name}
                         </span>
-                        <span className="mt-0.5 block text-[11px] uppercase tracking-wide text-jade-400">
+                        <span className="mt-0.5 block text-[11px] uppercase tracking-wide text-subtle">
                           {kind.label}
                         </span>
                       </span>
@@ -254,12 +256,12 @@ export default function MapPage() {
                         đã cắt sẵn ~320 ký tự (xem routes/mapPoints.js); ở đây cắt
                         tiếp còn ba dòng, phần đầy đủ nằm trong khung trên bản đồ. */}
                     {p.summary ? (
-                      <span className="mt-2 block line-clamp-3 text-[13px] leading-relaxed text-jade-600 dark:text-jade-300">
+                      <span className="mt-2 block line-clamp-3 text-[13px] leading-relaxed text-muted">
                         {p.summary}
                       </span>
                     ) : (
                       p.address && (
-                        <span className="mt-2 block line-clamp-2 text-[13px] leading-relaxed text-jade-500">
+                        <span className="mt-2 block line-clamp-2 text-[13px] leading-relaxed text-muted">
                           {p.address}
                         </span>
                       )
@@ -270,7 +272,7 @@ export default function MapPage() {
             })}
 
             {locDiem.length === 0 && !isLoading && (
-              <li className="rounded-xl bg-jade-50 p-6 text-center text-sm text-jade-500 dark:bg-jade-900/50">
+              <li className="rounded-md bg-jade-50 p-6 text-center text-sm text-muted dark:bg-jade-900/50">
                 {tim ? `Không tìm thấy điểm nào khớp “${tim}”.` : 'Hãy bật ít nhất một nhóm.'}
               </li>
             )}
@@ -312,7 +314,7 @@ function KhungChiTiet({ point: p, onAn }) {
 
   return (
     <div id="khung-chi-tiet" className="p-3 lg:absolute lg:bottom-24 lg:right-4 lg:z-20 lg:w-[21rem] lg:p-0">
-      <div className="overflow-hidden rounded-2xl bg-paper shadow-lift ring-1 ring-jade-900/10 dark:bg-jade-950 dark:ring-white/10">
+      <div className="overflow-hidden rounded-md bg-paper shadow-lift ring-1 ring-jade-900/10 dark:bg-jade-950 dark:ring-white/10">
         <div className="flex items-start gap-2 px-4 pt-3.5">
           <div className="min-w-0 flex-1">
             <p className={cx('text-[10px] font-semibold uppercase tracking-wider', kind.textClass)}>
@@ -325,7 +327,7 @@ function KhungChiTiet({ point: p, onAn }) {
           <button
             type="button"
             onClick={onAn}
-            className="-mr-1 inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-jade-500 hover:bg-jade-100 dark:hover:bg-jade-800"
+            className="-mr-1 inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-muted hover:bg-jade-100 dark:hover:bg-jade-800"
           >
             Ẩn <ChevronDown size={13} />
           </button>
@@ -340,12 +342,12 @@ function KhungChiTiet({ point: p, onAn }) {
               phần lớn điểm vừa trọn, cuộn chỉ là trường hợp lẻ. Để thấp hơn thì
               gần như mục nào cũng bị cắt ngang câu, trông như lỗi dựng trang. */}
           {p.summary && (
-            <p className="no-scrollbar max-h-32 overflow-y-auto text-[13px] leading-relaxed text-jade-600 dark:text-jade-300">
+            <p className="no-scrollbar max-h-32 overflow-y-auto text-[13px] leading-relaxed text-muted">
               {p.summary}
             </p>
           )}
           {p.address && (
-            <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-snug text-jade-500">
+            <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-snug text-muted">
               <MapPin size={12} className="mt-0.5 shrink-0" />
               {p.address}
             </p>

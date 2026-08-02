@@ -96,12 +96,12 @@ export default function MapPicker({ lat, lng, onPick, name, address, ward, heigh
           <button
             type="button"
             onClick={() => onPick?.({ lat: null, lng: null })}
-            className="btn-ghost btn-sm text-terra-600"
+            className="btn-ghost btn-sm text-danger"
           >
             <MapPinOff size={13} /> Xoá toạ độ
           </button>
         )}
-        <span className="ml-auto text-xs text-jade-500">Bấm lên bản đồ hoặc kéo ghim để đặt vị trí</span>
+        <span className="ml-auto text-xs text-muted">Bấm lên bản đồ hoặc kéo ghim để đặt vị trí</span>
       </div>
 
       {dangCho ? (
@@ -117,7 +117,7 @@ export default function MapPicker({ lat, lng, onPick, name, address, ward, heigh
           trắng — không báo thì họ sẽ ngồi ghim mò trên một bản đồ trống và tưởng
           bản đồ vốn dĩ như vậy. */}
       {hongGoogle && (
-        <p className="flex items-start gap-1.5 rounded-lg bg-gold-50 px-3 py-2 text-xs text-gold-800 dark:bg-gold-900/25 dark:text-gold-200">
+        <p className="flex items-start gap-1.5 rounded-md bg-gold-50 px-3 py-2 text-xs text-gold-800 dark:bg-gold-900/25 dark:text-gold-200">
           <AlertTriangle size={13} className="mt-0.5 shrink-0" />
           <span>
             Đang dùng nền OpenStreetMap vì Google Maps không dùng được: {hongGoogle} Kiểm tra lại khoá ở{' '}
@@ -133,8 +133,8 @@ export default function MapPicker({ lat, lng, onPick, name, address, ward, heigh
         <p
           className={
             ketQua.tang === 1
-              ? 'rounded-lg bg-jade-50 px-3 py-2 text-xs text-jade-700 dark:bg-jade-900/40 dark:text-jade-200'
-              : 'rounded-lg bg-gold-50 px-3 py-2 text-xs text-gold-800 dark:bg-gold-900/25 dark:text-gold-200'
+              ? 'rounded-md bg-jade-50 px-3 py-2 text-xs text-jade-700 dark:bg-jade-900/40 dark:text-jade-200'
+              : 'rounded-md bg-gold-50 px-3 py-2 text-xs text-gold-800 dark:bg-gold-900/25 dark:text-gold-200'
           }
         >
           {ketQua.tang === 1 ? (
@@ -149,7 +149,7 @@ export default function MapPicker({ lat, lng, onPick, name, address, ward, heigh
           )}
         </p>
       )}
-      {loi && <p className="rounded-lg bg-terra-500/10 px-3 py-2 text-xs text-terra-600">{loi}</p>}
+      {loi && <p className="rounded-md bg-terra-500/10 px-3 py-2 text-xs text-danger">{loi}</p>}
     </div>
   );
 }
@@ -158,7 +158,7 @@ function KhungCho({ height }) {
   return (
     <div
       style={{ height }}
-      className="grid place-items-center rounded-xl bg-jade-50 text-sm text-jade-500 dark:bg-jade-900/40"
+      className="grid place-items-center rounded-md bg-jade-50 text-sm text-muted dark:bg-jade-900/40"
     >
       <span className="flex items-center gap-2">
         <Loader2 size={14} className="animate-spin" /> Đang tải bản đồ…

@@ -39,7 +39,7 @@ export default function HeritagesAdmin() {
         onChange={(v) => set('coverIsIllustrative', v)}
         label="Ảnh minh hoạ"
       />
-      <p className="-mt-2 text-xs text-jade-400">
+      <p className="-mt-2 text-xs text-subtle">
         Bật khi ảnh không phải chụp chính di tích này — giao diện sẽ hiện nhãn “Ảnh minh hoạ” cho du khách.
       </p>
 

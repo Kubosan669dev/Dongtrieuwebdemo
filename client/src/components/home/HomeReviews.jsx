@@ -7,15 +7,15 @@ import { Stars } from '../Stars.jsx';
 import { SectionHeading } from '../ui.jsx';
 
 /**
- * Đánh giá mới nhất của du khách.
+ * Đánh giá mới nhất của người dân và du khách.
  *
  * Chỉ lấy mục ĐÃ DUYỆT — `/api/reviews/recent` không có tham số nào cho phép xem
  * mục đang chờ, nên khối này không thể vô tình lộ hàng chờ ra trang chủ.
  *
- * Chưa có đánh giá nào đã duyệt thì **không hiện gì cả**: một mục "Đánh giá du
- * khách" trống rỗng trên trang chủ nói rằng chưa ai tới đây, tệ hơn là không có
- * mục đó. Khác với khối đánh giá ở trang chi tiết — chỗ đó cần lời mời gửi vì
- * khách đang đọc đúng địa điểm mình muốn nhận xét.
+ * Chưa có đánh giá nào đã duyệt thì **không hiện gì cả**: một mục cảm nhận trống
+ * rỗng trên trang chủ nói rằng chưa ai tới đây, tệ hơn là không có mục đó. Khác
+ * với khối đánh giá ở trang chi tiết — chỗ đó cần lời mời gửi vì người đọc đang
+ * ở đúng địa điểm mình muốn nhận xét.
  */
 export default function HomeReviews() {
   const q = useQuery({ queryKey: ['reviews', 'recent'], queryFn: () => api.get('/reviews/recent?limit=6') });
@@ -26,8 +26,8 @@ export default function HomeReviews() {
     <section data-vao className="container-page mt-16">
       <SectionHeading
         eyebrow="Cảm nhận"
-        title="Du khách nói gì"
-        description="Đánh giá do du khách gửi trên cổng này, đã được ban quản trị duyệt."
+        title="Người dân & du khách nói gì"
+        description="Cảm nhận gửi trên cổng này, đã được ban quản trị của phường duyệt."
       />
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((r) => (
@@ -35,7 +35,7 @@ export default function HomeReviews() {
             <Quote size={20} className="mb-3 shrink-0 text-gold-400" aria-hidden="true" />
             {/* Văn bản thuần, cắt còn 4 dòng cho các thẻ cao bằng nhau. Toàn văn
                 nằm ở trang chi tiết của địa điểm. */}
-            <blockquote className="line-clamp-4 flex-1 leading-relaxed text-jade-800 dark:text-jade-100">
+            <blockquote className="line-clamp-4 flex-1 leading-relaxed text-body">
               {r.comment}
             </blockquote>
             <figcaption className="mt-4 border-t border-jade-900/5 pt-3 dark:border-white/5">
@@ -43,7 +43,7 @@ export default function HomeReviews() {
                 <Stars value={r.rating} size={13} />
                 <span className="text-sm font-medium text-jade-900 dark:text-jade-50">{r.authorName}</span>
               </div>
-              <p className="mt-1 text-xs text-jade-500 dark:text-jade-400">
+              <p className="mt-1 text-xs text-muted">
                 {/* Nói rõ đánh giá này về cái gì — một lời khen không gắn với địa
                     điểm nào thì trang chủ hiện ra cũng vô nghĩa. */}
                 {r.targetPath ? (

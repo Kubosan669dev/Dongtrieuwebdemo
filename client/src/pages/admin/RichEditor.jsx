@@ -20,7 +20,7 @@ function Btn({ onClick, active, children, title }) {
       type="button"
       onClick={onClick}
       title={title}
-      className={cx('grid h-8 w-8 place-items-center rounded-lg text-sm', active ? 'bg-jade-600 text-white' : 'text-jade-600 hover:bg-jade-100 dark:text-jade-200 dark:hover:bg-jade-800')}
+      className={cx('grid h-8 w-8 place-items-center rounded-md text-sm', active ? 'bg-jade-600 text-white' : 'text-jade-600 hover:bg-jade-100 dark:text-jade-200 dark:hover:bg-jade-800')}
     >
       {children}
     </button>
@@ -33,7 +33,7 @@ export default function RichEditor({ value, onChange }) {
     extensions: [
       StarterKit,
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener' } }),
-      Image.configure({ HTMLAttributes: { class: 'rounded-xl' } }),
+      Image.configure({ HTMLAttributes: { class: 'rounded-md' } }),
     ],
     content: value || '',
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -53,7 +53,7 @@ export default function RichEditor({ value, onChange }) {
   };
 
   return (
-    <div className="rounded-xl border border-jade-200 dark:border-jade-700">
+    <div className="rounded-md border border-jade-200 dark:border-jade-700">
       <div className="flex flex-wrap items-center gap-1 border-b border-jade-200 p-2 dark:border-jade-700">
         <Btn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Đậm"><Bold size={15} /></Btn>
         <Btn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="Nghiêng"><Italic size={15} /></Btn>

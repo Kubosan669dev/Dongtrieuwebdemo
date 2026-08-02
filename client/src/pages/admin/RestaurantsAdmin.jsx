@@ -64,7 +64,7 @@ export default function RestaurantsAdmin() {
         <Text value={d.sourceNote} onChange={(v) => set('sourceNote', v)} />
       </Field>
       <Toggle value={d.isVerified} onChange={(v) => set('isVerified', v)} label="Đã gọi xác minh" />
-      <p className="-mt-2 text-xs text-jade-400">
+      <p className="-mt-2 text-xs text-subtle">
         Bật sau khi bạn đã gọi kiểm tra số điện thoại và địa chỉ — ghi chú nguồn sẽ tự ẩn khỏi trang công khai.
       </p>
       <div className="grid gap-4 sm:grid-cols-3">

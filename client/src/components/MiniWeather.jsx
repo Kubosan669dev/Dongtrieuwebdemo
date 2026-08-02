@@ -4,10 +4,16 @@ import { useWeather } from '../hooks/useForecast.js';
 import { weatherInfo } from '../lib/constants.js';
 import { getShortAdvice } from '../../../shared/weather.js';
 
-/** Widget thời tiết gọn ở trang chủ, kèm gợi ý tham quan ngắn. */
+/**
+ * Widget thời tiết gọn, là ô thứ tư của khối tra cứu nhanh trên trang chủ.
+ *
+ * Lấp đầy ô lưới chứ không tự đặt bề rộng: bản trước nằm trong một hàng ngang nên
+ * để `shrink-0` và khung chờ rộng cố định, bê nguyên vào lưới bốn cột là ô này
+ * lệch hẳn so với ba ô còn lại.
+ */
 export default function MiniWeather() {
   const { data, isLoading } = useWeather();
-  if (isLoading) return <div className="h-20 w-64 animate-pulse rounded-2xl bg-jade-100 dark:bg-jade-800/60" />;
+  if (isLoading) return <div className="min-h-[4.5rem] w-full animate-pulse rounded-md bg-jade-100 dark:bg-jade-800/60" />;
   if (!data?.current) return null;
 
   const { current } = data;
@@ -17,7 +23,7 @@ export default function MiniWeather() {
   return (
     <Link
       to="/thoi-tiet"
-      className="flex shrink-0 flex-col gap-2 rounded-2xl bg-jade-600 px-5 py-3 text-white transition hover:bg-jade-700"
+      className="flex flex-col justify-center gap-2 rounded-md bg-jade-600 px-4 py-3 text-white transition hover:bg-jade-700"
     >
       <div className="flex items-center gap-4">
         <span className="text-3xl leading-none">{info.icon}</span>

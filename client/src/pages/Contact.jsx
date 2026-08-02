@@ -70,7 +70,7 @@ export default function Contact() {
                 height={320}
                 zoom={14}
               />
-              <p className="mt-2 text-xs text-jade-500 dark:text-jade-400">
+              <p className="mt-2 text-xs text-muted">
                 Ghim đặt ở trung tâm phường, không phải cửa trụ sở. Vui lòng gọi trước khi đến.
               </p>
             </div>
@@ -84,13 +84,13 @@ export default function Contact() {
 function Row({ icon: Icon, label, value, href }) {
   return (
     <div className="flex items-start gap-3 border-b border-jade-900/5 py-3 last:border-0 dark:border-white/5">
-      <Icon size={18} className="mt-0.5 shrink-0 text-jade-400" />
+      <Icon size={18} className="mt-0.5 shrink-0 text-subtle" />
       <div className="min-w-0">
-        <p className="text-xs text-jade-400">{label}</p>
+        <p className="text-xs text-subtle">{label}</p>
         {href ? (
-          <a href={href} className="text-sm text-jade-700 hover:text-jade-500 dark:text-jade-100">{value}</a>
+          <a href={href} className="text-sm text-jade-700 hover:text-muted">{value}</a>
         ) : (
-          <p className="text-sm text-jade-800 dark:text-jade-100">{value}</p>
+          <p className="text-sm text-body">{value}</p>
         )}
       </div>
     </div>

@@ -92,15 +92,15 @@ export function HeritageCard({ item, featured = false }) {
         </div>
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <div className="mb-2 flex items-center gap-2 text-xs text-jade-500">
+        <div className="mb-2 flex items-center gap-2 text-xs text-muted">
           <Badge tone={type?.color}>{type?.label}</Badge>
-          {item.wardOld && <span className="text-jade-400">· {item.wardOld} (cũ)</span>}
+          {item.wardOld && <span className="text-subtle">· {item.wardOld} (cũ)</span>}
         </div>
         <h3 className="font-serif text-lg font-semibold leading-snug text-jade-900 group-hover:text-jade-600 dark:text-jade-50">
           {item.name}
         </h3>
-        <p className="mt-2 flex-1 text-sm text-jade-600/90 dark:text-jade-300">{truncate(item.summary, 120)}</p>
-        <p className="mt-3 flex items-center gap-1.5 text-xs text-jade-500">
+        <p className="mt-2 flex-1 text-sm text-muted">{truncate(item.summary, 120)}</p>
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
           <MapPin size={14} className="shrink-0" />
           <span className="line-clamp-1">{item.address}</span>
         </p>
@@ -114,7 +114,7 @@ export function FestivalCard({ item }) {
   return (
     <Link to={`/le-hoi/${item.slug}`} className="card-hover group flex flex-col p-5">
       <div className="mb-3 flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-100 px-3 py-1 text-xs font-semibold text-gold-700 dark:bg-gold-800/30 dark:text-gold-200">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-gold-100 px-3 py-1 text-xs font-semibold text-gold-700 dark:bg-gold-800/30 dark:text-gold-200">
           <CalendarDays size={13} />
           {item.lunarMonth ? LUNAR_MONTH_LABELS[item.lunarMonth] : 'Âm lịch'}
         </span>
@@ -124,8 +124,8 @@ export function FestivalCard({ item }) {
         {item.name}
       </h3>
       <p className="mt-1.5 text-sm font-medium text-jade-600">{item.lunarTimeText}</p>
-      <p className="mt-2 flex-1 text-sm text-jade-600/90 dark:text-jade-300">{truncate(item.intro, 130)}</p>
-      <p className="mt-3 flex items-center gap-1.5 text-xs text-jade-500">
+      <p className="mt-2 flex-1 text-sm text-muted">{truncate(item.intro, 130)}</p>
+      <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
         <MapPin size={14} className="shrink-0" />
         <span className="line-clamp-1">{item.location}</span>
       </p>
@@ -148,14 +148,14 @@ export function CuisineCard({ item }) {
           </div>
         )}
         {item.priceRange && (
-          <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-terra-600">
+          <span className="absolute bottom-3 left-3 rounded-md bg-white/90 px-3 py-1 text-xs font-semibold text-jade-900">
             {item.priceRange}
           </span>
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">
         <h3 className="font-serif text-lg font-semibold text-jade-900 group-hover:text-jade-600 dark:text-jade-50">{item.name}</h3>
-        <p className="mt-2 flex-1 text-sm text-jade-600/90 dark:text-jade-300">{truncate(item.summary, 120)}</p>
+        <p className="mt-2 flex-1 text-sm text-muted">{truncate(item.summary, 120)}</p>
       </div>
     </Link>
   );
@@ -176,15 +176,15 @@ export function LodgingCard({ item, onClick }) {
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div className="card-hover flex cursor-pointer flex-col p-5" onClick={onClick}>
       <div className="mb-2 flex items-center justify-between">
-        <Badge tone={item.type === 'KHACH_SAN' ? 'gold' : 'jade'}>{type?.label}</Badge>
-        {item.priceRange && <span className="text-xs font-medium text-jade-500">{item.priceRange}</span>}
+        <Badge tone={item.type === 'KHACH_SAN' ? 'line-gold' : 'line-jade'}>{type?.label}</Badge>
+        {item.priceRange && <span className="text-xs font-medium text-muted">{item.priceRange}</span>}
       </div>
       <h3 className="font-serif text-lg font-semibold text-jade-900 dark:text-jade-50">{item.name}</h3>
-      <p className="mt-2 flex items-start gap-1.5 text-sm text-jade-600 dark:text-jade-300">
-        <MapPin size={15} className="mt-0.5 shrink-0 text-jade-400" />
+      <p className="mt-2 flex items-start gap-1.5 text-sm text-muted">
+        <MapPin size={15} className="mt-0.5 shrink-0 text-subtle" />
         {item.address}
       </p>
-      {item.owner && <p className="mt-1 text-sm text-jade-500">Đại diện: {item.owner}</p>}
+      {item.owner && <p className="mt-1 text-sm text-muted">Đại diện: {item.owner}</p>}
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {item.phones?.map((p) => (
           <a
@@ -209,13 +209,13 @@ export function RestaurantCard({ item }) {
     <div className="card-hover flex flex-col p-5">
       {open && <PlaceDetail item={item} kind="restaurant" typeLabel={type?.label} onClose={() => setOpen(false)} />}
       <div className="mb-2 flex items-center justify-between gap-2">
-        <Badge tone="terra">{type?.label}</Badge>
-        {item.area && <span className="text-[11px] text-jade-400">{item.area}</span>}
+        <Badge tone="line-terra">{type?.label}</Badge>
+        {item.area && <span className="text-[11px] text-subtle">{item.area}</span>}
       </div>
       <h3 className="font-serif text-lg font-semibold text-jade-900 dark:text-jade-50">{item.name}</h3>
-      {item.description && <p className="mt-2 text-sm text-jade-600/90 dark:text-jade-300">{truncate(item.description, 130)}</p>}
-      <p className="mt-3 flex items-start gap-1.5 text-sm text-jade-500">
-        <MapPin size={15} className="mt-0.5 shrink-0 text-jade-400" />
+      {item.description && <p className="mt-2 text-sm text-muted">{truncate(item.description, 130)}</p>}
+      <p className="mt-3 flex items-start gap-1.5 text-sm text-muted">
+        <MapPin size={15} className="mt-0.5 shrink-0 text-subtle" />
         {item.address}
       </p>
       {item.phone && (
@@ -226,21 +226,21 @@ export function RestaurantCard({ item }) {
       {item.specialties?.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {item.specialties.map((s) => (
-            <span key={s} className="inline-flex items-center gap-1 rounded-full bg-jade-50 px-2.5 py-1 text-[11px] text-jade-600 dark:bg-jade-800/50 dark:text-jade-200">
+            <span key={s} className="inline-flex items-center gap-1 rounded-md bg-jade-50 px-2.5 py-1 text-[11px] text-jade-600 dark:bg-jade-800/50 dark:text-jade-200">
               <Tag size={11} /> {s}
             </span>
           ))}
         </div>
       )}
       {(item.openHours || item.priceRange) && (
-        <p className="mt-3 text-xs text-jade-500">
+        <p className="mt-3 text-xs text-muted">
           {item.openHours && <>🕒 {item.openHours}</>} {item.priceRange && <> · {item.priceRange}</>}
         </p>
       )}
       <DetailButton onClick={() => setOpen(true)} hasImages={item.images?.length > 0} />
       {!item.isVerified && item.sourceNote && (
         <p
-          className="mt-3 flex items-start gap-1.5 rounded-lg bg-gold-50 px-2.5 py-1.5 text-[11px] text-gold-700 dark:bg-gold-900/20 dark:text-gold-200"
+          className="mt-3 flex items-start gap-1.5 rounded-md bg-gold-50 px-2.5 py-1.5 text-[11px] text-gold-700 dark:bg-gold-900/20 dark:text-gold-200"
           title="Vui lòng gọi xác nhận trước khi đến"
         >
           <Info size={12} className="mt-0.5 shrink-0" />
@@ -267,16 +267,16 @@ export function ArticleCard({ item }) {
         <h3 className="font-serif text-base font-semibold leading-snug text-jade-900 group-hover:text-jade-600 dark:text-jade-50">
           {item.title}
         </h3>
-        <p className="mt-2 flex-1 text-sm text-jade-600/90 dark:text-jade-300">{truncate(item.excerpt, 110)}</p>
+        <p className="mt-2 flex-1 text-sm text-muted">{truncate(item.excerpt, 110)}</p>
       </div>
     </Link>
   );
 }
 
 const ATTRACTION_TYPES = {
-  TAM_LINH: { label: 'Tâm linh', tone: 'jade' },
-  LICH_SU: { label: 'Lịch sử', tone: 'terra' },
-  SINH_THAI: { label: 'Sinh thái', tone: 'gold' },
+  TAM_LINH: { label: 'Tâm linh', tone: 'line-jade' },
+  LICH_SU: { label: 'Lịch sử', tone: 'line-terra' },
+  SINH_THAI: { label: 'Sinh thái', tone: 'line-gold' },
 };
 
 /** Điểm đến lân cận — nằm ngoài phường Đông Triều nhưng nên kết hợp tham quan. */
@@ -303,11 +303,11 @@ export function AttractionCard({ item }) {
       </div>
       <div className="flex flex-1 flex-col p-4">
         <h3 className="font-serif text-lg font-semibold leading-snug text-jade-900 dark:text-jade-50">{item.name}</h3>
-        <p className="mt-1 text-xs text-jade-400">
+        <p className="mt-1 text-xs text-subtle">
           {item.ward}
           {item.distanceKm ? ` · cách trung tâm phường ~${item.distanceKm} km` : ''}
         </p>
-        <p className="mt-2 flex-1 text-sm text-jade-600/90 dark:text-jade-300">{truncate(item.summary, 130)}</p>
+        <p className="mt-2 flex-1 text-sm text-muted">{truncate(item.summary, 130)}</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <DetailButton onClick={() => setOpen(true)} hasImages={item.images?.length > 0} className="" />
           <a

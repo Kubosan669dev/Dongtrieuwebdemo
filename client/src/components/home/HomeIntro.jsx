@@ -39,13 +39,13 @@ export default function HomeIntro({ intro, counts }) {
         <div className="lg:col-span-3">
           <p className="eyebrow">Về vùng đất này</p>
           <h2 className="section-title mt-2">Ba trung tâm của Đại Việt, một trong số đó ở đây</h2>
-          <p className="mt-4 leading-relaxed text-jade-700 dark:text-jade-200">{intro || INTRO_MAC_DINH}</p>
+          <p className="mt-4 leading-relaxed text-muted">{intro || INTRO_MAC_DINH}</p>
           <Link to="/gioi-thieu" className="btn-ghost mt-5">
             Đọc phần giới thiệu đầy đủ <ArrowRight size={16} />
           </Link>
         </div>
 
-        <div className="relative overflow-hidden rounded-3xl bg-jade-700 p-6 text-white lg:col-span-2">
+        <div className="relative overflow-hidden rounded-md bg-jade-700 p-6 text-white lg:col-span-2">
           <PagodaMotif className="text-white" opacity={0.08} scale={130} />
           <div className="relative grid grid-cols-2 gap-5">
             {STATS.map((s) => (

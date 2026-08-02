@@ -1,6 +1,6 @@
 # Khám phá Đông Triều
 
-Cổng thông tin du lịch của phường Đông Triều, tỉnh Quảng Ninh — giới thiệu **13 cụm di tích đã xếp hạng**, **17 lễ hội truyền thống**, **21 cơ sở lưu trú**, **41 nơi ăn uống**, **8 đặc sản tiêu biểu**, **7 điểm đến lân cận**, kèm **bản đồ số** (Google Maps, tự rơi về OpenStreetMap khi chưa có khoá), **đánh giá của du khách có kiểm duyệt**, biểu mẫu liên hệ, dự báo thời tiết – triều cường theo thời gian thực (có gợi ý điểm tham quan phù hợp với thời tiết) và trang quản trị nội dung.
+Cổng thông tin của phường Đông Triều, tỉnh Quảng Ninh — viết cho **bà con trong phường** trước, khách phương xa sau. Gồm **11 khu phố sau sắp xếp** (tra được bằng tên khu cũ), **13 cụm di tích đã xếp hạng**, **17 lễ hội truyền thống**, **41 nơi ăn uống**, **8 đặc sản tiêu biểu**, **7 điểm đến lân cận**, **21 cơ sở lưu trú** cho khách tới thăm, kèm **bản đồ số** (Google Maps, tự rơi về OpenStreetMap khi chưa có khoá), **đánh giá có kiểm duyệt**, biểu mẫu liên hệ, dự báo thời tiết – triều cường theo thời gian thực và trang quản trị nội dung.
 
 Toàn bộ nội dung di tích được biên soạn từ **hồ sơ lý lịch di tích và quyết định xếp hạng chính thức** (thư mục `Ly lich di tich phuong Dong Trieu/`).
 
@@ -17,6 +17,24 @@ Toàn bộ nội dung di tích được biên soạn từ **hồ sơ lý lịch 
 | Khác | JWT (token giữ trong bộ nhớ) · Multer + Sharp (ảnh) · Zod (kiểm tra dữ liệu) |
 
 Dữ liệu thời tiết & triều cường: [Open-Meteo](https://open-meteo.com) (miễn phí, không cần API key).
+
+### Trang Khu phố
+
+`/khu-pho` trả lời câu hỏi thường gặp nhất của người dân sau sắp xếp: **36 khu phố
+cũ nay gộp thành 11 khu**, khu mình ở giờ tên gì, nhà văn hoá ở đâu, ghi địa chỉ
+thế nào cho đúng.
+
+Ô tra cứu khớp theo **tên khu CŨ** và bỏ dấu cả hai phía, nên gõ `thu duong` ra
+ngay Khu phố Mễ Xá. Dữ liệu gốc viết tắt hai kiểu và trang phải gỡ cả hai, nếu
+không việc tra sẽ sai:
+
+- `"Nguyễn Huệ 3 + 4 + 5 + … + 9"` — các phần sau lược mất tiền tố. Cắt thô là ra
+  những cái nhãn `"4"`, `"5"` vô nghĩa, và bà con ở khu Nguyễn Huệ 7 gõ đúng tên
+  khu mình thì **không tìm thấy gì**, vì chuỗi gốc không hề chứa cụm đó.
+- `"Giữ nguyên khu Đạm Thuỷ"` — là một câu, không phải danh sách tên.
+
+Toàn bộ số liệu (12.722 hộ · 42.454 nhân khẩu · 40,41 km²) **cộng từ dữ liệu**,
+không gõ tay. Nguồn là khoá cài đặt `khuPho`, sửa trong Admin → Cài đặt.
 
 ### Bản đồ số
 
@@ -244,6 +262,8 @@ Bỏ cookie cũng loại luôn nguy cơ CSRF cho toàn bộ API quản trị.
 Một số điểm đáng chú ý:
 
 - **Bảng màu**: nút 🎨 trên thanh đầu (cả trang công khai lẫn trang quản trị) mở hộp chọn **8 bảng màu** — Paper Heritage, Coral Sunrise, Teal Paradise, Hạ Long Blue, Forest Zen, Rose Lotus, Zen Neutral, Midnight Crimson — kèm công tắc nền sáng/tối. Lựa chọn lưu theo máy, admin và trang công khai dùng chung.
+- **Thang chữ dùng mực trung tính, không dùng màu thương hiệu**: `.text-body` · `.text-muted` · `.text-subtle` · `.text-danger` khai trong [`index.css`](client/src/styles/index.css). Hạ cấp bằng **độ đậm**, không bằng cách nhạt dần về màu xanh — lối cũ vừa làm chữ phụ khó đọc (2.59 · 3.56 · 4.29 tương phản, đều dưới ngưỡng AA 4.5) vừa làm chính màu thương hiệu hết nổi vì nó bị bôi lên mọi dòng chữ. Sửa mức độ mờ thì chạy lại `npm run check-contrast` — bài kiểm giữ cả **8 bảng màu** ở mức đạt chuẩn.
+- **Nhãn có hai dáng, không phải sáu màu** (`TONES` trong [`ui.jsx`](client/src/components/ui.jsx)): **nền đặc** cho bậc cao của thang xếp hạng, **viền** cho nhãn phân loại. Nhờ vậy nhìn danh sách di tích là biết ngay cái nào xếp hạng cao hơn. `terra` không dùng làm nền chữ được ở bảng màu nào cũng đạt — nó đổi tính hoàn toàn giữa các bảng (gạch nung sẫm ở Paper Heritage, cam tươi ở Midnight Crimson) nên chữ trắng trượt ở 3 bảng còn chữ đậm trượt ở 4 bảng kia; nay nó chỉ còn làm **đường viền**.
 - **Đăng nhập lại mỗi lần vào**: khu quản trị không giữ phiên qua lần tải trang. Bấm F5 hay mở tab mới đều phải nhập lại mật khẩu.
 - **Thư viện ảnh**: tải lên nhiều ảnh cùng lúc, tự nén WebP, gán mô tả (alt), chọn làm ảnh bìa.
 - **Ảnh minh hoạ kèm chú thích**: cả 6 loại nội dung (di tích · lễ hội · điểm lân cận · nhà hàng · ẩm thực · lưu trú) đều có ô **Thư viện ảnh** — mỗi ảnh nhập được chú thích riêng và đổi được thứ tự. Chú thích hiện ngay dưới ảnh ở trang chi tiết, không chỉ nằm trong `alt`. Nhà hàng và điểm lân cận trước đây không có trang chi tiết, nay bấm **"Xem chi tiết"** trên thẻ để mở cửa sổ đầy đủ.

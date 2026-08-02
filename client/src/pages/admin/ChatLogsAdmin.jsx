@@ -51,14 +51,14 @@ function Stat({ icon: Icon, value, label, tone = 'jade' }) {
     <div className="card p-4">
       <span
         className={cx(
-          'mb-3 grid h-10 w-10 place-items-center rounded-xl text-white',
+          'mb-3 grid h-10 w-10 place-items-center rounded-md text-white',
           tone === 'gold' ? 'bg-gold-500' : tone === 'terra' ? 'bg-terra-500' : 'bg-jade-600',
         )}
       >
         <Icon size={20} />
       </span>
       <p className="font-serif text-2xl font-bold">{value}</p>
-      <p className="text-xs text-jade-500">{label}</p>
+      <p className="text-xs text-muted">{label}</p>
     </div>
   );
 }
@@ -85,7 +85,7 @@ export default function ChatLogsAdmin() {
   return (
     <div>
       <h1 className="font-serif text-2xl font-bold">Nhật ký trợ lý AI</h1>
-      <p className="mt-1 max-w-3xl text-jade-500">
+      <p className="mt-1 max-w-3xl text-muted">
         Trợ lý trả lời hoàn toàn bằng dữ liệu của phường, không dùng dịch vụ AI bên ngoài. Vì vậy cách
         làm bot thông minh hơn là <strong>bổ sung dữ liệu</strong>: xem du khách hỏi gì mà bot chịu thua,
         rồi thêm nội dung tương ứng vào các mục Di tích, Lễ hội, Ẩm thực…
@@ -104,7 +104,7 @@ export default function ChatLogsAdmin() {
       </div>
 
       {topUnmatched.length > 0 && (
-        <div className="mt-6 rounded-2xl bg-gold-50 p-5 ring-1 ring-gold-200 dark:bg-gold-900/20 dark:ring-gold-800/40">
+        <div className="mt-6 rounded-md bg-gold-50 p-5 ring-1 ring-gold-200 dark:bg-gold-900/20 dark:ring-gold-800/40">
           <div className="flex items-start gap-3">
             <AlertTriangle size={22} className="mt-0.5 shrink-0 text-gold-600" />
             <div className="min-w-0">
@@ -116,11 +116,11 @@ export default function ChatLogsAdmin() {
                 {topUnmatched.map((u) => (
                   <span
                     key={u.question}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs text-gold-900 ring-1 ring-gold-200 dark:bg-gold-900/40 dark:text-gold-100 dark:ring-gold-700"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-xs text-gold-900 ring-1 ring-gold-200 dark:bg-gold-900/40 dark:text-gold-100 dark:ring-gold-700"
                   >
                     {u.question}
                     {u.count > 1 && (
-                      <strong className="rounded-full bg-gold-500 px-1.5 text-[10px] text-white">×{u.count}</strong>
+                      <strong className="rounded-md bg-gold-500 px-1.5 text-[10px] text-white">×{u.count}</strong>
                     )}
                   </span>
                 ))}
@@ -161,7 +161,7 @@ export default function ChatLogsAdmin() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[36rem] text-sm">
-              <thead className="bg-jade-50 text-left text-xs uppercase tracking-wide text-jade-500 dark:bg-jade-800/50">
+              <thead className="bg-jade-50 text-left text-xs uppercase tracking-wide text-muted dark:bg-jade-800/50">
                 <tr>
                   <th className="px-4 py-3 font-medium">Câu hỏi</th>
                   <th className="px-4 py-3 font-medium">Bot hiểu là</th>
@@ -175,7 +175,7 @@ export default function ChatLogsAdmin() {
                     <td className="px-4 py-3">
                       <span
                         className={cx(
-                          'whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium',
+                          'whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium',
                           r.matched
                             ? 'bg-jade-100 text-jade-700 dark:bg-jade-700 dark:text-jade-100'
                             : 'bg-gold-200 text-gold-900 dark:bg-gold-700 dark:text-gold-50',
@@ -184,7 +184,7 @@ export default function ChatLogsAdmin() {
                         {intentLabel(r.intent)}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-jade-400">
+                    <td className="whitespace-nowrap px-4 py-3 text-xs text-subtle">
                       {formatDate(r.createdAt)} · {formatTime(r.createdAt)}
                     </td>
                   </tr>
@@ -195,7 +195,7 @@ export default function ChatLogsAdmin() {
         )}
       </div>
 
-      <p className="mt-4 text-xs text-jade-400">
+      <p className="mt-4 text-xs text-subtle">
         Nhật ký chỉ lưu nội dung câu hỏi, không lưu địa chỉ IP hay bất cứ thông tin nhận dạng người hỏi nào.
       </p>
     </div>

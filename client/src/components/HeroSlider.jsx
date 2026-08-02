@@ -45,7 +45,7 @@ export default function HeroSlider({ slides = [], coverBySlug = {} }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-jade-950/85 via-jade-950/30 to-transparent" />
                 <div className="container-page relative flex h-full items-end pb-20 sm:items-center sm:pb-0">
                   <div className="max-w-2xl animate-fade-up">
-                    <span className="inline-block rounded-full bg-gold-400/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-jade-950">
+                    <span className="inline-block rounded-md bg-gold-400/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-jade-950">
                       Di sản Đông Triều
                     </span>
                     {/* Slide đầu là <h1> của trang chủ — trước đây cả trang không

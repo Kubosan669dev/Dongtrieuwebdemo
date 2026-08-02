@@ -76,8 +76,8 @@ export default function HeritageDetail() {
             {/* Di tích chưa có ảnh thật thì hero là nền chuyển sắc, nên vẫn cần
                 hình vẽ thay thế ở đây. Có ảnh rồi thì hero đã hiện — không lặp lại. */}
             {!h.coverUrl && (
-              <div className="mb-5 aspect-[16/9] overflow-hidden rounded-2xl shadow-soft">
-                <HeritageCover src={null} name={h.name} type={h.type} rounded="rounded-2xl" />
+              <div className="mb-5 aspect-[16/9] overflow-hidden rounded-md shadow-soft">
+                <HeritageCover src={null} name={h.name} type={h.type} rounded="rounded-md" />
               </div>
             )}
 
@@ -86,7 +86,7 @@ export default function HeritageDetail() {
               <Badge tone={type?.color}>{type?.label}</Badge>
               <Badge tone={rank?.color}>{rank?.label}</Badge>
               {h.altNames?.map((n) => (
-                <span key={n} className="text-sm text-jade-500">· {n}</span>
+                <span key={n} className="text-sm text-muted">· {n}</span>
               ))}
             </div>
 
@@ -100,7 +100,7 @@ export default function HeritageDetail() {
                     'flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-3 text-sm font-medium transition',
                     tab === t.key
                       ? 'border-jade-600 text-jade-700 dark:text-jade-200'
-                      : 'border-transparent text-jade-500 hover:text-jade-700',
+                      : 'border-transparent text-muted hover:text-jade-700',
                   )}
                 >
                   <t.icon size={15} /> {t.label}
@@ -122,7 +122,7 @@ export default function HeritageDetail() {
                   {h.highlights?.map((x, i) => (
                     <li key={i} className="card-sm flex items-start gap-3 p-4">
                       <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold-100 text-xs font-bold text-gold-700">{i + 1}</span>
-                      <span className="text-jade-800 dark:text-jade-100">{x}</span>
+                      <span className="text-body">{x}</span>
                     </li>
                   ))}
                 </ul>
@@ -151,7 +151,7 @@ export default function HeritageDetail() {
                 <h3 className="mb-3 font-serif text-lg font-semibold">Thờ phụng</h3>
                 <ul className="space-y-2">
                   {h.worship.map((w, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-jade-700 dark:text-jade-200">
+                    <li key={i} className="flex items-start gap-2 text-sm text-muted">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
                       {w}
                     </li>
@@ -164,7 +164,7 @@ export default function HeritageDetail() {
               <h3 className="mb-3 font-serif text-lg font-semibold">Vị trí</h3>
               <MapEmbed lat={h.lat} lng={h.lng} query={h.mapQuery || h.address} title={h.name} />
               {!h.lat && (
-                <p className="mt-2 text-xs text-jade-400">
+                <p className="mt-2 text-xs text-subtle">
                   * Vị trí ước lượng theo địa chỉ. Toạ độ chính xác sẽ được cập nhật.
                 </p>
               )}
@@ -190,10 +190,10 @@ function InfoRow({ icon: Icon, label, value }) {
   if (!value) return null;
   return (
     <div className="flex items-start gap-3 border-b border-jade-900/5 py-2.5 last:border-0 dark:border-white/5">
-      <Icon size={16} className="mt-0.5 shrink-0 text-jade-400" />
+      <Icon size={16} className="mt-0.5 shrink-0 text-subtle" />
       <div>
-        <p className="text-xs text-jade-400">{label}</p>
-        <p className="text-sm text-jade-800 dark:text-jade-100">{value}</p>
+        <p className="text-xs text-subtle">{label}</p>
+        <p className="text-sm text-body">{value}</p>
       </div>
     </div>
   );

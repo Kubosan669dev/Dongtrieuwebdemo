@@ -22,7 +22,7 @@ export default function HomeContact() {
 
   return (
     <section data-vao className="container-page mt-16">
-      <div className="relative overflow-hidden rounded-3xl bg-jade-800 p-7 text-white sm:p-9">
+      <div className="relative overflow-hidden rounded-md bg-jade-800 p-7 text-white sm:p-9">
         <PagodaMotif className="text-white" opacity={0.1} scale={120} />
         <div className="relative grid gap-7 lg:grid-cols-2 lg:items-center">
           <div>

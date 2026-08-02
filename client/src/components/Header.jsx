@@ -5,11 +5,21 @@ import Brand from './Brand.jsx';
 import { cx } from '../lib/format.js';
 import { SITE_NAME, SITE_SHORT, SITE_TAGLINE } from '../lib/site.js';
 
+/**
+ * Thanh điều hướng chính — 8 mục, sắp theo thứ tự người dân trong phường cần.
+ *
+ * "Khu phố" đứng đầu vì đó là câu hỏi thường gặp nhất sau sắp xếp: 36 khu cũ nay
+ * là 11 khu, ghi địa chỉ thế nào cho đúng.
+ *
+ * "Lưu trú" rời khỏi đây — nó là mục dành cho khách tới thăm, không phải cho
+ * người sống ở phường. Trang `/luu-tru` vẫn chạy, vẫn có lối vào từ trang chủ và
+ * chân trang; chỉ là nó không còn chiếm một trong tám chỗ đắt nhất của cổng.
+ */
 const NAV = [
+  { to: '/khu-pho', label: 'Khu phố' },
   { to: '/di-tich', label: 'Di tích' },
   { to: '/le-hoi', label: 'Lễ hội' },
   { to: '/am-thuc', label: 'Ẩm thực' },
-  { to: '/luu-tru', label: 'Lưu trú' },
   { to: '/ban-do', label: 'Bản đồ' },
   { to: '/thoi-tiet', label: 'Thời tiết' },
   { to: '/tin-tuc', label: 'Tin tức' },
@@ -72,7 +82,7 @@ export default function Header({ onOpenThemes }) {
               to={item.to}
               className={({ isActive }) =>
                 cx(
-                  'rounded-full px-3.5 py-2 text-sm font-medium transition',
+                  'rounded-md px-3.5 py-2 text-sm font-medium transition',
                   isActive
                     ? 'bg-jade-600 text-white shadow-soft'
                     : 'text-jade-800 hover:bg-jade-100 dark:text-jade-100 dark:hover:bg-jade-800/50',
@@ -120,7 +130,7 @@ export default function Header({ onOpenThemes }) {
                 to={item.to}
                 className={({ isActive }) =>
                   cx(
-                    'rounded-xl px-4 py-3 text-sm font-medium',
+                    'rounded-md px-4 py-3 text-sm font-medium',
                     isActive ? 'bg-jade-600 text-white' : 'text-jade-800 hover:bg-jade-100 dark:text-jade-100 dark:hover:bg-jade-800/50',
                   )
                 }

@@ -49,7 +49,7 @@ export default function Lodging() {
 
         {selected && <LodgingDetail item={selected} onClose={() => setSelected(null)} />}
 
-        <p className="mt-8 rounded-xl bg-jade-50 p-4 text-sm text-jade-600 dark:bg-jade-900/40 dark:text-jade-300">
+        <p className="mt-8 rounded-md bg-jade-50 p-4 text-sm text-jade-600 dark:bg-jade-900/40 dark:text-jade-300">
           ℹ️ Thông tin liên hệ được cung cấp theo danh sách thống kê của UBND phường Đông Triều. Vui lòng
           gọi trực tiếp để đặt phòng và xác nhận giá.
         </p>

@@ -48,11 +48,11 @@ export default function PlaceDetail({ item, kind = 'restaurant', typeLabel, onCl
         role="dialog"
         aria-modal="true"
         aria-label={`Chi tiết ${item.name}`}
-        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white shadow-lift dark:bg-jade-900 sm:rounded-3xl"
+        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-md bg-white shadow-lift dark:bg-jade-900 sm:rounded-md"
         >
         <div className="flex items-start justify-between gap-3 border-b border-jade-900/5 p-5 dark:border-white/5">
           <div className="min-w-0">
-            {typeLabel && <Badge tone={kind === 'attraction' ? 'jade' : 'terra'}>{typeLabel}</Badge>}
+            {typeLabel && <Badge tone={kind === 'attraction' ? 'line-jade' : 'line-terra'}>{typeLabel}</Badge>}
             <h2 className="mt-2 font-serif text-xl font-bold text-jade-900 dark:text-jade-50">{item.name}</h2>
             {/* Điểm sao KHÔNG còn ở đây nữa. Trước đây chỗ này ghi điểm lấy từ
                 Google Maps thành "(n đánh giá)" mà không nêu nguồn — nay đã có
@@ -64,7 +64,7 @@ export default function PlaceDetail({ item, kind = 'restaurant', typeLabel, onCl
           <button
             onClick={onClose}
             aria-label="Đóng"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-jade-500 transition hover:bg-jade-100 dark:hover:bg-jade-800"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted transition hover:bg-jade-100 dark:hover:bg-jade-800"
           >
             <X size={18} />
           </button>
@@ -73,21 +73,21 @@ export default function PlaceDetail({ item, kind = 'restaurant', typeLabel, onCl
         <div className="space-y-4 p-5">
           {item.coverUrl && (
             <figure>
-              <img src={item.coverUrl} alt={item.name} className="aspect-[16/9] w-full rounded-2xl object-cover" />
+              <img src={item.coverUrl} alt={item.name} className="aspect-[16/9] w-full rounded-md object-cover" />
               {item.coverIsIllustrative && (
-                <figcaption className="mt-1.5 text-xs italic text-jade-400">Ảnh minh hoạ, không chụp tại chính địa điểm này.</figcaption>
+                <figcaption className="mt-1.5 text-xs italic text-subtle">Ảnh minh hoạ, không chụp tại chính địa điểm này.</figcaption>
               )}
             </figure>
           )}
 
           {(item.summary || item.description) && (
-            <p className="leading-relaxed text-jade-800 dark:text-jade-100">{item.summary || item.description}</p>
+            <p className="leading-relaxed text-body">{item.summary || item.description}</p>
           )}
           {item.summary && item.description && item.summary !== item.description && (
-            <p className="leading-relaxed text-jade-700 dark:text-jade-200">{item.description}</p>
+            <p className="leading-relaxed text-muted">{item.description}</p>
           )}
 
-          <div className="space-y-2.5 rounded-2xl bg-jade-50 p-4 dark:bg-jade-800/40">
+          <div className="space-y-2.5 rounded-md bg-jade-50 p-4 dark:bg-jade-800/40">
             {item.address && <Row icon={MapPin} label="Địa chỉ" value={item.address} />}
             {item.ward && <Row icon={MapPin} label="Địa bàn" value={item.ward} />}
             {item.khuPho && <Row icon={MapPin} label="Khu phố" value={item.khuPho + (item.khuPhoEstimated ? ' (ước tính)' : '')} />}
@@ -101,7 +101,7 @@ export default function PlaceDetail({ item, kind = 'restaurant', typeLabel, onCl
               <h3 className="mb-2 font-serif text-base font-semibold">Điểm nhấn</h3>
               <ul className="space-y-1.5">
                 {item.highlights.map((h, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-jade-700 dark:text-jade-200">
+                  <li key={i} className="flex items-start gap-2 text-sm text-muted">
                     <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
                     {h}
                   </li>
@@ -113,7 +113,7 @@ export default function PlaceDetail({ item, kind = 'restaurant', typeLabel, onCl
           {item.specialties?.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {item.specialties.map((s) => (
-                <span key={s} className="inline-flex items-center gap-1 rounded-full bg-jade-50 px-2.5 py-1 text-xs text-jade-600 dark:bg-jade-800/50 dark:text-jade-200">
+                <span key={s} className="inline-flex items-center gap-1 rounded-md bg-jade-50 px-2.5 py-1 text-xs text-jade-600 dark:bg-jade-800/50 dark:text-jade-200">
                   <Tag size={11} /> {s}
                 </span>
               ))}
@@ -150,7 +150,7 @@ export default function PlaceDetail({ item, kind = 'restaurant', typeLabel, onCl
             <MapEmbed lat={item.lat} lng={item.lng} query={mapQuery} title={item.name} />
           </div>
 
-          {item.sourceNote && <p className="text-xs italic text-jade-400">Nguồn: {item.sourceNote}</p>}
+          {item.sourceNote && <p className="text-xs italic text-subtle">Nguồn: {item.sourceNote}</p>}
         </div>
       </div>
     </div>,
@@ -161,9 +161,9 @@ export default function PlaceDetail({ item, kind = 'restaurant', typeLabel, onCl
 function Row({ icon: Icon, label, value }) {
   return (
     <p className="flex items-start gap-2.5 text-sm">
-      <Icon size={15} className="mt-0.5 shrink-0 text-jade-400" />
-      <span className="text-jade-500 dark:text-jade-400">{label}:</span>
-      <span className="min-w-0 flex-1 text-jade-800 dark:text-jade-100">{value}</span>
+      <Icon size={15} className="mt-0.5 shrink-0 text-subtle" />
+      <span className="text-muted">{label}:</span>
+      <span className="min-w-0 flex-1 text-body">{value}</span>
     </p>
   );
 }

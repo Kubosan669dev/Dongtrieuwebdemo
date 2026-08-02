@@ -39,7 +39,7 @@ export default function Gallery({ images, name, title = 'Hình ảnh', className
               <Thumb src={img.url} alt={imageAlt(img, name)} />
             </button>
             {img.caption && (
-              <figcaption className="px-3 py-2.5 text-sm leading-snug text-jade-600 dark:text-jade-300">
+              <figcaption className="px-3 py-2.5 text-sm leading-snug text-muted">
                 {img.caption}
               </figcaption>
             )}
@@ -125,7 +125,7 @@ function Lightbox({ items, index, name, onClose, onIndex }) {
       )}
 
       <figure className="max-h-full max-w-4xl">
-        <img src={img.url} alt={imageAlt(img, name)} className="mx-auto max-h-[78vh] w-auto rounded-xl object-contain" />
+        <img src={img.url} alt={imageAlt(img, name)} className="mx-auto max-h-[78vh] w-auto rounded-md object-contain" />
         <figcaption className="mt-3 text-center text-sm text-white/80">
           {img.caption || name}
           {items.length > 1 && <span className="ml-2 text-white/50">({index + 1}/{items.length})</span>}

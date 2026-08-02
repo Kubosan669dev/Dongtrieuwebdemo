@@ -10,17 +10,17 @@ import { normalizeImages } from '../../../../shared/images.js';
 export function Field({ label, hint, required, children }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-jade-700 dark:text-jade-200">
+      <span className="mb-1 block text-sm font-medium text-muted">
         {label} {required && <span className="text-red-500">*</span>}
       </span>
       {children}
-      {hint && <span className="mt-1 block text-xs text-jade-400">{hint}</span>}
+      {hint && <span className="mt-1 block text-xs text-subtle">{hint}</span>}
     </label>
   );
 }
 
 const inputCls =
-  'w-full rounded-xl border border-jade-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-jade-400 focus:ring-2 focus:ring-jade-100 dark:border-jade-700 dark:bg-jade-900 dark:text-jade-50';
+  'w-full rounded-md border border-jade-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-jade-400 focus:ring-2 focus:ring-jade-100 dark:border-jade-700 dark:bg-jade-900 dark:text-jade-50';
 
 export function Text({ value, onChange, ...props }) {
   return <input className={inputCls} value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...props} />;
@@ -57,7 +57,7 @@ export function Toggle({ value, onChange, label }) {
     <button
       type="button"
       onClick={() => onChange(!value)}
-      className={cx('inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition', value ? 'bg-jade-600 text-white' : 'bg-jade-100 text-jade-600 dark:bg-jade-800')}
+      className={cx('inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition', value ? 'bg-jade-600 text-white' : 'bg-jade-100 text-jade-600 dark:bg-jade-800')}
     >
       <span className={cx('h-2.5 w-2.5 rounded-full', value ? 'bg-gold-300' : 'bg-jade-400')} />
       {label}: {value ? 'Bật' : 'Tắt'}
@@ -90,9 +90,9 @@ export function ArrayInput({ value = [], onChange, placeholder }) {
       {value?.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-2">
           {value.map((item, i) => (
-            <span key={i} className="inline-flex items-center gap-1.5 rounded-full bg-jade-100 px-3 py-1 text-sm text-jade-700 dark:bg-jade-800 dark:text-jade-100">
+            <span key={i} className="inline-flex items-center gap-1.5 rounded-md bg-jade-100 px-3 py-1 text-sm text-jade-700 dark:bg-jade-800 dark:text-jade-100">
               {item}
-              <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="text-jade-400 hover:text-red-500"><X size={13} /></button>
+              <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="text-subtle hover:text-red-500"><X size={13} /></button>
             </span>
           ))}
         </div>
@@ -108,12 +108,12 @@ export function ImageField({ value, onChange }) {
     <div>
       {value ? (
         <div className="relative inline-block">
-          <img src={value} alt="cover" className="h-40 w-64 rounded-xl object-cover ring-1 ring-jade-200" />
+          <img src={value} alt="cover" className="h-40 w-64 rounded-md object-cover ring-1 ring-jade-200" />
           <button type="button" onClick={() => onChange(null)} className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-red-600 text-white"><X size={14} /></button>
-          <button type="button" onClick={() => setOpen(true)} className="absolute bottom-2 right-2 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-jade-700">Đổi ảnh</button>
+          <button type="button" onClick={() => setOpen(true)} className="absolute bottom-2 right-2 rounded-md bg-white/90 px-3 py-1 text-xs font-medium text-jade-700">Đổi ảnh</button>
         </div>
       ) : (
-        <button type="button" onClick={() => setOpen(true)} className="flex h-40 w-64 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-jade-200 text-jade-400 hover:border-jade-400 hover:text-jade-600 dark:border-jade-700">
+        <button type="button" onClick={() => setOpen(true)} className="flex h-40 w-64 flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-jade-200 text-subtle hover:border-jade-400 hover:text-jade-600 dark:border-jade-700">
           <ImagePlus size={28} />
           <span className="text-sm">Chọn ảnh bìa</span>
         </button>
@@ -147,8 +147,8 @@ export function GalleryField({ value, onChange, name }) {
   return (
     <div className="space-y-2">
       {items.map((img, i) => (
-        <div key={`${img.url}-${i}`} className="flex gap-3 rounded-xl border border-jade-200 p-2 dark:border-jade-700">
-          <img src={img.url} alt="" className="h-20 w-20 shrink-0 rounded-lg object-cover ring-1 ring-jade-200 dark:ring-jade-700" />
+        <div key={`${img.url}-${i}`} className="flex gap-3 rounded-md border border-jade-200 p-2 dark:border-jade-700">
+          <img src={img.url} alt="" className="h-20 w-20 shrink-0 rounded-md object-cover ring-1 ring-jade-200 dark:ring-jade-700" />
           <div className="min-w-0 flex-1">
             <input
               className={inputCls}
@@ -157,15 +157,15 @@ export function GalleryField({ value, onChange, name }) {
               onChange={(e) => patch(i, { caption: e.target.value })}
               placeholder={`Chú thích ảnh${name ? ` — vd "Cổng tam quan ${name}"` : ''}`}
             />
-            <p className="mt-1 truncate text-[11px] text-jade-400">{img.url}</p>
+            <p className="mt-1 truncate text-[11px] text-subtle">{img.url}</p>
           </div>
           <div className="flex shrink-0 flex-col gap-1">
             <button type="button" onClick={() => move(i, -1)} disabled={i === 0} title="Lên trên"
-              className="grid h-7 w-7 place-items-center rounded-md text-jade-500 hover:bg-jade-100 disabled:opacity-30 dark:hover:bg-jade-800"><ChevronUp size={15} /></button>
+              className="grid h-7 w-7 place-items-center rounded-md text-muted hover:bg-jade-100 disabled:opacity-30 dark:hover:bg-jade-800"><ChevronUp size={15} /></button>
             <button type="button" onClick={() => move(i, 1)} disabled={i === items.length - 1} title="Xuống dưới"
-              className="grid h-7 w-7 place-items-center rounded-md text-jade-500 hover:bg-jade-100 disabled:opacity-30 dark:hover:bg-jade-800"><ChevronDown size={15} /></button>
+              className="grid h-7 w-7 place-items-center rounded-md text-muted hover:bg-jade-100 disabled:opacity-30 dark:hover:bg-jade-800"><ChevronDown size={15} /></button>
             <button type="button" onClick={() => remove(i)} title="Bỏ ảnh"
-              className="grid h-7 w-7 place-items-center rounded-md text-jade-400 hover:bg-red-50 hover:text-red-600"><X size={14} /></button>
+              className="grid h-7 w-7 place-items-center rounded-md text-subtle hover:bg-red-50 hover:text-red-600"><X size={14} /></button>
           </div>
         </div>
       ))}
@@ -173,11 +173,11 @@ export function GalleryField({ value, onChange, name }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-20 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-jade-200 text-sm text-jade-400 hover:border-jade-400 hover:text-jade-600 dark:border-jade-700"
+        className="flex h-20 w-full items-center justify-center gap-2 rounded-md border-2 border-dashed border-jade-200 text-sm text-subtle hover:border-jade-400 hover:text-jade-600 dark:border-jade-700"
       >
         <Plus size={18} /> Thêm ảnh minh hoạ
       </button>
-      <p className="text-xs text-jade-400">
+      <p className="text-xs text-subtle">
         Chú thích hiện ngay dưới ảnh ở trang chi tiết. Ảnh không chụp đúng địa điểm thì nên ghi rõ
         trong chú thích để du khách không hiểu nhầm.
       </p>
@@ -223,7 +223,7 @@ export function LatLngField({ lat, lng, onChange, name, address, ward, estimated
 
       {moBanDo && (
         <div className="mt-2">
-          <Suspense fallback={<div className="grid h-[300px] place-items-center rounded-xl bg-jade-50 text-sm text-jade-500 dark:bg-jade-900/40">Đang tải bản đồ…</div>}>
+          <Suspense fallback={<div className="grid h-[300px] place-items-center rounded-md bg-jade-50 text-sm text-muted dark:bg-jade-900/40">Đang tải bản đồ…</div>}>
             <MapPicker
               lat={lat}
               lng={lng}

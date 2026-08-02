@@ -44,9 +44,9 @@ export default function Cuisine() {
             description="Gợi ý địa điểm thưởng thức đặc sản và mua quà. Danh sách đang được cập nhật thêm."
           />
           <div className="mb-6 flex flex-wrap gap-2">
-            <FilterChip tone="terra" active={!restType} onClick={() => setRestType('')}>Tất cả</FilterChip>
+            <FilterChip tone="gold" active={!restType} onClick={() => setRestType('')}>Tất cả</FilterChip>
             {Object.entries(RESTAURANT_TYPES).map(([key, v]) => (
-              <FilterChip tone="terra" key={key} active={restType === key} onClick={() => setRestType(key)}>{v.label}</FilterChip>
+              <FilterChip tone="gold" key={key} active={restType === key} onClick={() => setRestType(key)}>{v.label}</FilterChip>
             ))}
           </div>
           {rItems.length === 0 ? (

@@ -52,14 +52,14 @@ export default function ResourceManager({ title, description, resource, columns,
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-serif text-2xl font-bold">{title}</h1>
-          {description && <p className="mt-1 text-sm text-jade-500">{description}</p>}
+          {description && <p className="mt-1 text-sm text-muted">{description}</p>}
         </div>
         <button onClick={() => setEditing(emptyItem())} className="btn-primary"><Plus size={16} /> Thêm mới</button>
       </div>
 
       {searchable && (
-        <div className="mb-4 flex max-w-sm items-center gap-2 rounded-full bg-white px-4 shadow-soft ring-1 ring-jade-900/5 dark:bg-jade-900/50">
-          <Search size={16} className="text-jade-400" />
+        <div className="mb-4 flex max-w-sm items-center gap-2 rounded-md bg-white px-4 shadow-soft ring-1 ring-jade-900/5 dark:bg-jade-900/50">
+          <Search size={16} className="text-subtle" />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Tìm kiếm…" className="w-full bg-transparent py-2.5 text-sm outline-none" />
         </div>
       )}
@@ -71,7 +71,7 @@ export default function ResourceManager({ title, description, resource, columns,
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-jade-900/5 text-left text-xs uppercase text-jade-400 dark:border-white/5">
+                <tr className="border-b border-jade-900/5 text-left text-xs uppercase text-subtle dark:border-white/5">
                   {columns.map((c) => (
                     <th key={c.key} className="px-4 py-3 font-medium">{c.label}</th>
                   ))}
@@ -86,8 +86,8 @@ export default function ResourceManager({ title, description, resource, columns,
                     ))}
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => setEditing(structuredClone(it))} className="grid h-8 w-8 place-items-center rounded-lg text-jade-500 hover:bg-jade-100 dark:hover:bg-jade-800" title="Sửa"><Pencil size={15} /></button>
-                        <button onClick={() => { if (confirm(`Xoá "${it.name || it.title}"?`)) remove.mutate(it.id); }} className="grid h-8 w-8 place-items-center rounded-lg text-red-500 hover:bg-red-50" title="Xoá"><Trash2 size={15} /></button>
+                        <button onClick={() => setEditing(structuredClone(it))} className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-jade-100 dark:hover:bg-jade-800" title="Sửa"><Pencil size={15} /></button>
+                        <button onClick={() => { if (confirm(`Xoá "${it.name || it.title}"?`)) remove.mutate(it.id); }} className="grid h-8 w-8 place-items-center rounded-md text-red-500 hover:bg-red-50" title="Xoá"><Trash2 size={15} /></button>
                       </div>
                     </td>
                   </tr>
@@ -95,7 +95,7 @@ export default function ResourceManager({ title, description, resource, columns,
               </tbody>
             </table>
           </div>
-          {items.length === 0 && <p className="px-4 py-10 text-center text-sm text-jade-400">Chưa có dữ liệu.</p>}
+          {items.length === 0 && <p className="px-4 py-10 text-center text-sm text-subtle">Chưa có dữ liệu.</p>}
         </div>
       )}
 
@@ -120,15 +120,15 @@ function EditModal({ title, item, renderForm, onClose, onSave, saving, error }) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
-      <div className="my-8 w-full max-w-3xl rounded-2xl bg-white shadow-lift dark:bg-jade-900">
-        <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-2xl border-b border-jade-900/5 bg-white p-4 dark:border-white/5 dark:bg-jade-900">
+      <div className="my-8 w-full max-w-3xl rounded-md bg-white shadow-lift dark:bg-jade-900">
+        <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-md border-b border-jade-900/5 bg-white p-4 dark:border-white/5 dark:bg-jade-900">
           <h3 className="font-serif text-lg font-semibold">{title}</h3>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-lg text-jade-500 hover:bg-jade-100 dark:hover:bg-jade-800"><X size={18} /></button>
+          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-md text-muted hover:bg-jade-100 dark:hover:bg-jade-800"><X size={18} /></button>
         </div>
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-5">
           {renderForm(draft, setField)}
         </div>
-        <div className="flex items-center justify-between gap-3 rounded-b-2xl border-t border-jade-900/5 p-4 dark:border-white/5">
+        <div className="flex items-center justify-between gap-3 rounded-b-md border-t border-jade-900/5 p-4 dark:border-white/5">
           {error ? <p className="text-sm text-red-500">{error}</p> : <span />}
           <div className="flex gap-2">
             <button onClick={onClose} className="btn-ghost">Huỷ</button>
@@ -147,6 +147,6 @@ export function PublishedBadge({ value }) {
   return value ? (
     <span className="inline-flex items-center gap-1 text-xs text-jade-600"><Eye size={13} /> Hiển thị</span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-xs text-jade-400"><EyeOff size={13} /> Ẩn</span>
+    <span className="inline-flex items-center gap-1 text-xs text-subtle"><EyeOff size={13} /> Ẩn</span>
   );
 }

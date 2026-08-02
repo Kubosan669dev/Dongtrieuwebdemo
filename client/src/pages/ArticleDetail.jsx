@@ -33,22 +33,22 @@ export default function ArticleDetail() {
 
       <article className="container-page py-10">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-6 flex flex-wrap items-center gap-3 text-sm text-jade-500">
+          <div className="mb-6 flex flex-wrap items-center gap-3 text-sm text-muted">
             <Badge tone={cat?.color}>{cat?.label}</Badge>
             {a.publishedAt && <span className="flex items-center gap-1"><CalendarDays size={14} /> {formatDate(a.publishedAt)}</span>}
             {a.author && <span className="flex items-center gap-1"><User size={14} /> {a.author}</span>}
             <span className="flex items-center gap-1"><Eye size={14} /> {a.views} lượt xem</span>
           </div>
 
-          {a.coverUrl && <img src={a.coverUrl} alt={a.title} className="mb-8 aspect-[16/9] w-full rounded-2xl object-cover shadow-soft" />}
+          {a.coverUrl && <img src={a.coverUrl} alt={a.title} className="mb-8 aspect-[16/9] w-full rounded-md object-cover shadow-soft" />}
 
-          <p className="mb-6 text-lg font-medium text-jade-700 dark:text-jade-200">{a.excerpt}</p>
+          <p className="mb-6 text-lg font-medium text-muted">{a.excerpt}</p>
           <div className="prose-vn" dangerouslySetInnerHTML={{ __html: a.contentHtml }} />
 
           {a.tags?.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-2 border-t border-jade-900/5 pt-6 dark:border-white/5">
               {a.tags.map((t) => (
-                <span key={t} className="rounded-full bg-jade-50 px-3 py-1 text-xs text-jade-600 dark:bg-jade-800/50 dark:text-jade-200">#{t}</span>
+                <span key={t} className="rounded-md bg-jade-50 px-3 py-1 text-xs text-jade-600 dark:bg-jade-800/50 dark:text-jade-200">#{t}</span>
               ))}
             </div>
           )}

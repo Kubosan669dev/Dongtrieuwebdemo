@@ -34,8 +34,8 @@ export default function CuisineDetail() {
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             {/* Ảnh bìa đã nằm ở hero phía trên, không lặp lại ở đây nữa. */}
-            <p className="text-lg font-medium text-jade-700 dark:text-jade-200">{c.summary}</p>
-            <p className="mt-4 leading-relaxed text-jade-800 dark:text-jade-100">{c.description}</p>
+            <p className="text-lg font-medium text-muted">{c.summary}</p>
+            <p className="mt-4 leading-relaxed text-body">{c.description}</p>
 
             <Gallery images={c.images} name={c.name} />
 
@@ -47,14 +47,14 @@ export default function CuisineDetail() {
               <h3 className="mb-4 font-serif text-lg font-semibold">Thông tin</h3>
               {c.priceRange && (
                 <div className="flex items-start gap-3 border-b border-jade-900/5 py-2.5 dark:border-white/5">
-                  <Coins size={16} className="mt-0.5 text-jade-400" />
-                  <div><p className="text-xs text-jade-400">Giá tham khảo</p><p className="text-sm text-jade-800 dark:text-jade-100">{c.priceRange}</p></div>
+                  <Coins size={16} className="mt-0.5 text-subtle" />
+                  <div><p className="text-xs text-subtle">Giá tham khảo</p><p className="text-sm text-body">{c.priceRange}</p></div>
                 </div>
               )}
               {c.season && (
                 <div className="flex items-start gap-3 py-2.5">
-                  <Tag size={16} className="mt-0.5 text-jade-400" />
-                  <div><p className="text-xs text-jade-400">Mùa vụ</p><p className="text-sm text-jade-800 dark:text-jade-100">{c.season}</p></div>
+                  <Tag size={16} className="mt-0.5 text-subtle" />
+                  <div><p className="text-xs text-subtle">Mùa vụ</p><p className="text-sm text-body">{c.season}</p></div>
                 </div>
               )}
             </div>
@@ -64,7 +64,7 @@ export default function CuisineDetail() {
                 <h3 className="mb-3 font-serif text-lg font-semibold">Mua / thưởng thức tại</h3>
                 <ul className="space-y-2">
                   {c.whereToBuy.map((w, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-jade-700 dark:text-jade-200">
+                    <li key={i} className="flex items-start gap-2 text-sm text-muted">
                       <MapPin size={15} className="mt-0.5 shrink-0 text-gold-400" /> {w}
                     </li>
                   ))}

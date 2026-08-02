@@ -37,7 +37,7 @@ export default function MapEmbed({
     <div
       className={cx(
         'overflow-hidden',
-        fill ? 'flex h-full flex-col' : 'rounded-2xl ring-1 ring-jade-900/10 dark:ring-white/10',
+        fill ? 'flex h-full flex-col' : 'rounded-md ring-1 ring-jade-900/10 dark:ring-white/10',
         className,
       )}
     >
@@ -52,7 +52,7 @@ export default function MapEmbed({
           style={fill ? undefined : { height }}
           className={cx('grid place-items-center bg-jade-50 dark:bg-jade-900/40', fill && 'flex-1')}
         >
-          <span className="flex items-center gap-2 text-sm text-jade-500">
+          <span className="flex items-center gap-2 text-sm text-muted">
             <Loader2 size={14} className="animate-spin" /> Đang tải bản đồ…
           </span>
         </div>
@@ -71,7 +71,7 @@ export default function MapEmbed({
       )}
       {showDirections && (
         <div className="flex shrink-0 items-center justify-between gap-2 bg-white px-4 py-3 dark:bg-jade-900">
-          <p className="line-clamp-1 text-sm text-jade-600 dark:text-jade-300">{query || title}</p>
+          <p className="line-clamp-1 text-sm text-muted">{query || title}</p>
           <a
             href={mapDirectionsUrl({ lat, lng, query })}
             target="_blank"

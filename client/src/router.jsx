@@ -6,6 +6,7 @@ import RequireAuth from './pages/admin/RequireAuth.jsx';
 
 // Trang public
 import Home from './pages/Home.jsx';
+import Wards from './pages/Wards.jsx';
 import Heritages from './pages/Heritages.jsx';
 import HeritageDetail from './pages/HeritageDetail.jsx';
 import Festivals from './pages/Festivals.jsx';
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: '/', element: <Home /> },
+      { path: '/khu-pho', element: <Wards /> },
       { path: '/di-tich', element: <Heritages /> },
       { path: '/di-tich/:slug', element: <HeritageDetail /> },
       { path: '/le-hoi', element: <Festivals /> },

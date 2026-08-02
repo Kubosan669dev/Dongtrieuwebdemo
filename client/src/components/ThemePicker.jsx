@@ -24,7 +24,7 @@ function Swatch({ theme }) {
   return (
     <span
       data-theme={theme.id}
-      className={cx('block w-14 shrink-0 overflow-hidden rounded-full ring-1 ring-black/10', theme.mode === 'dark' && 'dark')}
+      className={cx('block w-14 shrink-0 overflow-hidden rounded-md ring-1 ring-black/10', theme.mode === 'dark' && 'dark')}
     >
       <span className="flex h-7">
         <span className="w-1/2 bg-paper dark:bg-jade-950" />
@@ -65,12 +65,12 @@ export default function ThemePicker({ open, theme, mode, onPick, onMode, onClose
         role="dialog"
         aria-modal="true"
         aria-label="Chọn bảng màu website"
-        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl bg-white shadow-lift dark:bg-jade-900 sm:rounded-3xl"
+        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-md bg-white shadow-lift dark:bg-jade-900 sm:rounded-md"
       >
         <div className="flex items-center justify-between gap-3 border-b border-jade-900/5 px-5 py-4 dark:border-white/10">
           <div>
             <h2 className="font-serif text-lg font-bold text-jade-900 dark:text-jade-50">Bảng màu</h2>
-            <p className="text-xs text-jade-600 dark:text-jade-300/70">Chọn tông màu bạn thấy dễ nhìn nhất</p>
+            <p className="text-xs text-muted/70">Chọn tông màu bạn thấy dễ nhìn nhất</p>
           </div>
           <button
             onClick={onClose}
@@ -90,7 +90,7 @@ export default function ThemePicker({ open, theme, mode, onPick, onMode, onClose
                 onClick={() => onPick(t.id)}
                 aria-pressed={active}
                 className={cx(
-                  'flex items-center gap-3 rounded-2xl border p-3 text-left transition',
+                  'flex items-center gap-3 rounded-md border p-3 text-left transition',
                   active
                     ? 'border-jade-500 bg-jade-50 ring-2 ring-jade-500/40 dark:bg-jade-800/60'
                     : 'border-jade-900/10 hover:border-jade-400 hover:bg-jade-50/60 dark:border-white/10 dark:hover:bg-jade-800/40',
@@ -101,7 +101,7 @@ export default function ThemePicker({ open, theme, mode, onPick, onMode, onClose
                   <span className="block truncate text-sm font-semibold text-jade-900 dark:text-jade-50">
                     {t.name}
                   </span>
-                  <span className="block truncate text-xs text-jade-600 dark:text-jade-300/70">{t.desc}</span>
+                  <span className="block truncate text-xs text-muted/70">{t.desc}</span>
                 </span>
                 {active && <Check size={16} className="shrink-0 text-jade-600 dark:text-jade-300" />}
               </button>
@@ -110,8 +110,8 @@ export default function ThemePicker({ open, theme, mode, onPick, onMode, onClose
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-jade-900/5 px-5 py-4 dark:border-white/10">
-          <span className="text-sm font-medium text-jade-800 dark:text-jade-100">Nền trang</span>
-          <div className="flex rounded-full bg-jade-100 p-1 dark:bg-jade-800">
+          <span className="text-sm font-medium text-body">Nền trang</span>
+          <div className="flex rounded-md bg-jade-100 p-1 dark:bg-jade-800">
             {[
               { id: 'light', label: 'Sáng', Icon: Sun },
               { id: 'dark', label: 'Tối', Icon: Moon },
@@ -121,10 +121,10 @@ export default function ThemePicker({ open, theme, mode, onPick, onMode, onClose
                 onClick={() => onMode(id)}
                 aria-pressed={mode === id}
                 className={cx(
-                  'flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition',
+                  'flex items-center gap-1.5 rounded-md px-4 py-1.5 text-sm font-medium transition',
                   mode === id
                     ? 'bg-white text-jade-900 shadow-soft dark:bg-jade-600 dark:text-white'
-                    : 'text-jade-600 hover:text-jade-800 dark:text-jade-300 dark:hover:text-white',
+                    : 'text-jade-600 hover:text-body dark:hover:text-white',
                 )}
               >
                 <Icon size={15} />

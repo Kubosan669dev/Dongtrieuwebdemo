@@ -47,7 +47,7 @@ export default function HeritageCover({
   name,
   type = 'CHUA',
   className,
-  rounded = 'rounded-2xl',
+  rounded = 'rounded-md',
   illustrative = false,
   // Ảnh thu nhỏ (avatar, gợi ý) quá bé để hiện nhãn — nhãn vẫn còn ở thẻ và trang chi tiết
   showBadge = true,
@@ -95,7 +95,7 @@ export default function HeritageCover({
         </g>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-        <span className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-white/90 backdrop-blur-sm">
+        <span className="rounded-md bg-white/15 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-white/90 backdrop-blur-sm">
           {typeLabel}
         </span>
         <p className="mt-3 font-serif text-lg font-semibold leading-snug text-white drop-shadow sm:text-xl">

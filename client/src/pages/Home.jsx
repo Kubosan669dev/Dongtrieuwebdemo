@@ -1,25 +1,32 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
 import { fetchList, api } from '../lib/api.js';
 import HeroSlider from '../components/HeroSlider.jsx';
 import FestivalSeason from '../components/FestivalSeason.jsx';
 import LodgingDetail from '../components/LodgingDetail.jsx';
+import HomeQuickLinks from '../components/home/HomeQuickLinks.jsx';
 import HomeIntro from '../components/home/HomeIntro.jsx';
 import HomeMap from '../components/home/HomeMap.jsx';
 import HomeReviews from '../components/home/HomeReviews.jsx';
 import HomeContact from '../components/home/HomeContact.jsx';
 import { HeritageCard, CuisineCard, LodgingCard, ArticleCard } from '../components/cards.jsx';
 import { SectionHeading, SkeletonCard, ErrorNote } from '../components/ui.jsx';
-import MiniWeather from '../components/MiniWeather.jsx';
 import Seo from '../components/Seo.jsx';
 import { useSettings } from '../hooks/useSettings.js';
 import { LUNAR_MONTH_LABELS } from '../lib/constants.js';
 
 /**
- * Trang chủ — 11 khối, theo đúng thứ tự một người mới cần:
- * ở đâu → khi nào đi → xem gì → đường đi → ăn ngủ → người khác nói gì → hỏi ai.
+ * Trang chủ — theo đúng thứ tự người dân trong phường cần:
+ * tra cứu nhanh → vùng đất này là gì → mùa lễ hội → di tích → bản đồ → lịch lễ
+ * hội → đặc sản → cảm nhận → tin tức → lưu trú cho khách → liên hệ.
+ *
+ * ── LƯU TRÚ NẰM GẦN CUỐI, CÓ CHỦ Ý ──────────────────────────────────────────
+ * Bản trước đặt nó ngay giữa trang, cạnh Ẩm thực. Với người sống trong phường thì
+ * danh sách nhà nghỉ là mục ít cần nhất — họ đã ở đây rồi. Nó vẫn còn nguyên, chỉ
+ * lùi xuống sau Tin tức và đổi giọng thành "giới thiệu cho khách tới thăm", tức
+ * là nói với người trong phường về việc chỉ đường cho khách của mình.
  *
  * ── HAI KHỐI BỊ BỎ Ở BẢN NÀY ────────────────────────────────────────────────
  *
@@ -53,9 +60,7 @@ function SectionBody({ query, skeletonCount = 3, children }) {
 }
 
 export default function Home() {
-  const navigate = useNavigate();
   const settings = useSettings();
-  const [q, setQ] = useState('');
   const [lodging, setLodging] = useState(null);
 
   const slides = useQuery({ queryKey: ['slides'], queryFn: () => fetchList('slides') });
@@ -76,11 +81,6 @@ export default function Home() {
   const heritageItems = heritages.data?.items ?? [];
   const [lead, ...rest] = heritageItems;
 
-  const onSearch = (e) => {
-    e.preventDefault();
-    navigate(`/di-tich?q=${encodeURIComponent(q.trim())}`);
-  };
-
   return (
     <div className="pb-20">
       {/* Không truyền description: `Seo` tự dùng SITE_DESCRIPTION trong lib/site.js */}
@@ -92,29 +92,14 @@ export default function Home() {
         <div className="h-[440px] animate-pulse bg-jade-100 dark:bg-jade-900" />
       )}
 
-      {/* Thanh tìm kiếm + thời tiết mini */}
-      <div className="container-page relative z-10 -mt-10">
-        <div className="card flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-5">
-          <form onSubmit={onSearch} className="flex flex-1 items-center gap-2 rounded-full bg-jade-50 px-4 dark:bg-jade-800/60">
-            <Search size={18} className="text-jade-400" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Tìm di tích, lễ hội, đặc sản…"
-              aria-label="Tìm kiếm"
-              className="w-full bg-transparent py-3 text-sm outline-none"
-            />
-            <button className="btn-primary btn-sm shrink-0">Tìm</button>
-          </form>
-          <MiniWeather />
-        </div>
-      </div>
+      {/* 2. Tra cứu nhanh — ô tìm + bốn việc người dân hay tới cổng để làm */}
+      <HomeQuickLinks />
 
       {/* 3. Giới thiệu ngắn + dải số liệu */}
       <HomeIntro intro={settings.about?.intro} counts={stats.data?.counts} />
 
-      {/* 4. Mùa lễ hội — đặt trước mọi lưới thẻ vì "khi nào đi" mới là quyết định
-          đầu tiên của khách với một điểm đến do lễ hội dẫn dắt. */}
+      {/* 4. Mùa lễ hội — đặt trước mọi lưới thẻ vì lịch hội là thứ cả người trong
+          phường lẫn khách phương xa đều xem trước tiên. */}
       {festivals.data?.items?.length > 0 && <FestivalSeason festivals={festivals.data.items} />}
 
       {/* 5. Di tích nổi bật — một thẻ lớn dẫn đầu, phần còn lại xếp lưới */}
@@ -122,7 +107,7 @@ export default function Home() {
         <SectionHeading
           eyebrow="Di sản văn hoá"
           title="Di tích nổi bật"
-          description="Những điểm đến tiêu biểu gắn với vương triều Trần và lịch sử cách mạng vùng Đông Triều."
+          description="Những di tích tiêu biểu của phường, gắn với vương triều Trần và lịch sử cách mạng vùng Đông Triều."
           action={<Link to="/di-tich" className="btn-ghost">Tất cả di tích <ChevronRight size={16} /></Link>}
         />
         <SectionBody query={heritages} skeletonCount={5}>
@@ -153,7 +138,7 @@ export default function Home() {
         <SectionHeading
           eyebrow="Theo lịch âm"
           title="Lễ hội truyền thống"
-          description="Từ mùng 9 tháng Giêng, hàng loạt lễ hội nối nhau diễn ra khắp các làng của Đông Triều."
+          description="Từ mùng 9 tháng Giêng, hàng loạt lễ hội nối nhau diễn ra khắp các làng trong phường."
           action={<Link to="/le-hoi" className="btn-ghost">Xem lịch lễ hội <ChevronRight size={16} /></Link>}
         />
         <SectionBody query={festivals}>
@@ -170,7 +155,7 @@ export default function Home() {
                       {f.lunarDay ? `${f.lunarDay} ` : ''}{LUNAR_MONTH_LABELS[f.lunarMonth]?.toLowerCase() ?? ''} âm lịch
                     </span>
                   </div>
-                  <p className="mt-1.5 text-sm text-jade-600/90 dark:text-jade-300">{f.location}</p>
+                  <p className="mt-1.5 text-sm text-muted">{f.location}</p>
                 </Link>
               </li>
             ))}
@@ -193,12 +178,31 @@ export default function Home() {
         </SectionBody>
       </section>
 
-      {/* 8b. Lưu trú */}
+      {/* 9. Cảm nhận — tự ẩn khi chưa có đánh giá nào đã duyệt */}
+      <HomeReviews />
+
+      {/* 10. Tin tức & thông báo của phường */}
+      {articles.data?.items?.length > 0 && (
+        <section data-vao className="container-page mt-16">
+          <SectionHeading
+            eyebrow="Tin của phường"
+            title="Tin tức & thông báo"
+            action={<Link to="/tin-tuc" className="btn-ghost">Tất cả bài viết <ChevronRight size={16} /></Link>}
+          />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {articles.data.items.slice(0, 3).map((a) => <ArticleCard key={a.id} item={a} />)}
+          </div>
+        </section>
+      )}
+
+      {/* 11. Lưu trú — mục duy nhất trên trang này viết cho khách phương xa, nên
+          nó đứng gần cuối và nói với người trong phường về việc chỉ chỗ cho khách
+          của mình. Trước đây nó nằm giữa trang, ngay cạnh Ẩm thực. */}
       <section data-vao className="container-page mt-16">
         <SectionHeading
-          eyebrow="Nghỉ ngơi"
+          eyebrow="Cho khách tới thăm"
           title="Cơ sở lưu trú"
-          description="Bấm vào từng cơ sở để xem giá phòng, tiện nghi, ảnh và bản đồ."
+          description="Nhà có khách phương xa về? Đây là các cơ sở lưu trú trong phường, kèm giá phòng, tiện nghi, ảnh và bản đồ."
           action={<Link to="/luu-tru" className="btn-ghost">Tất cả cơ sở <ChevronRight size={16} /></Link>}
         />
         <SectionBody query={lodgings}>
@@ -210,24 +214,7 @@ export default function Home() {
         </SectionBody>
       </section>
 
-      {/* 9. Đánh giá du khách — tự ẩn khi chưa có đánh giá nào đã duyệt */}
-      <HomeReviews />
-
-      {/* 10. Tin tức */}
-      {articles.data?.items?.length > 0 && (
-        <section data-vao className="container-page mt-16">
-          <SectionHeading
-            eyebrow="Cẩm nang & tin tức"
-            title="Bài viết mới"
-            action={<Link to="/tin-tuc" className="btn-ghost">Tất cả bài viết <ChevronRight size={16} /></Link>}
-          />
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {articles.data.items.slice(0, 3).map((a) => <ArticleCard key={a.id} item={a} />)}
-          </div>
-        </section>
-      )}
-
-      {/* 11. Liên hệ */}
+      {/* 12. Liên hệ */}
       <HomeContact />
 
       {lodging && <LodgingDetail item={lodging} onClose={() => setLodging(null)} />}

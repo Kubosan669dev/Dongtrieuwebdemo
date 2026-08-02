@@ -43,15 +43,15 @@ export default function Heritages() {
       <div className="container-page py-10">
         {/* Bộ lọc */}
         <div className="mb-8 space-y-4">
-          <div className="flex items-center gap-2 rounded-full bg-white px-4 shadow-soft ring-1 ring-jade-900/5 dark:bg-jade-900/50">
-            <Search size={18} className="text-jade-400" />
+          <div className="flex items-center gap-2 rounded-md bg-white px-4 shadow-soft ring-1 ring-jade-900/5 dark:bg-jade-900/50">
+            <Search size={18} className="text-subtle" />
             <input
               value={q}
               onChange={(e) => setParam('q', e.target.value)}
               placeholder="Tìm theo tên, địa chỉ, từ khoá…"
               className="w-full bg-transparent py-3 text-sm outline-none"
             />
-            {q && <button onClick={() => setParam('q', '')} className="text-jade-400 hover:text-jade-600"><X size={16} /></button>}
+            {q && <button onClick={() => setParam('q', '')} className="text-subtle hover:text-jade-600"><X size={16} /></button>}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -82,7 +82,7 @@ export default function Heritages() {
           />
         ) : (
           <>
-            <p className="mb-4 text-sm text-jade-500">Tìm thấy {items.length} di tích.</p>
+            <p className="mb-4 text-sm text-muted">Tìm thấy {items.length} di tích.</p>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((h) => <HeritageCard key={h.id} item={h} />)}
             </div>
@@ -95,7 +95,7 @@ export default function Heritages() {
             <div className="mb-6">
               <p className="mb-1 text-sm font-semibold uppercase tracking-wide text-gold-500">Mở rộng hành trình</p>
               <h2 className="section-title">Điểm đến lân cận</h2>
-              <p className="mt-2 max-w-2xl text-jade-700/80 dark:text-jade-200/70">
+              <p className="mt-2 max-w-2xl text-muted">
                 Những điểm nằm ngoài phường Đông Triều nhưng rất đáng kết hợp — phần lớn thuộc
                 Khu di tích lịch sử nhà Trần tại Đông Triều.
               </p>

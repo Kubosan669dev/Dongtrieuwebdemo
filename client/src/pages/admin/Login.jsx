@@ -7,7 +7,7 @@ import { SITE_NAME } from '../../lib/site.js';
 
 /** Cùng công thức ô nhập với `fields.jsx` của khu quản trị, kể cả biến thể nền tối. */
 const O_CLS =
-  'w-full rounded-xl border border-jade-200 bg-white px-4 py-2.5 outline-none focus:border-jade-400 focus:ring-2 focus:ring-jade-100 dark:border-jade-700 dark:bg-jade-950 dark:text-jade-50';
+  'w-full rounded-md border border-jade-200 bg-white px-4 py-2.5 outline-none focus:border-jade-400 focus:ring-2 focus:ring-jade-100 dark:border-jade-700 dark:bg-jade-950 dark:text-jade-50';
 
 export default function Login() {
   const { login } = useAuth();
@@ -47,13 +47,17 @@ export default function Login() {
             trong khi các ô nhập lại dùng `inputCls` chung ĐÃ có biến thể tối — nên
             ở chế độ tối thành một thẻ TRẮNG chứa các ô nhập ĐEN, chữ nhãn gần như
             không đọc được. Phát hiện qua ảnh chụp màn hình ở chế độ tối. */}
-        <div className="rounded-3xl bg-white p-8 shadow-lift dark:bg-jade-900 dark:ring-1 dark:ring-white/10">
+        {/* `id` để bài kiểm tương phản bám vào. Trước đây nó dò thẻ này bằng
+            `closest('div.rounded-3xl')` — một lớp TRANG TRÍ, nên vừa đổi bo góc
+            toàn site là phép kiểm khớp `null` và đổ. Class đổi theo thiết kế là
+            chuyện thường; một `id` thì không. */}
+        <div id="the-dang-nhap" className="rounded-md bg-white p-8 shadow-lift dark:bg-jade-900 dark:ring-1 dark:ring-white/10">
           <h1 className="font-serif text-2xl font-bold text-jade-900 dark:text-jade-50">Đăng nhập quản trị</h1>
-          <p className="mt-1 text-sm text-jade-500 dark:text-jade-300">Truy cập trang quản lý nội dung.</p>
+          <p className="mt-1 text-sm text-muted">Truy cập trang quản lý nội dung.</p>
 
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div>
-              <label htmlFor="dt-username" className="mb-1 block text-sm font-medium text-jade-700 dark:text-jade-200">Tên đăng nhập</label>
+              <label htmlFor="dt-username" className="mb-1 block text-sm font-medium text-muted">Tên đăng nhập</label>
               <input
                 id="dt-username"
                 type="text"
@@ -66,7 +70,7 @@ export default function Login() {
               />
             </div>
             <div>
-              <label htmlFor="dt-password" className="mb-1 block text-sm font-medium text-jade-700 dark:text-jade-200">Mật khẩu</label>
+              <label htmlFor="dt-password" className="mb-1 block text-sm font-medium text-muted">Mật khẩu</label>
               <div className="relative">
                 <input
                   id="dt-password"
@@ -82,7 +86,7 @@ export default function Login() {
                   type="button"
                   onClick={() => setShow((v) => !v)}
                   aria-label={show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-jade-400 hover:text-jade-600 dark:hover:text-jade-200"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-subtle hover:text-jade-600 dark:hover:text-jade-200"
                 >
                   {show ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -90,7 +94,7 @@ export default function Login() {
             </div>
 
             {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
+              <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
             )}
 
             <button type="submit" disabled={busy} className="btn-primary w-full disabled:opacity-60">

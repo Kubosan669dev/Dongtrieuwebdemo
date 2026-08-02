@@ -7,7 +7,7 @@ import { Stars, StarPicker } from './Stars.jsx';
 import { HONEYPOT_FIELD } from '../../../shared/antispam.js';
 
 /**
- * Đánh giá của du khách cho một địa điểm.
+ * Đánh giá và góp ý cho một địa điểm.
  *
  * ── HAI CON SỐ, KHÔNG BAO GIỜ TRỘN ──────────────────────────────────────────
  * `googleRating` là điểm sao lấy từ Google Maps lúc nhập dữ liệu. Điểm bên dưới
@@ -34,7 +34,7 @@ export default function Reviews({ targetType, targetId, googleRating, googleRati
     <section className={cx('space-y-4', className)} aria-labelledby={`danh-gia-${targetId}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 id={`danh-gia-${targetId}`} className="font-serif text-lg font-bold text-jade-900 dark:text-jade-50">
-          Đánh giá của du khách
+          Đánh giá &amp; góp ý
         </h3>
         {!moForm && (
           <button type="button" onClick={() => setMoForm(true)} className="btn-ghost btn-sm">
@@ -55,31 +55,31 @@ export default function Reviews({ targetType, targetId, googleRating, googleRati
       )}
 
       {q.isError && (
-        <p className="text-sm text-terra-600">Không tải được danh sách đánh giá. Vui lòng thử lại sau.</p>
+        <p className="text-sm text-danger">Không tải được danh sách đánh giá. Vui lòng thử lại sau.</p>
       )}
 
       {items.length > 0 && (
         <ul className="space-y-3">
           {items.map((r) => (
-            <li key={r.id} className="rounded-2xl bg-jade-50 p-4 dark:bg-jade-800/40">
+            <li key={r.id} className="rounded-md bg-jade-50 p-4 dark:bg-jade-800/40">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="font-medium text-jade-900 dark:text-jade-50">{r.authorName}</span>
                 <Stars value={r.rating} size={13} />
-                <time dateTime={r.createdAt} className="text-xs text-jade-400">
+                <time dateTime={r.createdAt} className="text-xs text-subtle">
                   {formatDate(r.createdAt)}
                 </time>
               </div>
               {/* Văn bản THUẦN. Không `dangerouslySetInnerHTML` ở đây — nội dung do
                   khách gửi, `<script>` phải hiện ra thành chữ chứ không được chạy.
                   `whitespace-pre-line` giữ lại các dòng người viết ngắt. */}
-              <p className="mt-2 whitespace-pre-line leading-relaxed text-jade-800 dark:text-jade-100">{r.comment}</p>
+              <p className="mt-2 whitespace-pre-line leading-relaxed text-body">{r.comment}</p>
             </li>
           ))}
         </ul>
       )}
 
       {!q.isLoading && items.length === 0 && !moForm && (
-        <p className="rounded-2xl border border-dashed border-jade-200 p-4 text-sm text-jade-500 dark:border-jade-700 dark:text-jade-300">
+        <p className="rounded-md border border-dashed border-jade-200 p-4 text-sm text-muted dark:border-jade-700">
           Chưa có đánh giá nào trên cổng. Nếu bạn đã tới đây, hãy là người đầu tiên chia sẻ cảm nhận.
         </p>
       )}
@@ -97,22 +97,22 @@ export default function Reviews({ targetType, targetId, googleRating, googleRati
 function ThongKe({ summary, googleRating, googleRatingCount, dangTai }) {
   const coCong = summary && summary.count > 0;
   const coGoogle = googleRating != null;
-  if (dangTai) return <div className="h-20 animate-pulse rounded-2xl bg-jade-100 dark:bg-jade-800/50" />;
+  if (dangTai) return <div className="h-20 animate-pulse rounded-md bg-jade-100 dark:bg-jade-800/50" />;
   if (!coCong && !coGoogle) return null;
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-jade-900/5 dark:bg-jade-900/40 dark:ring-white/5 sm:flex-row sm:items-center sm:gap-6">
+    <div className="flex flex-col gap-4 rounded-md bg-white p-4 ring-1 ring-jade-900/5 dark:bg-jade-900/40 dark:ring-white/5 sm:flex-row sm:items-center sm:gap-6">
       {coCong && (
         <div className="flex items-center gap-3">
           <div>
             <p className="font-serif text-3xl font-bold leading-none text-jade-900 dark:text-jade-50">
               {formatRating(summary.average)}
             </p>
-            <p className="mt-1 text-[11px] uppercase tracking-wider text-jade-400">trên 5</p>
+            <p className="mt-1 text-[11px] uppercase tracking-wider text-subtle">trên 5</p>
           </div>
           <div>
             <Stars value={summary.average} size={16} />
-            <p className="mt-1 text-xs text-jade-500 dark:text-jade-300">
+            <p className="mt-1 text-xs text-muted">
               {summary.count} đánh giá <strong className="font-semibold">trên cổng này</strong>
             </p>
           </div>
@@ -124,12 +124,12 @@ function ThongKe({ summary, googleRating, googleRatingCount, dangTai }) {
       {coGoogle && (
         <div className={cx('flex items-center gap-2 text-sm', coCong && 'border-jade-900/10 dark:border-white/10 sm:border-l sm:pl-6')}>
           <Star size={15} className="shrink-0 fill-gold-400 text-gold-400" />
-          <span className="text-jade-800 dark:text-jade-100">
+          <span className="text-body">
             <strong className="font-semibold">{formatRating(googleRating)}</strong>
-            {googleRatingCount != null && <span className="text-jade-400"> ({googleRatingCount})</span>}
+            {googleRatingCount != null && <span className="text-subtle"> ({googleRatingCount})</span>}
             {/* Nhãn "Google" là phần bắt buộc, không phải trang trí: thiếu nó thì
                 hai con số cạnh nhau trông như cùng một thang đo. */}
-            <span className="ml-1 text-jade-500 dark:text-jade-300">trên Google Maps</span>
+            <span className="ml-1 text-muted">trên Google Maps</span>
           </span>
         </div>
       )}
@@ -144,7 +144,7 @@ function PhoDiem({ breakdown, total }) {
       {[5, 4, 3, 2, 1].map((n) => {
         const soLuot = breakdown?.[n] ?? 0;
         return (
-          <div key={n} className="flex items-center gap-2 text-xs text-jade-500 dark:text-jade-400">
+          <div key={n} className="flex items-center gap-2 text-xs text-muted">
             <span className="w-3 text-right tabular-nums">{n}</span>
             <Star size={10} className="shrink-0 fill-gold-400 text-gold-400" />
             <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-jade-100 dark:bg-jade-800">
@@ -205,7 +205,7 @@ function FormDanhGia({ targetType, targetId, queryKey, onDong }) {
 
   if (xong) {
     return (
-      <div className="flex items-start gap-3 rounded-2xl bg-jade-50 p-4 text-sm dark:bg-jade-800/40">
+      <div className="flex items-start gap-3 rounded-md bg-jade-50 p-4 text-sm dark:bg-jade-800/40">
         <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-jade-600 dark:text-jade-300" />
         <div>
           <p className="font-medium text-jade-900 dark:text-jade-50">Đã nhận đánh giá của bạn. Cảm ơn!</p>
@@ -227,7 +227,7 @@ function FormDanhGia({ targetType, targetId, queryKey, onDong }) {
         setLoiChung('');
         gui.mutate();
       }}
-      className="space-y-3 rounded-2xl bg-jade-50 p-4 dark:bg-jade-800/40"
+      className="space-y-3 rounded-md bg-jade-50 p-4 dark:bg-jade-800/40"
       noValidate
     >
       <StarPicker value={form.rating} onChange={dat('rating')} name={`rating-${targetId}`} error={loi.rating} />
@@ -274,9 +274,9 @@ function FormDanhGia({ targetType, targetId, queryKey, onDong }) {
         />
       </div>
 
-      {loiChung && <p className="text-sm text-terra-600">{loiChung}</p>}
+      {loiChung && <p className="text-sm text-danger">{loiChung}</p>}
 
-      <p className="flex items-start gap-2 text-xs text-jade-500 dark:text-jade-300">
+      <p className="flex items-start gap-2 text-xs text-muted">
         <ShieldCheck size={14} className="mt-0.5 shrink-0" />
         Đánh giá được ban quản trị duyệt trước khi hiện trên trang.
       </p>
@@ -292,19 +292,19 @@ function FormDanhGia({ targetType, targetId, queryKey, onDong }) {
 }
 
 const O_CLS =
-  'w-full rounded-xl border border-jade-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-jade-400 focus:ring-2 focus:ring-jade-100 dark:border-jade-700 dark:bg-jade-900 dark:text-jade-50';
+  'w-full rounded-md border border-jade-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-jade-400 focus:ring-2 focus:ring-jade-100 dark:border-jade-700 dark:bg-jade-900 dark:text-jade-50';
 
 function O({ label, required, hint, error, children }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-jade-700 dark:text-jade-200">
-        {label} {required && <span className="text-terra-600">*</span>}
+      <span className="mb-1 block text-sm font-medium text-muted">
+        {label} {required && <span className="text-danger">*</span>}
       </span>
       {children}
       {error ? (
-        <span className="mt-1 block text-xs text-terra-600">{error}</span>
+        <span className="mt-1 block text-xs text-danger">{error}</span>
       ) : (
-        hint && <span className="mt-1 block text-xs text-jade-400">{hint}</span>
+        hint && <span className="mt-1 block text-xs text-subtle">{hint}</span>
       )}
     </label>
   );

@@ -47,8 +47,45 @@
   .container-page {
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
+
+  /* ── Thang chữ theo ĐỘ ĐẬM, không theo màu ────────────────────────────────
+     Trước đây site hạ cấp chữ bằng cách nhạt dần về màu xanh thương hiệu:
+     jade-900 → jade-700/80 → jade-500 → jade-400. Cách đó hỏng theo hai hướng
+     cùng lúc.
+
+     Một: ba bậc dưới đều DƯỚI chuẩn WCAG AA — 4.34 / 3.56 / 2.59 (cần 4.5) —
+     và vì bài kiểm tương phản chỉ xét chữ đặc nên 140+ chỗ dùng chúng chưa từng
+     bị soi lần nào. Bài kiểm xanh trong khi giao diện khó đọc.
+
+     Hai: chữ nhuộm màu thương hiệu thì bản thân màu thương hiệu hết nổi. Xanh
+     bôi lên mọi dòng chữ nên chẳng còn chỗ nào để nó thành điểm nhấn.
+
+     Nay hạ cấp bằng độ đậm của MỰC TRUNG TÍNH. `ink` và `jade-50` khai riêng
+     theo từng bảng màu nên cả 8 bảng tự đạt chuẩn, không phải chỉnh bảng nào.
+     Ba mức độ mờ dưới đây do `scripts/check-contrast.mjs` chốt, không chọn bằng
+     mắt — sửa số ở đây thì chạy lại `npm run check-contrast`. */
+  .text-body {
+    @apply text-ink dark:text-jade-50;
+  }
+  .text-muted {
+    @apply text-ink/[0.72] dark:text-jade-50/[0.72];
+  }
+  .text-subtle {
+    @apply text-ink/[0.64] dark:text-jade-50/[0.60];
+  }
+  /* Chữ báo lỗi và dấu bắt buộc.
+     Trước đây dùng `text-terra-600`, mà terra không làm màu chữ được ở cả 8 bảng
+     (xem chú thích dài ở components/ui.jsx) — nó tụt xuống 3.56 ở teal, lotus và
+     crimson. Thông báo lỗi lại đúng là dòng chữ bắt buộc phải đọc được: người
+     dùng đang mắc kẹt ở biểu mẫu mới nhìn tới nó.
+     Nay chữ giữ mực đậm + in đậm. Việc này cũng đúng WCAG 1.4.1 hơn: màu sắc
+     không được là thứ DUY NHẤT nói cho người dùng biết có lỗi. */
+  .text-danger {
+    @apply font-semibold text-ink dark:text-jade-50;
+  }
+
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold transition
       focus:outline-none focus-visible:ring-2 focus-visible:ring-jade-400 focus-visible:ring-offset-2;
   }
   .btn-primary {
@@ -65,25 +102,36 @@
   .btn-sm {
     @apply px-3 py-1.5 text-xs;
   }
+  /* ── Thẻ ──────────────────────────────────────────────────────────────────
+     Góc 6px và **viền nhìn thấy được**. Chỉ hạ bo góc mà giữ viền 5% thì không
+     ăn thua: ở 5% đường viền chỉ đạt 1.06 tương phản, tức mắt thường không thấy,
+     nên thẻ tan vào nền giấy và cả lưới trông lỏng lẻo. Chính đường viền mới là
+     thứ làm trang trông vuông vắn, không phải góc.
+
+     Mức 12% do `check-contrast` giữ (ngưỡng `VIEN`), để lần sau không ai vô tình
+     hạ nó về mức vô hình nữa. */
   .card {
-    @apply rounded-2xl bg-white shadow-soft ring-1 ring-jade-900/5 transition dark:bg-jade-900/40 dark:ring-white/5;
+    @apply rounded-md bg-white shadow-soft ring-1 ring-jade-900/[0.12] transition dark:bg-jade-900/40 dark:ring-white/10;
   }
   .card-hover {
-    @apply card hover:-translate-y-1 hover:shadow-lift;
+    @apply card hover:-translate-y-0.5 hover:shadow-lift hover:ring-jade-900/20 dark:hover:ring-white/20;
   }
-  /* Cùng công thức với `.card`, chỉ bo góc nhỏ hơn — dành cho thẻ nằm BÊN TRONG
-     một thẻ khác (mục điểm nhấn, ô ảnh trong thư viện, bảng dữ liệu).
-     Bốn chỗ trong dự án từng tự gõ lại nguyên chuỗi
-     `rounded-xl bg-white shadow-soft ring-1 ring-jade-900/5 dark:bg-jade-900/40 dark:ring-white/5`,
-     và mỗi chỗ lệch nhau một chút. Bo góc lồng nhau cũng cần nhỏ dần, nếu bằng
-     nhau thì góc trong trông như lệch khỏi góc ngoài. */
+  /* Cùng công thức với `.card`, dành cho thẻ nằm BÊN TRONG một thẻ khác (mục
+     điểm nhấn, ô ảnh trong thư viện, bảng dữ liệu). Bốn chỗ trong dự án từng tự
+     gõ lại nguyên chuỗi này và mỗi chỗ lệch nhau một chút.
+
+     Ở thang bo góc cũ, thẻ trong phải nhỏ hơn thẻ ngoài một nấc thì góc mới
+     không trông lệch. Với 6px thì độ cong đã đủ nhỏ để lồng nhau vẫn khớp, nên
+     hai lớp dùng chung một giá trị. */
   .card-sm {
-    @apply rounded-xl bg-white shadow-soft ring-1 ring-jade-900/5 transition dark:bg-jade-900/40 dark:ring-white/5;
+    @apply rounded-md bg-white shadow-soft ring-1 ring-jade-900/[0.12] transition dark:bg-jade-900/40 dark:ring-white/10;
   }
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium;
+    @apply inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium;
   }
-  /* ── Thang chữ ────────────────────────────────────────────────────────────
+  /* ── Thang CỠ chữ ─────────────────────────────────────────────────────────
+     (Thang ĐỘ ĐẬM của chữ nằm ở đầu tệp: .text-body / .text-muted / .text-subtle)
+
      Trước đây cả site chỉ dùng ba độ đậm 400/500/600 và hai cỡ tiêu đề, nên
      không có cấp bậc nào nổi lên. Ba bậc dưới đây tạo khoảng cách rõ ràng.
 
@@ -101,13 +149,26 @@
     @apply font-serif text-2xl font-bold leading-[1.2] tracking-[-0.01em] text-jade-900 sm:text-3xl dark:text-jade-50;
   }
   /* Nhãn nhỏ phía trên tiêu đề mục. Giãn chữ rộng để đọc được ở cỡ nhỏ — chữ
-     hoa tiếng Việt có dấu rất dễ dính nhau khi nén. */
+     hoa tiếng Việt có dấu rất dễ dính nhau khi nén.
+
+     Gạch vàng đứng trước biến nhãn từ một dòng chữ trôi nổi thành mốc mở đầu
+     nhìn thấy được từ xa: cuộn nhanh qua trang là biết ngay chỗ nào bắt đầu một
+     mục mới. Dựng bằng pseudo-element nên không phải sửa một dòng JSX nào ở 20+
+     chỗ đang gọi `.eyebrow`.
+
+     `inline-flex` chứ không phải `flex`: nhãn phải co lại vừa chữ thì biến thể
+     căn giữa của `SectionHeading` (`center`) mới còn căn giữa được. Để `flex` là
+     thẻ chiếm trọn chiều ngang và gạch vàng dính lì ở mép trái. */
   .eyebrow {
-    @apply text-xs font-semibold uppercase tracking-[0.18em] text-gold-600 dark:text-gold-400;
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gold-600 dark:text-gold-400;
+  }
+  .eyebrow::before {
+    @apply h-px w-6 shrink-0 bg-gold-600 dark:bg-gold-400;
+    content: '';
   }
   .prose-vn {
     @apply prose max-w-none prose-headings:font-serif prose-headings:text-jade-900 prose-a:text-jade-600
-      prose-strong:text-jade-900 prose-img:rounded-xl dark:prose-invert dark:prose-headings:text-jade-50
+      prose-strong:text-jade-900 prose-img:rounded-md dark:prose-invert dark:prose-headings:text-jade-50
       dark:prose-strong:text-jade-50;
   }
   /* Ảnh có chú thích trong bài viết */
@@ -115,10 +176,11 @@
     @apply my-6;
   }
   .prose-vn figure img {
-    @apply w-full rounded-2xl shadow-soft;
+    @apply w-full rounded-md shadow-soft;
   }
   .prose-vn figcaption {
-    @apply mt-2 text-center text-sm italic text-jade-500 dark:text-jade-400;
+    @apply mt-2 text-center text-sm italic;
+    @apply text-subtle;
   }
 
   /* Nền hoa văn mờ trang trí */

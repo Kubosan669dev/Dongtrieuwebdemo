@@ -116,7 +116,7 @@ export default function FestivalSeason({ festivals = [] }) {
         </p>
 
         {/* Lễ hội sắp tới. Ngoài mùa thì nói thẳng còn bao lâu nữa, không để trống. */}
-        <div className="mt-9 rounded-2xl bg-white/[0.07] p-5 ring-1 ring-white/10">
+        <div className="mt-9 rounded-md bg-white/[0.07] p-5 ring-1 ring-white/10">
           {soonest ? (
             <>
               <p className="text-sm text-jade-100/70">
@@ -127,7 +127,7 @@ export default function FestivalSeason({ festivals = [] }) {
                   <Link
                     key={f.id}
                     to={`/le-hoi/${f.slug}`}
-                    className="group rounded-xl bg-white/[0.06] p-4 transition hover:bg-white/[0.13]"
+                    className="group rounded-md bg-white/[0.06] p-4 transition hover:bg-white/[0.13]"
                   >
                     <p className="font-serif text-base font-semibold leading-snug text-white group-hover:text-gold-200">
                       {f.name}

@@ -1,26 +1,59 @@
 import { cx } from '../lib/format.js';
 
-// Bảng lớp màu cho chip/badge
+/**
+ * Nhãn có HAI DÁNG, không phải sáu màu.
+ *
+ * ── VÌ SAO BỎ LỐI SÁU MÀU ───────────────────────────────────────────────────
+ * Bản trước cho mỗi tone một mảng màu nhạt riêng, và hỏng ở ba chỗ:
+ *
+ *  1. Sáu màu nhưng chỉ có sáu mảng nhạt gần giống nhau, nên đứng cạnh nhau
+ *     chúng đọc ra là "nhiễu", không phải "phân loại".
+ *  2. `text-terra-600` chỉ đạt 3.56 ở ba bảng màu teal/lotus/crimson — dưới
+ *     chuẩn WCAG AA. Và không có màu chữ nào cứu được: `terra` đổi tính hoàn
+ *     toàn giữa các bảng (gạch nung sẫm ở heritage, cam tươi ở crimson), nên
+ *     chữ trắng trượt ở ba bảng còn chữ đậm trượt ở bốn bảng kia.
+ *  3. Hai thang XẾP HẠNG (cấp di tích, quy mô lễ hội) là thang có THỨ TỰ, mà
+ *     ba mảng nhạt khác màu không nói được cái nào cao hơn cái nào.
+ *
+ * Nay thứ tự nằm ở ĐỘ ĐẬM, còn phân loại nằm ở màu ĐƯỜNG VIỀN:
+ *
+ *   nền đặc vàng  → bậc cao nhất (Di tích Quốc gia đặc biệt, Lễ hội lớn)
+ *   nền đặc xanh  → bậc giữa
+ *   viền          → bậc thấp và mọi nhãn phân loại
+ *
+ * Hai nền đặc đều đã được `npm run check-contrast` chứng minh đạt ở cả 8 bảng.
+ * Nhãn viền để nền ĐỤC (`bg-white` / `bg-jade-900`) chứ không để trong suốt, vì
+ * nhãn còn nằm đè lên ảnh bìa ở thẻ di tích nổi bật — nền trong là chữ chìm mất
+ * vào ảnh. `terra` vẫn còn, nhưng chỉ làm đường viền: viền là hình trang trí nên
+ * không bị ràng buộc tương phản chữ.
+ */
+const VIEN = 'bg-white text-jade-900 ring-1 ring-inset dark:bg-jade-900 dark:text-jade-50';
+
 const TONES = {
-  jade: 'bg-jade-100 text-jade-800 dark:bg-jade-800/40 dark:text-jade-100',
-  gold: 'bg-gold-100 text-gold-800 dark:bg-gold-800/30 dark:text-gold-200',
-  terra: 'bg-terra-500/15 text-terra-600 dark:text-terra-400',
-  // Hai tone này trước dùng màu Tailwind thô nên đứng nguyên màu tím/đỏ ở cả 8
-  // bảng màu, lạc hẳn khỏi phần còn lại. Nay đưa về dải màu đất của bảng đang dùng.
-  violet: 'bg-terra-400/15 text-terra-600 dark:bg-terra-400/20 dark:text-terra-400',
-  red: 'bg-terra-600/15 text-terra-600 dark:bg-terra-600/25 dark:text-terra-400',
-  gray: 'bg-jade-50 text-jade-600 dark:bg-jade-900/40 dark:text-jade-300',
+  // Nền đặc — chỉ dành cho bậc cao của thang có thứ tự.
+  gold: 'bg-gold-400 text-jade-950',
+  jade: 'bg-jade-600 text-white',
+  // Viền — phân loại và bậc thấp. Tên tone chính là màu viền, đọc là biết ngay.
+  line: `${VIEN} ring-jade-300 dark:ring-jade-700`,
+  'line-jade': `${VIEN} ring-jade-500 dark:ring-jade-400`,
+  'line-gold': `${VIEN} ring-gold-500 dark:ring-gold-400`,
+  'line-terra': `${VIEN} ring-terra-500 dark:ring-terra-400`,
 };
 
-export function Badge({ tone = 'jade', children, className }) {
-  return <span className={cx('chip', TONES[tone] ?? TONES.jade, className)}>{children}</span>;
+export function Badge({ tone = 'line', children, className }) {
+  return <span className={cx('chip', TONES[tone] ?? TONES.line, className)}>{children}</span>;
 }
 
-/** Màu khi chip lọc đang được chọn. */
+/**
+ * Màu khi chip lọc đang được chọn.
+ *
+ * Bỏ `terra` khỏi đây: chữ trắng trên `terra-500` chỉ đạt 2.80 ở teal/lotus/
+ * crimson. Trạng thái "đang lọc" là thông tin thật sự cần đọc được, không phải
+ * chỗ để giữ một sắc màu.
+ */
 const FILTER_ACTIVE = {
   jade: 'bg-jade-600 text-white',
   gold: 'bg-gold-400 text-jade-950',
-  terra: 'bg-terra-500 text-white',
 };
 
 /**
@@ -40,10 +73,10 @@ export function FilterChip({ active, onClick, children, tone = 'jade' }) {
       onClick={onClick}
       aria-pressed={active}
       className={cx(
-        'rounded-full px-4 py-2 text-sm font-medium transition',
+        'rounded-md px-4 py-2 text-sm font-medium transition',
         active
           ? FILTER_ACTIVE[tone] ?? FILTER_ACTIVE.jade
-          : 'bg-white text-jade-700 ring-1 ring-jade-200 hover:bg-jade-50 dark:bg-jade-900/50 dark:text-jade-100 dark:ring-jade-700',
+          : 'bg-white text-jade-800 ring-1 ring-inset ring-jade-900/[0.12] hover:bg-jade-50 dark:bg-jade-900/50 dark:text-jade-100 dark:ring-white/10',
       )}
     >
       {children}
@@ -62,7 +95,7 @@ export function SectionHeading({ eyebrow, title, description, action, center }) 
             trang không cùng một dáng. */}
         {eyebrow && <p className="eyebrow mb-1.5">{eyebrow}</p>}
         <h2 className="section-title">{title}</h2>
-        {description && <p className="mt-2 max-w-2xl text-jade-700/80 dark:text-jade-200/70">{description}</p>}
+        {description && <p className="mt-2 max-w-2xl text-muted">{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>
@@ -92,14 +125,14 @@ export function Spinner({ className }) {
  */
 export function EmptyState({ icon: Icon, title, description }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-jade-200 bg-white/60 py-16 text-center dark:border-jade-700 dark:bg-jade-900/30">
+    <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-jade-200 bg-white/60 py-16 text-center dark:border-jade-700 dark:bg-jade-900/30">
       {Icon && (
-        <div className="mb-3 text-jade-400">
+        <div className="mb-3 text-subtle">
           <Icon size={32} aria-hidden="true" />
         </div>
       )}
-      <p className="font-serif text-lg font-semibold text-jade-800 dark:text-jade-100">{title}</p>
-      {description && <p className="mt-1 max-w-md text-sm text-jade-600 dark:text-jade-300">{description}</p>}
+      <p className="font-serif text-lg font-semibold text-body">{title}</p>
+      {description && <p className="mt-1 max-w-md text-sm text-muted">{description}</p>}
     </div>
   );
 }
@@ -119,7 +152,7 @@ export function SkeletonCard() {
 
 export function ErrorNote({ message = 'Đã có lỗi khi tải dữ liệu.', onRetry }) {
   return (
-    <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+    <div className="rounded-md border border-red-200 bg-red-50 p-6 text-center text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
       <p>{message}</p>
       {onRetry && (
         <button onClick={onRetry} className="btn-ghost mt-3">

@@ -37,7 +37,7 @@ export default function Layout() {
           trong thứ tự Tab và cây trợ năng — chỉ là đang ở ngoài màn hình. */}
       <a
         href="#noi-dung"
-        className="fixed left-4 top-4 z-[100] -translate-y-[200%] rounded-full bg-jade-600 px-5 py-3 text-sm font-semibold text-white shadow-lift focus:translate-y-0"
+        className="fixed left-4 top-4 z-[100] -translate-y-[200%] rounded-md bg-jade-600 px-5 py-3 text-sm font-semibold text-white shadow-lift focus:translate-y-0"
       >
         Nhảy tới nội dung chính
       </a>

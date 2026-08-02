@@ -38,11 +38,11 @@ export default function Festivals() {
           {months.map((m) => (
             <div key={m}>
               <div className="mb-5 flex items-center gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-jade-600 font-serif text-lg font-bold text-white">
+                <span className="grid h-11 w-11 place-items-center rounded-md bg-jade-600 font-serif text-lg font-bold text-white">
                   {m || '?'}
                 </span>
                 <h2 className="font-serif text-2xl font-semibold text-jade-900 dark:text-jade-50">
-                  {LUNAR_MONTH_LABELS[m] || 'Chưa rõ tháng'} <span className="text-base font-normal text-jade-400">(âm lịch)</span>
+                  {LUNAR_MONTH_LABELS[m] || 'Chưa rõ tháng'} <span className="text-base font-normal text-subtle">(âm lịch)</span>
                 </h2>
               </div>
               <div className="ml-5 space-y-4 border-l-2 border-jade-100 pl-6 dark:border-jade-800">
@@ -61,9 +61,9 @@ export default function Festivals() {
                       </div>
                       <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-jade-600">
                         <CalendarDays size={14} /> {f.lunarTimeText}
-                        {f.solarEstimate && <span className="text-jade-400">· {f.solarEstimate}</span>}
+                        {f.solarEstimate && <span className="text-subtle">· {f.solarEstimate}</span>}
                       </p>
-                      <p className="mt-2 flex items-center gap-1.5 text-sm text-jade-500">
+                      <p className="mt-2 flex items-center gap-1.5 text-sm text-muted">
                         <MapPin size={14} className="shrink-0" /> {f.location}
                       </p>
                     </Link>

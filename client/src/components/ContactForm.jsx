@@ -74,7 +74,7 @@ export default function ContactForm() {
       noValidate
     >
       <h2 className="font-serif text-lg font-semibold text-jade-900 dark:text-jade-50">Gửi phản hồi</h2>
-      <p className="mt-1 text-sm text-jade-500 dark:text-jade-400">
+      <p className="mt-1 text-sm text-muted">
         Thông tin sai, giờ mở cửa đã thay đổi, một lễ hội chưa có trên lịch — mọi góp ý đều hữu ích.
       </p>
 
@@ -93,7 +93,7 @@ export default function ContactForm() {
             <input className={O_CLS} type="tel" value={form.phone} onChange={(e) => dat('phone')(e.target.value)} maxLength={20} autoComplete="tel" placeholder="0912 345 678" />
           </O>
         </div>
-        <p className="-mt-2 text-xs text-jade-400">Vui lòng để lại ít nhất một trong hai để chúng tôi phản hồi được.</p>
+        <p className="-mt-2 text-xs text-subtle">Vui lòng để lại ít nhất một trong hai để chúng tôi phản hồi được.</p>
 
         <O label="Tiêu đề" error={loi.subject}>
           <input className={O_CLS} value={form.subject} onChange={(e) => dat('subject')(e.target.value)} maxLength={120} placeholder="Vd: Góp ý về giờ mở cửa chùa Mỹ Cụ" />
@@ -111,9 +111,9 @@ export default function ContactForm() {
           <input id="lien-he-bay" name={HONEYPOT_FIELD} value={bay} onChange={(e) => setBay(e.target.value)} tabIndex={-1} autoComplete="off" />
         </div>
 
-        {loiChung && <p className="text-sm text-terra-600">{loiChung}</p>}
+        {loiChung && <p className="text-sm text-danger">{loiChung}</p>}
 
-        <p className="flex items-start gap-2 text-xs text-jade-500 dark:text-jade-400">
+        <p className="flex items-start gap-2 text-xs text-muted">
           <ShieldCheck size={14} className="mt-0.5 shrink-0" />
           Chúng tôi chỉ lưu những gì bạn điền ở trên, không lưu địa chỉ IP.
         </p>
@@ -127,19 +127,19 @@ export default function ContactForm() {
 }
 
 const O_CLS =
-  'w-full rounded-xl border border-jade-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-jade-400 focus:ring-2 focus:ring-jade-100 dark:border-jade-700 dark:bg-jade-900 dark:text-jade-50';
+  'w-full rounded-md border border-jade-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-jade-400 focus:ring-2 focus:ring-jade-100 dark:border-jade-700 dark:bg-jade-900 dark:text-jade-50';
 
 function O({ label, required, hint, error, children }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-jade-700 dark:text-jade-200">
-        {label} {required && <span className="text-terra-600">*</span>}
+      <span className="mb-1 block text-sm font-medium text-muted">
+        {label} {required && <span className="text-danger">*</span>}
       </span>
       {children}
       {error ? (
-        <span className="mt-1 block text-xs text-terra-600">{error}</span>
+        <span className="mt-1 block text-xs text-danger">{error}</span>
       ) : (
-        hint && <span className="mt-1 block text-xs text-jade-400">{hint}</span>
+        hint && <span className="mt-1 block text-xs text-subtle">{hint}</span>
       )}
     </label>
   );

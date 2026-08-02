@@ -71,7 +71,7 @@ export default function HomeMap() {
           {/* Nói thẳng phần còn thiếu. Khách thấy ít điểm thì phải biết là dữ liệu
               đang được bổ sung, chứ không nghĩ phường chỉ có mấy điểm đó. */}
           {thieu > 0 && (
-            <p className="mt-3 text-xs text-jade-500 dark:text-jade-400">
+            <p className="mt-3 text-xs text-muted">
               Còn <strong className="font-semibold">{thieu}</strong> địa điểm chưa có toạ độ nên chưa lên bản đồ.
             </p>
           )}

@@ -88,7 +88,7 @@ export default function OsmPicker({ lat, lng, onPick, mode = 'light', height = 3
     <div
       ref={boxRef}
       style={{ height }}
-      className="dt-map w-full overflow-hidden rounded-xl ring-1 ring-jade-900/10 dark:ring-white/10"
+      className="dt-map w-full overflow-hidden rounded-md ring-1 ring-jade-900/10 dark:ring-white/10"
     />
   );
 }

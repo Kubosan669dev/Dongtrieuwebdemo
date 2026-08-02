@@ -137,7 +137,7 @@ export default function ChatWidget() {
         <div
           role="dialog"
           aria-label="Trợ lý du lịch Đông Triều"
-          className="fixed bottom-24 right-5 z-50 flex h-[min(34rem,calc(100vh-8rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-jade-900/10 dark:bg-jade-900 dark:ring-white/10 animate-fade-up"
+          className="fixed bottom-24 right-5 z-50 flex h-[min(34rem,calc(100vh-8rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-md bg-white shadow-lift ring-1 ring-jade-900/10 dark:bg-jade-900 dark:ring-white/10 animate-fade-up"
         >
           <div className="flex items-center gap-3 bg-jade-600 px-4 py-3.5 text-white">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15">
@@ -162,7 +162,7 @@ export default function ChatWidget() {
               <div key={i} className={cx('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
                 <div
                   className={cx(
-                    'max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed',
+                    'max-w-[88%] rounded-md px-3.5 py-2.5 text-sm leading-relaxed',
                     m.role === 'user'
                       ? 'bg-jade-600 text-white'
                       : 'bg-white text-jade-900 ring-1 ring-jade-900/5 dark:bg-jade-800 dark:text-jade-50',
@@ -177,7 +177,7 @@ export default function ChatWidget() {
                           key={j}
                           to={l.url}
                           onClick={() => setOpen(false)}
-                          className="rounded-full bg-jade-50 px-2.5 py-1 text-xs font-medium text-jade-700 transition hover:bg-jade-100 dark:bg-jade-700/50 dark:text-jade-100 dark:hover:bg-jade-700"
+                          className="rounded-md bg-jade-50 px-2.5 py-1 text-xs font-medium text-jade-700 transition hover:bg-jade-100 dark:bg-jade-700/50 dark:text-jade-100 dark:hover:bg-jade-700"
                         >
                           {l.label} →
                         </Link>
@@ -190,7 +190,7 @@ export default function ChatWidget() {
 
             {sending && (
               <div className="flex justify-start">
-                <div className="flex gap-1 rounded-2xl bg-white px-3.5 py-3 ring-1 ring-jade-900/5 dark:bg-jade-800">
+                <div className="flex gap-1 rounded-md bg-white px-3.5 py-3 ring-1 ring-jade-900/5 dark:bg-jade-800">
                   {[0, 150, 300].map((d) => (
                     <span
                       key={d}
@@ -208,7 +208,7 @@ export default function ChatWidget() {
                   <button
                     key={s}
                     onClick={() => send(s)}
-                    className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-jade-700 ring-1 ring-jade-200 transition hover:bg-jade-50 dark:bg-jade-800 dark:text-jade-100 dark:ring-jade-700 dark:hover:bg-jade-700"
+                    className="rounded-md bg-white px-3 py-1.5 text-xs font-medium text-jade-700 ring-1 ring-jade-200 transition hover:bg-jade-50 dark:bg-jade-800 dark:text-jade-100 dark:ring-jade-700 dark:hover:bg-jade-700"
                   >
                     {s}
                   </button>
@@ -231,7 +231,7 @@ export default function ChatWidget() {
               maxLength={500}
               aria-label="Câu hỏi của bạn"
               placeholder="Nhập câu hỏi của bạn…"
-              className="flex-1 rounded-full bg-jade-50 px-4 py-2.5 text-sm outline-none ring-1 ring-transparent focus:ring-jade-300 dark:bg-jade-800 dark:text-jade-50"
+              className="flex-1 rounded-md bg-jade-50 px-4 py-2.5 text-sm outline-none ring-1 ring-transparent focus:ring-jade-300 dark:bg-jade-800 dark:text-jade-50"
             />
             <button
               type="submit"

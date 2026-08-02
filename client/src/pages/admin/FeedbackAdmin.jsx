@@ -32,7 +32,7 @@ export default function FeedbackAdmin() {
   return (
     <div>
       <h1 className="font-serif text-2xl font-bold">Phản hồi của du khách</h1>
-      <p className="mt-1 max-w-3xl text-jade-500">
+      <p className="mt-1 max-w-3xl text-muted">
         Đánh giá gửi từ trang chi tiết <strong>chỉ hiện ra sau khi được duyệt tại đây</strong>. Tin liên hệ
         thì không tự trả lời được — hãy gọi hoặc gửi email cho người gửi rồi đánh dấu đã xử lý.
       </p>
@@ -66,7 +66,7 @@ function TabBtn({ active, onClick, icon: Icon, badge, children }) {
       {badge > 0 && (
         <span
           className={cx(
-            'ml-1 rounded-full px-1.5 text-[11px] font-bold tabular-nums',
+            'ml-1 rounded-md px-1.5 text-[11px] font-bold tabular-nums',
             active ? 'bg-white/25 text-white' : 'bg-terra-500 text-white',
           )}
         >
@@ -82,7 +82,7 @@ function TabBtn({ active, onClick, icon: Icon, badge, children }) {
 const TRANG_THAI = {
   PENDING: { nhan: 'Chờ duyệt', lop: 'bg-gold-200 text-gold-900 dark:bg-gold-700 dark:text-gold-50' },
   APPROVED: { nhan: 'Đang hiện', lop: 'bg-jade-100 text-jade-700 dark:bg-jade-700 dark:text-jade-100' },
-  REJECTED: { nhan: 'Đã từ chối', lop: 'bg-jade-100 text-jade-500 dark:bg-jade-800 dark:text-jade-400' },
+  REJECTED: { nhan: 'Đã từ chối', lop: 'bg-jade-100 text-muted dark:bg-jade-800' },
 };
 
 const LOC_DG = [
@@ -128,7 +128,7 @@ function TheDanhGia({ q }) {
             key={l.key}
             type="button"
             onClick={() => setLoc(l.key)}
-            className={cx('btn-sm rounded-full', loc === l.key ? 'btn-gold' : 'btn-ghost')}
+            className={cx('btn-sm', loc === l.key ? 'btn-gold' : 'btn-ghost')}
           >
             {l.nhan}
             <span className="tabular-nums opacity-60">
@@ -163,12 +163,12 @@ function TheDanhGia({ q }) {
                   <Star size={13} className="fill-gold-400 text-gold-400" /> {r.rating}/5
                 </span>
                 <span className="font-medium text-jade-900 dark:text-jade-50">{r.authorName}</span>
-                <span className="text-xs text-jade-400">
+                <span className="text-xs text-subtle">
                   {formatDate(r.createdAt)} · {formatTime(r.createdAt)}
                 </span>
               </div>
 
-              <p className="mt-1.5 text-xs text-jade-500 dark:text-jade-400">
+              <p className="mt-1.5 text-xs text-muted">
                 {r.targetLabel}:{' '}
                 {r.targetName ? (
                   r.targetPath ? (
@@ -176,17 +176,17 @@ function TheDanhGia({ q }) {
                       {r.targetName} <ExternalLink size={11} />
                     </Link>
                   ) : (
-                    <strong className="font-medium text-jade-700 dark:text-jade-200">{r.targetName}</strong>
+                    <strong className="font-medium text-muted">{r.targetName}</strong>
                   )
                 ) : (
                   // Về lý thì không nên còn dòng nào như vậy (xoá bản ghi là xoá
                   // luôn đánh giá của nó), nhưng dữ liệu cũ vẫn có thể sót.
-                  <em className="text-terra-600">địa điểm đã bị xoá</em>
+                  <em className="text-danger">địa điểm đã bị xoá</em>
                 )}
               </p>
 
               {/* Văn bản thuần, giữ ngắt dòng của người viết. */}
-              <p className="mt-2.5 whitespace-pre-line rounded-xl bg-jade-50 p-3 text-sm leading-relaxed text-jade-800 dark:bg-jade-800/40 dark:text-jade-100">
+              <p className="mt-2.5 whitespace-pre-line rounded-md bg-jade-50 p-3 text-sm leading-relaxed text-jade-800 dark:bg-jade-800/40 dark:text-jade-100">
                 {r.comment}
               </p>
 
@@ -219,7 +219,7 @@ function TheDanhGia({ q }) {
               </div>
 
               {r.handledAt && (
-                <p className="mt-2 text-[11px] text-jade-400">
+                <p className="mt-2 text-[11px] text-subtle">
                   Đã xử lý lúc {formatDate(r.handledAt)} · {formatTime(r.handledAt)}
                 </p>
               )}
@@ -228,7 +228,7 @@ function TheDanhGia({ q }) {
         </ul>
       )}
 
-      <p className="mt-4 text-xs text-jade-400">
+      <p className="mt-4 text-xs text-subtle">
         Từ chối thì đánh giá được giữ lại để đối chiếu về sau nhưng không hiện trên trang. Xoá là mất hẳn.
       </p>
     </div>
@@ -260,10 +260,10 @@ function TheLienHe({ q }) {
   return (
     <div>
       <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={() => setChiChuaXuLy(true)} className={cx('btn-sm rounded-full', chiChuaXuLy ? 'btn-gold' : 'btn-ghost')}>
+        <button type="button" onClick={() => setChiChuaXuLy(true)} className={cx('btn-sm', chiChuaXuLy ? 'btn-gold' : 'btn-ghost')}>
           Chưa xử lý <span className="tabular-nums opacity-60">{tatCa.filter((m) => !m.handled).length}</span>
         </button>
-        <button type="button" onClick={() => setChiChuaXuLy(false)} className={cx('btn-sm rounded-full', !chiChuaXuLy ? 'btn-gold' : 'btn-ghost')}>
+        <button type="button" onClick={() => setChiChuaXuLy(false)} className={cx('btn-sm', !chiChuaXuLy ? 'btn-gold' : 'btn-ghost')}>
           Tất cả <span className="tabular-nums opacity-60">{tatCa.length}</span>
         </button>
       </div>
@@ -285,11 +285,11 @@ function TheLienHe({ q }) {
           {items.map((m) => (
             <li key={m.id} className={cx('card p-4', !m.handled && 'ring-2 ring-gold-300 dark:ring-gold-700/60')}>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                <span className={cx('chip', m.handled ? 'bg-jade-100 text-jade-500 dark:bg-jade-800 dark:text-jade-400' : 'bg-gold-200 text-gold-900 dark:bg-gold-700 dark:text-gold-50')}>
+                <span className={cx('chip', m.handled ? 'bg-jade-100 text-muted dark:bg-jade-800' : 'bg-gold-200 text-gold-900 dark:bg-gold-700 dark:text-gold-50')}>
                   {m.handled ? 'Đã xử lý' : 'Chờ xử lý'}
                 </span>
                 <span className="font-medium text-jade-900 dark:text-jade-50">{m.name}</span>
-                <span className="inline-flex items-center gap-1 text-xs text-jade-400">
+                <span className="inline-flex items-center gap-1 text-xs text-subtle">
                   <Clock size={11} /> {formatDate(m.createdAt)} · {formatTime(m.createdAt)}
                 </span>
               </div>
@@ -297,7 +297,7 @@ function TheLienHe({ q }) {
               {m.subject && (
                 <p className="mt-2 font-serif text-base font-semibold text-jade-900 dark:text-jade-50">{m.subject}</p>
               )}
-              <p className="mt-1.5 whitespace-pre-line rounded-xl bg-jade-50 p-3 text-sm leading-relaxed text-jade-800 dark:bg-jade-800/40 dark:text-jade-100">
+              <p className="mt-1.5 whitespace-pre-line rounded-md bg-jade-50 p-3 text-sm leading-relaxed text-jade-800 dark:bg-jade-800/40 dark:text-jade-100">
                 {m.message}
               </p>
 
@@ -337,7 +337,7 @@ function TheLienHe({ q }) {
               </div>
 
               {m.handledAt && (
-                <p className="mt-2 text-[11px] text-jade-400">
+                <p className="mt-2 text-[11px] text-subtle">
                   Đã xử lý lúc {formatDate(m.handledAt)} · {formatTime(m.handledAt)}
                 </p>
               )}
@@ -346,7 +346,7 @@ function TheLienHe({ q }) {
         </ul>
       )}
 
-      <p className="mt-4 flex items-start gap-1.5 text-xs text-jade-400">
+      <p className="mt-4 flex items-start gap-1.5 text-xs text-subtle">
         <MessageSquare size={13} className="mt-0.5 shrink-0" />
         Hộp thư này không lưu địa chỉ IP — chỉ những gì người gửi tự điền.
       </p>

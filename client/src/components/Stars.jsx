@@ -50,8 +50,8 @@ export function StarPicker({ value, onChange, name = 'rating', error }) {
 
   return (
     <fieldset>
-      <legend className="mb-1.5 text-sm font-medium text-jade-700 dark:text-jade-200">
-        Bạn cho mấy sao? <span className="text-terra-600">*</span>
+      <legend className="mb-1.5 text-sm font-medium text-muted">
+        Bạn cho mấy sao? <span className="text-danger">*</span>
       </legend>
       <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
         {[1, 2, 3, 4, 5].map((n) => (
@@ -78,10 +78,10 @@ export function StarPicker({ value, onChange, name = 'rating', error }) {
           </label>
         ))}
         {sang > 0 && (
-          <span className="ml-2 text-sm text-jade-600 dark:text-jade-300">{NHAN_SAO[sang]}</span>
+          <span className="ml-2 text-sm text-muted">{NHAN_SAO[sang]}</span>
         )}
       </div>
-      {error && <p className="mt-1 text-xs text-terra-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
     </fieldset>
   );
 }

@@ -52,7 +52,7 @@ export default function SettingsAdmin() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-serif text-2xl font-bold">Cài đặt chung</h1>
-          <p className="mt-1 text-sm text-jade-500">Thông tin liên hệ, mạng xã hội, bản đồ và cấu hình dự báo.</p>
+          <p className="mt-1 text-sm text-muted">Thông tin liên hệ, mạng xã hội, bản đồ và cấu hình dự báo.</p>
         </div>
         <button onClick={() => save.mutate()} disabled={save.isPending} className="btn-primary disabled:opacity-60">
           <Save size={16} /> {save.isPending ? 'Đang lưu…' : saved ? 'Đã lưu ✓' : 'Lưu thay đổi'}
@@ -91,11 +91,11 @@ export default function SettingsAdmin() {
             <Field label="Kinh độ"><Number_ value={form.tide?.lon} onChange={(v) => setField('tide', 'lon', v)} step="0.0001" /></Field>
             <Field label="Nhãn hiển thị"><Text value={form.tide?.label} onChange={(v) => setField('tide', 'label', v)} /></Field>
           </div>
-          <p className="mt-2 text-xs text-jade-400">Lưu ý: toạ độ Đông Triều nằm ngoài lưới hải văn của Open-Meteo. Nên giữ điểm cửa Nam Triệu – Bạch Đằng (~20.70, 106.80) để có dữ liệu triều.</p>
+          <p className="mt-2 text-xs text-subtle">Lưu ý: toạ độ Đông Triều nằm ngoài lưới hải văn của Open-Meteo. Nên giữ điểm cửa Nam Triệu – Bạch Đằng (~20.70, 106.80) để có dữ liệu triều.</p>
         </Card>
 
         <Card title="Bản đồ">
-          <p className="rounded-lg bg-jade-50 px-3 py-2 text-xs leading-relaxed text-jade-600 dark:bg-jade-900/40 dark:text-jade-300">
+          <p className="rounded-md bg-jade-50 px-3 py-2 text-xs leading-relaxed text-jade-600 dark:bg-jade-900/40 dark:text-jade-300">
             <strong>Không bắt buộc.</strong> Để trống thì bản đồ trên trang công khai vẫn là bản đồ Google, chỉ
             khác là dùng dạng nhúng cũ Google không cam kết duy trì. Điền khoá thì chuyển sang Maps Embed API
             chính danh, và bản đồ trong ô chọn toạ độ bên dưới đổi từ OpenStreetMap sang nền Google — thấy rõ
@@ -114,7 +114,7 @@ export default function SettingsAdmin() {
               không tránh được với Maps JavaScript API — nên thứ duy nhất chặn
               người khác tiêu tiền của phường là giới hạn tên miền. Người dán khoá
               vào đây phải đọc được câu này ngay tại chỗ, không phải trong tài liệu. */}
-          <p className="flex items-start gap-1.5 rounded-lg bg-gold-50 px-3 py-2 text-xs leading-relaxed text-gold-800 dark:bg-gold-900/25 dark:text-gold-200">
+          <p className="flex items-start gap-1.5 rounded-md bg-gold-50 px-3 py-2 text-xs leading-relaxed text-gold-800 dark:bg-gold-900/25 dark:text-gold-200">
             <AlertTriangle size={14} className="mt-0.5 shrink-0" />
             <span>
               Khoá này hiện công khai trong trang — Google thiết kế như vậy. Bắt buộc vào Cloud Console đặt{' '}

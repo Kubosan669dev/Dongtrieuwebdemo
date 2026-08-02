@@ -81,7 +81,7 @@ export default function MediaPicker({ open, onClose, onSelect, mode = 'single' }
         role="dialog"
         aria-modal="true"
         aria-label="Thư viện ảnh"
-        className="flex max-h-[85vh] w-full max-w-4xl flex-col rounded-2xl bg-white shadow-lift dark:bg-jade-900"
+        className="flex max-h-[85vh] w-full max-w-4xl flex-col rounded-md bg-white shadow-lift dark:bg-jade-900"
       >
         <div className="flex items-center justify-between border-b border-jade-900/5 p-4 dark:border-white/5">
           <h3 className="font-serif text-lg font-semibold">Thư viện ảnh</h3>
@@ -90,7 +90,7 @@ export default function MediaPicker({ open, onClose, onSelect, mode = 'single' }
               <Upload size={15} /> {upload.isPending ? 'Đang tải…' : 'Tải ảnh lên'}
             </button>
             <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={onFiles} />
-            <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-lg text-jade-500 hover:bg-jade-100 dark:hover:bg-jade-800"><X size={18} /></button>
+            <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-md text-muted hover:bg-jade-100 dark:hover:bg-jade-800"><X size={18} /></button>
           </div>
         </div>
 
@@ -98,7 +98,7 @@ export default function MediaPicker({ open, onClose, onSelect, mode = 'single' }
           {isLoading ? (
             <Spinner />
           ) : items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-jade-400">
+            <div className="flex flex-col items-center justify-center py-16 text-subtle">
               <ImagePlus size={40} />
               <p className="mt-2 text-sm">Chưa có ảnh nào. Hãy tải ảnh lên.</p>
             </div>
@@ -110,7 +110,7 @@ export default function MediaPicker({ open, onClose, onSelect, mode = 'single' }
                   <div key={m.id} className="group relative">
                     <button
                       onClick={() => toggle(m.url)}
-                      className={cx('block aspect-square w-full overflow-hidden rounded-xl ring-2 transition', active ? 'ring-jade-600' : 'ring-transparent hover:ring-jade-300')}
+                      className={cx('block aspect-square w-full overflow-hidden rounded-md ring-2 transition', active ? 'ring-jade-600' : 'ring-transparent hover:ring-jade-300')}
                     >
                       <img src={m.thumbUrl || m.url} alt={m.alt || m.filename} className="h-full w-full object-cover" />
                       {active && <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-jade-600 text-white"><Check size={14} /></span>}
@@ -127,7 +127,7 @@ export default function MediaPicker({ open, onClose, onSelect, mode = 'single' }
 
         {mode === 'multiple' && (
           <div className="flex items-center justify-between border-t border-jade-900/5 p-4 dark:border-white/5">
-            <span className="text-sm text-jade-500">Đã chọn {picked.length} ảnh</span>
+            <span className="text-sm text-muted">Đã chọn {picked.length} ảnh</span>
             <button onClick={confirmSelection} className="btn-primary !py-2" disabled={picked.length === 0}>Thêm ảnh đã chọn</button>
           </div>
         )}

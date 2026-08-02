@@ -58,7 +58,7 @@ export default function About() {
         {/* Đoạn mở đầu — cùng nguồn dữ liệu với khối giới thiệu trên trang chủ, nên
             sửa một chỗ trong Cài đặt là cả hai trang đổi theo. */}
         {settings.about?.intro && (
-          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-jade-800 dark:text-jade-100">
+          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-body">
             {settings.about.intro}
           </p>
         )}
@@ -83,8 +83,8 @@ export default function About() {
                 )}
               >
                 <p className="font-serif text-xl font-bold text-jade-900 dark:text-jade-50">{t.ten}</p>
-                <p className="mt-1 text-xs uppercase tracking-wider text-jade-400">nay là {t.nay}</p>
-                <p className={cx('mt-3 text-sm', t.dayLa ? 'font-semibold text-gold-700 dark:text-gold-400' : 'text-jade-600 dark:text-jade-300')}>
+                <p className="mt-1 text-xs uppercase tracking-wider text-subtle">nay là {t.nay}</p>
+                <p className={cx('mt-3 text-sm', t.dayLa ? 'font-semibold text-gold-700 dark:text-gold-400' : 'text-muted')}>
                   {t.vaiTro}
                 </p>
               </div>
@@ -109,12 +109,16 @@ export default function About() {
           <div className="grid gap-4 sm:grid-cols-3">
             {Object.entries(RANK_LEVELS).map(([key, r]) => (
               <Link key={key} to={`/di-tich?rank=${key}`} className="card-hover flex items-center gap-4 p-5">
+                {/* Ô biểu tượng đậm dần đúng theo cấp xếp hạng, cùng quy tắc với
+                    nhãn trên thẻ di tích (xem `TONES` trong components/ui.jsx):
+                    vàng đặc → xanh đặc → viền. Ba cấp này là thang có thứ tự, nên
+                    độ đậm phải nói được cấp nào cao hơn. */}
                 <span
                   className={cx(
-                    'grid h-12 w-12 shrink-0 place-items-center rounded-2xl',
-                    r.color === 'gold' ? 'bg-gold-100 text-gold-700 dark:bg-gold-800/40 dark:text-gold-200'
-                      : r.color === 'terra' ? 'bg-terra-500/15 text-terra-600 dark:text-terra-400'
-                        : 'bg-jade-100 text-jade-600 dark:bg-jade-800/60 dark:text-jade-200',
+                    'grid h-12 w-12 shrink-0 place-items-center rounded-md',
+                    r.color === 'gold' ? 'bg-gold-400 text-jade-950'
+                      : r.color === 'jade' ? 'bg-jade-600 text-white'
+                        : 'text-jade-700 ring-1 ring-inset ring-jade-300 dark:text-jade-100 dark:ring-jade-700',
                   )}
                 >
                   <Award size={22} />
@@ -123,7 +127,7 @@ export default function About() {
                   <span className="block font-serif text-2xl font-bold leading-none tabular-nums text-jade-900 dark:text-jade-50">
                     {theoHang[key] ?? '—'}
                   </span>
-                  <span className="mt-1 block text-sm text-jade-600 dark:text-jade-300">{r.label}</span>
+                  <span className="mt-1 block text-sm text-muted">{r.label}</span>
                 </span>
               </Link>
             ))}
@@ -138,7 +142,7 @@ export default function About() {
               return (
                 <article key={i} className="card p-7">
                   <div className="mb-4 flex items-center gap-3">
-                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-jade-100 text-jade-600 dark:bg-jade-800/60">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-jade-100 text-jade-600 dark:bg-jade-800/60">
                       <Icon size={22} />
                     </span>
                     <h2 className="font-serif text-xl font-semibold text-jade-900 dark:text-jade-50">{s.title}</h2>
@@ -153,7 +157,7 @@ export default function About() {
         {/* Trường hợp cả `intro` và `sections` đều trống: nói rõ là chưa có nội
             dung, không để một trang trắng không giải thích gì. */}
         {sections.length === 0 && !settings.about?.intro && (
-          <p className="mx-auto mt-12 max-w-3xl rounded-2xl border border-dashed border-jade-200 p-6 text-center text-sm text-jade-500 dark:border-jade-700">
+          <p className="mx-auto mt-12 max-w-3xl rounded-md border border-dashed border-jade-200 p-6 text-center text-sm text-muted dark:border-jade-700">
             Phần giới thiệu chi tiết đang được biên soạn. Trong lúc chờ, bạn có thể xem{' '}
             <Link to="/di-tich" className="font-medium text-jade-700 underline dark:text-jade-200">danh mục di tích</Link> hoặc{' '}
             <Link to="/le-hoi" className="font-medium text-jade-700 underline dark:text-jade-200">lịch lễ hội</Link>.

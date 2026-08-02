@@ -3,6 +3,7 @@ import { env } from './env.js';
 
 const STATIC_PATHS = [
   '/',
+  '/khu-pho',
   '/di-tich',
   '/le-hoi',
   '/am-thuc',

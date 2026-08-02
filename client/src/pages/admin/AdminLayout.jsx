@@ -108,7 +108,7 @@ export default function AdminLayout() {
 
           {NHOM.map((nhom) => (
             <div key={nhom.ten} className="mt-4 first:mt-2">
-              <p className="mb-1 px-3.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-jade-400">
+              <p className="mb-1 px-3.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-subtle">
                 {nhom.ten}
               </p>
               {nhom.muc.map((m) => (
@@ -139,7 +139,7 @@ export default function AdminLayout() {
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? 'Đóng thanh điều hướng' : 'Mở thanh điều hướng'}
             aria-expanded={open}
-            className="grid h-10 w-10 place-items-center rounded-lg text-jade-600 hover:bg-jade-100 lg:hidden dark:hover:bg-jade-800"
+            className="grid h-10 w-10 place-items-center rounded-md text-jade-600 hover:bg-jade-100 lg:hidden dark:hover:bg-jade-800"
           >
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -156,11 +156,11 @@ export default function AdminLayout() {
               onClick={() => setPickerOpen(true)}
               aria-label="Đổi bảng màu website"
               title="Đổi bảng màu"
-              className="grid h-10 w-10 place-items-center rounded-lg text-jade-600 hover:bg-jade-100 dark:text-jade-300 dark:hover:bg-jade-800"
+              className="grid h-10 w-10 place-items-center rounded-md text-jade-600 hover:bg-jade-100 dark:text-jade-300 dark:hover:bg-jade-800"
             >
               <Palette size={18} />
             </button>
-            <button onClick={doLogout} className="grid h-10 w-10 place-items-center rounded-lg text-jade-600 hover:bg-red-50 hover:text-red-600" title="Đăng xuất">
+            <button onClick={doLogout} className="grid h-10 w-10 place-items-center rounded-md text-jade-600 hover:bg-red-50 hover:text-red-600" title="Đăng xuất">
               <LogOut size={18} />
             </button>
           </div>
@@ -194,7 +194,7 @@ function MucNav({ to, end, icon: Icon, label, badge, onNavigate }) {
       onClick={onNavigate}
       className={({ isActive }) =>
         cx(
-          'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition',
+          'flex items-center gap-3 rounded-md px-3.5 py-2.5 text-sm font-medium transition',
           isActive ? 'bg-jade-600 text-white' : 'text-jade-200 hover:bg-jade-800',
         )
       }
@@ -204,7 +204,7 @@ function MucNav({ to, end, icon: Icon, label, badge, onNavigate }) {
       {/* Chỉ hiện khi CÒN việc: một vòng tròn số 0 vẫn đập vào mắt như việc chưa
           làm, trong khi nó có nghĩa là đã xong. */}
       {badge > 0 && (
-        <span className="shrink-0 rounded-full bg-terra-500 px-1.5 text-[11px] font-bold tabular-nums text-white">
+        <span className="shrink-0 rounded-md bg-terra-500 px-1.5 text-[11px] font-bold tabular-nums text-white">
           {badge}
         </span>
       )}
@@ -215,14 +215,14 @@ function MucNav({ to, end, icon: Icon, label, badge, onNavigate }) {
 function Breadcrumb({ pathname }) {
   const muc = NHAN_DUONG_DAN[pathname];
   return (
-    <nav aria-label="Đường dẫn" className="ml-3 hidden items-center gap-1.5 text-sm text-jade-500 md:flex dark:text-jade-400">
+    <nav aria-label="Đường dẫn" className="ml-3 hidden items-center gap-1.5 text-sm text-muted md:flex">
       <Link to="/admin" className="hover:text-jade-700 dark:hover:text-jade-200">Quản trị</Link>
       {muc && (
         <>
           <ChevronRight size={14} aria-hidden="true" className="shrink-0" />
           <span>{muc.nhom}</span>
           <ChevronRight size={14} aria-hidden="true" className="shrink-0" />
-          <span className="font-medium text-jade-800 dark:text-jade-100">{muc.label}</span>
+          <span className="font-medium text-body">{muc.label}</span>
         </>
       )}
     </nav>

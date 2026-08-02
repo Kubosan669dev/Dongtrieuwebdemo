@@ -37,9 +37,9 @@ export default function FestivalDetail() {
           <div className="lg:col-span-2">
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone={scale?.color}>{scale?.label}</Badge>
-              {f.lunarMonth && <Badge tone="jade">{LUNAR_MONTH_LABELS[f.lunarMonth]} (âm lịch)</Badge>}
+              {f.lunarMonth && <Badge tone="line-jade">{LUNAR_MONTH_LABELS[f.lunarMonth]} (âm lịch)</Badge>}
             </div>
-            <p className="mt-6 text-lg leading-relaxed text-jade-800 dark:text-jade-100">{f.intro}</p>
+            <p className="mt-6 text-lg leading-relaxed text-body">{f.intro}</p>
 
             {f.rituals?.length > 0 && (
               <div className="mt-8">
@@ -50,7 +50,7 @@ export default function FestivalDetail() {
                   {f.rituals.map((r, i) => (
                     <div key={i} className="card-sm flex items-start gap-3 p-4">
                       <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-jade-100 text-xs font-bold text-jade-700 dark:bg-jade-800">{i + 1}</span>
-                      <span className="text-jade-800 dark:text-jade-100">{r}</span>
+                      <span className="text-body">{r}</span>
                     </div>
                   ))}
                 </div>
@@ -72,7 +72,7 @@ export default function FestivalDetail() {
 
             {f.heritage && (
               <Link to={`/di-tich/${f.heritage.slug}`} className="card-hover block p-5">
-                <p className="mb-1 flex items-center gap-1.5 text-xs text-jade-400"><Landmark size={13} /> Di tích liên quan</p>
+                <p className="mb-1 flex items-center gap-1.5 text-xs text-subtle"><Landmark size={13} /> Di tích liên quan</p>
                 <p className="font-serif text-lg font-semibold text-jade-900 dark:text-jade-50">{f.heritage.name}</p>
                 <p className="mt-1 text-sm text-jade-600">Xem chi tiết di tích →</p>
               </Link>
@@ -87,10 +87,10 @@ export default function FestivalDetail() {
 function Row({ icon: Icon, label, value }) {
   return (
     <div className="flex items-start gap-3 border-b border-jade-900/5 py-2.5 last:border-0 dark:border-white/5">
-      <Icon size={16} className="mt-0.5 shrink-0 text-jade-400" />
+      <Icon size={16} className="mt-0.5 shrink-0 text-subtle" />
       <div>
-        <p className="text-xs text-jade-400">{label}</p>
-        <p className="text-sm text-jade-800 dark:text-jade-100">{value}</p>
+        <p className="text-xs text-subtle">{label}</p>
+        <p className="text-sm text-body">{value}</p>
       </div>
     </div>
   );

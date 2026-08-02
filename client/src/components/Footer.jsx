@@ -15,8 +15,9 @@ export default function Footer() {
         <div className="md:col-span-2">
           <Brand size={44} title={SITE_NAME} titleClass="text-xl" />
           <p className="mt-4 max-w-md text-sm leading-relaxed text-jade-200/80">
-            Cổng thông tin chính thức về du lịch phường Đông Triều, tỉnh Quảng Ninh — vùng đất địa linh nhân kiệt,
-            quê gốc và nơi yên nghỉ của các vị vua triều Trần, trung tâm của Thiền phái Trúc Lâm.
+            Cổng thông tin chính thức của phường Đông Triều, tỉnh Quảng Ninh — nơi bà con trong phường và khách
+            phương xa cùng tra cứu về vùng đất địa linh nhân kiệt, quê gốc và nơi yên nghỉ của các vị vua triều
+            Trần, trung tâm của Thiền phái Trúc Lâm.
           </p>
           <div className="mt-5 flex gap-3">
             {social.facebook && (
@@ -33,13 +34,16 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="font-serif text-base font-semibold text-white">Khám phá</h3>
+          {/* "Lưu trú" ở lại đây dù đã rời thanh điều hướng chính: nó vẫn là một
+              trang thật, chỉ không còn là mục dành cho người trong phường. */}
+          <h3 className="font-serif text-base font-semibold text-white">Tra cứu</h3>
           <ul className="mt-4 space-y-2 text-sm text-jade-200/80">
+            <li><Link to="/khu-pho" className="hover:text-gold-300">11 khu phố của phường</Link></li>
             <li><Link to="/di-tich" className="hover:text-gold-300">Di tích &amp; danh thắng</Link></li>
             <li><Link to="/le-hoi" className="hover:text-gold-300">Lễ hội truyền thống</Link></li>
             <li><Link to="/am-thuc" className="hover:text-gold-300">Ẩm thực &amp; đặc sản</Link></li>
-            <li><Link to="/luu-tru" className="hover:text-gold-300">Lưu trú</Link></li>
             <li><Link to="/thoi-tiet" className="hover:text-gold-300">Thời tiết &amp; triều cường</Link></li>
+            <li><Link to="/luu-tru" className="hover:text-gold-300">Lưu trú cho khách tới thăm</Link></li>
           </ul>
         </div>
 
