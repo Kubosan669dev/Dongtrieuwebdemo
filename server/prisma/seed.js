@@ -476,6 +476,16 @@ async function seedSettings() {
   } catch {
     /* chưa chạy `npm run build-dataset` thì chưa có file — bỏ qua, không chặn seed */
   }
+  // Bối cảnh vùng đất: vị trí, dòng thời gian hành chính từ thời Trần tới nghị
+  // quyết sắp xếp 2025, cơ cấu kinh tế, giao thông. Trang Giới thiệu dựng thành
+  // hình, còn trợ lý AI dùng để trả lời "Đông Triều ở đâu", "lịch sử thế nào",
+  // "đi tàu tới được không".
+  let vungDat = null;
+  try {
+    vungDat = read('vung-dat.json');
+  } catch {
+    /* không có file thì bỏ qua — trang Giới thiệu tự ẩn khối này */
+  }
   const settings = {
     contact: {
       name: 'UBND phường Đông Triều',
@@ -501,7 +511,7 @@ async function seedSettings() {
       // hạng thêm, mà chuỗi này thì nằm im trong cơ sở dữ liệu. Cùng lý do đã bỏ
       // dải số liệu ghi cứng ở trang chủ.
       description:
-        'Cổng thông tin chính thức về du lịch phường Đông Triều, tỉnh Quảng Ninh: di tích đã xếp hạng, lịch lễ hội theo âm lịch, ẩm thực đặc sản, lưu trú, bản đồ số và dự báo thời tiết – triều cường.',
+        'Cổng thông tin chính thức của phường Đông Triều, tỉnh Quảng Ninh: tra cứu khu phố sau sắp xếp, di tích đã xếp hạng, lịch lễ hội theo âm lịch, đặc sản, bản đồ số, dự báo thời tiết – triều cường và thông tin liên hệ của phường.',
     },
     maps: {
       apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
@@ -509,6 +519,7 @@ async function seedSettings() {
     },
     about,
     ...(khuPho ? { khuPho } : {}),
+    ...(vungDat ? { vungDat } : {}),
   };
 
   /**

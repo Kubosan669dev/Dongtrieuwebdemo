@@ -88,6 +88,39 @@ const SETTING_SCHEMAS = {
       danhSach: z.array(z.object({}).passthrough()).max(200).optional(),
     })
     .passthrough(),
+
+  /**
+   * Bối cảnh vùng đất Đông Triều: vị trí, dòng thời gian hành chính, kinh tế,
+   * giao thông. Dùng cho trang Giới thiệu và cho trợ lý AI.
+   *
+   * ── VÌ SAO LÀ MỘT KHOÁ RIÊNG, KHÔNG NHÉT VÀO `about` ───────────────────────
+   * Biểu mẫu Cài đặt trong khu quản trị PUT nguyên khối `about` với đúng hai
+   * trường `{ intro, sections }`. Thêm trường thứ ba vào đó thì ngay lần đầu
+   * quản trị viên bấm Lưu ở trang Cài đặt là nó bị xoá sạch mà không báo gì —
+   * đúng loại lỗi mất dữ liệu âm thầm, tệ nhất trong các loại. Khoá riêng thì
+   * biểu mẫu kia không đụng tới. Cùng lý do với `khuPho`.
+   *
+   * ── `vungCu` LÀ SỐ LIỆU CỦA THÀNH PHỐ CŨ, KHÔNG PHẢI CỦA PHƯỜNG ────────────
+   * Thành phố Đông Triều (395,95 km² · 248.896 người) đã giải thể ngày
+   * 01/7/2025; phường Đông Triều hiện nay chỉ là một trong các đơn vị hình thành
+   * sau đó, rộng 40,41 km² với 42.454 nhân khẩu (xem khoá `khuPho`). Hai bộ số
+   * chênh nhau gần mười lần, nên chỗ nào hiện `vungCu` cũng PHẢI kèm `canhBao`.
+   */
+  vungDat: z
+    .object({
+      capNhat: optStr,
+      nguon: optStr,
+      nguonUrl: optStr,
+      viTri: z.object({}).passthrough().optional(),
+      vungCu: z.object({}).passthrough().optional(),
+      kinhTe: z.object({}).passthrough().optional(),
+      giaoThong: z.array(z.string().max(500)).max(50).optional(),
+      dongThoiGian: z
+        .array(z.object({ moc: optStr, viec: z.string().max(2000), nay: z.boolean().optional() }))
+        .max(100)
+        .optional(),
+    })
+    .passthrough(),
 };
 
 export const SETTING_KEYS = Object.keys(SETTING_SCHEMAS);

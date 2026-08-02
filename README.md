@@ -36,6 +36,30 @@ không việc tra sẽ sai:
 Toàn bộ số liệu (12.722 hộ · 42.454 nhân khẩu · 40,41 km²) **cộng từ dữ liệu**,
 không gõ tay. Nguồn là khoá cài đặt `khuPho`, sửa trong Admin → Cài đặt.
 
+### Bối cảnh vùng đất — và một cái bẫy về số liệu
+
+Khoá cài đặt `vungDat` ([`seed-data/vung-dat.json`](server/prisma/seed-data/vung-dat.json))
+giữ vị trí, dòng thời gian hành chính từ thời Trần tới nghị quyết sắp xếp 2025, cơ
+cấu kinh tế và giao thông. Trang `/gioi-thieu` dựng thành hình, trợ lý AI dùng để
+trả lời *"Đông Triều ở đâu"*, *"vì sao gọi là Đông Triều"*, *"có ga tàu không"*.
+
+⚠️ **"Đông Triều" trỏ tới HAI đơn vị hành chính khác nhau, chênh nhau gần mười lần:**
+
+| | Diện tích | Dân số | Trạng thái |
+|---|---|---|---|
+| **Thành phố** Đông Triều | 395,95 km² | 248.896 (2022) | **đã giải thể 01/7/2025** |
+| **Phường** Đông Triều | 40,41 km² | 42.454 | đơn vị hiện nay — cổng này |
+
+Cổng là của **phường**. Nên mọi chỗ hiện số của thành phố cũ đều bắt buộc kèm câu
+cảnh báo và một lối dẫn sang trang Khu phố; trợ lý AI cũng luôn nêu số của phường
+TRƯỚC rồi mới đối chiếu. Không làm vậy thì cổng tự mâu thuẫn với chính trang Khu
+phố của mình. `flow-vungdat.mjs` giữ đúng điều này bằng phép kiểm.
+
+Khoảng cách tới Hà Nội / Hạ Long lấy theo **hồ sơ 13 di tích đã có sẵn trong dự án**
+(85 km / 80 km), không lấy theo Wikipedia (100 km / 60 km — tính từ trung tâm thành
+phố cũ). Cố ý giữ một con số duy nhất trên toàn cổng; bài kiểm đối chiếu hai nguồn
+này với nhau.
+
 ### Bản đồ số
 
 **Mọi bản đồ trên trang công khai đều là bản đồ Google, và không cần khoá API.**

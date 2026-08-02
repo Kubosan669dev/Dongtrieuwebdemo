@@ -20,6 +20,12 @@ const INTENT_LABELS = {
   budget: 'Ngân sách & lộ trình', // log cũ
   day_plan: 'Lịch trình theo buổi', // log cũ
   about: 'Giới thiệu địa phương',
+  about_location: 'Vị trí vùng đất',
+  about_history: 'Lịch sử hành chính',
+  about_economy: 'Kinh tế',
+  about_transport: 'Giao thông',
+  about_size: 'Diện tích & dân số',
+  khu_pho_info: 'Cơ cấu khu phố',
   contact: 'Liên hệ',
   contact_emergency: 'Số khẩn cấp',
   ticket: 'Vé tham quan',

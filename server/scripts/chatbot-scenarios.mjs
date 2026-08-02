@@ -39,6 +39,28 @@ const SCENARIOS = [
     ],
   },
   {
+    // Bối cảnh vùng đất — dữ liệu ở khoá cài đặt `vungDat`.
+    //
+    // "Đông Triều có ga tàu không" nằm đây vì một lý do cụ thể: bỏ dấu xong thì
+    // "ga tau" đụng "ga doi" trong **Gà đồi Đông Triều**, và bot từng trả về công
+    // thức món gà cho câu hỏi về đường sắt.
+    group: 'B2. Vị trí, lịch sử, kinh tế, giao thông',
+    items: [
+      ['Đông Triều giáp với những nơi nào', 'answer'],
+      ['Đông Triều cách Hà Nội bao xa', 'answer'],
+      ['lịch sử Đông Triều ra sao', 'answer'],
+      ['vì sao gọi là Đông Triều', 'answer'],
+      ['trước đây Đông Triều thuộc tỉnh nào', 'answer'],
+      ['khi nào Đông Triều lên thành phố', 'answer'],
+      ['kinh tế Đông Triều thế nào', 'answer'],
+      ['Đông Triều có mỏ than không', 'answer'],
+      ['Đông Triều có ga tàu không', 'answer'],
+      ['quốc lộ nào chạy qua Đông Triều', 'answer'],
+      ['Đông Triều rộng bao nhiêu km2', 'answer'],
+      ['Đông Triều có bao nhiêu dân', 'answer'],
+    ],
+  },
+  {
     group: 'C. Di tích & danh thắng',
     items: [
       ['Đông Triều có bao nhiêu di tích', 'answer'],

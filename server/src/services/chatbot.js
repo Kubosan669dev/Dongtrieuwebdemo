@@ -1353,6 +1353,145 @@ function answerKhuPhoInfo(corpus, kp = null) {
   };
 }
 
+// ─── Bối cảnh vùng đất (khoá cài đặt `vungDat`) ────────────────────────────
+//
+// ── MỘT CÂU PHẢI NÓI RÕ, NẾU KHÔNG LÀ TRẢ LỜI SAI ──────────────────────────
+// "Đông Triều" trỏ tới HAI thứ khác nhau, chênh nhau gần mười lần:
+//
+//   · thành phố Đông Triều — 395,95 km², 248.896 người, ĐÃ GIẢI THỂ 01/7/2025
+//   · phường Đông Triều    —  40,41 km²,  42.454 người, đơn vị hiện nay
+//
+// Khách hỏi "Đông Triều rộng bao nhiêu" mà bot trả 395,95 km² thì vừa sai vừa
+// mâu thuẫn với chính trang Khu phố của cổng. Nên mọi câu trả lời có số của
+// thành phố cũ đều phải đặt cạnh số của phường và ghi rõ mốc 01/7/2025.
+
+/** Số liệu của phường, cộng từ bảng khu phố — không ghi cứng ở đây. */
+function soLieuPhuong(corpus) {
+  const list = corpus.khuPho?.danhSach ?? [];
+  if (!list.length) return null;
+  return {
+    soKhu: list.length,
+    dienTich: list.reduce((s, k) => s + (k.dienTichKm2 ?? 0), 0),
+    nhanKhau: list.reduce((s, k) => s + (k.nhanKhau ?? 0), 0),
+    soHo: list.reduce((s, k) => s + (k.soHo ?? 0), 0),
+  };
+}
+
+const soVN = (n) => Number(n).toLocaleString('vi-VN');
+
+/** Dòng đối chiếu phường ↔ thành phố cũ. Dùng lại ở mọi câu trả lời có số. */
+function doiChieuDonVi(corpus, vd) {
+  const p = soLieuPhuong(corpus);
+  const c = vd?.vungCu;
+  if (!p || !c) return '';
+  return (
+    `\n\n⚠️ Đừng nhầm hai đơn vị:\n` +
+    bullets([
+      `**Phường Đông Triều** (hiện nay) — ${String(p.dienTich.toFixed(2)).replace('.', ',')} km², ${soVN(p.nhanKhau)} nhân khẩu, ${p.soKhu} khu phố.`,
+      `**Thành phố Đông Triều** (đã giải thể 01/7/2025) — ${String(c.dienTichKm2).replace('.', ',')} km², ${soVN(c.danSo)} người năm ${c.namDanSo}, gồm 13 phường và 6 xã.`,
+    ])
+  );
+}
+
+/** "Đông Triều ở đâu", "cách Hà Nội bao xa", "giáp với tỉnh nào". */
+function answerViTri(corpus) {
+  const vd = corpus.settings?.vungDat;
+  const v = vd?.viTri;
+  if (!v) return null;
+  const giap = (v.giapRanh ?? []).map((g) => `Phía ${g.huong.toLowerCase()} giáp ${g.ten}`);
+  return {
+    intent: 'about_location',
+    reply:
+      `📍 **Đông Triều ở đâu?**\n\n${v.moTa}\n\n` +
+      bullets([
+        `Cách thành phố Hạ Long khoảng **${v.cachHaLongKm} km**`,
+        `Cách Hà Nội khoảng **${v.cachHaNoiKm} km**`,
+        ...giap,
+      ]),
+    links: [
+      { label: 'Bản đồ số', url: '/ban-do' },
+      { label: 'Giới thiệu vùng đất', url: '/gioi-thieu' },
+    ],
+    suggestions: ['Đi từ Hà Nội tới Đông Triều thế nào?', 'Lịch sử Đông Triều ra sao?', 'Phường có bao nhiêu khu phố?'],
+  };
+}
+
+/** "Lịch sử Đông Triều", "vì sao gọi là Đông Triều", "khi nào lên thành phố". */
+function answerLichSuVungDat(corpus) {
+  const vd = corpus.settings?.vungDat;
+  const moc = vd?.dongThoiGian ?? [];
+  if (!moc.length) return null;
+  return {
+    intent: 'about_history',
+    reply:
+      `📜 **Đông Triều qua các thời kỳ**\n\n` +
+      bullets(moc.map((m) => `**${m.moc}** — ${m.viec}`)) +
+      (vd.nguon ? `\n\nNguồn tham khảo: ${vd.nguon}.` : ''),
+    links: [
+      { label: 'Giới thiệu vùng đất', url: '/gioi-thieu' },
+      { label: '11 khu phố của phường', url: '/khu-pho' },
+    ],
+    suggestions: ['Vì sao Đông Triều gắn với nhà Trần?', 'Đông Triều ở đâu?', 'Phường có bao nhiêu khu phố?'],
+  };
+}
+
+/** "Kinh tế Đông Triều", "làm nghề gì", "có mỏ than không". */
+function answerKinhTe(corpus) {
+  const k = corpus.settings?.vungDat?.kinhTe;
+  if (!k?.coCau?.length) return null;
+  return {
+    intent: 'about_economy',
+    reply:
+      `🏭 **Kinh tế vùng Đông Triều**\n\n` +
+      `Cơ cấu kinh tế năm ${k.nam}:\n` +
+      bullets(k.coCau.map((c) => `${c.ten}: **${String(c.phanTram).replace('.', ',')}%**`)) +
+      `\n\nCác ngành chủ lực: ${k.nganhChuLuc.join(' · ')}.` +
+      `\n\n_Số liệu tính cho toàn vùng Đông Triều trước khi sắp xếp lại đơn vị hành chính ngày 01/7/2025._`,
+    links: [{ label: 'Giới thiệu vùng đất', url: '/gioi-thieu' }],
+    suggestions: ['Đông Triều ở đâu?', 'Lịch sử Đông Triều ra sao?', 'Đặc sản Đông Triều có gì?'],
+  };
+}
+
+/** "Đi tới Đông Triều thế nào", "có ga tàu không", "quốc lộ nào chạy qua". */
+function answerGiaoThong(corpus) {
+  const g = corpus.settings?.vungDat?.giaoThong ?? [];
+  const v = corpus.settings?.vungDat?.viTri;
+  if (!g.length) return null;
+  return {
+    intent: 'about_transport',
+    reply:
+      `🚌 **Đường tới Đông Triều**\n\n` +
+      bullets(g) +
+      (v ? `\n\nĐông Triều cách Hà Nội khoảng **${v.cachHaNoiKm} km** và cách Hạ Long khoảng **${v.cachHaLongKm} km**.` : ''),
+    links: [
+      { label: 'Bản đồ số', url: '/ban-do' },
+      { label: 'Nơi lưu trú', url: '/luu-tru' },
+    ],
+    suggestions: ['Đông Triều ở đâu?', 'Có chỗ nghỉ nào không?', 'Hôm nay nên đi đâu?'],
+  };
+}
+
+/** "Đông Triều rộng bao nhiêu", "bao nhiêu dân" — ca dễ trả lời nhầm nhất. */
+function answerQuyMo(corpus) {
+  const vd = corpus.settings?.vungDat;
+  const p = soLieuPhuong(corpus);
+  if (!vd?.vungCu || !p) return null;
+  return {
+    intent: 'about_size',
+    reply:
+      `📐 **Diện tích và dân số**\n\n` +
+      `Cổng này là của **phường Đông Triều** — đơn vị hành chính hiện nay, rộng ` +
+      `**${String(p.dienTich.toFixed(2)).replace('.', ',')} km²** với **${soVN(p.nhanKhau)} nhân khẩu** ` +
+      `trong ${soVN(p.soHo)} hộ, chia thành ${p.soKhu} khu phố.` +
+      doiChieuDonVi(corpus, vd),
+    links: [
+      { label: '11 khu phố của phường', url: '/khu-pho' },
+      { label: 'Giới thiệu vùng đất', url: '/gioi-thieu' },
+    ],
+    suggestions: ['Phường có bao nhiêu khu phố?', 'Đông Triều ở đâu?', 'Lịch sử Đông Triều ra sao?'],
+  };
+}
+
 // ─── Giới thiệu địa phương ─────────────────────────────────────────────────
 
 function answerAbout(corpus) {
@@ -1838,6 +1977,47 @@ export async function ask(question) {
       return { ...answerListAttractions(corpus), matched: true };
     if (has(q, 'di tich', 'bao nhieu di tich', 'danh sach di tich', 'co nhung gi', 'thang canh', 'danh lam'))
       return { ...answerListHeritages(corpus), matched: true };
+  }
+
+  // 9b-bis. Bối cảnh vùng đất — ĐẶT TRƯỚC câu giới thiệu chung ở 9c.
+  //
+  // Bốn nhánh dưới đây đều cụ thể hơn "giới thiệu về Đông Triều", nên phải được
+  // xét trước; để sau thì 9c nuốt hết và mọi câu đều nhận cùng một đoạn giới
+  // thiệu chung. Mỗi nhánh tự trả `null` khi chưa có dữ liệu `vungDat`, lúc đó
+  // câu hỏi rơi tiếp xuống 9c như cũ.
+  // Vài cụm chỉ có một nghĩa duy nhất, xét cả khi câu có nhắc tên riêng.
+  //
+  // "Đông Triều có ga tàu không" từng ra món **Gà đồi Đông Triều**: bỏ dấu xong
+  // thì "ga tau" đụng "ga doi", đủ để đặt cờ `strongName` và nuốt luôn cả nhánh
+  // giao thông bên dưới. Ba cụm này thì không món ăn hay di tích nào mang tên.
+  if (has(q, 'ga tau', 'duong sat', 'quoc lo')) {
+    const a = answerGiaoThong(corpus);
+    if (a) return { ...a, matched: true };
+  }
+
+  if (!strongName) {
+    // Diện tích / dân số xét ĐẦU TIÊN trong nhóm: đây là chỗ dễ trả lời nhầm
+    // nhất, vì số của thành phố cũ và số của phường chênh nhau gần mười lần.
+    if (has(q, 'rong bao nhieu', 'dien tich', 'bao nhieu km', 'bao nhieu dan', 'dan so', 'bao nhieu nguoi', 'bao nhieu nhan khau', 'mat do')) {
+      const a = answerQuyMo(corpus);
+      if (a) return { ...a, matched: true };
+    }
+    if (has(q, 'giap', 'cach ha noi', 'cach ha long', 'bao xa', 'o dau', 'nam o dau', 'vi tri', 'thuoc tinh nao', 'o tinh nao', 'thuoc dau')) {
+      const a = answerViTri(corpus);
+      if (a) return { ...a, matched: true };
+    }
+    if (has(q, 'lich su dong trieu', 'lich su vung', 'an sinh', 'doi ten', 'vi sao goi', 'tai sao goi', 'truoc day thuoc', 'thanh lap thi xa', 'len thanh pho', 'giai the', 'sap xep don vi', 'qua cac thoi ky', 'nguon goc ten')) {
+      const a = answerLichSuVungDat(corpus);
+      if (a) return { ...a, matched: true };
+    }
+    if (has(q, 'kinh te', 'lam nghe gi', 'nghe chinh', 'mo than', 'khai thac than', 'xi mang', 'nhiet dien', 'cong nghiep', 'thu nhap')) {
+      const a = answerKinhTe(corpus);
+      if (a) return { ...a, matched: true };
+    }
+    if (has(q, 'quoc lo', 'ga tau', 'duong sat', 'di tau', 'di tu ha noi', 'den dong trieu the nao', 'toi dong trieu the nao', 'phuong tien', 'xe khach', 'giao thong')) {
+      const a = answerGiaoThong(corpus);
+      if (a) return { ...a, matched: true };
+    }
   }
 
   // 9c. Giới thiệu địa phương — chỉ khi không nhắc tên riêng cụ thể

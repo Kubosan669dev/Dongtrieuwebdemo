@@ -1,0 +1,66 @@
+{
+  "capNhat": "2026-08-02",
+  "nguon": "Wikipedia tiếng Việt — bài “Đông Triều (thành phố)”",
+  "nguonUrl": "https://vi.wikipedia.org/wiki/Đông_Triều_(thành_phố)",
+  "viTri": {
+    "moTa": "Nằm ở phía tây tỉnh Quảng Ninh — cửa ngõ nối vùng Đông Bắc với đồng bằng sông Hồng.",
+    "cachHaLongKm": 80,
+    "cachHaNoiKm": 85,
+    "ghiChuKhoangCach": "Lấy theo số liệu đã dùng sẵn trong hồ sơ 13 di tích của phường (mục “Kinh nghiệm đi lại”). Wikipedia ghi khoảng 100 km tới Hà Nội và 60 km tới Hạ Long — đó là tính từ trung tâm thành phố Đông Triều cũ, không phải từ phường. Cố ý giữ một con số duy nhất trên toàn cổng để không mâu thuẫn với trang chi tiết di tích.",
+    "giapRanh": [
+      { "huong": "Đông", "ten": "Uông Bí" },
+      { "huong": "Tây", "ten": "Chí Linh (Hải Dương)" },
+      { "huong": "Nam", "ten": "Thuỷ Nguyên và Kinh Môn" }
+    ]
+  },
+  "vungCu": {
+    "ten": "Thành phố Đông Triều",
+    "hieuLuc": "trước 01/7/2025",
+    "dienTichKm2": 395.95,
+    "danSo": 248896,
+    "namDanSo": 2022,
+    "matDo": 628,
+    "canhBao": "Đây là số liệu của TOÀN thành phố Đông Triều cũ (13 phường và 6 xã), KHÔNG phải của phường Đông Triều hiện nay. Phường Đông Triều chỉ là một trong các đơn vị hình thành sau sắp xếp — số liệu của phường xem trang Khu phố."
+  },
+  "kinhTe": {
+    "nam": 2019,
+    "coCau": [
+      { "ten": "Công nghiệp – xây dựng", "phanTram": 62.93 },
+      { "ten": "Dịch vụ", "phanTram": 30.03 },
+      { "ten": "Nông nghiệp", "phanTram": 7.03 }
+    ],
+    "nganhChuLuc": ["Khai thác than", "Sản xuất xi măng", "Nhiệt điện", "Gốm sứ"]
+  },
+  "giaoThong": [
+    "Quốc lộ 18 chạy qua, nối Hà Nội – Bắc Ninh – Chí Linh – Uông Bí – Hạ Long.",
+    "Đường sắt Yên Viên – Cái Lân, có ga Mạo Khê và ga Tràng An."
+  ],
+  "dongThoiGian": [
+    {
+      "moc": "Thời Trần",
+      "viec": "Tên cổ của vùng đất là An Sinh; đến đời vua Trần Dụ Tông mới đổi thành Đông Triều. Đây là trung tâm của châu Đông Triều — cửa ngõ chiến lược phía Đông Bắc."
+    },
+    {
+      "moc": "1945",
+      "viec": "Đông Triều là nơi đặt Đệ Tứ Chiến khu (Chiến khu Đông Triều) trong Cách mạng tháng Tám."
+    },
+    { "moc": "1947", "viec": "Đông Triều nhập về tỉnh Quảng Hồng." },
+    { "moc": "1959", "viec": "Sáp nhập trở lại tỉnh Hải Dương." },
+    { "moc": "1961", "viec": "Nhập vào khu Hồng Quảng." },
+    {
+      "moc": "1963",
+      "viec": "Khu Hồng Quảng hợp nhất với tỉnh Hải Ninh thành tỉnh Quảng Ninh — Đông Triều thuộc Quảng Ninh từ đây."
+    },
+    { "moc": "1986", "viec": "Chia xã Phạm Hồng Thái thành hai xã Hồng Thái Đông và Hồng Thái Tây." },
+    { "moc": "2015", "viec": "Thành lập thị xã Đông Triều." },
+    {
+      "moc": "01/11/2024",
+      "viec": "Thành lập thành phố Đông Triều thuộc tỉnh Quảng Ninh, gồm 13 phường và 6 xã."
+    },
+    {
+      "moc": "01/7/2025",
+      "viec": "Nghị quyết 203/2025/QH15 giải thể thành phố Đông Triều, sắp xếp lại thành các đơn vị hành chính cấp xã — trong đó có phường Đông Triều hiện nay.",
+      "nay": true
+    }
+  ]
+}

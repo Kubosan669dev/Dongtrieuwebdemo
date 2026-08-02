@@ -6,6 +6,7 @@ import { fetchList } from '../lib/api.js';
 import { useSettings } from '../hooks/useSettings.js';
 import PageHero from '../components/PageHero.jsx';
 import Seo from '../components/Seo.jsx';
+import VungDat from '../components/VungDat.jsx';
 import { SectionHeading } from '../components/ui.jsx';
 import { RANK_LEVELS } from '../lib/constants.js';
 import { cx } from '../lib/format.js';
@@ -133,6 +134,11 @@ export default function About() {
             ))}
           </div>
         </section>
+
+        {/* ── Bối cảnh vùng đất: vị trí · kinh tế · giao thông · dòng thời gian ──
+            Đặt SAU hai khối di sản vì đây là phần tra cứu, còn di sản mới là thứ
+            người đọc tới trang này để xem trước tiên. */}
+        <VungDat vungDat={settings.vungDat} />
 
         {/* ── Nội dung dài, do quản trị viên nhập ── */}
         {sections.length > 0 && (
