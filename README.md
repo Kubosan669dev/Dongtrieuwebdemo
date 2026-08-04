@@ -269,6 +269,8 @@ node -e "console.log(require('crypto').randomBytes(12).toString('base64url'))"
 | `npm run db:studio` | Mở Prisma Studio để xem/sửa database trực quan |
 | `npm run fetch-images` | Tải ảnh minh hoạ về thư mục `Anh di tich/` (Pexels nếu có key, không thì Wikimedia) |
 | `npm run import-images` | Nén ảnh sang WebP, đưa vào `server/uploads/` và gán ảnh bìa theo slug |
+| `npm run reprocess-images` | Dựng lại bản thu nhỏ của ảnh đã có theo thông số nén hiện hành |
+| `npm run reprocess-images -- --sharpen` | Như trên, thêm bước làm nét bản đầy đủ (có sao lưu vào `server/image-backup/`) |
 | `npm run test-chatbot` | Chạy thử trợ lý AI với ~40 câu hỏi mẫu, in ra câu trả lời |
 | `npm run test-chatbot "câu hỏi"` | Hỏi trợ lý một câu bất kỳ ngay trên terminal |
 | `npm run test-scenarios` | Bộ kịch bản ~110 câu theo 18 nhóm (kiểu cổng du lịch); báo nhóm nào chưa đạt |
@@ -303,7 +305,7 @@ Bỏ cookie cũng loại luôn nguy cơ CSRF cho toàn bộ API quản trị.
 | `GET` | `/api/attractions` | 6 điểm đến lân cận ngoài phường (Ngọa Vân, Quỳnh Lâm, đền An Sinh…) |
 | `GET` | `/api/weather` | Hiện tại + 24 giờ + 7 ngày · cache 15 phút |
 | `GET` | `/api/tide` | Mực nước 3 ngày + giờ nước lớn/ròng · cache 60 phút |
-| `POST` | `/api/media/upload` | Tự nén sang WebP 1600px + thumbnail 480px |
+| `POST` | `/api/media/upload` | Tự nén sang WebP 2000px + bản thu nhỏ 640px, làm nét sau khi thu nhỏ (thông số ở `src/lib/images.js`) |
 | `GET` | `/api/settings` · `PUT /api/settings/:key` | Liên hệ, mạng xã hội, toạ độ, SEO |
 | `POST` | `/api/chat` | Trợ lý AI — trả lời từ dữ liệu của phường · giới hạn 30 câu/phút mỗi IP |
 | `GET` | `/api/chat/suggestions` | Lời chào + câu hỏi gợi ý cho khung chat |
