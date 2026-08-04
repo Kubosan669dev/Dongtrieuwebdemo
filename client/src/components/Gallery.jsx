@@ -17,16 +17,24 @@ import { useScrollLock } from '../hooks/useScrollLock.js';
  * Chú thích hiện ngay dưới ảnh chứ không chỉ nằm trong thuộc tính `alt`: nhiều
  * ảnh tư liệu của phường là ảnh minh hoạ chứ không chụp đúng địa điểm, du khách
  * cần đọc được điều đó mà không phải rê chuột.
+ *
+ * @param cover  Ảnh bìa của chính nội dung đang xem, dạng `{ url, illustrative }`.
+ *   Trên trang chi tiết, ảnh bìa nằm dưới lớp phủ tối và bị tiêu đề đè lên nên
+ *   gần như không xem được — xếp nó lên đầu thư viện là lần đầu du khách thật sự
+ *   nhìn thấy trọn tấm ảnh. Nhờ vậy mục hình ảnh cũng không biến mất ở những mục
+ *   chưa kịp bổ sung ảnh chi tiết.
+ * @param title  Đặt `null` khi thư viện nằm trong một tab — nhãn tab đã là tiêu
+ *   đề rồi, lặp thêm một dòng chữ nữa chỉ tổ chật.
  */
-export default function Gallery({ images, name, title = 'Hình ảnh', className }) {
-  const items = normalizeImages(images);
+export default function Gallery({ images, cover, name, title = 'Hình ảnh', className }) {
+  const items = galleryItems(cover, images);
   const [lightbox, setLightbox] = useState(null);
 
   if (items.length === 0) return null;
 
   return (
     <section className={cx('mt-8', className)}>
-      <h3 className="mb-3 font-serif text-lg font-semibold">{title}</h3>
+      {title && <h3 className="mb-3 font-serif text-lg font-bold text-jade-900 dark:text-jade-50">{title}</h3>}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((img, i) => (
           <figure key={`${img.url}-${i}`} className="card-sm overflow-hidden">
@@ -52,6 +60,30 @@ export default function Gallery({ images, name, title = 'Hình ảnh', className
       )}
     </section>
   );
+}
+
+/**
+ * Danh sách ảnh cuối cùng của một mục: ảnh bìa xếp trước, rồi tới ảnh chi tiết.
+ *
+ * Xuất ra ngoài để trang chi tiết đếm được số ảnh mà quyết định có hiện tab
+ * "Hình ảnh" hay không — tab rỗng còn khó chịu hơn là không có tab.
+ *
+ * Ảnh bìa đã nằm sẵn trong thư viện thì bỏ qua: quản trị viên hoàn toàn có thể
+ * chọn cùng một tấm cho cả hai chỗ, và thấy nó hiện hai lần thì tưởng là lỗi.
+ */
+export function galleryItems(cover, images) {
+  const rest = normalizeImages(images);
+  if (!cover?.url) return rest;
+  if (rest.some((img) => img.url === cover.url)) return rest;
+  return [
+    {
+      url: cover.url,
+      // Ảnh thật thì để trống chú thích: bịa ra một câu mô tả nội dung tấm ảnh
+      // mà mình không nhìn thấy còn tệ hơn là không nói gì.
+      caption: cover.illustrative ? 'Ảnh minh hoạ, không chụp tại chính địa điểm này.' : '',
+    },
+    ...rest,
+  ];
 }
 
 /** Ảnh hỏng đường dẫn thì hiện khung báo thiếu ảnh, không để icon vỡ của trình duyệt. */

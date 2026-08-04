@@ -102,6 +102,14 @@ function makeDoc({ id, kind, title, url, aliases = [], keywords = [], body = '',
     title,
     url,
     raw,
+    // Giữ lại phần chữ đã gom, không chỉ giữ token. BM25 chỉ cần token, nhưng
+    // tầng Gemini cần đọc được NGUYÊN VĂN mới có cái để neo câu trả lời vào.
+    body,
+    // Dạng chuẩn hoá của cả tên lẫn thân bài, đệm khoảng trắng hai đầu — dùng
+    // để hỏi "cụm hai tiếng này có đứng LIỀN NHAU trong tài liệu không".
+    // Túi từ không trả lời được câu đó, mà đây lại là tín hiệu duy nhất tách
+    // được câu hỏi thật khỏi câu ngoài phạm vi (xem services/gemini.js).
+    textNorm: ` ${norm(`${title} ${body}`)} `,
     tokens: {
       title: tokenize(title),
       alias: tokenize(allAliases.join(' ')),

@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
-import { CalendarDays, MapPin, Sparkles, Landmark } from 'lucide-react';
+import { CalendarDays, MapPin, Sparkles, Landmark, Images, ScrollText } from 'lucide-react';
 import { fetchOne } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
+import Tabs from '../components/Tabs.jsx';
 import { Badge, Spinner, ErrorNote } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
-import Gallery from '../components/Gallery.jsx';
+import Gallery, { galleryItems } from '../components/Gallery.jsx';
 import Reviews from '../components/Reviews.jsx';
 import { FESTIVAL_SCALES, LUNAR_MONTH_LABELS } from '../lib/constants.js';
 
@@ -21,6 +22,8 @@ export default function FestivalDetail() {
 
   const f = data.item;
   const scale = FESTIVAL_SCALES[f.scale];
+  const cover = f.coverUrl ? { url: f.coverUrl, illustrative: f.coverIsIllustrative } : null;
+  const photos = galleryItems(cover, f.images);
 
   return (
     <div>
@@ -39,25 +42,39 @@ export default function FestivalDetail() {
               <Badge tone={scale?.color}>{scale?.label}</Badge>
               {f.lunarMonth && <Badge tone="line-jade">{LUNAR_MONTH_LABELS[f.lunarMonth]} (âm lịch)</Badge>}
             </div>
-            <p className="mt-6 text-lg leading-relaxed text-body">{f.intro}</p>
-
-            {f.rituals?.length > 0 && (
-              <div className="mt-8">
-                <h2 className="mb-4 flex items-center gap-2 font-serif text-xl font-semibold">
-                  <Sparkles size={20} className="text-gold-500" /> Nghi lễ & hoạt động
-                </h2>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {f.rituals.map((r, i) => (
-                    <div key={i} className="card-sm flex items-start gap-3 p-4">
-                      <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-jade-100 text-xs font-bold text-jade-700 dark:bg-jade-800">{i + 1}</span>
-                      <span className="text-body">{r}</span>
+            <Tabs
+              className="mt-6"
+              label={`Nội dung về ${f.name}`}
+              items={[
+                {
+                  key: 'intro',
+                  label: 'Tổng quan',
+                  icon: ScrollText,
+                  content: <p className="text-lg leading-relaxed text-body">{f.intro}</p>,
+                },
+                f.rituals?.length > 0 && {
+                  key: 'rituals',
+                  label: 'Nghi lễ & hoạt động',
+                  icon: Sparkles,
+                  content: (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {f.rituals.map((r, i) => (
+                        <div key={i} className="card-sm flex items-start gap-3 p-4">
+                          <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-jade-100 text-xs font-bold text-jade-700 dark:bg-jade-800">{i + 1}</span>
+                          <span className="text-body">{r}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <Gallery images={f.images} name={f.name} />
+                  ),
+                },
+                photos.length > 0 && {
+                  key: 'photos',
+                  label: `Hình ảnh (${photos.length})`,
+                  icon: Images,
+                  content: <Gallery images={f.images} cover={cover} name={f.name} title={null} className="mt-0" />,
+                },
+              ]}
+            />
 
             <Reviews targetType="FESTIVAL" targetId={f.id} className="mt-10" />
           </div>

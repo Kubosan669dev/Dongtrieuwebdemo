@@ -3,8 +3,9 @@
  * Đưa ảnh từ thư mục "Anh di tich/" vào website.
  *
  * Việc thực hiện:
- *   1. Nén ảnh sang WebP (bản lớn 1600px + thumbnail 480px) vào server/uploads/
- *      — dùng đúng thông số như khi tải ảnh qua trang quản trị.
+ *   1. Nén ảnh sang WebP (bản lớn + bản thu nhỏ) vào server/uploads/ — dùng
+ *      chung `src/lib/images.js` với route tải ảnh của trang quản trị, nên ảnh
+ *      nhập bằng script và ảnh admin tự tải lên luôn nét như nhau.
  *   2. Tạo bản ghi Media để ảnh xuất hiện trong Thư viện ảnh của trang admin.
  *   3. Gán ảnh bìa (coverUrl) cho Di tích / Lễ hội / Ẩm thực / Điểm lân cận
  *      theo tên file trùng với slug.
@@ -19,9 +20,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import sharp from 'sharp';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import { openImage, pipeMain, pipeThumb } from '../src/lib/images.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
@@ -98,20 +99,11 @@ async function main() {
     const thumbPath = path.join(UPLOAD_DIR, thumbName);
 
     try {
-      const img = sharp(path.join(IMG_DIR, file), { failOn: 'none' }).rotate();
+      const img = openImage(path.join(IMG_DIR, file));
       const meta = await img.metadata();
 
-      await img
-        .clone()
-        .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 82 })
-        .toFile(outPath);
-
-      await img
-        .clone()
-        .resize({ width: 480, height: 480, fit: 'cover' })
-        .webp({ quality: 72 })
-        .toFile(thumbPath);
+      const out = await pipeMain(img, meta).toFile(outPath);
+      await pipeThumb(img, meta).toFile(thumbPath);
 
       const size = fs.statSync(outPath).size;
       const url = `/uploads/${outName}`;
@@ -130,7 +122,7 @@ async function main() {
       if (existing) {
         await prisma.media.update({
           where: { id: existing.id },
-          data: { thumbUrl, size, width: meta.width ?? null, height: meta.height ?? null, alt },
+          data: { thumbUrl, size, width: out.width ?? null, height: out.height ?? null, alt },
         });
       } else {
         await prisma.media.create({
@@ -140,8 +132,8 @@ async function main() {
             filename: file,
             mime: 'image/webp',
             size,
-            width: meta.width ?? null,
-            height: meta.height ?? null,
+            width: out.width ?? null,
+            height: out.height ?? null,
             alt,
           },
         });

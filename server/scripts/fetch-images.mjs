@@ -123,7 +123,10 @@ async function fromPexels(query) {
   const photo = data.photos?.[0];
   if (!photo) throw new Error('Pexels không có kết quả');
   return {
-    url: photo.src.large2x || photo.src.large,
+    // `original` là bản chưa thu nhỏ. Nặng hơn `large2x` nhưng import-images sẽ
+    // thu về 2000px ngay sau đó — thu nhỏ từ ảnh gốc bao giờ cũng nét hơn là thu
+    // nhỏ từ một bản đã qua một lần nén.
+    url: photo.src.original || photo.src.large2x || photo.src.large,
     source: 'Pexels',
     license: 'Pexels License (miễn phí dùng thương mại)',
     credit: photo.photographer,
@@ -143,13 +146,18 @@ async function fromCommons(query) {
   const data = await res.json();
   const pages = Object.values(data.query?.pages ?? {});
 
-  // Chọn ảnh đủ lớn, đúng định dạng ảnh chụp
-  const ok = pages.find((p) => {
+  // Chọn ảnh đủ lớn, đúng định dạng ảnh chụp.
+  //
+  // Ưu tiên ảnh từ 1600px trở lên: trang chủ trải ảnh hết chiều ngang màn hình,
+  // một tấm 800px đặt ở đó là nhoè thấy rõ. Hạ xuống 800px chỉ khi Commons không
+  // có tấm nào lớn hơn — thà có ảnh hơi mềm còn hơn để trống ô ảnh.
+  const usable = (min) => (p) => {
     const ii = p.imageinfo?.[0];
     if (!ii) return false;
     if (!/\.(jpe?g|png)$/i.test(ii.url)) return false;
-    return (ii.width ?? 0) >= 800;
-  });
+    return (ii.width ?? 0) >= min;
+  };
+  const ok = pages.find(usable(1600)) ?? pages.find(usable(800));
   if (!ok) throw new Error('Commons không có ảnh phù hợp');
 
   const ii = ok.imageinfo[0];

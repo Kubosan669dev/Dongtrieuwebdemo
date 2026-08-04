@@ -46,9 +46,13 @@ export default {
           'radial-gradient(ellipse at top, rgb(var(--c-jade-600) / 0.12), transparent 60%)',
       },
       keyframes: {
+        // Phóng tối đa 1.06 chứ không phải 1.12 như trước. Ảnh tư liệu của phường
+        // phần lớn chỉ rộng 600–1600px mà lại trải hết chiều ngang màn hình, nên
+        // mỗi phần trăm phóng thêm là một phần trăm nhoè thêm. 6% vẫn đủ thấy
+        // ảnh "thở", mà không kéo giãn tới mức lộ điểm ảnh.
         'ken-burns': {
           '0%': { transform: 'scale(1) translate(0, 0)' },
-          '100%': { transform: 'scale(1.12) translate(-1.5%, -1.5%)' },
+          '100%': { transform: 'scale(1.06) translate(-1%, -1%)' },
         },
         'fade-up': {
           '0%': { opacity: '0', transform: 'translateY(16px)' },

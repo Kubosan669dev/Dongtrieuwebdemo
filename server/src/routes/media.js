@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import multer from 'multer';
-import sharp from 'sharp';
 import path from 'node:path';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { prisma } from '../lib/prisma.js';
 import { env } from '../lib/env.js';
+import { openImage, pipeMain, pipeThumb } from '../lib/images.js';
 import { asyncHandler, HttpError } from '../lib/http.js';
 import { requireAuth } from '../middleware/auth.js';
 
@@ -40,31 +40,23 @@ router.post(
       const mainName = `${base}.webp`;
       const thumbName = `${base}.thumb.webp`;
 
-      const img = sharp(file.buffer, { failOn: 'none' }).rotate();
+      const img = openImage(file.buffer);
       const meta = await img.metadata();
 
-      await img
-        .clone()
-        .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 82 })
-        .toFile(path.join(UPLOAD_DIR, mainName));
+      // Kích thước lưu vào CSDL lấy từ tệp ĐÃ nén, không phải ảnh gốc: đó mới là
+      // số pixel trình duyệt thật sự tải về.
+      const out = await pipeMain(img, meta).toFile(path.join(UPLOAD_DIR, mainName));
+      await pipeThumb(img, meta).toFile(path.join(UPLOAD_DIR, thumbName));
 
-      await img
-        .clone()
-        .resize({ width: 480, height: 480, fit: 'cover' })
-        .webp({ quality: 72 })
-        .toFile(path.join(UPLOAD_DIR, thumbName));
-
-      const stat = fs.statSync(path.join(UPLOAD_DIR, mainName));
       const media = await prisma.media.create({
         data: {
           url: `/uploads/${mainName}`,
           thumbUrl: `/uploads/${thumbName}`,
           filename: file.originalname,
           mime: 'image/webp',
-          size: stat.size,
-          width: meta.width ?? null,
-          height: meta.height ?? null,
+          size: out.size,
+          width: out.width ?? null,
+          height: out.height ?? null,
           alt: req.body.alt || null,
         },
       });

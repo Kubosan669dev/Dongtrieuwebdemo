@@ -35,6 +35,13 @@
       transition: none;
     }
   }
+  /* Ảnh bìa trang chủ có hoạt ảnh phóng chậm (`ken-burns` trong tailwind.config).
+     Không báo trước thì trình duyệt vẽ lớp ảnh ở tỉ lệ 1× rồi kéo giãn cả lớp
+     đó suốt hoạt ảnh — ảnh mờ đi trong khi tệp gốc vẫn đủ nét. `will-change`
+     khiến lớp được vẽ theo tỉ lệ lớn nhất của hoạt ảnh, nên nét từ đầu đến cuối. */
+  .animate-ken-burns {
+    will-change: transform;
+  }
   h1, h2, h3, h4 {
     @apply font-serif;
   }

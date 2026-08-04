@@ -116,7 +116,12 @@ const RATING_NOTE =
 
 let indexCache = { builtAt: 0, index: null };
 
-async function getSearchIndex() {
+/**
+ * Xuất ra ngoài để tầng Gemini (`services/gemini.js`) dùng CHUNG một chỉ mục,
+ * thay vì tự dựng bản thứ hai. Hai chỉ mục là hai kết quả tra cứu khác nhau,
+ * mà tầng Gemini chỉ được phép nói về đúng những tài liệu bản luật đã tìm ra.
+ */
+export async function getSearchIndex() {
   const corpus = await getCorpus();
   if (indexCache.builtAt !== corpus.builtAt) {
     indexCache = { builtAt: corpus.builtAt, index: buildIndex(corpus.docs) };
@@ -2158,8 +2163,19 @@ export async function ask(question) {
   )
     return { ...answerContact(corpus, false), matched: true };
 
-  // 3d. Thủ tục hành chính — ngoài phạm vi cổng du lịch
-  if (has(q, 'thu tuc', 'can cuoc', 'cccd', 'chung minh nhan dan', 'khai sinh', 'ho khau', 'tam tru', 'tam vang', 'giay phep', 'dich vu cong', 'hanh chinh', 'cong chung', 'so do', 'dang ky kinh doanh', 'bao hiem'))
+  // 3d. Thủ tục hành chính — ngoài phạm vi cổng du lịch.
+  //
+  //     Nhánh này phải chặn được câu hỏi TRƯỚC khi nó rơi xuống mục 9 phía dưới:
+  //     ở đó cụm "ở đâu" bị hiểu là hỏi vị trí Đông Triều. Thiếu đúng một từ khoá
+  //     là "làm hộ chiếu ở đâu" được đáp lại bằng bài giới thiệu phường cách Hà
+  //     Nội bao nhiêu cây số — trông như đã trả lời, mà thật ra là lạc đề.
+  if (
+    has(
+      q, 'thu tuc', 'can cuoc', 'cccd', 'chung minh nhan dan', 'khai sinh', 'ho khau', 'tam tru',
+      'tam vang', 'giay phep', 'dich vu cong', 'hanh chinh', 'cong chung', 'so do',
+      'dang ky kinh doanh', 'bao hiem', 'ho chieu', 'passport', 'xuat nhap canh', 'ly lich tu phap',
+    )
+  )
     return { ...OUT_OF_SCOPE_ADMIN };
 
   // 3e. Tiện ích chưa có dữ liệu (ATM, xăng, nhà vệ sinh, bãi đỗ) — xét trước
@@ -2188,9 +2204,14 @@ export async function ask(question) {
       has(q, 'xua', 'ngay xua', 'thoi xua', 'truoc kia', '1896') &&
       !has(q, 'bao nhieu', 'dien tich', 'dan so', 'nhan khau', 'so ho', 'may khu');
     const kp = hoiChuyenXua ? null : detectKhuPho(q, corpus);
-    const askListInKhuPho = has(q, 'an', 'an gi', 'quan', 'nha hang', 'ca phe', 'cafe', 'tra sua', 'khach san', 'nha nghi', 'luu tru', 'ngu', 'o dau', 'co gi');
+    // Tên khu phố bỏ dấu có thể trùng đúng một từ khoá: "An Biên" → "an bien",
+    // mà 'an' ở đây là "ăn". Không gỡ tên khu phố ra khỏi câu thì "khu phố An
+    // Biên gồm những khu nào" bị hiểu thành hỏi chỗ ĂN trong khu phố đó, trả về
+    // danh sách quán thay vì cơ cấu khu. Cùng một bẫy đã xử ở mục 9a.
+    const qKp = kp ? ` ${q} `.replaceAll(` ${norm(kp.ten)} `, ' ').trim() : q;
+    const askListInKhuPho = has(qKp, 'an', 'an gi', 'quan', 'nha hang', 'ca phe', 'cafe', 'tra sua', 'khach san', 'nha nghi', 'luu tru', 'ngu', 'o dau', 'co gi');
     if (kp && askListInKhuPho) {
-      const kind = has(q, 'khach san', 'nha nghi', 'luu tru', 'ngu', 'homestay')
+      const kind = has(qKp, 'khach san', 'nha nghi', 'luu tru', 'ngu', 'homestay')
         ? 'lodging'
         : has(q, 'ca phe', 'cafe', 'tra sua')
           ? 'cafe'
@@ -2280,7 +2301,10 @@ export async function ask(question) {
   //     phải ra danh sách KHÁCH SẠN, không phải hồ sơ Miếu Hậu. Ngoại lệ: nếu tên
   //     riêng mạnh ở top đúng bằng loại đang hỏi ("nhà hàng Xuân Viên có gì") thì
   //     để mục tra cứu riêng cơ sở đó.
-  const wantKind = has(q, 'khach san', 'nha nghi', 'luu tru', 'homestay', 'ngu o dau', 'o dau qua dem', 'dat phong')
+  // "chỗ nghỉ" / "nơi nghỉ" phải nằm ở đây: nhánh khu phố phía trên đã coi chúng
+  // là từ chỉ lưu trú, riêng chỗ này bỏ quên, nên "chỗ nghỉ gần chùa Mỹ Cụ" rơi
+  // xuống nhánh tên riêng và trả về hồ sơ CHÙA thay vì danh sách nhà nghỉ.
+  const wantKind = has(q, 'khach san', 'nha nghi', 'luu tru', 'homestay', 'cho nghi', 'noi nghi', 'ngu o dau', 'o dau qua dem', 'dat phong')
     ? 'lodging'
     : // Cà phê / trà sữa tách riêng khỏi nhà hàng — trước đây lẫn vào nhau nên
       // "quán cà phê nào đẹp" ra danh sách nhà hàng.
@@ -2422,7 +2446,15 @@ export async function ask(question) {
       const a = answerQuyMo(corpus);
       if (a) return { ...a, matched: true };
     }
-    if (has(q, 'giap', 'cach ha noi', 'cach ha long', 'bao xa', 'o dau', 'nam o dau', 'vi tri', 'thuoc tinh nao', 'o tinh nao', 'thuoc dau')) {
+    // Cụm "ở đâu" đứng một mình bắt quá rộng: mọi câu "làm <việc gì> ở đâu" chưa
+    // có nhánh riêng đều rơi vào đây và được đáp lại bằng bài "Đông Triều ở đâu"
+    // — trông như đã trả lời, thật ra lạc đề. Nên "ở đâu" chỉ tính khi câu có
+    // nhắc tới chính vùng đất này; các cụm còn lại vốn đã tự nói rõ chủ ngữ.
+    const hoiVungDat = has(q, 'dong trieu', 'phuong nay', 'phuong minh', 'noi nay', 'vung nay', 'o day');
+    if (
+      has(q, 'giap', 'cach ha noi', 'cach ha long', 'bao xa', 'nam o dau', 'vi tri', 'thuoc tinh nao', 'o tinh nao', 'thuoc dau') ||
+      (has(q, 'o dau') && hoiVungDat)
+    ) {
       const a = answerViTri(corpus);
       if (a) return { ...a, matched: true };
     }

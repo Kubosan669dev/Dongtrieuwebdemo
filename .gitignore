@@ -17,6 +17,9 @@ Thumbs.db
 server/uploads/*
 !server/uploads/.gitkeep
 
+# Bản gốc reprocess-images cất lại trước khi làm nét
+server/image-backup/
+
 # Prisma
 server/prisma/dev.db*
 

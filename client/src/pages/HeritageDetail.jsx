@@ -1,31 +1,21 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { MapPin, Award, Landmark, Sparkles, CalendarDays, ScrollText, Building2, Route } from 'lucide-react';
+import { MapPin, Award, Landmark, Sparkles, CalendarDays, ScrollText, Building2, Route, Images } from 'lucide-react';
 import { fetchOne, fetchList } from '../lib/api.js';
 import PageHero from '../components/PageHero.jsx';
 import HeritageCover from '../components/HeritageCover.jsx';
 import MapEmbed from '../components/MapEmbed.jsx';
+import Tabs from '../components/Tabs.jsx';
 import { HeritageCard } from '../components/cards.jsx';
 import { Badge, Spinner, ErrorNote } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
-import Gallery from '../components/Gallery.jsx';
+import Gallery, { galleryItems } from '../components/Gallery.jsx';
 import Reviews from '../components/Reviews.jsx';
 import { HERITAGE_TYPES, RANK_LEVELS } from '../lib/constants.js';
-import { cx } from '../lib/format.js';
-
-const TABS = [
-  { key: 'summary', label: 'Tổng quan', icon: Sparkles },
-  { key: 'history', label: 'Lịch sử', icon: ScrollText },
-  { key: 'architecture', label: 'Kiến trúc & hiện vật', icon: Building2 },
-  { key: 'highlights', label: 'Điểm nhấn', icon: Award },
-  { key: 'travel', label: 'Cách đến & kinh nghiệm', icon: Route },
-];
 
 export default function HeritageDetail() {
   const { slug } = useParams();
-  const [tab, setTab] = useState('summary');
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['heritage', slug],
@@ -44,7 +34,8 @@ export default function HeritageDetail() {
   const h = data.item;
   const rank = RANK_LEVELS[h.rankLevel];
   const type = HERITAGE_TYPES[h.type];
-  const images = h.images ?? [];
+  const cover = h.coverUrl ? { url: h.coverUrl, illustrative: h.coverIsIllustrative } : null;
+  const photos = galleryItems(cover, h.images);
   const relatedItems = (related.data?.items ?? []).filter((x) => x.slug !== h.slug).slice(0, 3);
 
   // Không bọc `useMemo` được vì đoạn này nằm sau các nhánh `return` ở trên —
@@ -90,46 +81,39 @@ export default function HeritageDetail() {
               ))}
             </div>
 
-            {/* Tabs */}
-            <div className="no-scrollbar mt-6 flex gap-2 overflow-x-auto border-b border-jade-900/5 dark:border-white/10">
-              {TABS.map((t) => (
-                <button
-                  key={t.key}
-                  onClick={() => setTab(t.key)}
-                  className={cx(
-                    'flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-3 text-sm font-medium transition',
-                    tab === t.key
-                      ? 'border-jade-600 text-jade-700 dark:text-jade-200'
-                      : 'border-transparent text-muted hover:text-jade-700',
-                  )}
-                >
-                  <t.icon size={15} /> {t.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-6">
-              {tab === 'summary' && <div className="prose-vn"><ReactMarkdown>{h.summary}</ReactMarkdown></div>}
-              {tab === 'history' && <div className="prose-vn"><ReactMarkdown>{h.history}</ReactMarkdown></div>}
-              {tab === 'architecture' && <div className="prose-vn"><ReactMarkdown>{h.architecture}</ReactMarkdown></div>}
-              {tab === 'travel' && (
-                <div className="prose-vn">
-                  <ReactMarkdown>{h.travelTips || 'Thông tin đang được cập nhật.'}</ReactMarkdown>
-                </div>
-              )}
-              {tab === 'highlights' && (
-                <ul className="space-y-3">
-                  {h.highlights?.map((x, i) => (
-                    <li key={i} className="card-sm flex items-start gap-3 p-4">
-                      <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold-100 text-xs font-bold text-gold-700">{i + 1}</span>
-                      <span className="text-body">{x}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <Gallery images={images} name={h.name} />
+            <Tabs
+              className="mt-6"
+              label={`Nội dung về ${h.name}`}
+              items={[
+                { key: 'summary', label: 'Tổng quan', icon: Sparkles, content: <div className="prose-vn"><ReactMarkdown>{h.summary}</ReactMarkdown></div> },
+                { key: 'history', label: 'Lịch sử', icon: ScrollText, content: <div className="prose-vn"><ReactMarkdown>{h.history}</ReactMarkdown></div> },
+                { key: 'architecture', label: 'Kiến trúc & hiện vật', icon: Building2, content: <div className="prose-vn"><ReactMarkdown>{h.architecture}</ReactMarkdown></div> },
+                {
+                  key: 'highlights',
+                  label: 'Điểm nhấn',
+                  icon: Award,
+                  content: (
+                    <ul className="space-y-3">
+                      {h.highlights?.map((x, i) => (
+                        <li key={i} className="card-sm flex items-start gap-3 p-4">
+                          <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold-100 text-xs font-bold text-gold-700">{i + 1}</span>
+                          <span className="text-body">{x}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                },
+                // Số ảnh nằm ngay trên nhãn tab: du khách biết trước bấm vào có
+                // mấy tấm, khỏi mở ra rồi thất vọng vì chỉ có mỗi ảnh bìa.
+                photos.length > 0 && {
+                  key: 'photos',
+                  label: `Hình ảnh (${photos.length})`,
+                  icon: Images,
+                  content: <Gallery images={h.images} cover={cover} name={h.name} title={null} className="mt-0" />,
+                },
+                { key: 'travel', label: 'Cách đến & kinh nghiệm', icon: Route, content: <div className="prose-vn"><ReactMarkdown>{h.travelTips || 'Thông tin đang được cập nhật.'}</ReactMarkdown></div> },
+              ]}
+            />
 
             <Reviews targetType="HERITAGE" targetId={h.id} className="mt-10" />
           </div>

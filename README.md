@@ -272,6 +272,7 @@ node -e "console.log(require('crypto').randomBytes(12).toString('base64url'))"
 | `npm run reprocess-images` | Dựng lại bản thu nhỏ của ảnh đã có theo thông số nén hiện hành |
 | `npm run reprocess-images -- --sharpen` | Như trên, thêm bước làm nét bản đầy đủ (có sao lưu vào `server/image-backup/`) |
 | `npm run test-chatbot` | Chạy thử trợ lý AI với ~40 câu hỏi mẫu, in ra câu trả lời |
+| `npm run test-gemini` | 17 phép kiểm tầng Gemini (dùng fetch giả, không cần khoá API) |
 | `npm run test-chatbot "câu hỏi"` | Hỏi trợ lý một câu bất kỳ ngay trên terminal |
 | `npm run test-scenarios` | Bộ kịch bản ~110 câu theo 18 nhóm (kiểu cổng du lịch); báo nhóm nào chưa đạt |
 | `npm run test-scenarios-bulk` | Bộ sinh tự động ~1.400 câu từ dữ liệu thật; báo tỷ lệ đạt theo nhóm |

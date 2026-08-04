@@ -5,6 +5,7 @@ import { prisma } from '../lib/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { ask } from '../services/chatbot.js';
 import { hoiPybot } from '../services/pybot.js';
+import { hoiGemini } from '../services/gemini.js';
 import { getCorpus } from '../services/knowledge.js';
 import { ASSISTANT_NAME } from '../lib/site.js';
 
@@ -44,6 +45,16 @@ router.post(
     if (!answer.matched) {
       const py = await hoiPybot(message);
       if (py) answer = py;
+    }
+
+    // Cuối cùng mới tới Gemini, và chỉ khi hai bản trên đều chịu thua. Thứ tự
+    // này giữ cho phần lớn câu hỏi không tốn một lượt gọi ra ngoài nào: bản luật
+    // lo nhóm câu hỏi nhiều nhất, bản Python lo câu nằm sâu trong văn bản dài,
+    // Gemini chỉ diễn đạt lại phần còn lại. Không có khoá API thì hàm này trả
+    // `null` ngay, cổng chạy y như trước.
+    if (!answer.matched) {
+      const gm = await hoiGemini(message);
+      if (gm) answer = gm;
     }
 
     // Ghi nhật ký để quản trị viên biết còn thiếu dữ liệu gì.
