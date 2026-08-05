@@ -6,9 +6,13 @@ import ChatWidget from './ChatWidget.jsx';
 import ThemePicker from './ThemePicker.jsx';
 import { useTheme } from '../hooks/useTheme.js';
 import { useReveal } from '../hooks/useReveal.js';
+import { useDoiTuong } from '../hooks/useDoiTuong.jsx';
 
 export default function Layout() {
-  const { theme, mode, setTheme, setMode } = useTheme();
+  // Bảng màu đi theo cổng đang xem, và mỗi cổng nhớ lựa chọn riêng của mình —
+  // đổi màu bên du lịch không kéo theo cổng người dân. Xem hooks/useTheme.js.
+  const { doiTuong, laNguoiDan } = useDoiTuong();
+  const { theme, mode, setTheme, setMode } = useTheme(doiTuong);
   const [pickerOpen, setPickerOpen] = useState(false);
   const { pathname } = useLocation();
 
@@ -54,6 +58,7 @@ export default function Layout() {
         open={pickerOpen}
         theme={theme}
         mode={mode}
+        tenCong={laNguoiDan ? 'cổng người dân' : 'cổng du lịch'}
         onPick={setTheme}
         onMode={setMode}
         onClose={() => setPickerOpen(false)}

@@ -9,6 +9,7 @@
     "start": "node src/index.js",
     "extract": "node scripts/extract-docx.mjs",
     "build-dataset": "node scripts/build-dataset.mjs",
+    "check-hanh-chinh": "node scripts/check-hanh-chinh.mjs",
     "make-favicon": "node scripts/make-favicon.mjs",
     "fetch-images": "node scripts/fetch-images.mjs",
     "import-images": "node scripts/import-images.mjs",

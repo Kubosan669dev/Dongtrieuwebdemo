@@ -11,7 +11,7 @@ import HomeIntro from '../components/home/HomeIntro.jsx';
 import HomeMap from '../components/home/HomeMap.jsx';
 import HomeReviews from '../components/home/HomeReviews.jsx';
 import HomeContact from '../components/home/HomeContact.jsx';
-import { HeritageCard, CuisineCard, LodgingCard, ArticleCard } from '../components/cards.jsx';
+import { HeritageCard, CuisineCard, LodgingCard } from '../components/cards.jsx';
 import { SectionHeading, SkeletonCard, ErrorNote } from '../components/ui.jsx';
 import Seo from '../components/Seo.jsx';
 import { useSettings } from '../hooks/useSettings.js';
@@ -59,6 +59,13 @@ function SectionBody({ query, skeletonCount = 3, children }) {
   return children;
 }
 
+/**
+ * `/` — trang chủ của CỔNG DU LỊCH.
+ *
+ * Cổng người dân là một trang khác hẳn (`/nguoi-dan`, xem `pages/Resident.jsx`),
+ * không dùng chung khối nào với trang này. Xem `hooks/useDoiTuong.jsx` để biết
+ * vì sao hai bên tách thành hai đường dẫn thật, thay vì một công tắc nhớ trong máy.
+ */
 export default function Home() {
   const settings = useSettings();
   const [lodging, setLodging] = useState(null);
@@ -68,7 +75,6 @@ export default function Home() {
   const festivals = useQuery({ queryKey: ['festivals', 'home'], queryFn: () => fetchList('festivals') });
   const cuisines = useQuery({ queryKey: ['cuisines', 'home'], queryFn: () => fetchList('cuisines') });
   const lodgings = useQuery({ queryKey: ['lodgings', 'home'], queryFn: () => fetchList('lodgings') });
-  const articles = useQuery({ queryKey: ['articles', 'home'], queryFn: () => fetchList('articles') });
   const stats = useQuery({ queryKey: ['stats'], queryFn: () => api.get('/stats') });
 
   // Bản đồ slug → ảnh bìa/loại hình cho hero. Giữ cả cờ ảnh minh hoạ, nếu không
@@ -92,14 +98,13 @@ export default function Home() {
         <div className="h-[440px] animate-pulse bg-jade-100 dark:bg-jade-900" />
       )}
 
-      {/* 2. Tra cứu nhanh — ô tìm + bốn việc người dân hay tới cổng để làm */}
+      {/* 2. Tra cứu nhanh — ô tìm + ba việc khách hay làm nhất */}
       <HomeQuickLinks />
 
       {/* 3. Giới thiệu ngắn + dải số liệu */}
       <HomeIntro intro={settings.about?.intro} counts={stats.data?.counts} />
 
-      {/* 4. Mùa lễ hội — đặt trước mọi lưới thẻ vì lịch hội là thứ cả người trong
-          phường lẫn khách phương xa đều xem trước tiên. */}
+      {/* 4. Mùa lễ hội — đặt trước mọi lưới thẻ vì lịch hội là thứ khách xem trước tiên */}
       {festivals.data?.items?.length > 0 && <FestivalSeason festivals={festivals.data.items} />}
 
       {/* 5. Di tích nổi bật — một thẻ lớn dẫn đầu, phần còn lại xếp lưới */}
@@ -129,11 +134,10 @@ export default function Home() {
         </SectionBody>
       </section>
 
-      {/* 6. Bản đồ số — thay khối "CTA bản đồ" giả ở cuối trang bản trước */}
+      {/* 6. Bản đồ số */}
       <HomeMap />
 
-      {/* 7. Lễ hội — dạng dòng thời gian như trang /le-hoi, không dùng thẻ chữ.
-          Thẻ chữ ở đây từng tạo một khoảng trống thị giác giữa hai hàng thẻ ảnh. */}
+      {/* 7. Lễ hội — dạng dòng thời gian như trang /le-hoi, không dùng thẻ chữ */}
       <section data-vao className="container-page mt-16">
         <SectionHeading
           eyebrow="Theo lịch âm"
@@ -163,7 +167,7 @@ export default function Home() {
         </SectionBody>
       </section>
 
-      {/* 8a. Ẩm thực */}
+      {/* 8. Ẩm thực */}
       <section data-vao className="container-page mt-16">
         <SectionHeading
           eyebrow="Hương vị bản địa"
@@ -181,28 +185,12 @@ export default function Home() {
       {/* 9. Cảm nhận — tự ẩn khi chưa có đánh giá nào đã duyệt */}
       <HomeReviews />
 
-      {/* 10. Tin tức & thông báo của phường */}
-      {articles.data?.items?.length > 0 && (
-        <section data-vao className="container-page mt-16">
-          <SectionHeading
-            eyebrow="Tin của phường"
-            title="Tin tức & thông báo"
-            action={<Link to="/tin-tuc" className="btn-ghost">Tất cả bài viết <ChevronRight size={16} /></Link>}
-          />
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {articles.data.items.slice(0, 3).map((a) => <ArticleCard key={a.id} item={a} />)}
-          </div>
-        </section>
-      )}
-
-      {/* 11. Lưu trú — mục duy nhất trên trang này viết cho khách phương xa, nên
-          nó đứng gần cuối và nói với người trong phường về việc chỉ chỗ cho khách
-          của mình. Trước đây nó nằm giữa trang, ngay cạnh Ẩm thực. */}
+      {/* 10. Lưu trú — đứng gần cuối, sau khi khách đã xem xong nơi đáng tới */}
       <section data-vao className="container-page mt-16">
         <SectionHeading
           eyebrow="Cho khách tới thăm"
           title="Cơ sở lưu trú"
-          description="Nhà có khách phương xa về? Đây là các cơ sở lưu trú trong phường, kèm giá phòng, tiện nghi, ảnh và bản đồ."
+          description="Các cơ sở lưu trú trong phường, kèm giá phòng, tiện nghi, ảnh và bản đồ."
           action={<Link to="/luu-tru" className="btn-ghost">Tất cả cơ sở <ChevronRight size={16} /></Link>}
         />
         <SectionBody query={lodgings}>
@@ -214,7 +202,7 @@ export default function Home() {
         </SectionBody>
       </section>
 
-      {/* 12. Liên hệ */}
+      {/* 11. Liên hệ */}
       <HomeContact />
 
       {lodging && <LodgingDetail item={lodging} onClose={() => setLodging(null)} />}

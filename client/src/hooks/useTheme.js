@@ -1,8 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
-import { DEFAULT_THEME, THEMES, isTheme } from '../lib/themes.js';
+import { THEMES, isTheme, themeMacDinh } from '../lib/themes.js';
+import { DU_KHACH } from './useDoiTuong.jsx';
 
-const THEME_KEY = 'dt-theme'; // id bảng màu
+/**
+ * ── BẢNG MÀU NHỚ RIÊNG TỪNG CỔNG, SÁNG/TỐI THÌ CHUNG ───────────────────────
+ * Mỗi cổng có khoá lưu riêng (`dt-theme:du-khach`, `dt-theme:nguoi-dan`) nên đổi
+ * màu bên du lịch không kéo theo cổng người dân đổi màu, và ngược lại.
+ *
+ * Sáng/tối cố ý KHÔNG tách. Bảng màu là chuyện nhận diện của từng cổng, còn
+ * sáng/tối là chuyện mắt của người đang ngồi trước máy: ai bật nền tối vì chói
+ * mắt thì bật một lần phải ăn cho cả hai cổng, chứ không phải bấm lại mỗi lần
+ * bước qua bước lại.
+ */
+const THEME_KEY = (doiTuong) => `dt-theme:${doiTuong}`;
 const MODE_KEY = 'dt-mode'; // 'light' | 'dark', chỉ ghi khi khách tự bấm đổi
+const LEGACY_THEME_KEY = 'dt-theme'; // bản cũ: một bảng màu cho cả site
 
 const preferredMode = (id) => THEMES.find((t) => t.id === id)?.mode ?? 'light';
 
@@ -22,49 +34,78 @@ const write = (key, value) => {
   }
 };
 
-/**
- * Bản trước chỉ lưu 'light'/'dark' vào `dt-theme`. Khách đã dùng site từ trước
- * sẽ có giá trị cũ đó — dời sang khoá `dt-mode` ngay khi nạp trang.
- *
- * Phải dời hẳn chứ không chỉ đọc tạm: hiệu ứng bên dưới sẽ ghi đè `dt-theme`
- * bằng id bảng màu, nên nếu không lưu lại thì lựa chọn nền tối của khách biến
- * mất ở lần tải trang kế tiếp.
- */
-(function migrateLegacyStorage() {
-  const legacy = read(THEME_KEY);
-  if (legacy === 'light' || legacy === 'dark') {
-    write(MODE_KEY, legacy);
-    write(THEME_KEY, DEFAULT_THEME);
+const remove = (key) => {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    /* trình duyệt chặn localStorage — không có gì để dọn */
   }
+};
+
+/**
+ * Dọn hai đời khoá cũ, cả hai đều từng nằm ở `dt-theme`:
+ *
+ *   1. Đời đầu lưu thẳng 'light'/'dark' vào đó — dời sang `dt-mode`.
+ *   2. Đời sau lưu id bảng màu dùng chung cho cả site — dời sang khoá của cổng
+ *      DU LỊCH. Chỉ cổng du lịch, vì đó là cổng khách đã đứng khi chọn màu; đổ
+ *      luôn sang cổng người dân thì bảng màu nâu mới không bao giờ xuất hiện với
+ *      những người đã từng vào site.
+ *
+ * Phải dời hẳn chứ không chỉ đọc tạm: nếu để nguyên `dt-theme` thì lần sau hàm
+ * này lại chạy và ghi đè lựa chọn mới của người dùng.
+ */
+(function donKhoaCu() {
+  const legacy = read(LEGACY_THEME_KEY);
+  if (!legacy) return;
+  if (legacy === 'light' || legacy === 'dark') write(MODE_KEY, legacy);
+  else if (isTheme(legacy) && !read(THEME_KEY(DU_KHACH))) write(THEME_KEY(DU_KHACH), legacy);
+  remove(LEGACY_THEME_KEY);
 })();
 
-const initialTheme = () => {
-  const saved = read(THEME_KEY);
-  return isTheme(saved) ? saved : DEFAULT_THEME;
+const initialTheme = (doiTuong) => {
+  const saved = read(THEME_KEY(doiTuong));
+  return isTheme(saved) ? saved : themeMacDinh(doiTuong);
 };
 
-const initialMode = () => {
+const initialMode = (doiTuong) => {
   const saved = read(MODE_KEY);
   if (saved === 'light' || saved === 'dark') return saved;
-  return preferredMode(initialTheme());
+  return preferredMode(initialTheme(doiTuong));
 };
 
 /**
- * Bảng màu + chế độ sáng/tối của toàn site.
+ * Bảng màu + chế độ sáng/tối của trang.
  *
  * Bảng màu ghi vào `data-theme` trên thẻ <html>, chế độ tối ghi bằng class `dark`
- * (Tailwind cấu hình `darkMode: 'class'`). Hai thứ độc lập nhau nên tám bảng màu
+ * (Tailwind cấu hình `darkMode: 'class'`). Hai thứ độc lập nhau nên chín bảng màu
  * đều dùng được ở cả hai chế độ.
+ *
+ * @param doiTuong cổng đang xem — quyết định đọc/ghi khoá nào và mở đầu bằng
+ *   bảng màu nào. Xem `THEME_MAC_DINH` trong lib/themes.js.
  */
-export function useTheme() {
-  const [theme, setThemeState] = useState(initialTheme);
-  const [mode, setModeState] = useState(initialMode);
+export function useTheme(doiTuong = DU_KHACH) {
+  const [theme, setThemeState] = useState(() => initialTheme(doiTuong));
+  const [mode, setModeState] = useState(() => initialMode(doiTuong));
+
+  /**
+   * Bước qua cổng bên kia thì nạp bảng màu của cổng đó.
+   *
+   * Dùng mẫu "state phái sinh" của React thay cho useEffect, cùng lý do với
+   * Header.jsx: đặt state ngay trong lúc render thì màu cũ không kịp vẽ ra màn
+   * hình. Qua useEffect thì người dùng thấy một nháy nâu-rồi-xanh mỗi lần đổi
+   * cổng — đúng cái nháy mà việc tách màu này sinh ra để tránh.
+   */
+  const [cong, setCong] = useState(doiTuong);
+  if (cong !== doiTuong) {
+    setCong(doiTuong);
+    setThemeState(initialTheme(doiTuong));
+  }
 
   useEffect(() => {
     const root = document.documentElement;
     root.dataset.theme = theme;
     root.classList.toggle('dark', mode === 'dark');
-    write(THEME_KEY, theme);
+    write(THEME_KEY(doiTuong), theme);
 
     // Màu thanh trạng thái trên trình duyệt di động phải theo bảng màu đang dùng,
     // nếu không phần chrome của máy sẽ lệch tông với trang.
@@ -74,7 +115,7 @@ export function useTheme() {
       const rgb = getComputedStyle(root).getPropertyValue(varName).trim();
       if (rgb) bar.setAttribute('content', `rgb(${rgb.replace(/\s+/g, ', ')})`);
     }
-  }, [theme, mode]);
+  }, [theme, mode, doiTuong]);
 
   const setTheme = useCallback((id) => {
     if (!isTheme(id)) return;

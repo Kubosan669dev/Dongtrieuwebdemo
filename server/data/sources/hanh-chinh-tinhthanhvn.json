@@ -1,0 +1,74 @@
+{
+  "_ghiChu": [
+    "BẢN THU THẬP THÔ từ trang tra cứu TinhThanhVN.com — giữ nguyên nhãn và giá trị như trang hiển thị.",
+    "KHÔNG sửa tay tệp này. Muốn tải lại và đối chiếu: `npm run check-hanh-chinh`.",
+    "Bản đã hiệu đính, có đối soát chéo và có cảnh báo, nằm ở prisma/seed-data/hanh-chinh.json.",
+    "Trang nguồn tự ghi: 'Mọi thông tin, bản đồ và dữ liệu trên website chỉ mang tính chất tham khảo,",
+    "không có giá trị thay thế các văn bản pháp lý hoặc xác nhận chính thức từ cơ quan Nhà nước.'"
+  ],
+  "nguonUrl": "https://tinhthanhvn.com/province/quang-ninh/dong-trieu",
+  "ngayThuThap": "2026-08-04",
+  "trangGhiCapNhatLanCuoi": "27 tháng 5, 2026",
+  "trangGhiNgayKhoiTao": "06 tháng 7, 2025",
+  "idTrang": "745",
+
+  "truong": {
+    "Tên đơn vị": "phường Đông Triều",
+    "Thuộc Tỉnh Thành (Province)": "tỉnh Quảng Ninh",
+    "Loại đơn vị (Type)": "phường",
+    "Mã định danh (Unit Code)": "07093",
+    "Mã phường": "#07093",
+    "Mã bưu chính (Postal Code)": "02427",
+    "Diện tích": "40.42 km²",
+    "Dân số (2025)": "43.712 người",
+    "Mật độ dân số": "1.081 người/km²",
+    "Đơn vị sáp nhập": "5 đơn vị",
+    "Tọa độ trung tâm": "21.0754°, 106.52°",
+    "Vùng kinh tế": "Đồng bằng sông Hồng",
+    "Cấp hành chính": "phường",
+    "Trực thuộc": "Tỉnh Quảng Ninh",
+    "Trụ sở": "UBND phường Đông Triều",
+    "Trụ sở hành chính mới (Admin Center)": "Trụ sở Thành ủy, HĐND, UBND thành phố Đông Triều",
+    "Quận/Huyện cũ": "Thành phố Đông Triều",
+    "Tỉnh/Thành cũ": "Quảng Ninh"
+  },
+
+  "lichSuHinhThanhTuCacDonViCu": [
+    "Phường Thủy An",
+    "Phường Hưng Đạo",
+    "Phường Hồng Phong",
+    "Xã Nguyễn Huệ",
+    "Phường Đức Chính"
+  ],
+
+  "cong": [
+    { "ten": "Cổng thông tin điện tử phường Đông Triều", "url": "dongtrieu.quangninh.gov.vn" },
+    { "ten": "Cổng Thông Tin tỉnh Quảng Ninh", "url": "quangninh.gov.vn" }
+  ],
+
+  "trichNguyenVan": {
+    "tongQuan": "phường Đông Triều được chính thức hình thành trên cơ sở sáp nhập các đơn vị hành chính trước đây bao gồm Phường Thủy An, Phường Hưng Đạo, Phường Hồng Phong, Xã Nguyễn Huệ, Phường Đức Chính. Đợt điều chỉnh địa giới này được thực hiện nghiêm túc theo Nghị quyết số 202/2025/QH15 của Quốc hội về sắp xếp đơn vị hành chính cấp tỉnh thành.",
+    "quyMo": "Sau khi sáp nhập địa giới hành chính, địa bàn hiện sở hữu diện tích tự nhiên rộng khoảng 40.42 km² với quy mô dân số đạt mốc 43,712 người.",
+    "vanHanh": "Chính thức vận hành từ ngày 01/07/2025, bộ máy hành chính mới của UBND phường Đông Triều hiện đặt trụ sở làm việc tại Trụ sở Thành ủy, HĐND, UBND thành phố Đông Triều.",
+    "phanCap": "Về mặt phân cấp, phường Đông Triều hiện là 1 trong 30 phường trực thuộc cơ cấu quản lý khu vực, đóng góp vào tổng số 54 đơn vị hành chính cấp xã của Tỉnh Quảng Ninh."
+  },
+
+  "xaPhuongLanCanTheoTrang": [
+    "xã Thống Nhất",
+    "phường Mạo Khê",
+    "phường Bình Khê",
+    "phường An Sinh",
+    "phường Hoàng Quế",
+    "phường Quảng Yên",
+    "phường Đông Mai",
+    "phường Hiệp Hòa"
+  ],
+
+  "khongCoTrenTrang": [
+    "Danh sách khu phố / tổ dân phố — trang KHÔNG có mục này ở bất kỳ đâu.",
+    "Cơ cấu 11 khu phố của phường vẫn lấy từ nguồn sẵn có: prisma/seed-data/khu-pho.json.",
+    "Ranh giới địa lý chi tiết (trang ghi 'Bản đồ số hiện đang trong quá trình hoàn thiện').",
+    "Số điện thoại, email, giờ làm việc của UBND phường.",
+    "Cơ cấu dân cư, kinh tế, hạ tầng cụ thể (các đoạn văn trên trang là văn mẫu quảng bá)."
+  ]
+}

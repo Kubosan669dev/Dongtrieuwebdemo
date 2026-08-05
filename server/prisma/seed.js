@@ -490,11 +490,28 @@ async function seedSettings() {
   // A.1940). Núi sông, chợ búa, cổ tích, nhân vật, thổ sản của huyện thời ấy.
   // Lưu ý: đây là huyện Đông Triều thuộc HẢI DƯƠNG năm 1896, rộng hơn phường
   // hiện nay rất nhiều — mọi chỗ hiện dữ liệu này đều phải kèm `canhBao`.
+  // Căn cước hành chính của phường: mã định danh, mã bưu chính, 5 đơn vị cũ hợp
+  // thành, trụ sở, cổng thông tin. Đây là nhóm câu hỏi người DÂN hỏi (chứ không
+  // phải du khách), trước nay cổng chưa trả lời được câu nào.
+  let hanhChinh = null;
+  try {
+    hanhChinh = read('hanh-chinh.json');
+  } catch {
+    /* không có file thì bỏ qua — nhánh trả lời tự tắt */
+  }
   let diaChi1896 = null;
   try {
     diaChi1896 = read('dia-chi-1896.json');
   } catch {
     /* không có file thì bỏ qua — trang Giới thiệu tự ẩn khối này */
+  }
+  // 13 quyết định xếp hạng di tích & phê duyệt dự án tu bổ, biên từ bản scan
+  // phường cung cấp. Bản tệp tải về nằm ở `client/public/van-ban/`.
+  let vanBan = null;
+  try {
+    vanBan = read('van-ban.json');
+  } catch {
+    /* không có file thì bỏ qua — trang /van-ban tự hiện khối "chưa có dữ liệu" */
   }
   const settings = {
     contact: {
@@ -530,7 +547,9 @@ async function seedSettings() {
     about,
     ...(khuPho ? { khuPho } : {}),
     ...(vungDat ? { vungDat } : {}),
+    ...(hanhChinh ? { hanhChinh } : {}),
     ...(diaChi1896 ? { diaChi1896 } : {}),
+    ...(vanBan ? { vanBan } : {}),
   };
 
   /**

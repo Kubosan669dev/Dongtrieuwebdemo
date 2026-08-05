@@ -141,7 +141,8 @@ def _doc_tep(ten: str):
 # `server/prisma/seed-data/` mà quên khai ở đây thì bo kiem đỏ, thay vì trợ lý
 # lặng lẽ thiếu dữ liệu mà không ai biết.
 TEP_DOC = {
-    "about.json", "khu-pho.json", "vung-dat.json", "dia-chi-1896.json",
+    "about.json", "khu-pho.json", "vung-dat.json", "dia-chi-1896.json", "hanh-chinh.json",
+    "van-ban.json",
     "heritages.json", "festivals.json", "festival-details.json", "cuisines.json",
     "attractions.json", "articles.json", "restaurants.json", "lodgings.json",
     "places.json",
@@ -232,7 +233,9 @@ def _lay_du_lieu(api: str, giay: float, ep_tep: bool = False) -> tuple[dict, str
                     ("about", _doc_tep("about.json")),
                     ("khuPho", _doc_tep("khu-pho.json")),
                     ("vungDat", _doc_tep("vung-dat.json")),
+                    ("hanhChinh", _doc_tep("hanh-chinh.json")),
                     ("diaChi1896", _doc_tep("dia-chi-1896.json")),
+                    ("vanBan", _doc_tep("van-ban.json")),
                 )
                 if v is not None
             },
@@ -345,6 +348,136 @@ def _tu_cai_dat(ra: list[Doan], cd: dict) -> None:
             _them(ra, loai="vung_dat", tieu_de="Vùng đất Đông Triều", muc="Kinh tế",
                   noi_dung=f"Cơ cấu kinh tế năm {kt.get('nam', '')}: {cc}. Ngành chủ lực: {', '.join(kt.get('nganhChuLuc') or [])}.",
                   url="/gioi-thieu")
+
+    hc = cd.get("hanhChinh") or {}
+    if hc:
+        # Mỗi đoạn phải TỰ ĐỦ NGHĨA: đường tìm kiếm ở đây chấm điểm từng đoạn
+        # riêng lẻ, không có ngữ cảnh của đoạn bên cạnh. Nên đoạn nào cũng nhắc
+        # lại "phường Đông Triều" và nhắc lại nguồn — nếu không, đoạn mã bưu
+        # chính trả về đúng con số mà người đọc không biết đó là mã của ai.
+        ht = hc.get("hopThanhTu") or {}
+        if ht.get("danhSach"):
+            ds = ", ".join(f"{d.get('ten', '')} ({d.get('phan', '')})" for d in ht["danhSach"])
+            _them(ra, loai="hanh_chinh", tieu_de="Hành chính phường Đông Triều", muc="Sáp nhập, hợp thành",
+                  noi_dung=f"Phường Đông Triều hiện nay được lập từ ngày {hc.get('hieuLucTu', '')} trên cơ sở sáp nhập {ht.get('tongSo', '')} đơn vị: {ds}. {ht.get('doiSoat', '')}",
+                  url="/khu-pho")
+        vb = hc.get("vanBan") or {}
+        if vb.get("nghiQuyet"):
+            _them(ra, loai="hanh_chinh", tieu_de="Hành chính phường Đông Triều", muc="Văn bản thành lập",
+                  noi_dung=f"Việc lập phường Đông Triều căn cứ {vb.get('nghiQuyet', '')}, theo {vb.get('deAn', '')}. {vb.get('ghiChuSaiLech', '')}",
+                  url="/khu-pho")
+        # Hai đoạn dưới cố ý viết theo lối "nhắc lại câu hỏi rồi mới trả lời".
+        #
+        # Ba cửa của `_nhan_duoc` đo ĐỘ PHỦ câu hỏi trên đoạn, nên câu đầy đủ
+        # kiểu "mã bưu chính CỦA PHƯỜNG LÀ BAO NHIÊU" bị rớt ở mức 0,50 trong
+        # khi "mã bưu chính phường Đông Triều" đạt 1,00 — cùng một câu hỏi,
+        # khác mỗi mấy tiếng đệm. Nới ngưỡng chung thì đụng cả 90 phép kiểm
+        # hiện có, nên cách đúng là để đoạn tự chứa các tiếng đệm đó. Cùng thủ
+        # pháp đã dùng ở đoạn "khu phố xưa tên là gì" phía trên.
+        _them(ra, loai="hanh_chinh", tieu_de="Hành chính phường Đông Triều", muc="Mã hành chính",
+              noi_dung=f"Mã bưu chính của phường Đông Triều là bao nhiêu: phường Đông Triều, tỉnh Quảng Ninh có mã bưu chính {hc.get('maBuuChinh', '')}, mã đơn vị hành chính là {hc.get('maDinhDanh', '')}, thuộc vùng kinh tế {hc.get('vungKinhTe', '')}. {hc.get('canhBaoNguon', '')}",
+              url="/khu-pho")
+        ts = hc.get("truSo") or {}
+        if ts:
+            cong = ", ".join(f"{c.get('ten', '')} {c.get('url', '')}" for c in hc.get("cong") or [])
+            _them(ra, loai="hanh_chinh", tieu_de="Hành chính phường Đông Triều", muc="Trụ sở, cổng thông tin",
+                  noi_dung=f"Trụ sở uỷ ban nhân dân phường Đông Triều đặt ở đâu: {ts.get('ten', '')} đặt tại {ts.get('diaDiem', '')}. Cổng thông tin điện tử của phường: {cong}. {ts.get('ghiChu', '')}",
+                  url="/khu-pho")
+        sl = hc.get("soLieuTheoNguon") or {}
+        if sl:
+            _them(ra, loai="hanh_chinh", tieu_de="Hành chính phường Đông Triều", muc="Đối chiếu diện tích, dân số",
+                  noi_dung=f"Trang tra cứu ghi phường Đông Triều rộng {sl.get('dienTichKm2', '')} km², dân số {sl.get('danSo', '')} người năm {sl.get('namDanSo', '')}, mật độ {sl.get('matDoNguoiTrenKm2', '')} người/km². {sl.get('doiChieuVoiBangKhuPho', '')} {sl.get('viSao', '')}",
+                  url="/khu-pho")
+
+    vbs = cd.get("vanBan") or {}
+    if vbs:
+        ten_cq = {c.get("id"): c.get("ten", "") for c in vbs.get("coQuan") or []}
+        ten_nhom = {n.get("id"): n.get("ten", "") for n in vbs.get("nhom") or []}
+        for i, d in enumerate(vbs.get("danhSach") or []):
+            # Số hiệu đọc không ra thì NÓI RA, không im lặng bỏ trống: người hỏi
+            # trợ lý "quyết định xếp hạng chùa Mỹ Cụ số mấy" mà nhận về một câu
+            # lấp lửng sẽ tưởng cổng chưa có văn bản đó, trong khi thật ra có bản
+            # scan tải về được, chỉ mờ đúng ô số hiệu.
+            cq = ten_cq.get(d.get("coQuan"), "")
+            so = d.get("soHieu")
+            # Hai lối diễn đạt, vì ghép thẳng "Quyết định số <chưa đọc được…>"
+            # ra một câu không đọc nổi. Đoạn này là thứ trợ lý đọc nguyên văn cho
+            # người dùng nghe, nên nó phải là tiếng Việt bình thường.
+            # Tiêu đề PHẢI mang tên di tích, không chỉ số hiệu.
+            #
+            # Đường tìm kiếm cho tiêu đề trọng số cao nhất. Bản đầu để tiêu đề là
+            # "Quyết định 606/QĐ-UBND" thôi, nên hỏi "quyết định xếp hạng CHÙA Mỹ
+            # Cụ số mấy" lại trả về ĐÌNH Mỹ Cụ: cả hai đoạn cùng chứa "Mỹ Cụ" ở
+            # phần thân, mà tiếng phân biệt duy nhất — chùa / đình — không có
+            # trong tiêu đề của đoạn nào. Ghép `tenNgan` vào là chữ đó lên đúng
+            # trường nặng ký nhất.
+            #
+            # Hai tiêu đề phải DỰNG THEO CÙNG MỘT KHUÔN, kể cả khi một bên thiếu
+            # số hiệu. Bản trước để bên thiếu số là "Quyết định xếp hạng Chùa Mỹ
+            # Cụ" còn bên có số là "Quyết định 606/QĐ-UBND — Đình Mỹ Cụ": tiếng
+            # "xếp hạng" chỉ có ở một bên, thế là câu hỏi về ĐÌNH lại khớp mạnh
+            # hơn vào tiêu đề của CHÙA. Cùng khuôn thì tiếng phân biệt còn lại
+            # đúng là chùa / đình, tức đúng thứ người hỏi muốn phân biệt.
+            ten_ngan = d.get("tenNgan", "")
+            viec = "phê duyệt" if d.get("nhom") == "tu-bo" else "xếp hạng"
+            tieu_de = (
+                f"Quyết định {so} {viec} {ten_ngan}"
+                if so
+                else f"Quyết định {viec} {ten_ngan} ({d.get('ngayHienThi', '')})"
+            )
+            mo_dau = (
+                f"Quyết định số {so} do {cq} ban hành ngày {d.get('ngayHienThi', '')}"
+                if so
+                else f"Quyết định do {cq} ban hành ngày {d.get('ngayHienThi', '')}, bản scan mờ không đọc ra số hiệu"
+            )
+            ky = f" Người ký: {d.get('nguoiKy')}." if d.get("nguoiKy") else ""
+            thieu = d.get("chuaDocDuoc") or []
+            luu_y = f" Bản scan chưa đọc được: {', '.join(thieu)}." if thieu else ""
+            # Chi tiết dự án tu bổ (kinh phí, nguồn vốn, hạng mục) nằm trong dữ
+            # liệu nhưng trước đó không vào đoạn, nên hỏi "hết bao nhiêu tiền"
+            # trợ lý chịu thua trong khi con số có sẵn.
+            da = d.get("duAn") or {}
+            du_an = ""
+            if da:
+                # "hết bao nhiêu tiền" nằm sẵn trong đoạn — cùng thủ pháp với mã
+                # bưu chính và trụ sở: cửa độ phủ đo cả tiếng đệm của câu hỏi.
+                du_an = (
+                    f" Dự án tu bổ này hết bao nhiêu tiền, kinh phí bao nhiêu:"
+                    f" do {da.get('chuDauTu', '')} làm chủ đầu tư, kinh phí {da.get('kinhPhi', '')}"
+                    f" từ {str(da.get('nguonVon', '')).lower()}, thực hiện {str(da.get('thoiGian', '')).lower()}"
+                    f" trên diện tích {da.get('dienTich', '')}."
+                    f" Các hạng mục: {', '.join(da.get('hangMuc') or [])}."
+                )
+            _them(
+                ra, loai="van_ban",
+                tieu_de=tieu_de,
+                muc=ten_nhom.get(d.get("nhom"), "Văn bản"),
+                noi_dung=f"{mo_dau}: {d.get('trichYeu', '')}{ky}{du_an} {d.get('ghiChu', '')}{luu_y}",
+                url="/van-ban", stt=i,
+            )
+
+        # Đoạn tổng, cố ý viết theo lối "nhắc lại câu hỏi rồi mới trả lời" — cùng
+        # thủ pháp đã dùng cho mã bưu chính và trụ sở ở trên, vì cùng lý do: ba
+        # cửa của `_nhan_duoc` đo độ phủ câu hỏi trên đoạn, nên các tiếng đệm
+        # ("ở đâu", "có những", "gồm những") phải nằm sẵn trong đoạn.
+        _them(
+            ra, loai="van_ban", tieu_de="Văn bản chỉ đạo phường Đông Triều", muc="Tra cứu văn bản",
+            noi_dung=(
+                f"Xem quyết định xếp hạng di tích ở đâu, phường Đông Triều có những văn bản nào: cổng đăng "
+                f"{len(vbs.get('danhSach') or [])} quyết định xếp hạng di tích và phê duyệt dự án tu bổ, tải bản "
+                f"scan được tại trang Văn bản chỉ đạo. {vbs.get('luuYPhapLy', '')}"
+            ),
+            url="/van-ban",
+        )
+        for i, t in enumerate(vbs.get("thieu") or []):
+            _them(
+                ra, loai="van_ban", tieu_de=f"Quyết định {t.get('soHieu', '')}", muc="Chưa có bản scan",
+                noi_dung=(
+                    f"Quyết định {t.get('soHieu', '')} ({t.get('viec', '')}) được viện dẫn trong các văn bản khác "
+                    f"nhưng cổng chưa có bản scan. {t.get('biet', '')}"
+                ),
+                url="/van-ban", stt=i,
+            )
 
     kp = cd.get("khuPho") or {}
     for i, k in enumerate(kp.get("danhSach") or []):

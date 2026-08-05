@@ -36,12 +36,18 @@ function Swatch({ theme }) {
 }
 
 /**
- * Hộp chọn bảng màu cho toàn website — thay cho nút bật/tắt nền tối trước đây.
+ * Hộp chọn bảng màu — thay cho nút bật/tắt nền tối trước đây.
  *
- * Tám bảng màu là tám dải màu chủ đạo; sáng/tối là một trục riêng, nên bảng nào
+ * Chín bảng màu là chín dải màu chủ đạo; sáng/tối là một trục riêng, nên bảng nào
  * cũng dùng được ở cả hai chế độ.
+ *
+ * ── HAI TRỤC NÀY CÓ PHẠM VI KHÁC NHAU, VÀ PHẢI NÓI RA ──────────────────────
+ * Bảng màu chỉ đổi cho CỔNG đang xem, còn nền sáng/tối đổi cho cả hai. Người
+ * dùng không tự đoán được điều đó, và nếu không nói thì họ đổi màu ở cổng du
+ * lịch, bước sang cổng người dân thấy vẫn nâu, rồi kết luận là nút bị hỏng.
+ * Vì thế `tenCong` là chữ hiện thẳng trên nhãn, không phải chú thích nhỏ.
  */
-export default function ThemePicker({ open, theme, mode, onPick, onMode, onClose }) {
+export default function ThemePicker({ open, theme, mode, tenCong, onPick, onMode, onClose }) {
   // Hộp này render cả khi đóng (khác các modal kia), nên phải truyền `open` vào
   // để hook biết lúc nào mới khoá.
   useScrollLock(open);
@@ -70,7 +76,9 @@ export default function ThemePicker({ open, theme, mode, onPick, onMode, onClose
         <div className="flex items-center justify-between gap-3 border-b border-jade-900/5 px-5 py-4 dark:border-white/10">
           <div>
             <h2 className="font-serif text-lg font-bold text-jade-900 dark:text-jade-50">Bảng màu</h2>
-            <p className="text-xs text-muted/70">Chọn tông màu bạn thấy dễ nhìn nhất</p>
+            <p className="text-xs text-muted/70">
+              {tenCong ? `Áp dụng cho ${tenCong} — cổng bên kia giữ màu riêng` : 'Chọn tông màu bạn thấy dễ nhìn nhất'}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -110,7 +118,10 @@ export default function ThemePicker({ open, theme, mode, onPick, onMode, onClose
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-jade-900/5 px-5 py-4 dark:border-white/10">
-          <span className="text-sm font-medium text-body">Nền trang</span>
+          <span className="text-sm font-medium text-body">
+            Nền trang
+            <span className="ml-1.5 font-normal text-muted/70">(dùng chung cho cả hai cổng)</span>
+          </span>
           <div className="flex rounded-md bg-jade-100 p-1 dark:bg-jade-800">
             {[
               { id: 'light', label: 'Sáng', Icon: Sun },

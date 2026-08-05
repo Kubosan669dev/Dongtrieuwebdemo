@@ -1,0 +1,360 @@
+{
+  "capNhat": "05/8/2025",
+  "nguon": "13 tệp .docx bản scan do UBND phường Đông Triều cung cấp (thư mục \"quyet dinh\")",
+  "gioiThieu": "Các quyết định xếp hạng di tích và phê duyệt dự án tu bổ trên địa bàn phường Đông Triều. Bản đăng ở đây là bản scan của văn bản gốc, giữ nguyên không chỉnh sửa.",
+  "canhBaoOcr": "Toàn bộ tệp là ảnh scan đã qua nhận dạng chữ (OCR). Lớp chữ máy đọc được ở nhiều bản bị hỏng đúng ngay ô số hiệu và ô ngày tháng — hai chỗ đóng dấu và viết tay. Vì vậy số hiệu, ngày tháng và người ký dưới đây được đối chiếu với hồ sơ lý lịch di tích của phường; chỗ nào không đối chiếu được thì để trống và ghi rõ trong mục \"Chưa đọc được\", KHÔNG suy đoán.",
+  "luuYPhapLy": "Đây là bản đăng để tra cứu. Khi cần trích dẫn vào hồ sơ, thủ tục hoặc tranh chấp, phải dùng bản chính hoặc bản sao y do cơ quan ban hành cấp — xin tại UBND phường Đông Triều hoặc Sở Văn hóa và Thể thao tỉnh Quảng Ninh.",
+  "coQuan": [
+    {
+      "id": "ttg",
+      "ten": "Thủ tướng Chính phủ",
+      "tenNgan": "Thủ tướng Chính phủ"
+    },
+    {
+      "id": "bvhttdl",
+      "ten": "Bộ Văn hóa, Thể thao và Du lịch",
+      "tenNgan": "Bộ VHTTDL"
+    },
+    {
+      "id": "bvhtt",
+      "ten": "Bộ Văn hóa – Thông tin",
+      "tenNgan": "Bộ VHTT"
+    },
+    {
+      "id": "ubnd-tinh",
+      "ten": "UBND tỉnh Quảng Ninh",
+      "tenNgan": "UBND tỉnh"
+    }
+  ],
+  "nhom": [
+    {
+      "id": "qg-dac-biet",
+      "ten": "Xếp hạng quốc gia đặc biệt",
+      "mau": "gold"
+    },
+    {
+      "id": "qg",
+      "ten": "Xếp hạng quốc gia",
+      "mau": "jade"
+    },
+    {
+      "id": "cap-tinh",
+      "ten": "Xếp hạng cấp tỉnh",
+      "mau": "jade-nhat"
+    },
+    {
+      "id": "tu-bo",
+      "ten": "Phê duyệt dự án tu bổ",
+      "mau": "terra"
+    }
+  ],
+  "danhSach": [
+    {
+      "id": "qd-2383-ttg",
+      "soHieu": "2383/QĐ-TTg",
+      "loai": "Quyết định",
+      "tenNgan": "Khu di tích nhà Trần tại Đông Triều",
+      "ngay": "2013-12-09",
+      "ngayHienThi": "09/12/2013",
+      "doChinhXacNgay": "ngay",
+      "coQuan": "ttg",
+      "nguoiKy": "Vũ Đức Đam",
+      "chucVu": "Phó Thủ tướng",
+      "nhom": "qg-dac-biet",
+      "trichYeu": "Xếp hạng di tích quốc gia đặc biệt (đợt 4), trong đó có Khu di tích nhà Trần tại Đông Triều.",
+      "diTich": [
+        "chua-quan-ngoc-thanh"
+      ],
+      "tep": "2383-QD-TTg-09-12-2013.docx",
+      "ghiChu": "Quyết định xếp hạng cùng lúc 14 di tích trên cả nước; Khu di tích nhà Trần tại Đông Triều là mục thứ 4. Trên địa bàn phường, chùa quán Ngọc Thanh thuộc khu di tích này.",
+      "chuaDocDuoc": []
+    },
+    {
+      "id": "qd-2077-bvhttdl",
+      "soHieu": "2077/QĐ-BVHTTDL",
+      "loai": "Quyết định",
+      "tenNgan": "Đồn Cao Đông Triều",
+      "ngay": "2017-05-01",
+      "ngayHienThi": "tháng 5/2017",
+      "doChinhXacNgay": "thang",
+      "coQuan": "bvhttdl",
+      "nguoiKy": "Nguyễn Ngọc Thiện",
+      "chucVu": "Bộ trưởng",
+      "nhom": "qg",
+      "trichYeu": "Xếp hạng di tích quốc gia: di tích lịch sử Đồn Cao Đông Triều, phường Đông Triều và xã Hồng Phong, thị xã Đông Triều.",
+      "diTich": [
+        "don-cao-dong-trieu"
+      ],
+      "tep": "2077-QD-BVHTTDL-thang-5-2017.docx",
+      "ghiChu": "Điều 4 ghi rõ di tích này được bổ sung vào di tích lịch sử \"Địa điểm lịch sử trung tâm chiến khu Đông Triều (chùa Bắc Mã)\", đã xếp hạng tại Quyết định số 2379-QĐ/BT ngày 05/9/1994 của Bộ Văn hóa – Thông tin. Quyết định 2379 đó không có trong bộ hồ sơ phường đang giữ.",
+      "chuaDocDuoc": [
+        "ngày trong tháng 5/2017"
+      ]
+    },
+    {
+      "id": "qd-808-bvhttdl",
+      "soHieu": "808/QĐ-BVHTTDL",
+      "loai": "Quyết định",
+      "tenNgan": "Đền An Biên",
+      "ngay": "2017-03-09",
+      "ngayHienThi": "09/3/2017",
+      "doChinhXacNgay": "ngay",
+      "coQuan": "bvhttdl",
+      "nhom": "qg",
+      "trichYeu": "Xếp hạng di tích quốc gia: di tích lịch sử Đền An Biên, xã Thủy An, thị xã Đông Triều.",
+      "diTich": [
+        "den-an-bien-den-nu-tuong-le-chan"
+      ],
+      "tep": "808-QD-BVHTTDL-09-03-2017.docx",
+      "ghiChu": "Xét trên Tờ trình số 6701/UBND-VX1 ngày 24/10/2016 của UBND tỉnh Quảng Ninh.",
+      "chuaDocDuoc": [
+        "tên người ký — bản scan chỉ còn chức danh Bộ trưởng"
+      ]
+    },
+    {
+      "id": "qd-bvhtt-2000-chua-my-cu",
+      "soHieu": null,
+      "soHieuHienThi": "Số hiệu chưa đọc được",
+      "loai": "Quyết định",
+      "tenNgan": "Chùa Mỹ Cụ",
+      "ngay": "2000-07-01",
+      "ngayHienThi": "tháng 7/2000",
+      "doChinhXacNgay": "thang",
+      "coQuan": "bvhtt",
+      "chucVu": "Thứ trưởng (ký thay Bộ trưởng)",
+      "nhom": "qg",
+      "trichYeu": "Công nhận di tích nghệ thuật Chùa Mỹ Cụ, xã Hưng Đạo, huyện Đông Triều.",
+      "diTich": [
+        "chua-my-cu-sung-khanh-tu"
+      ],
+      "tep": "BVHTT-thang-7-2000-chua-My-Cu.docx",
+      "ghiChu": "Bản scan cũ nhất trong bộ, chất lượng thấp nhất: cả ô số hiệu lẫn ngày trong tháng đều mờ. Hồ sơ lý lịch di tích của phường cũng chỉ ghi \"công nhận 07/2000\", nên cổng không có chỗ nào để đối chiếu ra số hiệu đầy đủ.",
+      "chuaDocDuoc": [
+        "số hiệu văn bản",
+        "ngày trong tháng 7/2000",
+        "tên người ký"
+      ]
+    },
+    {
+      "id": "qd-3706-ub",
+      "soHieu": "3706/QĐ-UB",
+      "loai": "Quyết định",
+      "tenNgan": "Đình Trạo Hà – Đền Di Ái",
+      "ngay": "2003-10-16",
+      "ngayHienThi": "16/10/2003",
+      "doChinhXacNgay": "ngay",
+      "coQuan": "ubnd-tinh",
+      "nguoiKy": "Nhữ Thị Hồng Liên",
+      "chucVu": "Phó Chủ tịch (ký thay Chủ tịch)",
+      "nhom": "cap-tinh",
+      "trichYeu": "Xếp hạng 05 di tích lịch sử văn hóa và danh thắng, trong đó có đình Trạo Hà – đền Di Ái, xã Đức Chính, huyện Đông Triều.",
+      "diTich": [
+        "dinh-trao-ha-den-di-ai"
+      ],
+      "tep": "3706-QD-UB-16-10-2003.docx",
+      "ghiChu": "Bốn di tích còn lại trong danh sách kèm theo (đền Nhà Bà – Hồ cổ Lễ ở Hoàng Quế, cụm di tích xã Yên Thọ, căn cứ Hải Chi ở Ba Chẽ, đền thờ Lê Thái Tổ ở Hoành Bồ) nay đều nằm ngoài địa giới phường Đông Triều.",
+      "chuaDocDuoc": []
+    },
+    {
+      "id": "qd-4638-ubnd",
+      "soHieu": "4638/QĐ-UBND",
+      "loai": "Quyết định",
+      "tenNgan": "Miếu Hậu",
+      "ngay": "2005-12-14",
+      "ngayHienThi": "14/12/2005",
+      "doChinhXacNgay": "ngay",
+      "coQuan": "ubnd-tinh",
+      "nguoiKy": "Nguyễn Hồng Quân",
+      "chucVu": "Phó Chủ tịch (ký thay Chủ tịch)",
+      "nhom": "cap-tinh",
+      "trichYeu": "Xếp hạng di tích lịch sử – văn hóa Miếu Hậu, xã Thủy An, huyện Đông Triều.",
+      "diTich": [
+        "mieu-hau-tu-vu-mieu"
+      ],
+      "tep": "4638-QD-UBND-14-12-2005.docx",
+      "ghiChu": "Xét trên Tờ trình số 1179/TT-VHTT ngày 02/12/2005 của Sở Văn hóa – Thông tin.",
+      "chuaDocDuoc": []
+    },
+    {
+      "id": "qd-ubnd-2006-van-dong",
+      "soHieu": null,
+      "soHieuHienThi": "Số hiệu chưa đọc được",
+      "loai": "Quyết định",
+      "tenNgan": "Chùa – Đình – Nghè làng Vân Động",
+      "ngay": "2006-04-20",
+      "ngayHienThi": "20/4/2006",
+      "doChinhXacNgay": "ngay",
+      "coQuan": "ubnd-tinh",
+      "nguoiKy": "Nguyễn Hồng Quân",
+      "chucVu": "Phó Chủ tịch (ký thay Chủ tịch)",
+      "nhom": "cap-tinh",
+      "trichYeu": "Xếp hạng cụm di tích lịch sử – văn hóa Chùa – Đình – Nghè làng Vân Động, xã Nguyễn Huệ, huyện Đông Triều.",
+      "diTich": [
+        "dinh-chua-nghe-lang-van-dong"
+      ],
+      "tep": "UBND-tinh-20-04-2006-lang-Van-Dong.docx",
+      "ghiChu": "Xét trên Tờ trình số 80/TT-VHTT ngày 24/01/2006 của Sở Văn hóa – Thông tin. Ô số hiệu trên bản scan chỉ còn nhận ra chữ số đầu.",
+      "chuaDocDuoc": [
+        "số hiệu văn bản"
+      ]
+    },
+    {
+      "id": "qd-4222-ubnd",
+      "soHieu": "4222/QĐ-UBND",
+      "loai": "Quyết định",
+      "tenNgan": "Đình, Chùa Triều Khê",
+      "ngay": "2006-12-21",
+      "ngayHienThi": "tháng 12/2006",
+      "doChinhXacNgay": "thang",
+      "coQuan": "ubnd-tinh",
+      "nguoiKy": "Nguyễn Hồng Quân",
+      "chucVu": "Phó Chủ tịch (ký thay Chủ tịch)",
+      "nhom": "cap-tinh",
+      "trichYeu": "Xếp hạng cụm di tích lịch sử – văn hóa Đình, Chùa Triều Khê, xã Hồng Phong, huyện Đông Triều.",
+      "diTich": [
+        "dinh-chua-trieu-khe"
+      ],
+      "tep": "4222-QD-UBND-thang-12-2006.docx",
+      "ghiChu": "Xét trên Tờ trình số 1406/TT-VHTT ngày 21/12/2006, nên quyết định phải ký từ ngày 21/12/2006 trở đi.",
+      "chuaDocDuoc": [
+        "ngày trong tháng 12/2006"
+      ]
+    },
+    {
+      "id": "qd-597-ubnd",
+      "soHieu": "597/QĐ-UBND",
+      "loai": "Quyết định",
+      "tenNgan": "Chùa An Biên",
+      "ngay": "2023-03-09",
+      "ngayHienThi": "09/3/2023",
+      "doChinhXacNgay": "ngay",
+      "coQuan": "ubnd-tinh",
+      "chucVu": "Chủ tịch UBND tỉnh",
+      "nhom": "cap-tinh",
+      "trichYeu": "Xếp hạng di tích cấp tỉnh: di tích lịch sử Chùa An Biên, xã Thủy An, thị xã Đông Triều.",
+      "diTich": [
+        "chua-an-bien-bao-an-tu"
+      ],
+      "tep": "597-QD-UBND-09-03-2023.docx",
+      "ghiChu": "Một trong bốn quyết định xếp hạng cùng ngày 09/3/2023, cùng xét trên Tờ trình số 147/TTr-SVHTT và Báo cáo số 388/BC-SVHTT ngày 28/02/2023.",
+      "chuaDocDuoc": [
+        "tên người ký"
+      ]
+    },
+    {
+      "id": "qd-603-ubnd",
+      "soHieu": "603/QĐ-UBND",
+      "loai": "Quyết định",
+      "tenNgan": "Đình, Chùa, Nghè Đông Mai",
+      "ngay": "2023-03-09",
+      "ngayHienThi": "09/3/2023",
+      "doChinhXacNgay": "ngay",
+      "coQuan": "ubnd-tinh",
+      "chucVu": "Chủ tịch UBND tỉnh",
+      "nhom": "cap-tinh",
+      "trichYeu": "Xếp hạng di tích cấp tỉnh: cụm di tích lịch sử Đình, Chùa, Nghè Đông Mai, xã Nguyễn Huệ, thị xã Đông Triều.",
+      "diTich": [
+        "dinh-chua-nghe-dong-mai"
+      ],
+      "tep": "603-QD-UBND-09-03-2023.docx",
+      "ghiChu": "Cùng đợt với các Quyết định 597, 599 và 606 ngày 09/3/2023.",
+      "chuaDocDuoc": [
+        "tên người ký"
+      ]
+    },
+    {
+      "id": "qd-606-ubnd",
+      "soHieu": "606/QĐ-UBND",
+      "loai": "Quyết định",
+      "tenNgan": "Đình Mỹ Cụ",
+      "ngay": "2023-03-09",
+      "ngayHienThi": "09/3/2023",
+      "doChinhXacNgay": "ngay",
+      "coQuan": "ubnd-tinh",
+      "chucVu": "Chủ tịch UBND tỉnh",
+      "nhom": "cap-tinh",
+      "trichYeu": "Xếp hạng di tích cấp tỉnh: di tích lịch sử Đình Mỹ Cụ, phường Hưng Đạo, thị xã Đông Triều.",
+      "diTich": [
+        "dinh-my-cu"
+      ],
+      "tep": "606-QD-UBND-09-03-2023.docx",
+      "ghiChu": "Cùng đợt với các Quyết định 597, 599 và 603 ngày 09/3/2023.",
+      "chuaDocDuoc": [
+        "tên người ký"
+      ]
+    },
+    {
+      "id": "qd-368-ubnd",
+      "soHieu": "368/QĐ-UBND",
+      "loai": "Quyết định",
+      "tenNgan": "Dự án tu bổ đình Bình Lục",
+      "ngay": "2024-01-25",
+      "ngayHienThi": "tháng 01/2024",
+      "doChinhXacNgay": "thang",
+      "coQuan": "ubnd-tinh",
+      "chucVu": "UBND tỉnh Quảng Ninh",
+      "nhom": "tu-bo",
+      "trichYeu": "Phê duyệt Dự án tu bổ, tôn tạo di tích đình Bình Lục, phường Hồng Phong, thị xã Đông Triều.",
+      "diTich": [
+        "dinh-chua-binh-luc"
+      ],
+      "tep": "368-QD-UBND-thang-01-2024.docx",
+      "duAn": {
+        "chuDauTu": "UBND phường Hồng Phong, thị xã Đông Triều",
+        "nhaThau": "Công ty TNHH Xây dựng và Bảo tồn công trình văn hóa Việt AEG",
+        "kinhPhi": "7.686 triệu đồng",
+        "nguonVon": "Xã hội hóa",
+        "thoiGian": "Năm 2024",
+        "dienTich": "1.358,4 m² tổng khu đất, trong đó 960 m² tu bổ tôn tạo, 420 m² giữ nguyên hiện trạng là ao đình",
+        "hangMuc": [
+          "Nghi môn",
+          "Đình chính",
+          "Nhà khách",
+          "Nhà bia",
+          "Bình phong",
+          "Cổng phụ",
+          "Am hóa vàng"
+        ]
+      },
+      "ghiChu": "Đây là văn bản DUY NHẤT trong bộ không phải quyết định xếp hạng. Quyết định xếp hạng đình, chùa Bình Lục là số 599/QĐ-UBND ngày 09/3/2023 — được viện dẫn ngay trong văn bản này nhưng bản scan của nó không có trong bộ hồ sơ phường đang giữ.",
+      "chuaDocDuoc": [
+        "ngày trong tháng 01/2024",
+        "tên người ký"
+      ],
+      "mauThuan": "Bản scan viện dẫn Quyết định 599/QĐ-UBND ở hai chỗ với hai ngày khác nhau: phần căn cứ ghi 09/3/2023, phần hiện trạng ghi 09/3/2019. Cổng lấy mốc 09/3/2023 vì khớp với ba quyết định cùng đợt (597, 603, 606) và khớp hồ sơ lý lịch di tích của phường."
+    },
+    {
+      "id": "qd-1054-ubnd",
+      "soHieu": "1054/QĐ-UBND",
+      "loai": "Quyết định",
+      "tenNgan": "Đền, Chùa Kênh Giang",
+      "ngay": "2025-04-04",
+      "ngayHienThi": "04/4/2025",
+      "doChinhXacNgay": "ngay",
+      "coQuan": "ubnd-tinh",
+      "chucVu": "Chủ tịch UBND tỉnh",
+      "nhom": "cap-tinh",
+      "trichYeu": "Xếp hạng di tích cấp tỉnh: di tích lịch sử Đền, Chùa Kênh Giang, xã Nguyễn Huệ, thành phố Đông Triều.",
+      "diTich": [
+        "den-chua-kenh-giang-den-yet-kieu"
+      ],
+      "tep": "1054-QD-UBND-04-04-2025.docx",
+      "ghiChu": "Quyết định mới nhất trong bộ, và là văn bản duy nhất ban hành khi Đông Triều đã là thành phố. Xét trên Tờ trình số 243/TTr-SVHTT và Báo cáo số 516/BC-SVHTTDL ngày 03/4/2025.",
+      "chuaDocDuoc": [
+        "tên người ký"
+      ]
+    }
+  ],
+  "thieu": [
+    {
+      "soHieu": "599/QĐ-UBND ngày 09/3/2023",
+      "viec": "Xếp hạng di tích cấp tỉnh đình, chùa Bình Lục, phường Hồng Phong",
+      "biet": "Được viện dẫn trong Quyết định 368/QĐ-UBND về dự án tu bổ đình Bình Lục."
+    },
+    {
+      "soHieu": "2379-QĐ/BT ngày 05/9/1994",
+      "viec": "Xếp hạng di tích lịch sử Địa điểm lịch sử trung tâm chiến khu Đông Triều (chùa Bắc Mã), Bộ Văn hóa – Thông tin",
+      "biet": "Được viện dẫn trong Quyết định 2077/QĐ-BVHTTDL về Đồn Cao Đông Triều."
+    }
+  ]
+}

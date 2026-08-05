@@ -27,10 +27,17 @@ const AA = 4.5;
  */
 const VIEN = 1.15;
 
-/** Tách từng khối `[data-theme='x'] { … }` thành bảng biến màu. */
+/**
+ * Tách từng khối `[data-theme='x'] { … }` thành bảng biến màu.
+ *
+ * Lớp ký tự phải có cả gạch nối: bản trước viết `[a-z]+` nên bảng màu nào có
+ * gạch trong id (`cong-quyen`) bị bỏ qua KHÔNG một lời báo — bài kiểm vẫn xanh
+ * trong khi bảng màu đó chưa từng được đo lần nào. Xem thêm phép đối chiếu với
+ * `lib/themes.js` ở cuối tệp, canh đúng loại lỗi im lặng này.
+ */
 function readThemes(css) {
   const themes = {};
-  for (const block of css.matchAll(/\[data-theme='([a-z]+)'\][^{]*\{([^}]*)\}/g)) {
+  for (const block of css.matchAll(/\[data-theme='([a-z0-9-]+)'\][^{]*\{([^}]*)\}/g)) {
     const vars = {};
     for (const v of block[2].matchAll(/--c-([a-z0-9-]+):\s*([\d\s]+);/g)) {
       vars[v[1]] = v[2].trim().split(/\s+/).map(Number);
@@ -120,6 +127,22 @@ const names = Object.keys(themes);
 
 if (!names.length) {
   console.error(`✗ Không đọc được bảng màu nào trong ${path.relative(process.cwd(), CSS_FILE)}`);
+  process.exit(1);
+}
+
+/**
+ * Mọi bảng màu người dùng chọn được PHẢI có mặt ở đây.
+ *
+ * Không có phép đối chiếu này thì một bảng màu đọc hụt chỉ làm con số ở dòng
+ * tiêu đề nhỏ đi một đơn vị — không ai để ý, và bài kiểm vẫn báo xanh cho một
+ * bảng màu chưa từng đo. Đúng chuyện đã xảy ra với `cong-quyen`.
+ */
+const REG_FILE = path.join(__dirname, '../src/lib/themes.js');
+const dangKy = [...fs.readFileSync(REG_FILE, 'utf8').matchAll(/\{\s*id:\s*'([a-z0-9-]+)'/g)].map((m) => m[1]);
+const thieu = dangKy.filter((id) => !names.includes(id));
+if (thieu.length) {
+  console.error(`\n✗ Có trong themes.js nhưng không đọc được trong themes.css: ${thieu.join(', ')}`);
+  console.error('  → bảng màu này sẽ chạy trên site mà chưa được đo tương phản lần nào.\n');
   process.exit(1);
 }
 

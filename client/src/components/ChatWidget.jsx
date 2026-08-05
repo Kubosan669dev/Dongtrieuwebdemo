@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { MessageCircle, X, Send, Sparkles, RotateCcw } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { cx } from '../lib/format.js';
+import { useDoiTuong } from '../hooks/useDoiTuong.jsx';
 
 const STORAGE_KEY = 'dt_chat';
 
@@ -71,6 +72,7 @@ function RichText({ text }) {
 }
 
 export default function ChatWidget() {
+  const { doiTuong } = useDoiTuong();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -113,7 +115,10 @@ export default function ChatWidget() {
     setInput('');
     setSending(true);
     try {
-      const res = await api.post('/chat', { message: msg });
+      // Gửi kèm vai đang chọn. Máy chủ hiện CHỈ ghi lại chứ chưa đổi câu trả
+      // lời — mục đích là biết người dân thật sự hỏi gì, làm cơ sở cho một trợ
+      // lý riêng của mảng chính quyền sau này.
+      const res = await api.post('/chat', { message: msg, audience: doiTuong });
       setMessages((m) => [
         ...m,
         { role: 'bot', text: res.reply, links: res.links, suggestions: res.suggestions },

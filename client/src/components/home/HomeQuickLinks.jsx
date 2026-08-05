@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CalendarDays, MapPinned, Phone, Search } from 'lucide-react';
+import { BedDouble, CalendarDays, Landmark, Search } from 'lucide-react';
 import MiniWeather from '../MiniWeather.jsx';
 
 /**
@@ -16,25 +16,17 @@ import MiniWeather from '../MiniWeather.jsx';
  * chức năng thật chứ không phải dọn bớt giao diện, nên nó ở lại làm hàng đầu của
  * chính khối này, còn bốn lối đi xếp bên dưới.
  */
+/**
+ * Ba lối đi của CỔNG DU LỊCH. Cổng người dân có khối riêng của nó
+ * (`ResidentQuickLinks`) với ô tìm dẫn vào bảng tra khu phố, không dùng chung.
+ *
+ * Bản đầu của khối này viết cho người trong phường ("Khu phố của tôi", "Liên hệ
+ * phường") vì hồi đó cổng chỉ có một trang chủ.
+ */
 const LOI_DI = [
-  {
-    to: '/khu-pho',
-    icon: MapPinned,
-    nhan: 'Khu phố của tôi',
-    phu: '36 khu cũ → 11 khu mới',
-  },
-  {
-    to: '/le-hoi',
-    icon: CalendarDays,
-    nhan: 'Lễ hội sắp tới',
-    phu: 'Lịch theo âm lịch',
-  },
-  {
-    to: '/lien-he',
-    icon: Phone,
-    nhan: 'Liên hệ phường',
-    phu: 'Địa chỉ, điện thoại, góp ý',
-  },
+  { to: '/di-tich', icon: Landmark, nhan: 'Di tích nổi bật', phu: '13 cụm đã xếp hạng' },
+  { to: '/le-hoi', icon: CalendarDays, nhan: 'Lễ hội sắp tới', phu: 'Lịch theo âm lịch' },
+  { to: '/luu-tru', icon: BedDouble, nhan: 'Nơi lưu trú', phu: 'Khách sạn, nhà nghỉ, homestay' },
 ];
 
 export default function HomeQuickLinks() {

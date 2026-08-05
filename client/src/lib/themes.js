@@ -17,9 +17,26 @@ export const THEMES = [
   { id: 'forest', name: 'Forest Zen', desc: 'Xanh rừng thiền', mode: 'light' },
   { id: 'lotus', name: 'Rose Lotus', desc: 'Hồng sen mềm', mode: 'light' },
   { id: 'zen', name: 'Zen Neutral', desc: 'Trung tính, tối giản', mode: 'light' },
+  { id: 'cong-quyen', name: 'Nâu công quyền', desc: 'Nâu gỗ trầm, vàng son', mode: 'light' },
   { id: 'crimson', name: 'Midnight Crimson', desc: 'Nền tối, đỏ trầm', mode: 'dark' },
 ];
 
-export const DEFAULT_THEME = 'heritage';
+/**
+ * Bảng màu mở đầu của MỖI CỔNG — hai cổng không dùng chung.
+ *
+ * Cổng du lịch mở ra bằng ngọc lục bảo + vàng son; cổng người dân mở ra bằng nâu
+ * công quyền. Đây chỉ là điểm xuất phát: đổi bảng màu ở cổng nào thì chỉ cổng đó
+ * nhớ (xem `hooks/useTheme.js`), nên khách đổi màu bên du lịch không kéo theo
+ * trang quyết định của phường đổi màu theo.
+ */
+export const THEME_MAC_DINH = {
+  'du-khach': 'heritage',
+  'nguoi-dan': 'cong-quyen',
+};
+
+/** Mặc định khi chưa biết cổng nào — vẫn là bảng màu của cổng du lịch. */
+export const DEFAULT_THEME = THEME_MAC_DINH['du-khach'];
+
+export const themeMacDinh = (doiTuong) => THEME_MAC_DINH[doiTuong] ?? DEFAULT_THEME;
 
 export const isTheme = (id) => THEMES.some((t) => t.id === id);

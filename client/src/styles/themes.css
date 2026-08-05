@@ -254,7 +254,56 @@
   --c-ink: 25 29 34;
 }
 
-/* ── 8. Midnight Crimson — đỏ trầm, đẹp nhất ở chế độ tối ──────────────────── */
+/* ── 8. Nâu công quyền — mặc định của CỔNG NGƯỜI DÂN ───────────────────────────
+   Nâu gỗ trầm + vàng son, lấy tông của các cổng thông tin phường xã trong tỉnh.
+
+   ── VÌ SAO CỔNG NGƯỜI DÂN CÓ BẢNG MÀU RIÊNG ─────────────────────────────────
+   Hai cổng đã tách hẳn đường dẫn, thanh điều hướng và nội dung; màu là tín hiệu
+   rẻ nhất còn lại. Người vừa bấm sang cổng bên kia thấy cả trang đổi tông là
+   biết ngay mình đã đi đâu — không phải đọc thanh nav mới nhận ra.
+
+   Nâu cũng nói đúng việc: trang quyết định, trang khu phố, trang phản ánh là
+   giấy tờ hành chính. Ngọc lục bảo + vàng son của cổng du lịch đọc ra như một
+   tờ rơi mời chào, đặt dưới một bản quyết định xếp hạng thì lệch giọng.
+
+   Đây KHÔNG phải bảng màu ép cứng: người dùng vẫn đổi được sang tám bảng kia,
+   và lựa chọn của mỗi cổng được nhớ riêng (xem hooks/useTheme.js). */
+[data-theme='cong-quyen'] {
+  --c-jade-50: 250 246 241;
+  --c-jade-100: 242 233 222;
+  --c-jade-200: 228 212 192;
+  --c-jade-300: 206 182 151;
+  --c-jade-400: 176 145 107;
+  --c-jade-500: 139 108 72;
+  --c-jade-600: 109 82 54; /* 7,2:1 với chữ trắng — dư ngưỡng AA cho nút bấm */
+  --c-jade-700: 88 65 42;
+  --c-jade-800: 71 53 35;
+  --c-jade-900: 58 43 29;
+  --c-jade-950: 30 22 15;
+
+  /* Giữ nguyên dải vàng son của bảng mặc định: cặp nâu + vàng son là tông sơn
+     son thếp vàng của đình chùa trong phường, và dải này đã đo đạt AA từ trước. */
+  --c-gold-50: 251 247 237;
+  --c-gold-100: 245 235 207;
+  --c-gold-200: 236 215 156;
+  --c-gold-300: 226 190 99;
+  --c-gold-400: 217 164 65;
+  --c-gold-500: 204 140 46;
+  --c-gold-600: 154 92 32;
+  --c-gold-700: 141 81 34;
+  --c-gold-800: 117 65 33;
+  --c-gold-900: 99 55 31;
+
+  /* Đỏ cờ, dành cho các điểm nhấn khẩn: số điện thoại cứu hộ, cảnh báo nguồn. */
+  --c-terra-400: 197 62 55;
+  --c-terra-500: 173 45 39;
+  --c-terra-600: 148 35 30;
+
+  --c-paper: 250 247 242;
+  --c-ink: 33 25 18;
+}
+
+/* ── 9. Midnight Crimson — đỏ trầm, đẹp nhất ở chế độ tối ──────────────────── */
 [data-theme='crimson'] {
   --c-jade-50: 253 243 243;
   --c-jade-100: 251 228 228;

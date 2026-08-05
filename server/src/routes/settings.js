@@ -123,6 +123,48 @@ const SETTING_SCHEMAS = {
     .passthrough(),
 
   /**
+   * Căn cước hành chính của phường: mã định danh, mã bưu chính, năm đơn vị cũ
+   * hợp thành, trụ sở, cổng thông tin. Nguồn gốc là trang tra cứu TinhThanhVN.
+   *
+   * ── NGUỒN NÀY KHÔNG PHẢI VĂN BẢN PHÁP LÝ ───────────────────────────────────
+   * Trang nguồn tự ghi chỉ có giá trị tham khảo, và đã sai ít nhất một chỗ: nó
+   * dẫn Nghị quyết 202/2025/QH15 (nghị quyết của Quốc hội về sắp xếp cấp TỈNH)
+   * cho việc lập phường, vốn thuộc thẩm quyền Ủy ban Thường vụ Quốc hội. Vì vậy
+   * `canhBaoNguon` là trường bắt buộc phải hiện ở mọi chỗ dùng dữ liệu này, và
+   * `vanBan.canDoiSoat` đánh dấu phần chưa đọc được bản công báo gốc.
+   *
+   * ── SỐ LIỆU Ở ĐÂY KHÔNG ĐƯỢC THAY SỐ CỦA BẢNG KHU PHỐ ──────────────────────
+   * Trang nguồn ghi 40,42 km² · 43.712 người; cộng bảng `khuPho` ra 40,41 km² ·
+   * 42.454 nhân khẩu. Cổng đã có trang Khu phố hiện từng con số thành phần, nên
+   * mọi câu trả lời có số vẫn phải lấy tổng từ `khuPho` — nếu không thì trợ lý
+   * và trang Khu phố nói hai con số khác nhau. `soLieuTheoNguon` chỉ để đối
+   * chiếu, và luôn kèm lời giải thích vì sao lệch.
+   */
+  hanhChinh: z
+    .object({
+      capNhat: optStr,
+      nguon: optStr,
+      nguonUrl: optStr,
+      canhBaoNguon: optStr,
+      tenDayDu: optStr,
+      capHanhChinh: optStr,
+      maDinhDanh: optStr,
+      maBuuChinh: optStr,
+      vungKinhTe: optStr,
+      hieuLucTu: optStr,
+      truocSapNhap: z.object({}).passthrough().optional(),
+      toaDoTrungTam: z.object({}).passthrough().optional(),
+      hopThanhTu: z.object({}).passthrough().optional(),
+      vanBan: z.object({}).passthrough().optional(),
+      truSo: z.object({}).passthrough().optional(),
+      soLieuTheoNguon: z.object({}).passthrough().optional(),
+      trongTinh: z.object({}).passthrough().optional(),
+      cong: z.array(z.object({}).passthrough()).max(20).optional(),
+      khongLayDuoc: z.array(z.string().max(500)).max(50).optional(),
+    })
+    .passthrough(),
+
+  /**
    * “Đông Triều huyện địa chí” — địa chí Hán Nôm do Tri huyện Ngô Sinh chép năm
    * Thành Thái thứ 8 (1896), ký hiệu A.1940. Dùng cho trang Giới thiệu và trợ lý AI.
    *
@@ -155,6 +197,39 @@ const SETTING_SCHEMAS = {
       nhanVat: z.array(z.object({}).passthrough()).max(200).optional(),
       thoSan: z.array(z.object({}).passthrough()).max(100).optional(),
       hieuDinh: z.array(z.object({}).passthrough()).max(100).optional(),
+    })
+    .passthrough(),
+
+  /**
+   * Các quyết định xếp hạng di tích và phê duyệt dự án tu bổ trên địa bàn phường.
+   * Nguồn là 13 bản scan .docx do phường cung cấp; bản tệp phục vụ tải về nằm ở
+   * `client/public/van-ban/`.
+   *
+   * ── SỐ HIỆU VÀ NGÀY THÁNG LÀ PHẦN DỄ SAI NHẤT, NÊN CÓ CỜ RIÊNG ────────────
+   * Bản scan qua OCR hỏng đúng ở ô số hiệu và ô ngày — hai chỗ đóng dấu và viết
+   * tay. Vì thế mỗi bản ghi mang theo `doChinhXacNgay` ('ngay' | 'thang') và
+   * `chuaDocDuoc`; `soHieu: null` nghĩa là bản scan không đọc ra số hiệu. Trang
+   * `/van-ban` PHẢI hiện những chỗ trống này chứ không được lấp bằng suy đoán:
+   * người dân chép số hiệu từ đây đi làm hồ sơ, một con số bịa còn tệ hơn một ô
+   * để trống có ghi lý do.
+   *
+   * ── `thieu` KHÔNG PHẢI DỮ LIỆU THỪA ───────────────────────────────────────
+   * Hai quyết định được viện dẫn trong bộ này nhưng phường không giữ bản scan
+   * (599/QĐ-UBND về đình chùa Bình Lục, 2379-QĐ/BT về chùa Bắc Mã). Liệt kê ra
+   * để người tra biết văn bản đó có tồn tại mà cổng không có — khác hẳn với việc
+   * im lặng để họ tưởng bộ hồ sơ đã đủ.
+   */
+  vanBan: z
+    .object({
+      capNhat: optStr,
+      nguon: optStr,
+      gioiThieu: optStr,
+      canhBaoOcr: optStr,
+      luuYPhapLy: optStr,
+      coQuan: z.array(z.object({}).passthrough()).max(50).optional(),
+      nhom: z.array(z.object({}).passthrough()).max(50).optional(),
+      danhSach: z.array(z.object({}).passthrough()).max(500).optional(),
+      thieu: z.array(z.object({}).passthrough()).max(100).optional(),
     })
     .passthrough(),
 };

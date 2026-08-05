@@ -23,6 +23,24 @@ const chatLimiter = rateLimit({
 const MAX_LEN = 500;
 
 /**
+ * Vai người hỏi, gửi kèm từ khung chat (`du-khach` | `nguoi-dan`).
+ *
+ * ── HIỆN GIỜ CHỈ GHI LẠI, CHƯA ĐỔI CÂU TRẢ LỜI ─────────────────────────────
+ * Cố ý như vậy. Đổi cách trả lời theo vai là một quyết định lớn, cần dữ liệu
+ * thật để quyết chứ không phải đoán — và dữ liệu đó chính là thứ trường này thu
+ * về: người dân thật sự hỏi gì, câu nào bot chịu thua với riêng họ.
+ *
+ * Đó cũng là bước chuẩn bị cụ thể cho một trợ lý riêng của mảng chính quyền:
+ * `GET /api/chat/logs` tách được nhật ký theo vai, nên khi dựng bot ấy sẽ có một
+ * tập câu hỏi CÓ THẬT để bám vào, thay vì một danh sách phỏng đoán.
+ *
+ * Giá trị lạ thì bỏ qua chứ không báo lỗi: đây là dữ liệu phụ trợ, không đáng
+ * để một khung chat gãy chỉ vì client gửi sai một chuỗi.
+ */
+const VAI_HOP_LE = new Set(['du-khach', 'nguoi-dan']);
+const doVai = (v) => (VAI_HOP_LE.has(v) ? v : null);
+
+/**
  * POST /api/chat — hỏi trợ lý du lịch.
  *
  * Toàn bộ xử lý chạy cục bộ trên dữ liệu của phường, không gọi dịch vụ AI nào.
@@ -35,6 +53,7 @@ router.post(
     if (!message) {
       return res.status(400).json({ error: 'Bạn chưa nhập câu hỏi.' });
     }
+    const audience = doVai(req.body?.audience);
 
     let answer = await ask(message);
 
@@ -60,7 +79,7 @@ router.post(
     // Ghi nhật ký để quản trị viên biết còn thiếu dữ liệu gì.
     // Lỗi ghi log không được phép làm hỏng câu trả lời cho du khách.
     prisma.chatLog
-      .create({ data: { question: message, intent: answer.intent, matched: answer.matched } })
+      .create({ data: { question: message, intent: answer.intent, matched: answer.matched, audience } })
       .catch((err) => console.warn('Không ghi được nhật ký chat:', err.message));
 
     res.json({
@@ -121,11 +140,21 @@ router.get(
       take: 15,
     });
 
+    // Tách theo vai người hỏi. Đây là số liệu để quyết định có nên dựng một trợ
+    // lý riêng cho mảng chính quyền hay không, và nếu dựng thì nó phải trả lời
+    // được những câu nào — đọc từ câu hỏi có thật của người dân, không phải từ
+    // phỏng đoán. `audience: null` là các lượt hỏi trước khi cột này tồn tại.
+    const theoVai = await prisma.chatLog.groupBy({
+      by: ['audience', 'matched'],
+      _count: { _all: true },
+    });
+
     res.json({
       items,
       total,
       unmatched,
       topUnmatched: topUnmatched.map((r) => ({ question: r.question, count: r._count.question })),
+      theoVai: theoVai.map((r) => ({ audience: r.audience, matched: r.matched, count: r._count._all })),
       knowledgeSize: corpus.docs.length,
     });
   }),

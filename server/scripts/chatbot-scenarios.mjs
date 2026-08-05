@@ -289,6 +289,158 @@ const SCENARIOS = [
       ['hội làng Bình Lục có kinh nghiệm gì cho du khách', 'graceful'],
     ],
   },
+  {
+    // Từ chỉ buổi/ngày từng tự kích hoạt nhánh lộ trình dù câu hỏi chẳng liên
+    // quan gì tới tham quan. Nhánh lộ trình đứng rất sớm (mục 3b) nên nó nuốt là
+    // các nhánh sau không còn cơ hội — "ăn gì vào buổi sáng" nhận về một bản lộ
+    // trình vãn cảnh chùa, còn "quán nào mở cả ngày" thì mất luôn nhánh giờ mở cửa.
+    //
+    // Nhóm này ghim CẢ HAI CHIỀU: câu hỏi ăn uống/giờ giấc không được thành lộ
+    // trình, mà câu hỏi lộ trình thật thì vẫn phải ra lộ trình.
+    group: 'S. Từ chỉ buổi/ngày không được nuốt nhánh khác',
+    items: [
+      ['ăn gì vào buổi sáng', 'answer', ['open_early']],
+      ['buổi sáng ăn gì ngon', 'answer', ['open_early']],
+      ['sáng nay ăn gì', 'answer', ['open_early']],
+      ['ăn sáng ở đâu', 'answer', ['open_early']],
+      ['cà phê buổi sáng ở đâu', 'answer', ['open_early']],
+      ['quán nào mở cả ngày', 'answer', ['open_allday']],
+      // Chiều ngược lại — hỏi lộ trình thật thì vẫn phải ra lộ trình
+      ['lộ trình buổi sáng', 'answer', ['route']],
+      ['buổi sáng đi đâu', 'answer', ['route']],
+      ['buổi sáng nên làm gì', 'answer', ['route']],
+      ['lộ trình cả ngày', 'answer', ['route']],
+      ['đi trong ngày thì đi những đâu', 'answer', ['route']],
+      // Và "sáng" trong câu hỏi thời tiết vẫn phải là thời tiết
+      ['sáng nay trời thế nào', 'answer', ['weather_now', 'weather_day']],
+    ],
+  },
+  {
+    // Căn cước hành chính của phường — khoá `hanhChinh`, nguồn TinhThanhVN.
+    //
+    // Nhóm này ghim một ranh giới rất dễ trượt. Nhánh 3d chặn mọi câu có cụm
+    // "hành chính" vì coi là thủ tục giấy tờ, ngoài phạm vi cổng du lịch. Nhưng
+    // "mã hành chính của phường" thì lại đúng là thứ cổng phường phải biết.
+    // Ranh giới đúng là: hỏi VỀ PHƯỜNG thì trả lời, hỏi CÁCH LÀM GIẤY TỜ thì
+    // vẫn từ chối. Nửa dưới của nhóm canh đúng nửa còn lại của ranh giới đó.
+    //
+    // Năm tên đơn vị cũ vẫn sống trong dữ liệu hiện tại (khu phố Nguyễn Huệ,
+    // Nhà hàng Thuỷ An, đền Trần Hưng Đạo), nên ba câu cuối canh việc gọi tên
+    // không thôi thì KHÔNG được nhảy sang nhánh hành chính.
+    group: 'T. Căn cước hành chính của phường',
+    items: [
+      ['phường Đông Triều sáp nhập từ những đơn vị nào', 'answer', ['about_admin_merge']],
+      ['phường được lập từ những xã nào', 'answer', ['about_admin_merge']],
+      ['xã Nguyễn Huệ giờ thuộc phường nào', 'answer', ['about_admin_merge']],
+      ['phường Đức Chính còn không', 'answer', ['about_admin_merge']],
+      ['mã bưu chính phường Đông Triều là gì', 'answer', ['about_admin_code']],
+      ['mã định danh của phường', 'answer', ['about_admin_code']],
+      ['mã hành chính của phường Đông Triều', 'answer', ['about_admin_code']],
+      ['trụ sở UBND phường ở đâu', 'answer', ['about_admin_office']],
+      ['cổng thông tin điện tử của phường', 'answer', ['about_admin_office']],
+      // Hỏi THỦ TỤC thì vẫn phải từ chối trung thực như trước
+      ['làm hộ chiếu ở đâu', 'reject'],
+      ['thủ tục hành chính làm ở đâu', 'reject'],
+      ['xin giấy phép xây dựng thế nào', 'reject'],
+      // Gọi tên đơn vị cũ mà không hỏi chuyện sáp nhập — không được nhảy nhánh
+      ['quán ăn khu Nguyễn Huệ', 'answer', ['list_restaurant', 'lookup_restaurant', 'khu_pho_detail']],
+      ['Nhà Hàng Thủy An mở mấy giờ', 'answer', ['lookup_restaurant', 'open_hours']],
+      ['số điện thoại UBND phường', 'answer', ['contact']],
+    ],
+  },
+  {
+    // Mốc ngày trong câu hỏi phải được tôn trọng.
+    //
+    // "Mai nên đi đâu" từng trả về lời khuyên của HÔM NAY: hôm nay mưa thì bot
+    // bảo mai nên vào chỗ có mái che, dù mai có thể nắng ráo. Không có gì trong
+    // câu trả lời tự tố cáo là nó đang nói về ngày khác — chỉ có ý định mới
+    // phân biệt được, nên nhóm này ghim bằng ý định chứ không bằng `matched`.
+    //
+    // "Cuối tuần" và "thứ bảy" cố ý nhận CẢ HAI ý định: nếu chạy bộ kiểm đúng
+    // vào thứ bảy thì mốc đó chính là hôm nay, `where_today` mới là đúng.
+    group: 'U. Hỏi ngày nào thì khuyên theo ngày đó',
+    items: [
+      ['mai nên đi đâu', 'answer', ['where_day']],
+      ['ngày mai nên đi đâu', 'answer', ['where_day']],
+      ['mai đi đâu chơi', 'answer', ['where_day']],
+      ['ngày kia nên đi đâu', 'answer', ['where_day']],
+      ['cuối tuần nên đi đâu', 'answer', ['where_day', 'where_today']],
+      ['thứ bảy nên đi đâu', 'answer', ['where_day', 'where_today']],
+      // Không nhắc ngày, hoặc nhắc "hôm nay" → vẫn là hôm nay như cũ
+      ['hôm nay nên đi đâu', 'answer', ['where_today']],
+      ['nên đi đâu', 'answer', ['where_today']],
+      ['gợi ý chỗ chơi', 'answer', ['where_today']],
+      ['cả tuần tới nên đi đâu', 'answer', ['where_today']],
+      // "Có nên đi không / nên làm gì" — chỉ tính khi có mốc ngày
+      ['mai có nên đi chùa không', 'answer', ['where_day']],
+      ['hôm nay có nên đi chùa không', 'answer', ['where_today']],
+      ['mai nên làm gì', 'answer', ['where_day']],
+      // …còn hỏi đích danh một di tích thì vẫn phải là tra cứu di tích
+      ['có nên đi chùa Mỹ Cụ không', 'answer', ['lookup_heritage']],
+      ['chùa Đông Mai ở đâu', 'answer', ['lookup_heritage']],
+      // Hỏi thời tiết vẫn là thời tiết, hỏi lộ trình vẫn là lộ trình
+      ['mai trời thế nào', 'answer', ['weather_day']],
+      ['buổi sáng nên làm gì', 'answer', ['route']],
+    ],
+  },
+  {
+    // Phản ánh, góp ý, khiếu nại — ba việc khác nhau, ba câu trả lời khác nhau.
+    //
+    // Nhóm này canh một thứ quan trọng hơn cả định tuyến: **cổng không được
+    // hứa hộ chính quyền**. Phản ánh đời sống (rác, đường hỏng, tiếng ồn) thì
+    // biểu mẫu của cổng KHÔNG nhận được, nên câu trả lời phải nói thẳng ra thay
+    // vì chỉ sang biểu mẫu cho có vẻ chu đáo.
+    //
+    // Ba câu cuối canh THỨ TỰ ƯU TIÊN: "cháy nhà báo ai" khớp cả cụm phản ánh
+    // lẫn cụm khẩn cấp. Nhầm về phía số 114 thì cùng lắm là thừa; nhầm về phía
+    // biểu mẫu web thì có thể là mất mạng người.
+    group: 'V. Phản ánh, góp ý, liên hệ chính quyền',
+    items: [
+      ['tôi muốn phản ánh', 'answer', ['feedback_ward']],
+      ['phản ánh ở đâu', 'answer', ['feedback_ward']],
+      ['gửi phản ánh thế nào', 'answer', ['feedback_ward']],
+      ['tôi muốn góp ý cho phường', 'answer', ['feedback_ward']],
+      ['kiến nghị với phường', 'answer', ['feedback_ward']],
+      ['đường hỏng báo ai', 'answer', ['feedback_ward']],
+      ['đổ trộm rác báo cho ai', 'answer', ['feedback_ward']],
+      ['mất điện báo ai', 'answer', ['feedback_ward']],
+      // Khiếu nại, tố cáo — thủ tục pháp lý, cổng chỉ đường chứ không nhận
+      ['muốn khiếu nại', 'answer', ['feedback_legal']],
+      ['tố cáo cán bộ', 'answer', ['feedback_legal']],
+      // Góp ý về CHÍNH CỔNG NÀY — thứ duy nhất cổng nhận trực tiếp được
+      ['thông tin sai trên trang này báo ai', 'answer', ['feedback_portal']],
+      ['bot trả lời sai thì báo ở đâu', 'answer', ['feedback_portal']],
+      ['tôi muốn báo lỗi website', 'answer', ['feedback_portal']],
+      // Việc khẩn cấp phải thắng nhánh phản ánh
+      ['cháy nhà báo ai', 'answer', ['contact_emergency']],
+      ['có trộm gọi số nào', 'answer', ['contact_emergency']],
+      ['tai nạn giao thông gọi ai', 'answer', ['contact_emergency']],
+      // Hỏi liên hệ thuần tuý thì vẫn là bảng liên hệ như cũ
+      ['liên lạc với chính quyền', 'answer', ['contact']],
+      ['liên hệ UBND phường', 'answer', ['contact']],
+    ],
+  },
+  {
+    // "tối muộn" ≡ "TÔI MUỐN" sau khi bỏ dấu.
+    //
+    // Cụm 'toi muon' trần từng là từ khoá của nhánh quán ăn khuya, nên mọi câu
+    // mở đầu bằng "tôi muốn…" đều được đáp lại bằng danh sách quán ăn khuya.
+    // Nửa trên canh việc đó không tái diễn; nửa dưới canh việc sửa xong thì
+    // nhánh ăn khuya thật vẫn chạy.
+    group: 'W. "tôi muốn" không được hiểu thành "tối muộn"',
+    items: [
+      ['tôi muốn biết lễ hội', 'answer', ['list_festival']],
+      ['tôi muốn hỏi về di tích', 'answer', ['list_heritage']],
+      ['tôi muốn phản ánh', 'answer', ['feedback_ward']],
+      ['quán nào mở tối muộn', 'answer', ['open_late']],
+      ['chỗ nào mở khuya', 'answer', ['open_late']],
+      ['ăn tối muộn ở đâu', 'answer', ['open_late']],
+      ['ăn đêm ở đâu', 'answer', ['open_late']],
+      // Và "chay" trong "ăn chay" không được thành "cháy"
+      ['quán ăn chay', 'answer', ['list_restaurant']],
+      ['ăn chay ở đâu', 'answer', ['list_restaurant']],
+    ],
+  },
 ];
 
 const onlyFails = process.argv.includes('--fails');
@@ -302,15 +454,29 @@ console.log('\n══════════ KIỂM THỬ KỊCH BẢN HỎI �
 for (const { group, items } of SCENARIOS) {
   const rows = [];
   let gp = 0;
-  for (const [q, expect] of items) {
+  for (const [q, expect, accept] of items) {
     const a = await ask(q);
-    const ok = expect === 'answer' ? a.matched === true : a.matched === false;
+    const dungTrangThai = expect === 'answer' ? a.matched === true : a.matched === false;
+    // `accept` (tuỳ chọn) = tập ý định hợp lệ. Có nó thì đi nhầm nhánh là TRƯỢT,
+    // không phải chỉ cảnh báo. Cần mức chặt này vì lớp lỗi hay gặp nhất của trợ
+    // lý là "trả lời trôi chảy nhưng lạc nhánh": bot vẫn `matched = true` nên
+    // mọi phép kiểm chỉ nhìn `matched` đều cho qua. Ví dụ thật: "ăn gì vào buổi
+    // sáng" từng trả về một bản lộ trình vãn cảnh chùa.
+    const dungYDinh = !accept || accept.includes(a.intent);
+    const ok = dungTrangThai && dungYDinh;
     if (ok) {
       pass++;
       gp++;
     } else {
       fail++;
-      failures.push({ group, q, expect, got: a.intent, matched: a.matched });
+      failures.push({
+        group,
+        q,
+        expect,
+        got: a.intent,
+        matched: a.matched,
+        lyDo: dungTrangThai ? `đi nhầm nhánh (mong ${accept.join('/')})` : null,
+      });
     }
     rows.push({ q, expect, ok, intent: a.intent });
   }
@@ -328,7 +494,8 @@ console.log(`Tổng: ${pass + fail} câu · đạt ${pass} · chưa đạt ${fai
 if (failures.length) {
   console.log('\nCÂU CHƯA ĐẠT:');
   for (const f of failures) {
-    console.log(`  ✗ "${f.q}" — mong ${f.expect === 'answer' ? 'trả lời được' : 'từ chối'}, nhận [${f.got}] matched=${f.matched}`);
+    const mong = f.lyDo ?? `mong ${f.expect === 'answer' ? 'trả lời được' : 'từ chối'}`;
+    console.log(`  ✗ "${f.q}" — ${mong}, nhận [${f.got}] matched=${f.matched}`);
   }
 }
 

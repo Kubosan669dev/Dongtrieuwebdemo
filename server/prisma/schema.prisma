@@ -479,10 +479,23 @@ model ChatLog {
   /// false = bot không tìm được thông tin phù hợp → cần bổ sung dữ liệu
   matched  Boolean @default(true)
 
+  /// Người hỏi đang xem cổng ở vai nào: "du-khach" | "nguoi-dan" | null (chưa rõ).
+  ///
+  /// Cùng một câu hỏi mang nghĩa khác nhau tuỳ vai: "đền An Biên mở lúc mấy giờ"
+  /// từ du khách là hỏi giờ tham quan, từ người trong phường thường là hỏi giờ
+  /// lễ. Ghi lại vai để biết ai đang hỏi gì — đây là dữ liệu cần có TRƯỚC khi
+  /// dựng một trợ lý riêng cho mảng chính quyền, chứ không phải đoán xem người
+  /// dân sẽ hỏi gì.
+  ///
+  /// Cho phép null: các bản ghi có từ trước khi thêm cột này không có thông tin
+  /// đó, và điền bừa một giá trị mặc định là bịa ra số liệu.
+  audience String?
+
   createdAt DateTime @default(now())
 
   @@index([matched, createdAt])
   @@index([createdAt])
+  @@index([audience, createdAt])
 }
 
 // ─── Đánh giá của du khách ─────────────────────────────────────────────────

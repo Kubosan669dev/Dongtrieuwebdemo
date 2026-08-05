@@ -207,8 +207,11 @@ def _khong_biet(gan):
         "matched": False,
         "reply": (
             "Xin lỗi, mình chưa có thông tin này trong dữ liệu của phường 😔\n\n"
-            "Mình chỉ trích lại những gì có thật trong hồ sơ di tích, lịch lễ hội, danh sách khu phố "
-            "và địa chí 1896, nên có những câu mình đành chịu."
+            # Danh sách này phải khớp với các `loai` mà `khotritthuc.dung_doan`
+            # thật sự sinh ra. Nói thiếu một nguồn là tự chối một việc mình làm
+            # được: người đọc câu này sẽ không hỏi lại về nguồn không được nhắc.
+            "Mình chỉ trích lại những gì có thật trong hồ sơ di tích, lịch lễ hội, danh sách khu phố, "
+            "các quyết định xếp hạng di tích và địa chí 1896, nên có những câu mình đành chịu."
             + ("\n\nCó thể bạn đang tìm một trong những mục dưới đây?" if gan else "")
         ),
         "links": [

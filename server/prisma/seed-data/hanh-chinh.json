@@ -1,0 +1,78 @@
+{
+  "capNhat": "2026-08-04",
+  "nguon": "TinhThanhVN.com — trang tra cứu đơn vị hành chính (đã đối soát chéo)",
+  "nguonUrl": "https://tinhthanhvn.com/province/quang-ninh/dong-trieu",
+  "canhBaoNguon": "TinhThanhVN.com là cổng tra cứu độc lập và tự ghi rõ dữ liệu \"chỉ mang tính chất tham khảo, không có giá trị thay thế các văn bản pháp lý\". Mỗi số liệu dưới đây đều ghi rõ đã đối soát bằng nguồn nào.",
+
+  "tenDayDu": "phường Đông Triều, tỉnh Quảng Ninh",
+  "capHanhChinh": "phường",
+  "truocSapNhap": {
+    "donViCapHuyen": "Thành phố Đông Triều",
+    "tinh": "Quảng Ninh",
+    "ghiChu": "Thành phố Đông Triều đã giải thể ngày 01/7/2025. Xem khoá `vungDat` để phân biệt số liệu thành phố cũ với số liệu phường hiện nay."
+  },
+
+  "maDinhDanh": "07093",
+  "maBuuChinh": "02427",
+  "vungKinhTe": "Đồng bằng sông Hồng",
+  "toaDoTrungTam": { "lat": 21.0754, "lng": 106.52 },
+  "toaDoGhiChu": "Toạ độ trung tâm theo trang tra cứu. Khác với toạ độ dùng cho dự báo thời tiết trong cài đặt `weather` (21,0433 · 106,5544) — hai điểm cách nhau khoảng 5 km, đều nằm trong phường.",
+
+  "hieuLucTu": "01/7/2025",
+
+  "hopThanhTu": {
+    "tongSo": 5,
+    "danhSach": [
+      { "ten": "Phường Thủy An", "phan": "toàn bộ" },
+      { "ten": "Phường Hưng Đạo", "phan": "toàn bộ" },
+      { "ten": "Phường Hồng Phong", "phan": "toàn bộ" },
+      { "ten": "Xã Nguyễn Huệ", "phan": "toàn bộ" },
+      { "ten": "Phường Đức Chính", "phan": "phần còn lại" }
+    ],
+    "doiSoat": "Danh sách 5 đơn vị này khớp đúng với trường `wardOld` trên 13 hồ sơ di tích đã có sẵn trong cổng (Thủy An · Hưng Đạo · Hồng Phong · Nguyễn Huệ · Đức Chính) — hai bộ dữ liệu độc lập cho cùng một kết quả.",
+    "luuY": "Chi tiết \"phần còn lại của phường Đức Chính\" lấy từ tra cứu văn bản (Thư viện pháp luật), trang TinhThanhVN chỉ ghi chung là sáp nhập, không nói phần nào."
+  },
+
+  "vanBan": {
+    "nghiQuyet": "Nghị quyết 1679/NQ-UBTVQH15 ngày 16/6/2025 của Ủy ban Thường vụ Quốc hội khoá XV về sắp xếp đơn vị hành chính cấp xã của tỉnh Quảng Ninh năm 2025",
+    "deAn": "Đề án số 373/ĐA-CP ngày 09/5/2025 của Chính phủ",
+    "canDoiSoat": true,
+    "nguonDoiSoat": "Số hiệu và ngày ban hành khớp ở hai nguồn độc lập: tra cứu văn bản (Thư viện pháp luật) và cổng thông tin phường Yên Tử (phuongyentu.com.vn) — một phường khác cùng tỉnh, được lập bằng chính nghị quyết này.",
+    "ghiChuSaiLech": "Trang TinhThanhVN dẫn Nghị quyết 202/2025/QH15 cho việc lập phường. Văn bản đó là nghị quyết của QUỐC HỘI về sắp xếp đơn vị hành chính cấp TỈNH, không phải văn bản lập phường. Việc thành lập phường Đông Triều thuộc thẩm quyền Ủy ban Thường vụ Quốc hội. Chưa đọc trực tiếp bản công báo nên vẫn để cờ `canDoiSoat`."
+  },
+
+  "truSo": {
+    "ten": "UBND phường Đông Triều",
+    "diaDiem": "Trụ sở Thành ủy, HĐND, UBND thành phố Đông Triều (cũ)",
+    "ghiChu": "Trang nguồn không có số điện thoại, email hay giờ làm việc. Chưa có nguồn nào của phường xác nhận, nên trả lời phải nói rõ là theo trang tra cứu."
+  },
+
+  "soLieuTheoNguon": {
+    "dienTichKm2": 40.42,
+    "danSo": 43712,
+    "namDanSo": 2025,
+    "matDoNguoiTrenKm2": 1081,
+    "doiChieuVoiBangKhuPho": "Cộng 11 khu phố trong khoá `khuPho` ra 40,41 km² và 42.454 nhân khẩu. Diện tích lệch 0,01 km² (chỉ là làm tròn). Dân số lệch 1.258 người (≈3%) vì bảng khu phố lấy theo đề án sắp xếp, còn con số 43.712 là ước tính dân số năm 2025.",
+    "soDungTrenCong": "khuPho",
+    "viSao": "Cổng luôn ưu tiên tổng cộng từ bảng khu phố, vì đó là con số duy nhất khớp với từng trang khu phố. Con số của trang tra cứu chỉ nêu thêm để đối chiếu, không thay thế."
+  },
+
+  "trongTinh": {
+    "soDonViCapXa": 54,
+    "soPhuong": 30,
+    "ghiChu": "Theo trang tra cứu, chưa đối soát bằng nguồn khác."
+  },
+
+  "cong": [
+    { "ten": "Cổng thông tin điện tử phường Đông Triều", "url": "https://dongtrieu.quangninh.gov.vn" },
+    { "ten": "Cổng thông tin điện tử tỉnh Quảng Ninh", "url": "https://quangninh.gov.vn" },
+    { "ten": "Cổng Dịch vụ công Quốc gia", "url": "https://dichvucong.gov.vn" }
+  ],
+
+  "khongLayDuoc": [
+    "Danh sách khu phố — trang nguồn KHÔNG có mục này. Cơ cấu 11 khu phố giữ nguyên theo khoá `khuPho` (đề án sắp xếp 2025), vốn đã đầy đủ hơn: từng khu phố có diện tích, số hộ, nhân khẩu và nhà văn hoá.",
+    "Ranh giới địa lý chi tiết — trang ghi bản đồ số \"đang trong quá trình hoàn thiện\".",
+    "Danh sách phường xã giáp ranh — trang có liệt kê nhưng KHÔNG dùng: trong đó có phường Quảng Yên và phường Hiệp Hoà nằm cách Đông Triều rất xa, nên đây là danh sách gợi ý của trang chứ không phải ranh giới thật. Ranh giới dùng khoá `vungDat.viTri.giapRanh`.",
+    "Số điện thoại, email, giờ làm việc của UBND phường."
+  ]
+}

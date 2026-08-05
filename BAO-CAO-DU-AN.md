@@ -16,7 +16,7 @@ từ hồ sơ lý lịch di tích dạng `.docx` do phường cung cấp và t�
 | Bảng dữ liệu (Prisma) | 14 |
 | Nội dung đã nạp | 13 di tích · 17 lễ hội · 8 đặc sản · 41 quán ăn · 21 cơ sở lưu trú · 7 điểm lân cận · 6 bài viết |
 | Ý định trợ lý nhận diện | 49 |
-| Bộ kiểm tự động | 140 kịch bản + 1.376 câu sinh tự động + 90 phép kiểm Python |
+| Bộ kiểm tự động | 211 kịch bản + 1.376 câu sinh tự động + 91 phép kiểm Python |
 | Bảng màu giao diện | 8, đều đạt WCAG AA |
 
 Nguyên tắc xuyên suốt: **trợ lý không được bịa**. Mọi câu trả lời đều trích từ
@@ -161,7 +161,7 @@ Ba nguồn, theo đúng thứ tự thời gian trong lịch sử commit:
 
 1. **Học từ cổng đã có.** Lấy Cổng thông tin du lịch TP Huế làm mẫu để liệt kê
    những nhóm câu hỏi mà một trợ lý cổng chính quyền/du lịch buộc phải xử lý.
-   Kết quả là bộ 21 nhóm kịch bản trong `scripts/chatbot-scenarios.mjs`.
+   Kết quả là bộ 26 nhóm kịch bản trong `scripts/chatbot-scenarios.mjs`.
 2. **Nghe chính dữ liệu.** Trường `travelTips`, `openHours`, `rating` có sẵn trong
    dữ liệu đã gợi ra các năng lực mà ban đầu không nghĩ tới: "giờ này quán nào còn
    mở", "quán nào đánh giá cao nhất", "chỗ ăn gần đền Yết Kiêu".
@@ -175,7 +175,7 @@ Ba nguồn, theo đúng thứ tự thời gian trong lịch sử commit:
 | Cách làm | Nhận diện ý định bằng luật → câu trả lời có cấu trúc | Cắt bản ghi thành **đoạn**, xếp hạng BM25, trả **nguyên văn** đoạn tốt nhất |
 | Mạnh ở | Câu cần **tính theo giờ hiện tại**: thời tiết, triều cường, quán còn mở, lễ hội sắp tới, lộ trình theo ngân sách | Câu hỏi lẻ nằm sâu trong một đoạn văn dài |
 | Yếu ở | Câu nào chưa có luật thì chịu | Không biết mấy giờ, không tính được lịch âm |
-| Quy mô | 2.514 dòng · 49 ý định | 978 dòng Python |
+| Quy mô | 2.882 dòng · 56 ý định | 1.019 dòng Python |
 
 Ví dụ bản luật chịu thua mà bản Python trả lời được — hầu hết nằm trong địa chí
 1896, toàn văn dài, đúng thứ luật viết tay không với tới:
@@ -295,9 +295,9 @@ nó thành phần tử nhận Tab chỉ thêm một chặng vô nghĩa trước 
 | Bộ kiểm | Quy mô | Kiểm điều gì |
 |---|---|---|
 | `npm run lint` | Toàn repo | ESLint, gồm cả quy tắc `jsx-a11y` |
-| `npm run test-scenarios` | 140 câu / 21 nhóm | Kịch bản viết tay theo mẫu cổng du lịch |
+| `npm run test-scenarios` | 211 câu / 26 nhóm | Kịch bản viết tay theo mẫu cổng du lịch |
 | `npm run test-scenarios-bulk` | 1.376 câu | **Sinh tự động từ dữ liệu thật** |
-| `python kiemtra.py` | 90 phép | Trợ lý Python, gồm đối chiếu nguyên văn |
+| `python kiemtra.py` | 91 phép | Trợ lý Python, gồm đối chiếu nguyên văn |
 | `npm run check-contrast` | 8 bảng × 20 cặp | Tương phản WCAG AA |
 
 Bộ sinh tự động là điểm đáng nói: nó **đọc dữ liệu thật rồi mới sinh câu hỏi và kỳ
@@ -312,7 +312,7 @@ Mỗi câu còn gắn kỳ vọng hai mức: `answer` (bắt buộc trả lời 
 
 ```
 ESLint toàn repo                     0 lỗi
-Kịch bản viết tay                    140/140
+Kịch bản viết tay                    211/211
 Sinh tự động                         1376/1376  (lệch ý định: 13, cảnh báo)
 Trợ lý Python                        90/90
 Tương phản WCAG AA                   8/8 bảng màu (thấp nhất 4,54)
@@ -385,6 +385,6 @@ npm run import-images                # nén ảnh mới, gán ảnh bìa theo sl
 npm run reprocess-images             # dựng lại bản thu nhỏ theo thông số hiện hành
 npm run reprocess-images -- --sharpen# làm nét thêm bản đầy đủ (có sao lưu)
 
-cd bot-python && python kiemtra.py   # 90 phép kiểm trợ lý Python
+cd bot-python && python kiemtra.py   # 91 phép kiểm trợ lý Python
 cd bot-python && python run.py serve # bật dịch vụ Python ở cổng 5005
 ```

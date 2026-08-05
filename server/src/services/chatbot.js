@@ -294,24 +294,53 @@ async function answerTide() {
   };
 }
 
-// ─── Gợi ý "hôm nay nên đi đâu" ────────────────────────────────────────────
+// ─── Gợi ý "nên đi đâu" theo thời tiết ─────────────────────────────────────
+//
+// ── MỐC NGÀY TRONG CÂU HỎI PHẢI ĐƯỢC TÔN TRỌNG ─────────────────────────────
+// "Mai nên đi đâu" từng nhận đúng lời khuyên của HÔM NAY: hôm nay mưa thì bot
+// bảo chọn điểm có mái che, dù mai có thể nắng ráo. Trả lời trôi chảy, đọc rất
+// thuyết phục, mà dựa trên dữ liệu của một ngày khác — đúng lớp lỗi khó thấy
+// nhất, vì không có gì trong câu trả lời tự tố cáo là nó đang nói về hôm nay.
+//
+// `resolveDay` vốn đã có sẵn cho nhánh thời tiết ("mai trời thế nào" chạy đúng
+// từ đầu). Nhánh này chỉ việc dùng lại nó, thay vì tự mặc định là hôm nay.
 
-async function answerWhereToGo(corpus) {
+async function answerWhereToGo(corpus, q = '') {
   const weather = await getWeather();
-  const advice = getWeatherAdvice(weather, corpus.heritages);
-  const info = weatherInfo(weather.current.code);
+  const daily = weather?.daily ?? [];
 
-  if (!advice) {
-    return answerListHeritages(corpus);
-  }
+  // `range` ("cả tuần nên đi đâu") không quy về một ngày được — lời khuyên theo
+  // thời tiết vốn chỉ có nghĩa cho một ngày, nên giữ nguyên hôm nay như cũ.
+  const chon = resolveDay(q, daily);
+  const idx = chon && !chon.range && chon.index < daily.length ? chon.index : 0;
+  const nhan = idx === 0 ? 'Hôm nay' : (chon?.phrase ?? 'Ngày đó');
+
+  // `resolveDay` trả nhãn viết thường ("ngày mai") vì nó vốn dùng giữa câu.
+  // Tiêu đề lời khuyên lại mở đầu bằng nhãn này nên phải hoa chữ đầu.
+  const nhanHoa = nhan.charAt(0).toUpperCase() + nhan.slice(1);
+  const advice = getWeatherAdvice(weather, corpus.heritages, { dayIndex: idx, dayLabel: nhanHoa });
+  if (!advice) return answerListHeritages(corpus);
+
+  const ngay = daily[idx];
+  const info = weatherInfo(idx === 0 ? weather.current.code : ngay.code);
+
+  // Hôm nay thì nói nhiệt độ ĐANG có; ngày sau thì chỉ có dự báo khoảng
+  // nhiệt — nói "hiện ...°C" cho ngày mai là bịa ra một con số không tồn tại.
+  const dau =
+    idx === 0
+      ? `${info.icon} Hiện ${info.label.toLowerCase()}, ${round(weather.current.temp)}°C.`
+      : `${info.icon} Dự báo ${nhan.toLowerCase()} (${dayLabel(ngay.date)}): ${info.label.toLowerCase()}, ` +
+        `${round(ngay.tempMin)}–${round(ngay.tempMax)}°C, khả năng mưa ${ngay.rainProb ?? 0}%.`;
 
   const picks = advice.picks.map((h) => `**${h.name}** — ${short(h.summary, 110)}`);
+  const duoi = idx === 0 ? '' : '\n\n_Dự báo còn thay đổi, bạn xem lại trước khi khởi hành nhé._';
 
   return {
-    intent: 'where_today',
+    intent: idx === 0 ? 'where_today' : 'where_day',
     reply:
-      `${info.icon} Hiện ${info.label.toLowerCase()}, ${round(weather.current.temp)}°C. **${advice.title}**\n\n` +
-      `${advice.message}\n\n**Gợi ý cho hôm nay:**\n${bullets(picks)}\n\n${bullets(advice.tips.slice(0, 2))}`,
+      `${dau} **${advice.title}**\n\n` +
+      `${advice.message}\n\n**Gợi ý cho ${nhan.toLowerCase()}:**\n${bullets(picks)}\n\n` +
+      `${bullets(advice.tips.slice(0, 2))}${duoi}`,
     links: advice.picks.map((h) => ({ label: h.name, url: `/di-tich/${h.slug}` })),
     suggestions: ['Ăn gì ở Đông Triều?', 'Lễ hội nào sắp diễn ra?', 'Đi từ Hà Nội thế nào?'],
   };
@@ -917,11 +946,24 @@ const eateries = (corpus) =>
  * @returns {null | {span, theme, easy, amount}}  null nếu không phải hỏi lộ trình
  */
 function detectRoute(q, amount) {
-  const goIntent = has(q, 'di dau', 'nen di', 'di choi', 'tham quan', 'di le', 'vieng', 'lich trinh', 'lo trinh', 'ke hoach', 'nen den', 'di duoc', 'vach', 'di tham quan');
+  // `has()` khớp trọn cụm liền nhau, nên phải liệt kê cả các biến thể chen chữ:
+  // "đi NHỮNG đâu" không khớp "đi đâu".
+  const goIntent = has(q, 'di dau', 'di nhung dau', 'di nhung noi nao', 'nen di', 'di choi', 'tham quan', 'di le', 'vieng', 'lich trinh', 'lo trinh', 'ke hoach', 'nen den', 'di duoc', 'vach', 'di tham quan', 'lam gi', 'choi gi');
   const routeWord = has(q, 'lich trinh', 'lo trinh', 'ke hoach', 'vach ra', 'vach lo trinh');
-  const hasSang = has(q, 'buoi sang') || (has(q, 'sang') && goIntent);
-  const hasChieu = has(q, 'buoi chieu') || (has(q, 'chieu') && goIntent);
-  const hasDayWord = has(q, 'ca ngay', 'mot ngay', '1 ngay', 'trong ngay', 'nguyen ngay');
+
+  // MỌI từ chỉ buổi/ngày đều phải đi kèm ý định đi chơi thì mới tính là hỏi lộ
+  // trình. Bản trước chỉ ràng buộc "sáng" trống mà thả cho "buổi sáng", "cả
+  // ngày"… tự kích hoạt — thành ra nhánh này nuốt trọn cả một họ câu hỏi chẳng
+  // liên quan gì tới tham quan:
+  //
+  //   "ăn gì vào buổi sáng"   → vẽ lộ trình vãn cảnh chùa
+  //   "cà phê buổi sáng ở đâu" → vẽ lộ trình
+  //   "quán nào mở cả ngày"    → vẽ lộ trình, cướp mất nhánh giờ mở cửa ở mục 3g
+  //
+  // Nhánh này đứng rất sớm (mục 3b) nên nó nuốt là các nhánh sau không còn cơ hội.
+  const hasSang = has(q, 'buoi sang', 'sang') && goIntent;
+  const hasChieu = has(q, 'buoi chieu', 'chieu') && goIntent;
+  const hasDayWord = has(q, 'ca ngay', 'mot ngay', '1 ngay', 'trong ngay', 'nguyen ngay') && goIntent;
   // Cố ý KHÔNG nhận 'qua dem'/'ngu dem' vì "ngủ ở đâu qua đêm" là hỏi chỗ NGỦ,
   // không phải chuyến 2 ngày.
   const hasTwo = has(q, '2 ngay', 'hai ngay', '2n1d', '2 ngay 1 dem', 'hai ngay mot dem');
@@ -1497,6 +1539,104 @@ function answerQuyMo(corpus) {
   };
 }
 
+// ─── Căn cước hành chính của phường (khoá cài đặt `hanhChinh`) ─────────────
+//
+// Nhóm câu hỏi của NGƯỜI DÂN, không phải của du khách: "phường ghép từ những
+// đơn vị nào", "xã Nguyễn Huệ giờ còn không", "mã bưu chính là bao nhiêu",
+// "trụ sở uỷ ban ở đâu". Trước khi có khoá này cổng không trả được câu nào.
+//
+// ── NGUỒN LÀ TRANG TRA CỨU, KHÔNG PHẢI CÔNG BÁO ────────────────────────────
+// Dữ liệu lấy từ TinhThanhVN.com — trang tự ghi chỉ có giá trị tham khảo, và
+// thực tế đã dẫn sai một văn bản. Nên mọi câu trả lời ở đây đều đóng một dòng
+// nguồn ở cuối, và chỗ nào chưa đọc được bản gốc thì nói thẳng là chưa đối
+// soát. Thà nói "theo trang tra cứu" còn hơn để người dân mang một mã số chưa
+// chắc đúng đi làm giấy tờ.
+
+/** Dòng đóng nguồn — dùng chung cho mọi câu trả lời của nhóm này. */
+function nguonHanhChinh(hc) {
+  return hc?.nguon ? `\n\n_Nguồn: ${hc.nguon}. Số liệu hành chính nên đối chiếu lại với UBND phường trước khi dùng vào giấy tờ._` : '';
+}
+
+/**
+ * "Phường Đông Triều sáp nhập từ đâu", "gồm những xã nào", và chiều ngược lại
+ * "phường Đức Chính giờ thuộc đâu".
+ */
+function answerHopThanhTu(corpus, q) {
+  const hc = corpus.settings?.hanhChinh;
+  const ds = hc?.hopThanhTu?.danhSach ?? [];
+  if (!ds.length) return null;
+
+  // Người hỏi gọi đích danh một đơn vị cũ thì dẫn câu trả lời bằng chính nó.
+  const goiTen = ds.find((d) => has(q, norm(d.ten.replace(/^(Phường|Xã)\s+/i, ''))));
+  const mo = goiTen
+    ? `**${goiTen.ten}** không còn là đơn vị hành chính riêng. Từ ngày ${hc.hieuLucTu}, ${goiTen.phan === 'phần còn lại' ? 'phần còn lại của' : 'toàn bộ'} đơn vị này đã nhập vào **phường Đông Triều**.\n\n`
+    : '';
+
+  return {
+    intent: 'about_admin_merge',
+    reply:
+      `🏛️ **Phường Đông Triều hợp thành từ ${hc.hopThanhTu.tongSo ?? ds.length} đơn vị**\n\n` +
+      mo +
+      `Từ ngày ${hc.hieuLucTu}, phường Đông Triều hiện nay được lập trên cơ sở:\n` +
+      bullets(ds.map((d) => `**${d.ten}** — ${d.phan}`)) +
+      (hc.vanBan?.nghiQuyet
+        ? `\n\nVăn bản: ${hc.vanBan.nghiQuyet}.${hc.vanBan.canDoiSoat ? ' _(Chưa đọc được bản công báo gốc, nên hãy đối chiếu lại khi cần trích dẫn.)_' : ''}`
+        : '') +
+      nguonHanhChinh(hc),
+    links: [
+      { label: 'Trang hành chính phường', url: '/hanh-chinh' },
+      { label: '11 khu phố của phường', url: '/khu-pho' },
+    ],
+    suggestions: ['Phường có bao nhiêu khu phố?', 'Mã bưu chính phường Đông Triều là gì?', 'Đông Triều rộng bao nhiêu?'],
+  };
+}
+
+/** "Mã bưu chính", "mã phường", "zip code" — hỏi để điền biểu mẫu, cần chính xác. */
+function answerMaHanhChinh(corpus) {
+  const hc = corpus.settings?.hanhChinh;
+  if (!hc?.maBuuChinh && !hc?.maDinhDanh) return null;
+  const dong = [];
+  if (hc.maBuuChinh) dong.push(`Mã bưu chính: **${hc.maBuuChinh}**`);
+  if (hc.maDinhDanh) dong.push(`Mã đơn vị hành chính: **${hc.maDinhDanh}**`);
+  if (hc.capHanhChinh) dong.push(`Cấp hành chính: **${hc.capHanhChinh}**, trực thuộc **tỉnh Quảng Ninh**`);
+  if (hc.hieuLucTu) dong.push(`Hoạt động từ **${hc.hieuLucTu}**`);
+  return {
+    intent: 'about_admin_code',
+    reply:
+      `🔢 **Mã hành chính phường Đông Triều**\n\n` +
+      bullets(dong) +
+      `\n\nĐịa chỉ đầy đủ theo cơ cấu mới có dạng: _<số nhà, đường>, Khu phố <tên>, phường Đông Triều, tỉnh Quảng Ninh_.` +
+      nguonHanhChinh(hc),
+    links: [
+      { label: 'Trang hành chính phường', url: '/hanh-chinh' },
+      { label: '11 khu phố của phường', url: '/khu-pho' },
+    ],
+    suggestions: ['Phường Đông Triều sáp nhập từ những đơn vị nào?', 'Trụ sở UBND phường ở đâu?', 'Phường có bao nhiêu khu phố?'],
+  };
+}
+
+/** "Trụ sở uỷ ban ở đâu", "cổng thông tin của phường", "website chính thức". */
+function answerTruSo(corpus) {
+  const hc = corpus.settings?.hanhChinh;
+  if (!hc?.truSo && !hc?.cong?.length) return null;
+  const dong = [];
+  if (hc.truSo?.diaDiem) dong.push(`Trụ sở: **${hc.truSo.diaDiem}**`);
+  for (const c of hc.cong ?? []) dong.push(`${c.ten}: ${String(c.url).replace(/^https?:\/\//, '')}`);
+  return {
+    intent: 'about_admin_office',
+    reply:
+      `🏢 **${hc.truSo?.ten ?? 'UBND phường Đông Triều'}**\n\n` +
+      bullets(dong) +
+      (hc.truSo?.ghiChu ? `\n\n_${hc.truSo.ghiChu}_` : '') +
+      nguonHanhChinh(hc),
+    links: [
+      { label: 'Trang hành chính phường', url: '/hanh-chinh' },
+      { label: 'Bản đồ số', url: '/ban-do' },
+    ],
+    suggestions: ['Mã bưu chính phường Đông Triều là gì?', 'Phường Đông Triều sáp nhập từ những đơn vị nào?', 'Phường có bao nhiêu khu phố?'],
+  };
+}
+
 // ─── “Đông Triều huyện địa chí” 1896 ───────────────────────────────────────
 //
 // Khoá cài đặt `diaChi1896`: địa chí Hán Nôm do Tri huyện Ngô Sinh chép năm
@@ -1865,6 +2005,135 @@ function answerAbout(corpus) {
   };
 }
 
+// ─── Phản ánh, góp ý, khiếu nại ────────────────────────────────────────────
+//
+// ── VÌ SAO KHÔNG GỘP HẾT VÀO MỘT CÂU TRẢ LỜI ───────────────────────────────
+// Người gõ "tôi muốn phản ánh" đang muốn ba việc rất khác nhau, và trả lời gộp
+// là hại người hỏi:
+//
+//   1. Góp ý về CHÍNH CỔNG NÀY (nội dung sai, ảnh sai, bot trả lời sai)
+//      → biểu mẫu Liên hệ nhận được thật. Đây là thứ duy nhất cổng hứa được.
+//   2. Phản ánh đời sống — rác, đường hỏng, tiếng ồn, mất điện nước
+//      → cổng KHÔNG phải kênh tiếp nhận. Nói "gửi biểu mẫu đi" là hứa hộ chính
+//        quyền một việc cổng không làm được, và người dân mất thời gian chờ.
+//   3. Khiếu nại, tố cáo
+//      → là thủ tục pháp lý có trình tự riêng, có thời hạn, cần đơn có chữ ký.
+//        Một khung chat tuyệt đối không được đứng ra nhận.
+//
+// ── VIỆC GẤP THÌ SỐ ĐIỆN THOẠI ĐỨNG TRƯỚC BIỂU MẪU ────────────────────────
+// "Cây đổ chắn đường báo ai" mà đáp bằng đường dẫn tới một biểu mẫu web thì
+// đúng hình thức nhưng sai việc. Nhóm 2 vì thế luôn mở đầu bằng số khẩn cấp.
+
+/**
+ * Từ khoá tình huống khẩn cấp — dùng ở HAI chỗ nên phải nằm một chỗ duy nhất:
+ * nhánh khẩn cấp bắt chúng, còn nhánh phản ánh phải nhường chúng.
+ *
+ * ── VÌ SAO KHÔNG CÓ CỤM 'chay' TRẦN ────────────────────────────────────────
+ * Bỏ dấu thì **cháy** ≡ **chay** (đồ chay, ăn chay) — trên một cổng du lịch có
+ * hẳn mục ẩm thực thì "quán ăn chay ở đâu" sẽ được đáp lại bằng số 114. Nên chỉ
+ * nhận các tổ hợp không thể là món chay: "cháy nhà", "cháy rừng", "báo cháy".
+ */
+const TU_KHAN_CAP = [
+  'cap cuu', 'khan cap', 'cong an', 'canh sat', 'cuu hoa', 'chay no', 'so 113', 'so 114',
+  'so 115', '113', '114', '115', 'benh vien', 'tram y te',
+  // Bổ sung sau khi đo: các câu dưới đây trước đây rơi xuống `fallback`, tức là
+  // người đang cần gọi cứu hộ thì bot bảo "mình chưa có thông tin này".
+  'chay nha', 'chay rung', 'hoa hoan', 'bao chay', 'co trom', 'trom cuop', 'cuop giat',
+  'danh nhau', 'tai nan', 'duoi nuoc', 'ngat xiu', 'cuu nan', 'cuu ho', 'so cuu', 'bat coc',
+];
+
+/** Người hỏi muốn phản ánh chuyện gì? `null` nếu không phải nhóm này. */
+function detectPhanAnh(q) {
+  // Khiếu nại / tố cáo xét TRƯỚC: đây là nhóm ràng buộc pháp lý chặt nhất, và
+  // câu hỏi thường kèm cả chữ "phản ánh" nên để sau là bị nhóm dưới nuốt.
+  if (has(q, 'khieu nai', 'to cao', 'don thu', 'khoi kien', 'to giac')) return 'phap ly';
+  // Góp ý VỀ CỔNG — phải có dấu hiệu nói tới chính trang này hoặc trợ lý.
+  if (
+    has(
+      q, 'thong tin sai', 'noi dung sai', 'sai thong tin', 'anh sai', 'loi trang', 'bao loi',
+      'loi website', 'trang web loi', 'bot tra loi sai', 'bot sai', 'tra loi sai', 'gop y cho trang',
+      'gop y website', 'sai chinh ta', 'thieu thong tin', 'cap nhat thong tin',
+    )
+  )
+    return 'cong';
+  if (
+    has(
+      q, 'phan anh', 'gop y', 'kien nghi', 'de xuat', 'bao cho ai', 'bao ai', 'bao voi ai',
+      'goi cho ai', 'goi ai', 'bao o dau', 'trinh bao', 'phan hoi',
+    )
+  )
+    return 'phuong';
+  return null;
+}
+
+function answerPhanAnh(corpus, loai) {
+  const c = corpus.settings?.contact ?? {};
+  const ten = c.name || 'UBND phường Đông Triều';
+  const soPhuong = c.phone ? `☎ ${c.phone}` : 'số điện thoại xem tại trang Liên hệ';
+
+  if (loai === 'cong') {
+    return {
+      intent: 'feedback_portal',
+      reply:
+        `📝 **Báo nội dung sai trên cổng này**\n\n` +
+        `Đây là việc cổng nhận trực tiếp được. Bạn gửi qua **biểu mẫu ở trang Liên hệ**, ghi giúp:\n` +
+        bullets([
+          'Trang nào, mục nào (dán đường dẫn thì nhanh nhất)',
+          'Chỗ nào sai, và thông tin đúng là gì',
+          'Nguồn của thông tin đúng, nếu bạn có',
+        ]) +
+        `\n\nNếu là **trợ lý này trả lời sai**, bạn chép lại nguyên văn câu đã hỏi giúp mình — mọi câu hỏi đều được ghi lại để rà, nhưng có nguyên văn thì sửa nhanh hơn nhiều.` +
+        `\n\n_Cổng chỉ sửa được nội dung của chính cổng. Việc ngoài đời sống thì xem mục phản ánh với phường._`,
+      links: [
+        { label: 'Trang Phản ánh & góp ý', url: '/phan-anh' },
+        { label: 'Trang liên hệ', url: '/lien-he' },
+      ],
+      suggestions: ['Tôi muốn phản ánh với phường', 'Liên hệ UBND phường thế nào?', 'Trụ sở UBND phường ở đâu?'],
+    };
+  }
+
+  if (loai === 'phap ly') {
+    return {
+      intent: 'feedback_legal',
+      reply:
+        `⚖️ **Khiếu nại, tố cáo — cổng này không nhận thay**\n\n` +
+        `Đây là thủ tục có trình tự và thời hạn theo luật, cần đơn có chữ ký và giấy tờ tuỳ thân. Một khung chat không đứng ra nhận được, và mình cũng không muốn bạn mất thời gian chờ nhầm chỗ.\n\n` +
+        `Ba đường đi đúng:\n` +
+        bullets([
+          `Nộp trực tiếp tại bộ phận tiếp công dân của **${ten}** — ${soPhuong}`,
+          'Nộp trực tuyến qua **dichvucong.gov.vn** (cần tài khoản VNeID mức 2)',
+          'Gửi phản ánh, kiến nghị qua hệ thống **nguoidan.chinhphu.vn**',
+        ]) +
+        `\n\n_Mình là trợ lý của cổng du lịch phường, không phải cán bộ tiếp nhận. Thông tin trên chỉ để chỉ đường._`,
+      links: [
+        { label: 'Trang Phản ánh & góp ý', url: '/phan-anh' },
+        { label: 'Trang hành chính phường', url: '/hanh-chinh' },
+      ],
+      suggestions: ['Trụ sở UBND phường ở đâu?', 'Số điện thoại UBND phường?', 'Tôi muốn báo lỗi trên trang này'],
+    };
+  }
+
+  return {
+    intent: 'feedback_ward',
+    reply:
+      `📣 **Phản ánh tới chính quyền phường**\n\n` +
+      `⚠️ **Việc gấp thì gọi điện, đừng chờ biểu mẫu:** **113** Công an · **114** Cứu hoả, cứu nạn · **115** Cấp cứu. Cháy nổ, tai nạn, cây đổ chắn đường, ngập sâu — gọi thẳng ba số này trước.\n\n` +
+      `Việc không gấp (rác thải, đường hỏng, đèn đường, tiếng ồn, trật tự đô thị):\n` +
+      bullets([
+        `Gọi hoặc tới **${ten}** — ${soPhuong}`,
+        'Gửi qua **dichvucong.gov.vn** hoặc **nguoidan.chinhphu.vn** — có mã hồ sơ để theo dõi tiến độ',
+        'Mất điện, mất nước thì gọi thẳng tổng đài điện lực hoặc công ty nước, nhanh hơn qua phường',
+      ]) +
+      `\n\n_Nói rõ giúp: ở khu phố nào, số nhà hay mốc dễ nhận, việc xảy ra khi nào. Có ảnh chụp thì tốt._` +
+      `\n\n⚠️ **Cổng này là cổng thông tin du lịch, không phải kênh tiếp nhận phản ánh.** Biểu mẫu ở trang Liên hệ chỉ dùng để góp ý về nội dung của chính cổng — gửi phản ánh đời sống vào đó thì không tới được đúng người.`,
+    links: [
+      { label: 'Trang Phản ánh & góp ý', url: '/phan-anh' },
+      { label: 'Trang liên hệ', url: '/lien-he' },
+    ],
+    suggestions: ['Trụ sở UBND phường ở đâu?', 'Số điện thoại UBND phường?', 'Tôi muốn báo nội dung sai trên trang'],
+  };
+}
+
 // ─── Liên hệ & khẩn cấp ────────────────────────────────────────────────────
 
 function answerContact(corpus, isEmergency) {
@@ -2046,9 +2315,31 @@ function detectBudget(q) {
  */
 function detectOpenMode(q) {
   if (has(q, '24 24', '24h', 'mo 24', 'ca dem', 'suot dem', 'xuyen dem', 'mo ca ngay')) return 'allday';
-  if (has(q, 'an khuya', 'an dem', 'khuya', 'toi muon', 'dem muon', 'nua dem', 'mo muon', 'dong cua muon'))
+  // ── "tối muộn" ≡ "TÔI MUỐN" sau khi bỏ dấu ────────────────────────────────
+  // Cụm 'toi muon' trần từng là từ khoá ở đây, và nó nuốt gọn mọi câu mở đầu
+  // bằng "tôi muốn…" — cách nói phổ biến bậc nhất. Đo trên câu thật: "tôi muốn
+  // ăn phở", "tôi muốn thuê phòng", "tôi muốn biết lễ hội", "tôi muốn phản ánh"
+  // đều được đáp lại bằng danh sách **quán ăn khuya**.
+  //
+  // Nên chỉ nhận các tổ hợp mà "tôi muốn" không tạo ra được: "MỞ tối muộn",
+  // "ĂN tối muộn", "tối muộn CÒN…". Cùng lớp bẫy với "ga tàu" ↔ "gà đồi".
+  if (
+    has(q, 'an khuya', 'an dem', 'khuya', 'dem muon', 'nua dem', 'mo muon', 'dong cua muon',
+      'mo toi muon', 'an toi muon', 'den toi muon', 'toi muon con', 'toi muon van')
+  )
     return 'late';
-  if (has(q, 'mo som', 'sang som', 'an sang som', 'som nhat')) return 'early';
+  // "ăn gì vào buổi sáng", "sáng nay ăn gì", "cà phê buổi sáng ở đâu" — đều là
+  // hỏi chỗ ăn sáng, và nhánh `early` đã sẵn câu trả lời đúng ý: các nơi mở
+  // trước 6h30. Trước đây những câu này không khớp nhánh nào nên rơi xuống tra
+  // cứu tự do, trả về một món bất kỳ ("ăn gì vào buổi sáng" → *Bưởi Đông Triều*).
+  //
+  // Phải ghép HAI tín hiệu (từ chỉ buổi sáng + từ chỉ ăn uống) chứ không nhận
+  // riêng chữ "sáng": nó còn nằm trong câu hỏi thời tiết lẫn câu hỏi lộ trình.
+  const hoiBuaSang =
+    has(q, 'an sang', 'bua sang', 'diem tam') ||
+    (has(q, 'buoi sang', 'sang nay', 'sang') &&
+      has(q, 'an gi', 'quan an', 'mon gi', 'mon ngon', 'do an', 'am thuc', 'dac san', 'ca phe', 'cafe', 'an uong'));
+  if (has(q, 'mo som', 'sang som', 'an sang som', 'som nhat') || hoiBuaSang) return 'early';
   if (
     has(q, 'dang mo', 'con mo', 'mo chua', 'gio nay', 'bay gio con', 'luc nay con', 'hien tai con', 'con ban khong')
   )
@@ -2154,8 +2445,83 @@ export async function ask(question) {
     if (routeOpts) return { ...buildRoute(corpus, routeOpts), matched: true };
   }
 
+  // 3b-bis. Căn cước hành chính của PHƯỜNG (khoá `hanhChinh`).
+  //
+  // ── VÌ SAO PHẢI ĐỨNG SỚM THẾ NÀY ───────────────────────────────────────────
+  // Hai nhánh ngay dưới nuốt mất cả nhóm câu hỏi này:
+  //   · 3c bắt cụm 'ubnd' → "trụ sở UBND phường ở đâu" ra bảng số điện thoại
+  //   · 3d bắt cụm 'hanh chinh' → "mã hành chính của phường" bị trả lời là
+  //     ngoài phạm vi, dù đây đúng là thứ cổng phường phải biết
+  // Nên nhóm này xét trước, nhưng bắt rất hẹp: chỉ các cụm hỏi VỀ phường.
+  //
+  // Câu hỏi về THỦ TỤC vẫn phải nhường cho 3d — "nộp hồ sơ ở trụ sở nào" là
+  // việc của Cổng dịch vụ công, không phải của cổng du lịch. Cờ `hoiThuTuc`
+  // giữ đúng ranh giới đó.
+  {
+    const hoiThuTuc = has(
+      q, 'thu tuc', 'ho so', 'giay to', 'dich vu cong', 'can cuoc', 'cccd', 'khai sinh',
+      'ho khau', 'tam tru', 'tam vang', 'giay phep', 'cong chung', 'so do', 'ho chieu',
+    );
+    if (!hoiThuTuc) {
+      // Chiều xuôi: "phường ghép từ đâu". Chiều ngược: "Đức Chính giờ thuộc đâu"
+      // — chiều ngược BẮT BUỘC phải có cụm hỏi đổi đơn vị, vì năm cái tên cũ
+      // vẫn còn sống trong dữ liệu hiện tại (khu phố Nguyễn Huệ, Nhà hàng Thủy
+      // An, đền Trần Hưng Đạo), gọi tên không thôi thì bắt nhầm hàng loạt.
+      const doiDonVi = has(
+        q, 'gio la', 'gio thuoc', 'gio con', 'con khong', 'con ton tai', 'doi thanh',
+        'thanh phuong nao', 'thuoc phuong nao', 'nay thuoc', 'sap nhap vao', 'nhap vao dau',
+      );
+      const tenCu = has(q, 'duc chinh', 'thuy an', 'hung dao', 'hong phong', 'nguyen hue');
+      if (
+        has(
+          q, 'sap nhap', 'sat nhap', 'hop nhat', 'hop thanh', 'don vi cu', 'phuong cu', 'xa cu',
+          'gom nhung phuong nao', 'gom nhung xa nao', 'tu nhung phuong nao', 'tu nhung xa nao',
+          'ghep tu', 'don vi hanh chinh cu', 'lap tu', 'thanh lap tren co so',
+        ) ||
+        (tenCu && doiDonVi)
+      ) {
+        const a = answerHopThanhTu(corpus, q);
+        if (a) return { ...a, matched: true };
+      }
+      // Cụm 'ma' đứng một mình trùng với "mà", nên chỉ nhận các kết hợp mà "mà"
+      // không thể tạo thành: "mã bưu chính", "mã định danh", "mã phường là".
+      if (
+        has(
+          q, 'ma buu chinh', 'buu chinh', 'ma dinh danh', 'ma don vi', 'ma hanh chinh',
+          'ma so phuong', 'ma phuong xa', 'ma phuong la', 'ma phuong dong trieu', 'zip', 'postal',
+        )
+      ) {
+        const a = answerMaHanhChinh(corpus);
+        if (a) return { ...a, matched: true };
+      }
+      if (has(q, 'tru so', 'cong thong tin', 'trang thong tin dien tu', 'website chinh thuc', 'trang web chinh thuc', 'cong dien tu')) {
+        const a = answerTruSo(corpus);
+        if (a) return { ...a, matched: true };
+      }
+    }
+  }
+
+  // 3b-ter. Phản ánh, góp ý, khiếu nại.
+  //
+  // Đứng TRƯỚC 3c vì 3c bắt cụm 'lien he' và 'ubnd': "tôi muốn phản ánh với
+  // UBND phường" mà rơi vào đó thì chỉ nhận được bảng số điện thoại, không ai
+  // nói cho biết phản ánh đời sống thì cổng này không nhận.
+  //
+  // Nhưng đứng SAU nhánh khẩn cấp bên dưới thì không được — nên các từ khoá ở
+  // đây cố ý không chạm tới 'cap cuu', 'chay no', '113': câu thật sự khẩn cấp
+  // vẫn phải rơi đúng vào 3c. Bù lại, nhánh "phản ánh với phường" tự mở đầu
+  // bằng ba số khẩn cấp.
+  //
+  // "Cháy nhà báo ai" khớp cả 'bao ai' (phản ánh) lẫn 'chay nha' (khẩn cấp).
+  // Nhường thẳng cho nhánh khẩn cấp: nhầm về phía số 114 thì cùng lắm là thừa,
+  // nhầm về phía biểu mẫu web thì có thể là mất mạng người.
+  {
+    const loaiPA = detectPhanAnh(q);
+    if (loaiPA && !has(q, ...TU_KHAN_CAP)) return { ...answerPhanAnh(corpus, loaiPA), matched: true };
+  }
+
   // 3c. Khẩn cấp & liên hệ — như trợ lý cổng chính quyền
-  if (has(q, 'cap cuu', 'khan cap', 'cong an', 'canh sat', 'cuu hoa', 'chay no', 'so 113', 'so 114', 'so 115', '113', '114', '115', 'benh vien', 'tram y te'))
+  if (has(q, ...TU_KHAN_CAP))
     return { ...answerContact(corpus, true), matched: true };
   if (
     has(q, 'duong day nong', 'hotline', 'so dien thoai ubnd', 'so dien thoai phuong', 'lien he', 'lien lac', 'ubnd', 'uy ban nhan dan', 'goi cho phuong', 'goi len phuong', 'goi cho ubnd', 'so phuong', 'lien he phuong') ||
@@ -2263,8 +2629,20 @@ export async function ask(question) {
   }
 
   // 4. Nên đi đâu (chung chung, gợi ý theo thời tiết) — lộ trình cụ thể đã xử lý ở 3b
-  if (has(q, 'nen di dau', 'di dau', 'choi o dau', 'tham quan o dau', 'goi y', 'nen den dau', 'dau dep', 'co gi choi'))
-    return { ...(await answerWhereToGo(corpus)), matched: true };
+  //
+  // Nhóm thứ hai "có nên đi không / nên làm gì" BẮT BUỘC phải kèm mốc ngày.
+  // Hai lý do, cả hai đều từ ca thật:
+  //   · "có nên đi chùa Mỹ Cụ không" là hỏi VỀ một di tích, phải để mục tra cứu
+  //     trả lời — đòi mốc ngày thì câu đó không lọt vào đây.
+  //   · "mai có nên đi chùa không" trước đây ra **Đình, chùa, nghè Đông Mai**:
+  //     bỏ dấu xong thì tiếng "mai" trong câu đụng đúng tên di tích. Có mốc
+  //     ngày thì nhánh này nhận trước, và trả lời đúng thứ khách cần — dự báo
+  //     ngày mai kèm gợi ý điểm phù hợp.
+  if (
+    has(q, 'nen di dau', 'di dau', 'choi o dau', 'tham quan o dau', 'goi y', 'nen den dau', 'dau dep', 'co gi choi') ||
+    (has(q, 'nen lam gi', 'co nen di', 'nen di khong', 'di duoc khong', 'co di duoc khong') && has(q, ...DAY_WORDS))
+  )
+    return { ...(await answerWhereToGo(corpus, q)), matched: true };
 
   // 6. Đường đi
   if (

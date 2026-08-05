@@ -15,6 +15,7 @@
     "start": "npm --workspace server run start",
     "extract": "npm --workspace server run extract",
     "build-dataset": "npm --workspace server run build-dataset",
+    "check-hanh-chinh": "npm --workspace server run check-hanh-chinh",
     "make-favicon": "npm --workspace server run make-favicon",
     "check-contrast": "npm --workspace client run check-contrast",
     "fetch-images": "npm --workspace server run fetch-images",

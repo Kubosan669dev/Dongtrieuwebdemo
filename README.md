@@ -18,6 +18,67 @@ Toàn bộ nội dung di tích được biên soạn từ **hồ sơ lý lịch 
 
 Dữ liệu thời tiết & triều cường: [Open-Meteo](https://open-meteo.com) (miễn phí, không cần API key).
 
+### Hai cổng tách rời: du khách và người dân
+
+Đây là **hai cổng riêng**, đi chung một mã nguồn và một cơ sở dữ liệu, nhưng
+không dùng chung trang nào:
+
+| | Trang chủ | Thanh điều hướng | Nội dung |
+|---|---|---|---|
+| **Du khách** | `/` | Di tích · Lễ hội · Ẩm thực · Lưu trú · Bản đồ · Thời tiết · Giới thiệu | giới thiệu · mùa lễ hội · di tích · bản đồ · lễ hội · ẩm thực · cảm nhận · lưu trú |
+| **Người dân** | `/nguoi-dan` | Khu phố · Hành chính · Phản ánh · Tin tức & thông báo · Liên hệ | tổng quan phường · lối đi nhanh · 11 khu phố · dịch vụ công · thông báo · phản ánh |
+
+**Vì sao là hai đường dẫn, không phải một công tắc.** Bản đầu dùng một nút nhớ
+trong `localStorage`: cùng địa chỉ `/` hiện hai nội dung tuỳ lần bấm gần nhất.
+Ba chỗ gãy, và cả ba chỉ lộ ra khi có người thật dùng:
+
+- **Không gửi được cho ai** — cán bộ muốn gửi bà con "vào đây xem khu phố" thì
+  chép ra vẫn là `/`, người nhận mở lên thấy trang du lịch.
+- **Máy tìm kiếm chỉ thấy một bên** — một địa chỉ thì chỉ một bản được lập chỉ
+  mục, nửa nội dung của cổng không ai tìm ra.
+- **Máy dùng chung thì lẫn** — máy ở nhà văn hoá, ở bộ phận một cửa: người trước
+  bấm gì thì người sau chịu nấy.
+
+**Hai thanh nav không được có mục nào trùng nhau.** Đây là ràng buộc chứ không
+phải sở thích: vai của một trang suy từ chính đường dẫn của nó
+([`vaiCuaDuong`](client/src/hooks/useDoiTuong.jsx)), nên nav người dân mà chứa
+một mục thuộc cổng du lịch thì bấm vào đó là cả đầu trang đổi sang bên kia.
+
+**Chân trang là nơi duy nhất hai cổng gặp nhau** — nó là bản đồ toàn cổng, chia
+rõ hai cột. Ngoài ra chỉ có nút chuyển cổng ở đầu trang, tức là một cái cửa thấy
+được, chứ không phải trượt sang lúc nào không biết.
+
+Thêm trang mới cho người dân thì phải khai vào `NHANH_NGUOI_DAN` trong
+[`useDoiTuong.jsx`](client/src/hooks/useDoiTuong.jsx) — đó là nguồn duy nhất
+quyết định một trang thuộc cổng nào.
+
+### Các trang của cổng người dân
+
+Ngoài trang chủ `/nguoi-dan` và trang Khu phố, cổng này có hai trang riêng cho
+mảng chính quyền — dựng sẵn để sau này thêm một trợ lý chuyên cho mảng này mà
+không phải gỡ nội dung ra khỏi chỗ khác.
+
+- **[`/hanh-chinh`](client/src/pages/Administration.jsx)** — mã bưu chính, mã đơn
+  vị hành chính, năm đơn vị cũ hợp thành, văn bản thành lập, trụ sở, cổng thông
+  tin, và khối **đối chiếu hai bộ số liệu** (bảng khu phố ↔ trang tra cứu ngoài).
+  Chỗ nào cổng chưa đối chiếu được bản gốc thì nói thẳng ra — đây là trang người
+  dân mang đi làm giấy tờ.
+- **[`/phan-anh`](client/src/pages/Feedback.jsx)** — ba luồng: báo nội dung sai
+  trên cổng (cổng **nhận** trực tiếp), phản ánh đời sống (cổng **không** nhận),
+  khiếu nại tố cáo (cổng **không** nhận thay). Số khẩn cấp đứng trước mọi biểu mẫu.
+
+Trang chủ `/nguoi-dan` chỉ giữ bản tóm tắt dẫn sang hai trang này. Cố ý không lặp
+nội dung: đây là loại nội dung nói cổng nhận việc gì và KHÔNG nhận việc gì, hai
+bản chép thì sớm muộn bản cũ sẽ hứa hộ chính quyền một việc bản mới đã rút lại.
+
+**Chuẩn bị cho trợ lý riêng của chính quyền.** `POST /api/chat` nhận thêm trường
+`audience` (`du-khach` | `nguoi-dan`), khung chat tự gửi kèm vai đang chọn, và cột
+`ChatLog.audience` ghi lại. Máy chủ hiện **chỉ ghi, chưa đổi câu trả lời** — đổi
+cách trả lời theo vai là quyết định cần dữ liệu thật để quyết chứ không phải đoán.
+`GET /api/chat/logs` trả thêm `theoVai` để thấy người dân thật sự hỏi gì và câu
+nào bot chịu thua với riêng họ; đó là tập câu hỏi **có thật** để bám vào khi dựng
+bot ấy, thay cho một danh sách phỏng đoán.
+
 ### Trang Khu phố
 
 `/khu-pho` trả lời câu hỏi thường gặp nhất của người dân sau sắp xếp: **36 khu phố
@@ -59,6 +120,29 @@ Khoảng cách tới Hà Nội / Hạ Long lấy theo **hồ sơ 13 di tích đ�
 (85 km / 80 km), không lấy theo Wikipedia (100 km / 60 km — tính từ trung tâm thành
 phố cũ). Cố ý giữ một con số duy nhất trên toàn cổng; bài kiểm đối chiếu hai nguồn
 này với nhau.
+
+### Căn cước hành chính — nguồn ngoài duy nhất của cổng
+
+Khoá cài đặt `hanhChinh` ([`seed-data/hanh-chinh.json`](server/prisma/seed-data/hanh-chinh.json))
+giữ mã bưu chính **02427**, mã đơn vị hành chính **07093**, năm đơn vị cũ hợp thành
+phường, trụ sở và các cổng thông tin. Đây là nhóm câu hỏi của **người dân** chứ
+không phải của du khách, trước đây cổng chưa trả lời được câu nào.
+
+Khác mọi dữ liệu còn lại, phần này **chép từ một trang bên ngoài**
+(`tinhthanhvn.com`) — trang tự ghi chỉ có giá trị tham khảo, và thực tế đã dẫn sai
+một văn bản. Nên nó đi kèm ba lớp giữ:
+
+- Bản thu thập thô để nguyên ở [`data/sources/hanh-chinh-tinhthanhvn.json`](server/data/sources/hanh-chinh-tinhthanhvn.json),
+  tách khỏi bản đã hiệu đính — nhìn là biết chỗ nào chép, chỗ nào đã sửa và vì sao.
+- Mọi câu trả lời của trợ lý đóng một dòng nguồn, khuyên đối chiếu với UBND phường
+  trước khi dùng vào giấy tờ.
+- `npm run check-hanh-chinh` tải lại trang và dò 11 giá trị. Nó **cố ý không tự ghi
+  đè**: tự động đồng bộ với một nguồn ngoài tầm kiểm soát là cách nhanh nhất để dữ
+  liệu sai lặng lẽ chui vào cổng.
+
+Số liệu diện tích / dân số của trang (40,42 km² · 43.712 người) **không** thay số
+của cổng — cổng vẫn cộng từ bảng khu phố như cũ, vì đó là con số duy nhất khớp với
+từng trang khu phố. Chênh lệch được ghi lại kèm lý do ngay trong tệp.
 
 ### Địa chí Hán Nôm 1896 — và một đơn vị hành chính THỨ BA
 
@@ -274,8 +358,9 @@ node -e "console.log(require('crypto').randomBytes(12).toString('base64url'))"
 | `npm run test-chatbot` | Chạy thử trợ lý AI với ~40 câu hỏi mẫu, in ra câu trả lời |
 | `npm run test-gemini` | 17 phép kiểm tầng Gemini (dùng fetch giả, không cần khoá API) |
 | `npm run test-chatbot "câu hỏi"` | Hỏi trợ lý một câu bất kỳ ngay trên terminal |
-| `npm run test-scenarios` | Bộ kịch bản ~110 câu theo 18 nhóm (kiểu cổng du lịch); báo nhóm nào chưa đạt |
+| `npm run test-scenarios` | Bộ kịch bản 211 câu theo 26 nhóm (kiểu cổng du lịch); báo nhóm nào chưa đạt |
 | `npm run test-scenarios-bulk` | Bộ sinh tự động ~1.400 câu từ dữ liệu thật; báo tỷ lệ đạt theo nhóm |
+| `npm run check-hanh-chinh` | Tải lại trang tra cứu, đối chiếu với `hanh-chinh.json`; **chỉ báo lệch, không tự ghi đè** |
 
 Chạy thử production trên máy local:
 
@@ -463,12 +548,12 @@ cd bot-python
 python run.py chat                        # trò chuyện trong cửa sổ lệnh
 python run.py serve                       # dịch vụ HTTP ở cổng 5005
 python run.py doi-chieu                   # so kho từ API với kho từ tệp JSON
-python kiemtra.py                         # bộ kiểm, 90 phép
+python kiemtra.py                         # bộ kiểm, 91 phép
 ```
 
 Nó đọc dữ liệu **qua API của máy chủ Node**, và khi máy chủ không chạy thì lùi về
 đọc thẳng `server/prisma/seed-data/*.json` (ép bằng cờ `--tep`). Hai đường phải
-cho ra như nhau — hiện **652 so với 653 đoạn**, lệch 0,2% — và có bộ kiểm canh:
+cho ra như nhau — hiện **663 so với 664 đoạn**, lệch 0,2% — và có bộ kiểm canh:
 thêm tệp JSON mới vào `seed-data/` mà bộ nạp Python quên đọc thì `kiemtra.py` đỏ.
 Chi tiết ở [`bot-python/README.md`](bot-python/README.md).
 
@@ -557,7 +642,7 @@ Kiểm tra nhanh chất lượng sau khi sửa dữ liệu:
 ```bash
 npm run test-chatbot                      # chạy ~40 câu mẫu, in câu trả lời
 npm run test-chatbot "na mùa nào?"        # hỏi thử một câu
-npm run test-scenarios                    # bộ kịch bản CURATED ~110 câu theo nhóm
+npm run test-scenarios                    # bộ kịch bản viết tay 211 câu theo nhóm
 npm run test-scenarios-bulk               # bộ SINH TỰ ĐỘNG ~1.400 câu (mẫu × dữ liệu × biến thể)
 npm run test-scenarios-bulk -- --fails    # in chi tiết câu chưa đạt
 npm run test-scenarios-bulk -- --drift    # in cả cảnh báo lệch ý định
@@ -565,7 +650,7 @@ npm run test-scenarios-bulk -- --drift    # in cả cảnh báo lệch ý địn
 
 Hai lớp kiểm thử:
 
-- **Curated** (`chatbot-scenarios.mjs`, ~110 câu) — viết tay, mô phỏng các nhóm câu hỏi của một cổng
+- **Curated** (`chatbot-scenarios.mjs`, 211 câu) — viết tay, mô phỏng các nhóm câu hỏi của một cổng
   du lịch chính quyền (giới thiệu, di tích, lễ hội, ẩm thực, lưu trú, vé & giờ, thời tiết, đường đi,
   **lộ trình cá nhân hoá**, liên hệ & khẩn cấp, và **các câu ngoài phạm vi phải từ chối trung thực**).
 - **Sinh tự động** (`gen-scenarios.mjs`, ~1.400 câu) — ghép **mẫu câu × dữ liệu thật trong database ×

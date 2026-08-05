@@ -3,7 +3,13 @@ import { env } from './env.js';
 
 const STATIC_PATHS = [
   '/',
+  // Cổng người dân — trang chủ riêng, phải có mặt ở đây thì máy tìm kiếm mới
+  // lập chỉ mục được nửa nội dung này của cổng.
+  '/nguoi-dan',
   '/khu-pho',
+  '/hanh-chinh',
+  '/van-ban',
+  '/phan-anh',
   '/di-tich',
   '/le-hoi',
   '/am-thuc',

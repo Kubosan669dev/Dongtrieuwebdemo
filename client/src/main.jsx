@@ -16,6 +16,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        {/* Không còn Provider cho "du khách / người dân": vai của một trang nay
+            suy thẳng từ đường dẫn (xem hooks/useDoiTuong.jsx), nên không có
+            trạng thái nào phải giữ ở gốc cây. */}
         <RouterProvider router={router} />
       </AuthProvider>
     </QueryClientProvider>

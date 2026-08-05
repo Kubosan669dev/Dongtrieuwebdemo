@@ -11,7 +11,10 @@ export default function Footer() {
 
   return (
     <footer className="mt-20 border-t border-jade-900/5 bg-jade-950 text-jade-100">
-      <div className="container-page grid gap-10 py-14 md:grid-cols-4">
+      {/* Năm cột từ lg trở lên (giới thiệu chiếm 2, rồi ba cột liên kết). Ở md
+          chỉ hai cột: nhồi năm cột vào 768px thì mỗi cột hẹp tới mức tên trang
+          nào cũng gãy làm hai dòng. */}
+      <div className="container-page grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-5">
         <div className="md:col-span-2">
           <Brand size={44} title={SITE_NAME} titleClass="text-xl" />
           <p className="mt-4 max-w-md text-sm leading-relaxed text-jade-200/80">
@@ -33,17 +36,34 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* ── CHÂN TRANG LÀ NƠI DUY NHẤT HAI CỔNG GẶP NHAU ────────────────────
+            Thanh điều hướng của mỗi cổng cố ý không chứa mục của cổng kia, nên
+            nếu chân trang cũng tách đôi thì người dân muốn xem lễ hội sẽ không
+            có lối nào ngoài việc bấm nút chuyển cổng rồi tự mò. Chân trang là
+            bản đồ toàn cổng — nó liệt kê hết, chia rõ hai cột theo cổng. */}
         <div>
-          {/* "Lưu trú" ở lại đây dù đã rời thanh điều hướng chính: nó vẫn là một
-              trang thật, chỉ không còn là mục dành cho người trong phường. */}
-          <h3 className="font-serif text-base font-semibold text-white">Tra cứu</h3>
+          <h3 className="font-serif text-base font-semibold text-white">Cổng du lịch</h3>
           <ul className="mt-4 space-y-2 text-sm text-jade-200/80">
-            <li><Link to="/khu-pho" className="hover:text-gold-300">11 khu phố của phường</Link></li>
             <li><Link to="/di-tich" className="hover:text-gold-300">Di tích &amp; danh thắng</Link></li>
             <li><Link to="/le-hoi" className="hover:text-gold-300">Lễ hội truyền thống</Link></li>
             <li><Link to="/am-thuc" className="hover:text-gold-300">Ẩm thực &amp; đặc sản</Link></li>
-            <li><Link to="/thoi-tiet" className="hover:text-gold-300">Thời tiết &amp; triều cường</Link></li>
             <li><Link to="/luu-tru" className="hover:text-gold-300">Lưu trú cho khách tới thăm</Link></li>
+            <li><Link to="/ban-do" className="hover:text-gold-300">Bản đồ số</Link></li>
+            <li><Link to="/thoi-tiet" className="hover:text-gold-300">Thời tiết &amp; triều cường</Link></li>
+            <li><Link to="/gioi-thieu" className="hover:text-gold-300">Giới thiệu vùng đất</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="font-serif text-base font-semibold text-white">Cổng người dân</h3>
+          <ul className="mt-4 space-y-2 text-sm text-jade-200/80">
+            <li><Link to="/nguoi-dan" className="hover:text-gold-300">Trang chủ cổng người dân</Link></li>
+            <li><Link to="/khu-pho" className="hover:text-gold-300">11 khu phố của phường</Link></li>
+            <li><Link to="/hanh-chinh" className="hover:text-gold-300">Hành chính phường</Link></li>
+            <li><Link to="/van-ban" className="hover:text-gold-300">Văn bản chỉ đạo</Link></li>
+            <li><Link to="/phan-anh" className="hover:text-gold-300">Phản ánh &amp; góp ý</Link></li>
+            <li><Link to="/tin-tuc" className="hover:text-gold-300">Tin tức &amp; thông báo</Link></li>
+            <li><Link to="/lien-he" className="hover:text-gold-300">Liên hệ phường</Link></li>
           </ul>
         </div>
 

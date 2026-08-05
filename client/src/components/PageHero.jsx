@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import PagodaMotif from './PagodaMotif.jsx';
 import { cx } from '../lib/format.js';
+import { useDoiTuong } from '../hooks/useDoiTuong.jsx';
 
 /**
  * Tiêu đề trang phụ (không phải trang chủ) + breadcrumb.
@@ -15,6 +16,11 @@ import { cx } from '../lib/format.js';
  * hiện ra lần nào — nay xếp lại đúng thứ tự.
  */
 export default function PageHero({ title, description, breadcrumb = [], image, illustrative = false }) {
+  // "Trang chủ" phải là trang chủ CỦA CỔNG ĐANG XEM. Trỏ cứng về `/` thì người
+  // đang tra quyết định của phường bấm một nhát là rơi sang cổng du lịch — cùng
+  // lỗi đã sửa ở logo trên đầu trang.
+  const { trangChu } = useDoiTuong();
+
   return (
     <div className={cx('relative overflow-hidden bg-jade-800 text-white', image && 'min-h-[19rem] sm:min-h-[23rem]')}>
       {image ? (
@@ -33,7 +39,7 @@ export default function PageHero({ title, description, breadcrumb = [], image, i
 
       <div className={cx('container-page relative', image ? 'flex min-h-[19rem] flex-col justify-end py-10 sm:min-h-[23rem] sm:py-12' : 'py-12 sm:py-16')}>
         <nav className="mb-3 flex flex-wrap items-center gap-1 text-sm text-jade-100/80">
-          <Link to="/" className="hover:text-gold-300">Trang chủ</Link>
+          <Link to={trangChu} className="hover:text-gold-300">Trang chủ</Link>
           {breadcrumb.map((b, i) => (
             <span key={i} className="flex items-center gap-1">
               <ChevronRight size={14} />

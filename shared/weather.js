@@ -72,17 +72,31 @@ export function seasonNote(date = new Date()) {
 /**
  * @param {object} weather  dữ liệu từ /api/weather
  * @param {Array}  heritages danh sách di tích từ /api/heritages
- * @returns {{tone, title, message, picks, tips}}
+ * @param {{dayIndex?: number, dayLabel?: string}} [ngay]  ngày cần khuyên
+ * @returns {{tone, title, message, picks, tips, dayIndex, dayLabel}}
+ *
+ * ── VÌ SAO CÓ THAM SỐ NGÀY ─────────────────────────────────────────────────
+ * Bản đầu chỉ biết đọc `weather.current`, tức là LUÔN khuyên theo thời tiết
+ * ngay lúc hỏi. Khách hỏi "mai nên đi đâu" vẫn nhận lời khuyên của hôm nay —
+ * hôm nay mưa thì bot bảo mai nên vào chỗ có mái che, dù mai có thể nắng.
+ * Lời khuyên nghe rất hợp lý mà dựa trên dữ liệu của ngày khác.
+ *
+ * `dayIndex = 0` giữ y nguyên hành vi cũ, nên trang /thoi-tiet không đổi gì.
+ * `dayIndex > 0` thì đọc `daily[dayIndex]`: dự báo ngày không có "nhiệt độ lúc
+ * này", nên lấy nhiệt độ CAO NHẤT trong ngày — đó cũng là con số quyết định
+ * việc có nên tránh nắng hay không.
  */
-export function getWeatherAdvice(weather, heritages = []) {
+export function getWeatherAdvice(weather, heritages = [], ngay = {}) {
+  const { dayIndex = 0, dayLabel = 'Hôm nay' } = ngay;
   const cur = weather?.current;
-  if (!cur) return null;
+  const day = weather?.daily?.[dayIndex];
+  if (!cur || (dayIndex > 0 && !day)) return null;
 
-  const code = cur.code ?? 0;
-  const temp = cur.temp ?? 25;
-  const today = weather?.daily?.[0] ?? {};
-  const rainProb = today.rainProb ?? 0;
-  const uv = today.uvMax ?? 0;
+  const moc = day ?? {};
+  const code = (dayIndex > 0 ? moc.code : cur.code) ?? 0;
+  const temp = (dayIndex > 0 ? moc.tempMax : cur.temp) ?? 25;
+  const rainProb = moc.rainProb ?? 0;
+  const uv = moc.uvMax ?? 0;
 
   const isStorm = code >= 95;
   const isRain = code >= 51 || rainProb >= 70;
@@ -96,7 +110,7 @@ export function getWeatherAdvice(weather, heritages = []) {
 
   if (isStorm) {
     tone = 'warn';
-    title = 'Hôm nay có dông — nên hoãn các điểm ngoài trời';
+    title = `${dayLabel} có dông — nên hoãn các điểm ngoài trời`;
     message =
       'Trời có dông kèm gió giật. Nếu vẫn muốn đi, hãy chọn các điểm chiêm bái có mái che và tránh khu vực đồi, cây cao.';
     slugs = INDOOR;
@@ -138,7 +152,7 @@ export function getWeatherAdvice(weather, heritages = []) {
 
   if (season) tips.push(season);
 
-  return { tone, title, message, picks: pick(heritages, slugs), tips };
+  return { tone, title, message, picks: pick(heritages, slugs), tips, dayIndex, dayLabel };
 }
 
 /** Câu gợi ý rất ngắn cho widget thời tiết ở trang chủ. */

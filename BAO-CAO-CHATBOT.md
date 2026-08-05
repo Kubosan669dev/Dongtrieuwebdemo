@@ -11,14 +11,14 @@ Một trợ lý hỏi đáp tiếng Việt cho cổng thông tin du lịch phư�
 
 | Thành phần | Tệp | Quy mô |
 |---|---|---|
-| Bộ điều phối ý định | `server/src/services/chatbot.js` | 2.514 dòng · 49 ý định |
+| Bộ điều phối ý định | `server/src/services/chatbot.js` | 2.882 dòng · 56 ý định |
 | Kho tri thức | `server/src/services/knowledge.js` | 341 dòng |
 | Bộ tìm kiếm BM25 | `server/src/services/retrieval.js` | 179 dòng |
 | Module ngôn ngữ tiếng Việt | `server/src/lib/vitext.js` | 194 dòng |
 | Cầu nối sang Python | `server/src/services/pybot.js` | 78 dòng |
-| Trợ lý tra đoạn (Python) | `bot-python/troly/` | 978 dòng · 653 đoạn |
+| Trợ lý tra đoạn (Python) | `bot-python/troly/` | 1.019 dòng · 664 đoạn |
 | Khung chat | `client/src/components/ChatWidget.jsx` | 273 dòng |
-| Bộ kiểm | 3 bộ | 140 + 1.376 + 90 phép |
+| Bộ kiểm | 3 bộ | 211 + 1.376 + 91 phép |
 
 ---
 
@@ -65,7 +65,7 @@ Du khách gõ câu hỏi
         │
         ▼
   ┌──────────────────────────────────────────────┐
-  │  BƯỚC 3 — Bộ điều phối 49 ý định             │
+  │  BƯỚC 3 — Bộ điều phối 56 ý định             │
   │  Xét theo THỨ TỰ ĐÃ THIẾT KẾ, dừng ở nhánh   │
   │  đầu tiên khớp                                │
   └──────────────────────────────────────────────┘
@@ -121,6 +121,31 @@ Hai xử lý đáng chú ý ở bước dựng kho:
   đúng di tích.
 - **Quy đổi khu phố sẵn một lần.** Chỉ 1/13 di tích có toạ độ, nên khu phố là cách
   duy nhất biết cơ sở nào gần di tích nào.
+
+### 4.1 Nguồn ngoài duy nhất — dữ liệu hành chính, và cách nó bị kiểm soát
+
+Mọi nội dung khác của cổng đều do phường tự có: hồ sơ .docx, khảo sát cơ sở, địa
+chí 1896. **Khoá `hanhChinh` là ngoại lệ duy nhất** — chép lại từ trang tra cứu
+`tinhthanhvn.com`. Nó trả lời nhóm câu hỏi của *người dân* chứ không phải của du
+khách: phường ghép từ những đơn vị nào, mã bưu chính là bao nhiêu, trụ sở ở đâu.
+
+Một nguồn ngoài thì phải kèm cơ chế giữ, nếu không nó lặng lẽ mục đi:
+
+| Rủi ro | Cách xử lý |
+|---|---|
+| Trang tự nhận chỉ "mang tính tham khảo" | Mọi câu trả lời đóng một dòng nguồn, khuyên đối chiếu với UBND trước khi dùng vào giấy tờ |
+| Trang dẫn **sai** văn bản (Nghị quyết 202/2025/QH15 là nghị quyết sắp xếp cấp **tỉnh**, không phải văn bản lập phường) | Chép lại số hiệu đúng theo tra cứu văn bản, kèm cờ `canDoiSoat` vì chưa đọc được bản công báo gốc |
+| Số của trang lệch số của cổng (40,42 km² · 43.712 người ↔ 40,41 km² · 42.454 nhân khẩu cộng từ bảng khu phố) | Cổng vẫn lấy tổng từ bảng khu phố; số của trang chỉ để đối chiếu, kèm lời giải thích vì sao lệch |
+| Trang sửa dữ liệu mà không báo ai | `npm run check-hanh-chinh` tải lại trang, dò 11 giá trị, **cố ý không tự ghi đè** — chỉ báo chỗ lệch để người phụ trách tự quyết |
+| Trang liệt kê phường giáp ranh sai (có cả Quảng Yên, Hiệp Hoà — cách rất xa) | Không dùng; ranh giới vẫn lấy từ khoá `vungDat` |
+
+Điểm đối soát mạnh nhất lại đến từ **chính dữ liệu sẵn có của cổng**: năm đơn vị
+cũ mà trang liệt kê (Thuỷ An · Hưng Đạo · Hồng Phong · Nguyễn Huệ · Đức Chính)
+trùng khớp tuyệt đối với trường `wardOld` trên 13 hồ sơ di tích — hai bộ dữ liệu
+độc lập, cùng một kết quả.
+
+Còn thứ trang **không** có: danh sách khu phố. Cổng vốn đã có đủ hơn — 11 khu phố
+kèm diện tích, số hộ, nhân khẩu, nhà văn hoá — nên phần đó giữ nguyên.
 
 ---
 
@@ -227,7 +252,7 @@ phải hỏi câu đó trước khi hành động.
 
 ---
 
-## 7. Bước 4 — Bộ điều phối 49 ý định
+## 7. Bước 4 — Bộ điều phối 56 ý định
 
 ### 7.1 Thứ tự xét là thiết kế, không phải ngẫu nhiên
 
@@ -252,7 +277,7 @@ sẽ trả về một danh sách xếp theo sao — **trông như đã trả l�
 liệu hoàn toàn không chấm wifi. Đây là kiểu sai nguy hiểm nhất vì người đọc không
 nhận ra.
 
-### 7.2 Toàn bộ 49 ý định, chia 9 nhóm
+### 7.2 Toàn bộ 56 ý định, chia 11 nhóm
 
 | Nhóm | Số | Ý định |
 |---|---:|---|
@@ -260,10 +285,12 @@ nhận ra.
 | Thời tiết & thuỷ triều | 4 | `weather_now` `weather_day` `weather_range` `tide` |
 | Liệt kê nội dung | 7 | `list_heritage` `list_festival` `list_cuisine` `list_lodging` `list_restaurant` `list_cafe` `list_attraction` |
 | Hỏi sâu về lễ hội | 4 | `lookup_festival` `festival_aspect` `festival_month` `festival_upcoming` |
-| Không gian & thời gian | 7 | `near` `hours` `ticket` `directions` `route` `where_today` `recommend` |
+| Không gian & thời gian | 8 | `near` `hours` `ticket` `directions` `route` `where_today` `where_day` `recommend` |
 | Địa phương & khu phố | 8 | `about` `about_location` `about_history` `about_economy` `about_transport` `about_size` `khu_pho_info` `khu_pho_list` |
+| Căn cước hành chính | 3 | `about_admin_merge` `about_admin_code` `about_admin_office` |
 | Địa chí 1896 | 10 | `about_diachi` `about_nui` `about_song` `about_nhanvat` `about_thosan` `about_phongtuc` `about_cotich` `about_tenlang` `about_diencach` `about_khupho_xua` |
 | Liên hệ & khẩn cấp | 2 | `contact` `contact_emergency` |
+| Phản ánh & góp ý | 3 | `feedback_ward` `feedback_legal` `feedback_portal` |
 | Ranh giới | 4 | `out_of_scope_admin` `out_of_scope_facility` `out_of_scope_ranking` `fallback` |
 
 Nhóm "Địa chí 1896" là đơn vị nội dung thứ ba của cổng, bên cạnh hồ sơ di tích và
@@ -302,6 +329,38 @@ tiếp.
 | Xếp hạng theo tiêu chí không có | `out_of_scope_ranking` | Nói rõ dữ liệu chỉ có điểm sao **tổng thể** |
 | Không tìm thấy | `fallback` | Nói thẳng chưa biết + gợi ý câu hỏi khác |
 
+### 8.1 Ranh giới khó nhất: cổng không được hứa hộ chính quyền
+
+Nhóm `feedback_*` là chỗ ranh giới dễ vượt qua nhất mà lại khó thấy nhất, vì
+vượt bằng sự tử tế chứ không bằng sự bịa đặt.
+
+Người dân gõ *"tôi muốn phản ánh"* đang muốn ba việc rất khác nhau, và cổng chỉ
+làm được **một**:
+
+| Việc | Cổng làm được gì | Ý định |
+|---|---|---|
+| Báo nội dung sai trên chính cổng này | **Nhận trực tiếp** qua biểu mẫu Liên hệ — đây là thứ duy nhất cổng hứa được | `feedback_portal` |
+| Phản ánh đời sống: rác, đường hỏng, tiếng ồn | **Không nhận được.** Chỉ đường tới UBND phường, `dichvucong.gov.vn`, `nguoidan.chinhphu.vn` | `feedback_ward` |
+| Khiếu nại, tố cáo | **Không được nhận.** Thủ tục có trình tự, thời hạn, cần đơn có chữ ký | `feedback_legal` |
+
+Cám dỗ ở đây là gộp cả ba rồi chỉ sang biểu mẫu Liên hệ cho gọn — nghe rất chu
+đáo, nhưng là **hứa hộ chính quyền một việc cổng không làm**: người dân gửi
+phản ánh về rác vào biểu mẫu du lịch rồi ngồi chờ một hồi âm không bao giờ tới.
+Nên `feedback_ward` đóng lại bằng đúng một câu nói thẳng: *"Cổng này là cổng
+thông tin du lịch, không phải kênh tiếp nhận phản ánh."*
+
+**Việc gấp thì số điện thoại đứng trước biểu mẫu.** *"Cây đổ chắn đường báo ai"*
+mà đáp bằng đường dẫn tới một biểu mẫu web thì đúng hình thức nhưng sai việc, nên
+`feedback_ward` mở đầu bằng 113 · 114 · 115. Cùng lý do, câu nào chạm từ khoá khẩn
+cấp thì nhánh khẩn cấp thắng tuyệt đối: nhầm về phía số 114 cùng lắm là thừa, nhầm
+về phía biểu mẫu web thì có thể là mất mạng người.
+
+Đo lúc dựng nhóm này còn lộ ra một lỗ hổng đã nằm sẵn: *"cháy nhà gọi số nào"*,
+*"có trộm gọi số nào"*, *"tai nạn giao thông gọi ai"* đều rơi xuống `fallback` —
+người đang cần cứu hộ thì bot đáp *"mình chưa có thông tin này"*. Danh sách từ
+khoá khẩn cấp được bổ sung, **trừ cụm `chay` trần**: bỏ dấu thì **cháy** ≡ **chay**,
+mà cổng có hẳn mục ẩm thực, nên *"quán ăn chay ở đâu"* sẽ được đáp lại bằng số 114.
+
 ---
 
 ## 9. Đơn vị thứ hai — trợ lý Python tra theo đoạn
@@ -323,7 +382,7 @@ Ví dụ bản luật chịu thua mà bản Python trả lời được:
 > *"chùa Quỳnh Lâm do ai dựng"* · *"ai đỗ bảng nhãn đời Trần"* ·
 > *"thổ sản trúc vằn lấy ở đâu"* · *"làng nào giỏi đấu vật"*
 
-### 9.2 Kho 653 đoạn
+### 9.2 Kho 664 đoạn
 
 | Loại | Số đoạn | | Loại | Số đoạn |
 |---|---:|---|---|---:|
@@ -578,9 +637,9 @@ bot chịu thua thì hoặc thiếu dữ liệu, hoặc thiếu luật.
 
 | Bộ kiểm | Quy mô | Kiểm gì |
 |---|---|---|
-| `npm run test-scenarios` | 140 câu / 21 nhóm | Kịch bản viết tay theo mẫu cổng du lịch |
+| `npm run test-scenarios` | 211 câu / 26 nhóm | Kịch bản viết tay theo mẫu cổng du lịch |
 | `npm run test-scenarios-bulk` | 1.376 câu | **Sinh tự động từ dữ liệu thật** |
-| `python kiemtra.py` | 90 phép | Trợ lý Python, gồm đối chiếu nguyên văn từng đoạn |
+| `python kiemtra.py` | 91 phép | Trợ lý Python, gồm đối chiếu nguyên văn từng đoạn |
 
 ### 12.2 Bộ sinh kịch bản tự động — điểm đáng học nhất
 
@@ -608,16 +667,17 @@ trượt. Tách hai mức này ra rất có ích: cảnh báo cho thấy bot tr�
 ### 12.3 Kết quả lần chạy 03/08/2026
 
 ```
-Kịch bản viết tay     140/140
+Kịch bản viết tay     211/211
 Sinh tự động          1376/1376   (cảnh báo lệch ý định: 13)
 Trợ lý Python         90/90
 ```
 
 ---
 
-## 13. Ba lỗi điển hình đã gặp và cách chúng được tìm ra
+## 13. Bốn lỗi điển hình đã gặp và cách chúng được tìm ra
 
-Cả ba đều do **bộ sinh tự động** phát hiện, không phải do người ngồi thử tay.
+Ba lỗi đầu do **bộ sinh tự động** phát hiện. Lỗi thứ tư thì không bộ kiểm nào bắt
+được — người dùng báo — và chính điều đó đã lộ ra một lỗ hổng của cách kiểm.
 
 **1 — "làm hộ chiếu ở đâu" được trả lời bằng vị trí Đông Triều.**
 Bộ lọc thủ tục hành chính thiếu từ khoá "hộ chiếu" nên câu rơi xuống nhánh `'o dau'`
@@ -632,9 +692,41 @@ Nhánh khu phố đã coi "chỗ nghỉ" là từ chỉ lưu trú, riêng nhánh
 Đúng bẫy ở mục 5.2: "**An** Biên" bỏ dấu thành `an`, trùng "**ăn**". Sửa bằng cách
 gỡ tên khu phố ra khỏi câu trước khi dò từ khoá món ăn.
 
-Bài học chung: **mọi lỗi định tuyến của trợ lý tiếng Việt đều xoay quanh việc bỏ
-dấu làm hai từ khác nghĩa đụng nhau.** Ai xây bot tiếng Việt kiểu này nên lập
-bảng va chạm ngay từ đầu.
+**4 — "ăn gì vào buổi sáng" trả về một bản lộ trình vãn cảnh chùa.**
+
+Đây là lỗi đáng học nhất, vì hai lẽ.
+
+*Thứ nhất, nó là lỗi thứ tự chứ không phải lỗi từ khoá.* Nhánh lộ trình (mục 3b)
+đứng rất sớm, và `hasSang` nhận `'buoi sang'` **đứng một mình** — không đòi chút ý
+định đi chơi nào. Nhánh đứng sớm mà bắt rộng thì các nhánh sau không còn cơ hội.
+Đo ra mới thấy nó nuốt cả một họ câu hỏi, 9/14 câu thử:
+
+> *"ăn gì vào buổi sáng"* · *"cà phê buổi sáng ở đâu"* · *"đặc sản buổi sáng"* ·
+> *"quán nào mở cả ngày"* (câu này còn cướp mất nhánh giờ mở cửa ở mục 3g)
+
+Sửa: **mọi** từ chỉ buổi/ngày đều phải đi kèm ý định đi chơi. Kèm theo phải bổ
+sung `'di nhung dau'` vào danh sách ý định — `has()` khớp trọn cụm liền nhau nên
+"đi **những** đâu" không khớp "đi đâu", và bài kiểm cũ bắt được ngay chỗ này.
+
+*Thứ hai, không bộ kiểm nào bắt được nó* — vì cả hai bộ đều chỉ hỏi "bot có trả
+lời được không". Bot trả lời rất trôi chảy, `matched = true`, chỉ có điều trả lời
+sang chuyện khác. Bộ sinh tự động thì có so ý định nhưng chỉ **cảnh báo**, không
+tính trượt.
+
+Nên `chatbot-scenarios.mjs` được mở rộng: mỗi câu nay gắn thêm được **tập ý định
+hợp lệ**, đi nhầm nhánh là TRƯỢT. Nhóm hồi quy `S` ghim cả hai chiều — câu ăn
+uống/giờ giấc không được thành lộ trình, mà câu lộ trình thật vẫn phải ra lộ
+trình, và chữ "sáng" trong câu hỏi thời tiết vẫn phải là thời tiết.
+
+Hai bài học:
+
+1. **Mọi lỗi định tuyến của trợ lý tiếng Việt đều xoay quanh việc bỏ dấu làm hai
+   từ khác nghĩa đụng nhau, hoặc một nhánh đứng sớm bắt quá rộng.** Ai xây bot
+   tiếng Việt kiểu này nên lập bảng va chạm ngay từ đầu, và soát lại thứ tự nhánh
+   mỗi lần thêm luật.
+2. **Kiểm `matched` là chưa đủ.** Với bot theo luật, "trả lời trôi chảy nhưng lạc
+   nhánh" mới là lớp lỗi hay gặp và khó thấy nhất — người dùng đọc xong mới biết
+   là lạc đề. Phải kiểm cả ý định thì mới chặn được.
 
 ---
 
@@ -695,5 +787,5 @@ python run.py hoi "Đông Triều có núi nào"
 python run.py serve                  # dịch vụ HTTP cổng 5005
 python run.py kho                    # xem kho tri thức đang có gì
 python run.py doi-chieu              # so kho từ API với kho từ tệp JSON
-python kiemtra.py                    # 90 phép kiểm
+python kiemtra.py                    # 91 phép kiểm
 ```

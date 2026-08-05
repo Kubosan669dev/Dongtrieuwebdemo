@@ -7,6 +7,10 @@ import RequireAuth from './pages/admin/RequireAuth.jsx';
 // Trang public
 import Home from './pages/Home.jsx';
 import Wards from './pages/Wards.jsx';
+import Resident from './pages/Resident.jsx';
+import Administration from './pages/Administration.jsx';
+import Documents from './pages/Documents.jsx';
+import Feedback from './pages/Feedback.jsx';
 import Heritages from './pages/Heritages.jsx';
 import HeritageDetail from './pages/HeritageDetail.jsx';
 import Festivals from './pages/Festivals.jsx';
@@ -46,7 +50,15 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: '/', element: <Home /> },
+      // ── CỔNG NGƯỜI DÂN ─────────────────────────────────────────────────
+      // Một cổng riêng, có trang chủ riêng. Danh sách nhánh thuộc cổng này khai
+      // ở `hooks/useDoiTuong.jsx` — thêm trang mới cho người dân thì phải khai
+      // cả ở đó, nếu không nó sẽ hiện thanh điều hướng của cổng du lịch.
+      { path: '/nguoi-dan', element: <Resident /> },
       { path: '/khu-pho', element: <Wards /> },
+      { path: '/hanh-chinh', element: <Administration /> },
+      { path: '/van-ban', element: <Documents /> },
+      { path: '/phan-anh', element: <Feedback /> },
       { path: '/di-tich', element: <Heritages /> },
       { path: '/di-tich/:slug', element: <HeritageDetail /> },
       { path: '/le-hoi', element: <Festivals /> },
