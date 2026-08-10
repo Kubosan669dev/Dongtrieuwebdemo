@@ -513,6 +513,16 @@ async function seedSettings() {
   } catch {
     /* không có file thì bỏ qua — trang /van-ban tự hiện khối "chưa có dữ liệu" */
   }
+  // 19 thủ tục đất đai cấp xã + mẫu đơn kèm theo. Hai tệp do `npm run
+  // extract-tthc` sinh ra từ bộ văn bản công bố TTHC của Văn phòng UBND tỉnh.
+  let tthcDatDai = null;
+  let tthcMauDon = null;
+  try {
+    tthcDatDai = read('tthc-dat-dai.json');
+    tthcMauDon = read('tthc-mau-don.json');
+  } catch {
+    /* chưa chạy extract-tthc thì bỏ qua — hai trang kia tự hiện khối trống */
+  }
   const settings = {
     contact: {
       name: 'UBND phường Đông Triều',
@@ -550,6 +560,8 @@ async function seedSettings() {
     ...(hanhChinh ? { hanhChinh } : {}),
     ...(diaChi1896 ? { diaChi1896 } : {}),
     ...(vanBan ? { vanBan } : {}),
+    ...(tthcDatDai ? { tthcDatDai } : {}),
+    ...(tthcMauDon ? { tthcMauDon } : {}),
   };
 
   /**

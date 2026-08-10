@@ -1637,6 +1637,167 @@ function answerTruSo(corpus) {
   };
 }
 
+// ─── Thủ tục hành chính đất đai (khoá `tthcDatDai`, `tthcMauDon`) ──────────
+//
+// 19 thủ tục cấp xã — những việc người dân nộp hồ sơ ngay tại phường. Đây là
+// nhóm câu hỏi mà trước nay cổng trả lời "ngoài phạm vi", và là lý do tồn tại
+// của trợ lý chính quyền.
+//
+// ── CHỈ ĐẤT ĐAI, KHÔNG PHẢI MỌI THỦ TỤC ───────────────────────────────────
+// Cổng chỉ có dữ liệu lĩnh vực đất đai. Căn cước, khai sinh, hộ khẩu, hộ chiếu
+// vẫn phải trả lời "ngoài phạm vi" như cũ — nhận bừa cả nhóm đó là hứa một thứ
+// không có, và người dân sẽ đến phường với bộ hồ sơ sai.
+
+/** Câu này có đang hỏi về thủ tục ĐẤT ĐAI không? */
+function laDatDai(q) {
+  return has(
+    q,
+    'dat dai', 'so do', 'so hong', 'giay chung nhan quyen su dung dat', 'gcn quyen su dung',
+    'quyen su dung dat', 'thua dat', 'tach thua', 'hop thua', 'chuyen muc dich', 'chuyen doi dat',
+    'dat o', 'dat nong nghiep', 'dat trong lua', 'giao dat', 'thue dat', 'gia han su dung dat',
+    'dinh chinh giay chung nhan', 'bien dong dat', 'dang ky dat', 'cap giay chung nhan',
+    'le phi truoc ba', 'thue su dung dat', 'don dien doi thua', 'tang cho quyen su dung',
+    // Lối nói đời thường mà văn bản pháp quy không dùng tới chữ nào: người ta
+    // nói "lên thổ cư", "đất hết hạn", chứ không nói "chuyển mục đích sử dụng
+    // đất sang đất ở" hay "gia hạn thời hạn sử dụng đất".
+    'tho cu', 'het han su dung', 'dat het han', 'sang ten so', 'tach so',
+  );
+}
+
+/** Rút gọn tên thủ tục cho gọn dòng. */
+const tenTT = (t) => {
+  const s = String(t.ten || '').replace(/^Trình tự,?\s*thủ tục\s*/i, '');
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+const gonHan = (s) => String(s || '').split('(')[0].trim();
+
+/** Danh mục: "phường làm được những thủ tục đất đai nào". */
+function answerTTHCList(corpus) {
+  const tt = corpus.settings?.tthcDatDai;
+  if (!tt?.capXa?.length) return null;
+  const dong = tt.capXa.slice(0, 10).map((t) => `${t.stt}. ${tenTT(t)} — _${gonHan(t.thoiHanDanhMuc) || 'xem chi tiết'}_`);
+  return {
+    intent: 'tthc_list',
+    reply:
+      `📋 **${tt.capXa.length} thủ tục đất đai làm ngay tại phường Đông Triều**\n\n` +
+      bullets(dong) +
+      (tt.capXa.length > 10 ? `\n\n…và ${tt.capXa.length - 10} thủ tục nữa.` : '') +
+      `\n\n**Nộp ở đâu:** Trung tâm Phục vụ hành chính công phường, hoặc trực tuyến tại dichvucong.gov.vn, hoặc qua bưu điện.` +
+      `\n\n_Nguồn: ${tt.nguon}._`,
+    links: [
+      { label: 'Xem đủ 19 thủ tục', url: '/thu-tuc' },
+      { label: 'Mẫu đơn phải điền', url: '/mau-don' },
+    ],
+    suggestions: ['Làm sổ đỏ lần đầu cần giấy gì?', 'Đính chính sổ đỏ mất bao lâu?', 'Chuyển mục đích sử dụng đất thế nào?'],
+  };
+}
+
+/** Một thủ tục cụ thể — trả lời đúng bốn thứ người ta hỏi. */
+function answerTTHCDetail(corpus, t) {
+  const tt = corpus.settings?.tthcDatDai;
+  const dong = [];
+  if (t.thoiHanDanhMuc) dong.push(`**Thời hạn:** ${gonHan(t.thoiHanDanhMuc)}`);
+  if (t.doiTuong?.length) dong.push(`**Ai làm được:** ${t.doiTuong.join(' ')}`);
+  if (t.phiLePhi?.length) dong.push(`**Phí, lệ phí:** ${t.phiLePhi.join(' ')}`);
+  if (t.ketQua?.length) dong.push(`**Nhận về:** ${t.ketQua.join(' ')}`);
+
+  // Giấy tờ phải nộp là phần dài nhất mà cũng là phần người ta cần nhất — để
+  // nguyên danh sách chứ không tóm tắt, nhưng cắt ở 6 dòng cho vừa khung chat.
+  const hoSo = (t.hoSo ?? []).filter((h) => !/^Số lượng hồ sơ/i.test(h)).slice(0, 6);
+
+  return {
+    intent: 'tthc_detail',
+    reply:
+      `📄 **${tenTT(t)}**\n\n` +
+      bullets(dong) +
+      (hoSo.length ? `\n\n**Giấy tờ phải nộp:**\n${bullets(hoSo)}` : '') +
+      (t.mauNhacToi?.length ? `\n\n**Mẫu đơn kèm theo:** ${t.mauNhacToi.map((m) => `Mẫu ${m}`).join(', ')}` : '') +
+      `\n\n**Nộp tại:** Trung tâm Phục vụ hành chính công phường Đông Triều, hoặc dichvucong.gov.vn, hoặc bưu điện.` +
+      `\n\n_Đây là bản tóm lược. Trước khi đi nên gọi hỏi lại phường — thành phần hồ sơ đổi theo từng trường hợp._` +
+      (tt?.capNhat ? `\n_Nguồn: công bố tháng 7/2026, cập nhật ${tt.capNhat}._` : ''),
+    links: [
+      { label: 'Chi tiết thủ tục này', url: '/thu-tuc' },
+      { label: 'Mẫu đơn phải điền', url: '/mau-don' },
+    ],
+    suggestions: ['Phường làm được những thủ tục đất đai nào?', 'Mẫu đơn nào tôi phải tự điền?', 'Nộp hồ sơ đất đai ở đâu?'],
+  };
+}
+
+/** "Mẫu đơn nào tôi phải điền" — phép trừ quan trọng nhất của cả mảng này. */
+function answerTTHCMauDon(corpus) {
+  const md = corpus.settings?.tthcMauDon;
+  if (!md?.danhSach?.length) return null;
+  const dan = md.danhSach.filter((m) => m.aiDien === 'dan');
+  return {
+    intent: 'tthc_mau_don',
+    reply:
+      `✍️ **Mẫu đơn của thủ tục đất đai**\n\n` +
+      `Trong **${md.danhSach.length} mẫu** kèm theo các thủ tục đất đai, bạn chỉ phải tự điền **${dan.length} mẫu**. ` +
+      `Số còn lại là giấy tờ cơ quan tự lập khi giải quyết hồ sơ — bạn không cần chuẩn bị.\n\n` +
+      `**Các mẫu bạn phải điền:**\n` +
+      bullets(dan.slice(0, 8).map((m) => `Mẫu ${m.so} — ${m.ten}`)) +
+      (dan.length > 8 ? `\n\n…và ${dan.length - 8} mẫu nữa.` : '') +
+      `\n\n_Mỗi thủ tục chỉ dùng một vài mẫu trong số này._`,
+    links: [
+      { label: 'Xem & tải mẫu đơn', url: '/mau-don' },
+      { label: '19 thủ tục đất đai', url: '/thu-tuc' },
+    ],
+    suggestions: ['Làm sổ đỏ lần đầu cần giấy gì?', 'Phường làm được những thủ tục đất đai nào?', 'Nộp hồ sơ đất đai ở đâu?'],
+  };
+}
+
+/**
+ * Câu hỏi thật của người dân → số thứ tự thủ tục.
+ *
+ * ── VÌ SAO LÀ BẢNG TAY, KHÔNG PHẢI CHẤM ĐIỂM TỰ ĐỘNG ──────────────────────
+ * Bản đầu chấm điểm bằng số tiếng chung giữa câu hỏi và tên thủ tục. Nó sai gần
+ * hết, và sai theo một kiểu có hệ thống: tên thủ tục là tiêu đề văn bản pháp
+ * quy dài hàng chục chữ ("Giao đất ở có thu tiền sử dụng đất không thông qua
+ * đấu giá, không đấu thầu lựa chọn nhà đầu tư…"), nên thủ tục nào tên DÀI NHẤT
+ * cũng thắng — chỉ vì nó chứa sẵn nhiều chữ thông dụng. "Làm sổ đỏ lần đầu cần
+ * giấy gì" ra thủ tục giao đất cho cán bộ công chức.
+ *
+ * Người dân lại không hỏi bằng tên văn bản. Họ hỏi "sổ đỏ", "đính chính", "sang
+ * tên", "tách thửa". Khoảng cách giữa hai lối nói đó không bắc cầu bằng cách
+ * đếm chữ trùng nhau được, nên ở đây khai thẳng: cụm người ta gõ → thủ tục nào.
+ * Mười chín dòng, đọc là kiểm được đúng sai — thứ mà một hàm chấm điểm không
+ * cho phép.
+ */
+const CUM_TTHC = [
+  // Cụm hẹp phải đứng TRƯỚC cụm rộng: "cấp lại sổ đỏ" phải ra thủ tục thu hồi –
+  // cấp lại (15), không ra đăng ký lần đầu (9) chỉ vì cùng có chữ "sổ đỏ".
+  { stt: '14', cum: ['dinh chinh', 'sai sot', 'sai thong tin', 'ghi sai', 'sai ten tren so'] },
+  { stt: '15', cum: ['thu hoi giay chung nhan', 'cap lai so do', 'cap lai giay chung nhan', 'so do cap sai'] },
+  { stt: '11', cum: ['tang cho', 'hien dat', 'mo rong duong', 'lam duong'] },
+  { stt: '12', cum: ['sang ten', 'mua ban chua sang ten', 'da chuyen quyen'] },
+  { stt: '19', cum: ['don dien doi thua', 'doi thua'] },
+  { stt: '10', cum: ['xac dinh lai dien tich', 'do lai dien tich'] },
+  { stt: '2', cum: ['chuyen muc dich', 'chuyen hinh thuc', 'len tho cu', 'tho cu', 'tu nong nghiep sang', 'chuyen dat nong nghiep'] },
+  { stt: '5', cum: ['gia han su dung dat', 'gia han dat', 'het han su dung dat', 'het han su dung', 'dat het han'] },
+  { stt: '6', cum: ['da muc dich', 'ket hop'] },
+  { stt: '4', cum: ['giao dat o', 'chua co dat o', 'can bo cong chuc'] },
+  { stt: '1', cum: ['giao dat', 'thue dat', 'giao rung', 'lan bien'] },
+  { stt: '3', cum: ['dieu chinh quyet dinh giao dat'] },
+  { stt: '7', cum: ['gop quyen su dung dat', 'dieu chinh lai dat dai'] },
+  { stt: '13', cum: ['mot phan dien tich', 'phan con lai cua thua dat', 'truoc ngay 01 thang 7 nam 2004'] },
+  // Rộng nhất, để cuối: "làm sổ đỏ", "cấp sổ đỏ lần đầu" cho hộ gia đình, cá nhân.
+  { stt: '9', cum: ['lan dau', 'lam so do', 'xin so do', 'cap so do', 'lam giay chung nhan', 'dang ky dat dai', 'cap giay chung nhan', 'so do', 'so hong'] },
+];
+
+/** Chọn thủ tục khớp nhất với câu hỏi. */
+function timThuTuc(corpus, q) {
+  const ds = corpus.settings?.tthcDatDai?.capXa ?? [];
+  if (!ds.length) return null;
+  for (const { stt, cum } of CUM_TTHC) {
+    if (has(q, ...cum)) {
+      const t = ds.find((x) => x.stt === stt);
+      if (t) return t;
+    }
+  }
+  return null;
+}
+
 // ─── “Đông Triều huyện địa chí” 1896 ───────────────────────────────────────
 //
 // Khoá cài đặt `diaChi1896`: địa chí Hán Nôm do Tri huyện Ngô Sinh chép năm
@@ -2278,6 +2439,7 @@ const HELP = {
       '**Giờ mở cửa** — giờ này còn quán nào mở, chỗ nào mở 24/24, ăn khuya, ăn sáng sớm',
       '**Lưu trú** — khách sạn, nhà nghỉ, homestay kèm số điện thoại và điểm đánh giá',
       '**Tìm quanh một di tích** — quán ăn, chỗ nghỉ gần điểm bạn định tới',
+      '**Đối chiếu** — hai di tích, hai quán, hai chỗ nghỉ trong phường khác nhau ở đâu; và **dấu hiệu riêng** của đặc sản Đông Triều để bạn tự so với vùng khác',
       '**Khu phố** — 11 khu phố mới sau sắp xếp 2025 và cơ sở trong từng khu',
       '**Lộ trình cá nhân hoá** — theo buổi (sáng/chiều), sở thích (tâm linh, lịch sử, gia đình), sức khoẻ (đi nhẹ nhàng) và ngân sách',
       '**Đường đi** — cách tới Đông Triều từ Hà Nội, Hạ Long',
@@ -2287,6 +2449,519 @@ const HELP = {
   links: [],
   suggestions: ['Hôm nay nên đi đâu?', 'Đặc sản Đông Triều có gì?', 'Lễ hội nào sắp diễn ra?'],
 };
+
+// ─── So sánh ───────────────────────────────────────────────────────────────
+
+/**
+ * HAI CÂU HỎI RẤT KHÁC NHAU CÙNG NÚP DƯỚI CHỮ "SO SÁNH".
+ *
+ *   1. SO SÁNH TRONG PHƯỜNG — "chùa Mỹ Cụ với đình Mỹ Cụ khác gì", "quán A hay
+ *      quán B", "khách sạn nào hơn". Cổng có hồ sơ CẢ HAI bên nên dựng được
+ *      bảng đối chiếu thật, từng dòng đều tra ra được một bản ghi.
+ *
+ *   2. SO SÁNH VỚI NƠI KHÁC — "na Đông Triều so với na Lạng Sơn", "chùa này so
+ *      với chùa Bái Đính", "so với di tích trên thế giới". Cổng KHÔNG có lấy
+ *      một dòng dữ liệu nào về bên kia.
+ *
+ * ── NHÓM 2 CÓ HAI LỐI SAI ĐỐI XỨNG NHAU ────────────────────────────────────
+ *   · Khen bừa. "Na Đông Triều ngon hơn na nơi khác" — đây là cổng thông tin
+ *     CHÍNH THỨC của phường; tự chấm mình hơn tỉnh bạn thì thành quảng cáo, mà
+ *     còn là bịa, vì hồ sơ không có một số liệu nào về na Lạng Sơn để mà hơn.
+ *   · Từ chối trắng. Cũng sai, vì hồ sơ CÓ THẬT đúng thứ khách cần: giống quả,
+ *     vùng trồng, mùa vụ, giá, nhãn hiệu được bảo hộ, hạng xếp hạng nhà nước.
+ *     Khách tự đối chiếu được — họ chỉ cần dữ kiện, không cần ai chấm hộ.
+ *
+ * Nên nhóm 2 trả lời bằng ĐẶC ĐIỂM NHẬN DẠNG lấy nguyên văn từ hồ sơ, cộng một
+ * câu nói thẳng ranh giới, và tuyệt đối không phán bên nào hơn.
+ *
+ * ── VÌ SAO NHÁNH NÀY LUÔN `matched: true`, KỂ CẢ KHI KHÔNG BIẾT ────────────
+ * Các nhánh "ngoài phạm vi" khác trong tệp này cố ý để `matched: false` cho câu
+ * hỏi rơi tiếp xuống trợ lý Python rồi Gemini — biết đâu tầng dưới trả lời được.
+ * Riêng câu so sánh thì không được phép rơi: Gemini BIẾT chùa Bái Đính, BIẾT na
+ * Lạng Sơn — biết từ dữ liệu huấn luyện chứ không phải từ hồ sơ của phường. Thả
+ * xuống đó là nhận về đúng cái đoạn so sánh trôi chảy mà không ai kiểm chứng
+ * được, in trên cổng chính thức của phường. Chặn ngay tại đây.
+ */
+
+/**
+ * Cụm báo hiệu câu hỏi so sánh.
+ *
+ * KHÔNG có chữ 'hon' đứng một mình, dù nghe rất hợp: "Đông Triều có hơn 13 di
+ * tích không", "đi bộ hơn 1km" đều dính. Cùng lớp bẫy với 'toi muon' ở
+ * `detectOpenMode` — một tiếng quá phổ thông thì phải đi theo cặp mới nhận.
+ */
+const CUM_SO_SANH = [
+  'so sanh', 'so voi', 'sanh voi', 'doi chieu', 'phan biet', 'vs',
+  'khac gi', 'khac nhau', 'khac biet', 'co gi khac', 'hon kem', 'thua kem',
+  'nao hon', 'cai nao hon', 'ben nao hon', 'noi nao hon', 'tot hon', 'ngon hon',
+  'dep hon', 're hon', 'dat hon', 'hay hon', 'lon hon', 'noi tieng hon',
+  'chat luong hon', 'hon hay', 'ngon bang', 'tot bang', 'uu the hon', 'an dut',
+];
+
+/** Câu hỏi so sánh nhưng KHÔNG phải việc của nhánh này — nhường nhánh cũ. */
+const SO_SANH_NHUONG = [
+  // Khoảng cách, đường đi: "Đông Triều so với Hà Nội bao xa" là mục 6.
+  'bao xa', 'cach ha noi', 'cach ha long', 'duong di', 'di the nao', 'di bang gi',
+  // Thủ tục, khu phố: chuyện của cổng người dân, đã có nhánh riêng ở trên.
+  'thu tuc', 'ho so', 'so do', 'mau don', 'khu pho',
+];
+
+/** Tiêu chí không có trong dữ liệu — so sánh kiểu gì cũng là bịa. */
+const TIEU_CHI_CHUA_CO = [
+  'wifi', 'wi fi', 'dieu hoa', 'may lanh', 'sach se', 'cho dau xe', 'bai do xe',
+  'thai do phuc vu', 'phuc vu tot hon', 'do xe',
+];
+
+/**
+ * Từ nối tách hai vế, thử theo thứ tự RÕ NGHĨA TRƯỚC.
+ * 'so voi' phải đứng trước 'voi', nếu không "A so với B" bị cắt ngay tại "với"
+ * và vế trái thành "A so".
+ */
+const NOI_SO_SANH = ['so sanh voi', 'doi chieu voi', 'sanh voi', 'so voi', 'vs', 'voi', 'va', 'hay'];
+
+/**
+ * Cắt câu hỏi thành hai vế tại từ nối.
+ *
+ * Cắt trên bản BỎ DẤU nhưng lấy chuỗi từ bản GỐC, nhờ `deaccent` giữ nguyên số
+ * ký tự (mỗi chữ cái tiếng Việt dựng sẵn rã ra rồi bỏ dấu vẫn còn đúng một chữ
+ * cái). Vì thế vị trí tìm được trên bản bỏ dấu dùng thẳng được cho bản gốc — vế
+ * phải giữ nguyên dấu để in ra cho khách đọc.
+ */
+function tachHaiVe(raw) {
+  const d = deaccent(String(raw ?? '')).toLowerCase();
+  for (const noi of NOI_SO_SANH) {
+    const m = d.match(new RegExp(`\\s${noi.split(' ').join('\\s+')}\\s`));
+    if (!m) continue;
+    return { trai: raw.slice(0, m.index).trim(), phai: raw.slice(m.index + m[0].length).trim() };
+  }
+  return null;
+}
+
+/**
+ * Vế này trỏ tới bản ghi nào trong dữ liệu của phường? `null` = không có.
+ *
+ * Ngưỡng cố ý chặt. Vế phải của câu so sánh với nơi khác ("na Lạng Sơn") luôn
+ * chạm được vài tiếng trong tên bản ghi của mình ("Na dai Đông Triều" cũng có
+ * tiếng "na"), nên nhận lỏng là biến một câu so sánh với tỉnh bạn thành bản ghi
+ * của chính mình đem ra tự so với mình.
+ */
+function veNaoTrongDuLieu(index, text) {
+  if (!text || norm(text).length < 2) return null;
+
+  // ── TÊN PHƯỜNG KHÔNG PHẢI MỘT BẢN GHI ──────────────────────────────────────
+  // "Đông Triều" nằm trong tên gần như mọi đặc sản (Na dai Đông Triều, Gà đồi
+  // Đông Triều…), nên vế chỉ nói tên phường vẫn phủ được nửa tên chúng và vượt
+  // ngưỡng. Hậu quả: "so sánh Đông Triều với Uông Bí" hoá ra bài về gà đồi.
+  // Bỏ tên phường và các từ dẫn đi, không còn gì thì vế này không trỏ tới ai.
+  const conLai = norm(text)
+    .replace(/\b(dong trieu|quang ninh|phuong|xa|thi xa|thanh pho|tinh|so sanh|doi chieu|voi|va|hay|cac|nay|minh|o)\b/g, '')
+    .trim();
+  if (!conLai) return null;
+
+  const h = search(index, text, { limit: 3 })[0];
+  if (!h) return null;
+  return h.exactName || (h.titleCoverage >= 0.5 && h.titleHits >= 2) ? h.doc : null;
+}
+
+/** Vế kia nói chung chung ("nơi khác", "các tỉnh", "trên thế giới")? */
+const veChungChung = (t) =>
+  has(norm(t ?? ''), 'noi khac', 'vung khac', 'tinh khac', 'cho khac', 'noi nao khac',
+    'cac noi', 'cac vung', 'cac tinh', 'nuoc ngoai', 'the gioi', 'viet nam', 'mien bac', 'nơi nào');
+
+/** Đuôi hỏi bám sau tên bên kia: "na Lạng Sơn **thì thế nào**". */
+const DUOI_HOI = /\s(thi|the nao|nhu the nao|ra sao|co gi|khac|cai nao|hon|khong|nhi|vay|a)\b/;
+
+/**
+ * Tên bên kia, in nguyên văn khách gõ.
+ *
+ * ── `\b` KHÔNG DÙNG ĐƯỢC VỚI CHỮ CÓ DẤU ────────────────────────────────────
+ * Bản đầu cắt đuôi bằng `/\bthì\b/` và không cắt được gì: `\b` là ranh giới từ
+ * theo bảng ASCII, mà "ì" không nằm trong bảng đó nên nó không được tính là chữ
+ * cái — sau "ì" thành ra không có ranh giới nào. Kết quả in ra là _"na Lạng Sơn
+ * thì"_, và câu tiếp theo thành "mình không có dữ liệu về **na Lạng Sơn thì**".
+ *
+ * Nên cắt trên bản BỎ DẤU (thuần ASCII, `\b` chạy đúng) rồi lấy chuỗi từ bản
+ * gốc theo đúng vị trí — cùng một mẹo với `tachHaiVe`, dựa trên việc `deaccent`
+ * giữ nguyên số ký tự.
+ */
+function tenVeKia(text) {
+  if (!text || veChungChung(text)) return null;
+  const s = String(text).replace(/[*_`#|[\]<>]/g, ' ');
+  const d = deaccent(s).toLowerCase();
+  const cat = d.search(/[?!]/) >= 0 ? d.search(/[?!]/) : d.length;
+  const m = d.slice(0, cat).match(DUOI_HOI);
+  const ten = s.slice(0, m ? m.index : cat).replace(/\s+/g, ' ').replace(/[,.;:]+$/, '').trim();
+  return ten.length >= 2 && ten.length <= 60 ? ten : null;
+}
+
+/**
+ * Câu trong hồ sơ nói về ĐIỂM RIÊNG — thứ dùng được khi đối chiếu với nơi khác.
+ *
+ * Lấy nguyên văn, không tóm tắt lại: đây là phần dễ trượt thành lời khen tự
+ * biên nhất, nên chỉ được phép dẫn lại đúng chữ hồ sơ đã viết.
+ */
+const DAU_HIEU_RIENG = [
+  'khac biet', 'khac han', 'rieng co', 'duy nhat', 'chi co', 'hiem', 'quy hiem',
+  'co nhat', 'lon nhat', 'dau tien', 'noi tieng', 'nuc tieng', 'tru danh', 'dac trung',
+  'bao ho', 'nhan hieu', 'chi dan dia ly', 'ocop', 'nguyen ven', 'con giu', 'khong noi nao',
+];
+function cauDacTrung(text, n = 2) {
+  return String(text ?? '')
+    .split(/(?:[.!?;])\s+/)
+    .map((c) => c.trim())
+    .filter((c) => c.length >= 20 && has(norm(c), ...DAU_HIEU_RIENG))
+    .slice(0, n)
+    .map((c) => short(c, 200));
+}
+
+/**
+ * Các trục đối chiếu của một bản ghi — mỗi trục là một trường CÓ THẬT.
+ *
+ * Trả về mảng có nhãn (chứ không phải chuỗi dựng sẵn) để bên gọi còn so được
+ * trục nào lệch, trục nào trùng, trục nào chỉ một bên có.
+ */
+function trucSoSanh(doc) {
+  const r = doc.raw;
+  const t = [];
+  const them = (nhan, gia) => {
+    const v = Array.isArray(gia) ? gia.filter(Boolean).join(', ') : gia;
+    if (v !== null && v !== undefined && String(v).trim() !== '') t.push({ nhan, gia: String(v).trim() });
+  };
+
+  if (doc.kind === 'heritage') {
+    them('Hạng xếp hạng', r.rankLevelText || RANK_LABEL[r.rankLevel]);
+    them('Loại hình', r.typeText);
+    them('Thờ', r.worship?.slice(0, 3));
+    them('Quyết định xếp hạng', r.rankDecision);
+    them('Địa chỉ', short(r.address, 90));
+    them('Lễ hội', r.festivalNote ? short(r.festivalNote, 90) : null);
+  } else if (doc.kind === 'cuisine') {
+    them('Mùa', r.season);
+    them('Giá', r.priceRange);
+    them('Mua ở', r.whereToBuy);
+  } else if (doc.kind === 'restaurant' || doc.kind === 'lodging') {
+    them('Loại', LODGING_LABEL[r.type] ?? RESTAURANT_LABEL[r.type]);
+    them('Điểm Google Maps', r.rating != null ? stars(r) : null);
+    them('Giá', r.priceRange);
+    them('Giờ mở cửa', r.openHours);
+    them('Món / tiện nghi', r.specialties ?? r.amenities);
+    them('Khu phố', r.khuPho ? `Khu phố ${r.khuPho}${r.khuPhoEstimated ? ' _(ước tính)_' : ''}` : null);
+    them('Địa chỉ', short(r.address, 90));
+  } else if (doc.kind === 'attraction') {
+    them('Địa bàn', r.ward);
+    them('Cách trung tâm phường', r.distanceKm ? `${r.distanceKm} km` : null);
+    them('Địa chỉ', short(r.address, 90));
+  } else if (doc.kind === 'festival') {
+    them('Thời gian', r.lunarTimeText);
+    them('Địa điểm', r.location);
+    them('Thờ', r.worship?.slice(0, 3));
+  }
+  return t;
+}
+
+/**
+ * Thang đối chiếu KHÁCH QUAN dùng được cả với nơi khác.
+ *
+ * Đây là phần có giá trị thật của nhóm câu hỏi "so với nơi khác": có những thang
+ * đo không thuộc về riêng phường nào — hạng xếp hạng là quyết định của Nhà nước,
+ * điểm Google Maps là cùng một thang trên cả nước. Nêu đúng thang ấy là giúp
+ * khách tự so, mà không cần cổng phải biết gì về bên kia.
+ */
+/** Dấu hiệu được bảo hộ — tra cứu được, nên đối chiếu liên vùng được. */
+const DAU_BAO_HO = [
+  ['nhan hieu tap the', 'nhãn hiệu tập thể'],
+  ['chi dan dia ly', 'chỉ dẫn địa lý'],
+  ['nhan hieu chung nhan', 'nhãn hiệu chứng nhận'],
+  ['ocop', 'sản phẩm OCOP'],
+];
+
+function thangKhachQuan(doc) {
+  const r = doc.raw;
+  if (doc.kind === 'heritage') {
+    const hang = r.rankLevelText || RANK_LABEL[r.rankLevel];
+    if (!hang) return null;
+    return {
+      // Hai trục này đã nằm trọn trong câu dưới, in lại ở mục "Số liệu cụ thể"
+      // nữa là đọc hai lần cùng một thứ.
+      boQua: ['Hạng xếp hạng', 'Quyết định xếp hạng'],
+      text:
+        '📌 **Thang đối chiếu dùng được với di tích nơi khác: hạng xếp hạng của Nhà nước.** ' +
+        `Di tích này là **${hang}**${r.rankDecision ? ` (${r.rankDecision})` : ''} — cùng một thang ba bậc ` +
+        '(cấp tỉnh → quốc gia → quốc gia đặc biệt) áp dụng cho mọi di tích trong cả nước, nên bạn tra hạng của nơi kia là đặt cạnh nhau được.',
+    };
+  }
+  if ((doc.kind === 'restaurant' || doc.kind === 'lodging') && r.rating != null) {
+    return {
+      boQua: ['Điểm Google Maps'],
+      text:
+        `📌 **Thang đối chiếu dùng được với nơi khác: điểm Google Maps** — ${stars(r)}. ` +
+        'Đây là điểm do người dùng Google chấm, cùng một thang ở mọi nơi, **không phải đánh giá của phường**.',
+    };
+  }
+  if (doc.kind === 'cuisine') {
+    // Cố ý KHÔNG trích lại câu trong hồ sơ: câu ấy đã in ở mục "dấu hiệu riêng"
+    // ngay trên. Ở đây chỉ gọi tên loại giấy chứng nhận — đó mới là thứ đối
+    // chiếu được, vì nó tra cứu được ở nơi khác chứ không phải lời tự khen.
+    const kho = norm(`${r.summary ?? ''} ${r.description ?? ''}`);
+    const thay = DAU_BAO_HO.find(([khoa]) => has(kho, khoa));
+    if (thay)
+      return {
+        boQua: [],
+        text:
+          `📌 **Thang đối chiếu dùng được với vùng khác: dấu hiệu được bảo hộ.** Hồ sơ ghi đặc sản này đã được bảo hộ **${thay[1]}** ` +
+          '— đây là thứ tra cứu và đối chiếu được, khác hẳn với chuyện ngon hơn hay không.',
+      };
+  }
+  return null;
+}
+
+const GOI_Y_SO_SANH = [
+  'So sánh chùa Mỹ Cụ với đình Mỹ Cụ',
+  'Na Đông Triều khác na nơi khác chỗ nào?',
+  'Quán nào đánh giá cao nhất?',
+];
+
+/** Ghi chú đóng — nhắc lại nguồn của mọi dòng vừa in. */
+const NGUON_SO_SANH =
+  '_Mọi dòng trên đều lấy từ hồ sơ của phường. Mục nào hồ sơ chưa có thì mình ghi rõ là chưa có, không suy đoán._';
+
+/** Hai mục cùng loại — dựng bảng đối chiếu thật. */
+function answerSoSanhNoiBo(a, b) {
+  const ta = trucSoSanh(a);
+  const tb = trucSoSanh(b);
+  const lay = (t, nhan) => t.find((x) => x.nhan === nhan)?.gia ?? null;
+  const nhanhs = [...new Set([...ta, ...tb].map((x) => x.nhan))];
+
+  const khac = [];
+  const giong = [];
+  const motBen = [];
+  for (const n of nhanhs) {
+    const va = lay(ta, n);
+    const vb = lay(tb, n);
+    if (va && vb) {
+      if (norm(va) === norm(vb)) giong.push(n);
+      else khac.push(`**${n}**\n   – ${a.raw.name}: ${va}\n   – ${b.raw.name}: ${vb}`);
+    } else {
+      motBen.push(`**${n}** — chỉ ${(va ? a : b).raw.name} có: ${va ?? vb}`);
+    }
+  }
+
+  // Hai cơ sở đều có điểm sao thì nói rõ bên nào cao hơn — nhưng CHỈ nói về
+  // điểm Google, không kết luận bên nào ngon hơn. Thứ tự tính theo điểm đã hiệu
+  // chỉnh số lượt (xem phần "Đánh giá sao"), vì 5★/2 lượt không hơn 4,2★/80 lượt.
+  let nhanXetSao = '';
+  if (a.raw.rating != null && b.raw.rating != null) {
+    const cao = bayesRating(a.raw) >= bayesRating(b.raw) ? a.raw : b.raw;
+    const thap = cao === a.raw ? b.raw : a.raw;
+    nhanXetSao =
+      `\n\n⭐ Tính cả số lượt đánh giá thì **${cao.name}** đang cao điểm hơn ` +
+      `(${String(cao.rating).replace('.', ',')} với ${cao.ratingCount ?? 0} lượt, so với ` +
+      `${String(thap.rating).replace('.', ',')} với ${thap.ratingCount ?? 0} lượt).\n\n` +
+      `${RATING_NOTE} Đây là điểm của Google, **không phải phường xếp hạng cơ sở nào hơn cơ sở nào**.`;
+  }
+
+  return {
+    intent: 'so_sanh_noi_bo',
+    reply:
+      `⚖️ **${a.raw.name}** ↔ **${b.raw.name}**\n\n` +
+      (khac.length ? `**Khác nhau:**\n${bullets(khac.slice(0, 6))}\n\n` : '') +
+      (motBen.length ? `**Chỉ một bên có dữ liệu:**\n${bullets(motBen.slice(0, 3))}\n\n` : '') +
+      (giong.length ? `**Giống nhau:** ${giong.join(', ')}.\n\n` : '') +
+      (khac.length || motBen.length
+        ? NGUON_SO_SANH
+        : 'Hai mục này trùng nhau ở mọi trường hồ sơ của phường đang có, nên mình chưa chỉ ra được khác biệt nào.') +
+      nhanXetSao,
+    links: [
+      { label: `Chi tiết ${a.raw.name}`, url: a.url },
+      { label: `Chi tiết ${b.raw.name}`, url: b.url },
+    ],
+    suggestions: GOI_Y_SO_SANH,
+  };
+}
+
+/** Hai mục khác hẳn loại — nói thẳng là không đặt cạnh nhau được. */
+function answerSoSanhKhacLoai(a, b) {
+  const ten = { heritage: 'di tích', festival: 'lễ hội', cuisine: 'đặc sản', restaurant: 'cơ sở ăn uống', lodging: 'nơi lưu trú', attraction: 'điểm lân cận', article: 'bài viết' };
+  return {
+    intent: 'so_sanh_khac_loai',
+    matched: true,
+    reply:
+      `**${a.raw.name}** là ${ten[a.kind] ?? 'một mục'}, còn **${b.raw.name ?? b.raw.title}** là ${ten[b.kind] ?? 'một mục'} — ` +
+      'hai loại này không có trục nào chung để đặt cạnh nhau, nên mình so thì cũng chỉ là ghép hai bảng rời 🙏\n\n' +
+      'Bạn xem riêng từng mục ở liên kết dưới, hoặc hỏi mình so sánh hai mục **cùng loại** với nhau nhé.',
+    links: [
+      { label: `Chi tiết ${a.raw.name ?? a.raw.title}`, url: a.url },
+      { label: `Chi tiết ${b.raw.name ?? b.raw.title}`, url: b.url },
+    ],
+    suggestions: GOI_Y_SO_SANH,
+  };
+}
+
+/** Một bên ở Đông Triều, bên kia ở nơi khác — nêu dấu hiệu riêng, không xếp hơn kém. */
+function answerSoSanhNgoai(doc, tenKia) {
+  const r = doc.raw;
+  const dau = cauDacTrung(
+    [r.summary, r.description, r.history, r.architecture, (r.highlights ?? []).join('. ')].filter(Boolean).join(' '),
+  );
+  const thang = thangKhachQuan(doc);
+  const truc = trucSoSanh(doc)
+    .filter((x) => !(thang?.boQua ?? []).includes(x.nhan))
+    .slice(0, 5);
+  const benKia = tenKia ? `**${tenKia}**` : 'những nơi khác';
+
+  return {
+    intent: 'so_sanh_ngoai',
+    matched: true,
+    reply:
+      `⚖️ **${r.name}** — đối chiếu với ${benKia}\n\n` +
+      `Mình **không có dữ liệu về ${tenKia ?? 'nơi khác'}**: hồ sơ của mình chỉ gồm di tích, đặc sản và cơ sở ` +
+      'trong phường Đông Triều. Nên mình **không xếp bên nào hơn bên nào** — xếp mà không có số liệu của cả hai bên thì là mình bịa.\n\n' +
+      (dau.length
+        // In nghiêng, KHÔNG bọc thêm dấu nháy: nhiều câu trong hồ sơ tự nó đã mở
+        // đầu bằng một cụm trong nháy (_"Lộc trời" vùng nước lợ…_), bọc nữa là
+        // ra hai dấu nháy dính nhau. Chữ nghiêng đã đủ báo đây là trích nguyên văn.
+        ? `Nhưng đây là **dấu hiệu riêng** mà hồ sơ của phường ghi, đủ để bạn tự đối chiếu:\n${bullets(dau.map((c) => `_${c}_`))}\n\n`
+        : '') +
+      (truc.length ? `**Số liệu cụ thể:**\n${bullets(truc.map((x) => `${x.nhan}: ${x.gia}`))}\n\n` : '') +
+      (thang ? `${thang.text}\n\n` : '') +
+      NGUON_SO_SANH,
+    links: [{ label: `Chi tiết ${r.name}`, url: doc.url }],
+    suggestions: GOI_Y_SO_SANH,
+  };
+}
+
+const NHOM_SO_SANH = {
+  restaurant: { nhan: 'quán ăn, nhà hàng', trang: '/am-thuc', truc: 'món phục vụ' },
+  cafe: { nhan: 'quán cà phê, trà sữa', trang: '/am-thuc', truc: 'đồ uống phục vụ' },
+  lodging: { nhan: 'nơi lưu trú', trang: '/luu-tru', truc: 'tiện nghi' },
+};
+
+/** "So sánh các quán ăn" — không nêu tên ai, thì đặt cả nhóm lên cùng vài trục. */
+function answerSoSanhNhom(corpus, kind) {
+  const { minutes } = nowVN();
+  const pool = poolOf(corpus, kind).filter(isGood);
+  const list = [...pool].sort(byRating).slice(0, 5);
+  const { nhan, trang, truc } = NHOM_SO_SANH[kind];
+
+  if (!list.length) {
+    return {
+      intent: 'so_sanh_nhom',
+      matched: true,
+      reply: `Trong dữ liệu của phường chưa đủ ${nhan} để mình đặt cạnh nhau 🙏`,
+      links: [{ label: 'Trang ẩm thực', url: '/am-thuc' }],
+      suggestions: GOI_Y_SO_SANH,
+    };
+  }
+
+  return {
+    intent: 'so_sanh_nhom',
+    matched: true,
+    reply:
+      `⚖️ **Đối chiếu ${nhan} ở Đông Triều** — xếp theo điểm Google Maps đã tính cả số lượt:\n\n` +
+      `${bullets(list.map((x) => placeLine(x, minutes)))}\n\n` +
+      `**Các trục mình đối chiếu được:** điểm đánh giá · khoảng giá · giờ mở cửa · ${truc} · khu phố.\n` +
+      '**Chưa có dữ liệu để đối chiếu:** wifi, điều hoà, độ sạch, chỗ đậu xe — hồ sơ chỉ có điểm sao tổng thể, không chấm riêng từng mặt.\n\n' +
+      `${RATING_NOTE}\n\n⚠️ Thông tin tổng hợp từ Internet, **chưa gọi xác minh** — nên gọi trước khi tới.`,
+    links: [{ label: `Tất cả ${nhan}`, url: trang }],
+    suggestions: GOI_Y_SO_SANH,
+  };
+}
+
+/** "So sánh các di tích" — trục đối chiếu chính đáng nhất là hạng xếp hạng. */
+function answerSoSanhDiTich(corpus) {
+  const BAC = { QUOC_GIA_DAC_BIET: 0, QUOC_GIA: 1, CAP_TINH: 2 };
+  const list = [...(corpus.heritages ?? [])].sort(
+    (a, b) => (BAC[a.rankLevel] ?? 9) - (BAC[b.rankLevel] ?? 9) || a.order - b.order,
+  );
+  if (!list.length) return null;
+
+  return {
+    intent: 'so_sanh_nhom',
+    matched: true,
+    reply:
+      '⚖️ **Đối chiếu di tích Đông Triều theo hạng xếp hạng của Nhà nước** — thang khách quan duy nhất mà mọi di tích trong cả nước đều dùng chung:\n\n' +
+      `${bullets(
+        list.slice(0, 13).map((h) => `**${h.name}** — ${h.rankLevelText || RANK_LABEL[h.rankLevel] || 'chưa rõ hạng'}${h.typeText ? ` _(${h.typeText})_` : ''}`),
+      )}\n\n` +
+      'Ngoài hạng xếp hạng, mình đối chiếu được **loại hình, đối tượng thờ, niên đại và kiến trúc** — đều lấy từ hồ sơ di tích. ' +
+      'Mình **không xếp di tích nào đẹp hơn di tích nào**: cái đó hồ sơ không có, và cũng không phải việc của cổng phường.',
+    links: [{ label: 'Tất cả di tích', url: '/di-tich' }],
+    suggestions: GOI_Y_SO_SANH,
+  };
+}
+
+/** Đối chiếu cả một nhóm — chọn đúng bảng theo loại. */
+function traLoiNhom(corpus, nhom) {
+  if (nhom === 'heritage') return answerSoSanhDiTich(corpus) ?? { ...SO_SANH_CHUNG };
+  return answerSoSanhNhom(corpus, nhom);
+}
+
+/** Không nhận ra bên nào — nói thẳng phạm vi, kèm ví dụ hỏi được. */
+const SO_SANH_CHUNG = {
+  intent: 'so_sanh_ngoai_pham_vi',
+  matched: true,
+  reply:
+    'Mình chỉ có dữ liệu của **phường Đông Triều** — hồ sơ di tích, lịch lễ hội, đặc sản, quán ăn và nơi lưu trú trong phường 🙏\n\n' +
+    'Nên mình **không so sánh được với địa phương khác**: muốn so thì phải có số liệu của cả hai bên, mà bên kia mình không có dòng nào. Nói bên nào hơn lúc đó chỉ là mình đoán.\n\n' +
+    'Mình đối chiếu được:\n' +
+    bullets([
+      'Hai mục **trong phường** với nhau — _"so sánh chùa Mỹ Cụ với đình Mỹ Cụ"_',
+      'Cả một nhóm — _"so sánh các quán ăn"_, _"đối chiếu các di tích"_',
+      'Nêu **dấu hiệu riêng** của một mục để bạn tự đối chiếu — _"na Đông Triều khác na nơi khác chỗ nào"_',
+    ]),
+  links: [{ label: 'Tất cả di tích', url: '/di-tich' }, { label: 'Đặc sản Đông Triều', url: '/am-thuc' }],
+  suggestions: GOI_Y_SO_SANH,
+};
+
+/**
+ * Điều phối nhánh so sánh. `null` = không phải việc của nhánh này, đi tiếp.
+ */
+function answerSoSanh(corpus, index, raw, q, top, strongName) {
+  if (!has(q, ...CUM_SO_SANH)) return null;
+  if (has(q, ...SO_SANH_NHUONG)) return null;
+
+  // Tiêu chí không có dữ liệu thì dừng ngay, kể cả khi nhận ra cả hai bên:
+  // đối chiếu "quán nào wifi mạnh hơn" bằng bảng điểm sao là trả lời sang
+  // chuyện khác mà trông như đã trả lời.
+  if (has(q, ...TIEU_CHI_CHUA_CO)) return { ...OUT_OF_SCOPE_RANKING, matched: true };
+
+  const cap = tachHaiVe(raw);
+
+  /** Câu hỏi nhắc tới cả một NHÓM cơ sở nào? */
+  const nhom = has(q, 'khach san', 'nha nghi', 'luu tru', 'homestay', 'cho nghi')
+    ? 'lodging'
+    : has(q, 'ca phe', 'cafe', 'tra sua')
+      ? 'cafe'
+      : has(q, 'quan an', 'nha hang', 'quan nao', 'an uong', 'cho an', 'mon an', 'do an')
+        ? 'restaurant'
+        : has(q, 'di tich', 'chua', 'den', 'dinh', 'mieu', 'danh lam', 'thang canh')
+          ? 'heritage'
+          : null;
+
+  // "So sánh CÁC quán cà phê" — chữ "các/những" nói rõ là hỏi cả nhóm, và phải
+  // xét TRƯỚC bước dò tên riêng. Để sau thì bộ tra cứu bám vào một quán bất kỳ
+  // có chữ "cà phê" trong tên rồi trả lời như thể khách hỏi riêng quán đó.
+  // Chỉ áp dụng khi câu KHÔNG có từ nối: "đền An Biên so với các di tích thế
+  // giới" cũng có chữ "các" nhưng rõ ràng đang hỏi về một ngôi đền cụ thể.
+  if (nhom && !cap && /\b(cac|nhung|may)\b/.test(q)) return traLoiNhom(corpus, nhom);
+
+  // Vế trái không nhận ra thì thử cả câu: "rươi so với …" có tên quá ngắn để
+  // vượt ngưỡng khi đứng một mình, nhưng cả câu thì bộ tra cứu chính đã khoá
+  // đúng bản ghi rồi.
+  const a = veNaoTrongDuLieu(index, cap?.trai ?? raw) ?? (strongName ? top.doc : null);
+  let b = cap ? veNaoTrongDuLieu(index, cap.phai) : null;
+  // Hai vế ra cùng một bản ghi nghĩa là vế phải chỉ chạm tên bên trái ("na Lạng
+  // Sơn" chạm "Na dai Đông Triều" qua đúng tiếng "na") — coi như không nhận ra.
+  if (b && a && b.id === a.id) b = null;
+
+  if (a && b) return a.kind === b.kind ? { ...answerSoSanhNoiBo(a, b), matched: true } : answerSoSanhKhacLoai(a, b);
+  if (a) return answerSoSanhNgoai(a, tenVeKia(cap?.phai));
+
+  // Không nhận ra tên riêng nào — nếu câu có nhắc một loại thì đối chiếu cả nhóm.
+  if (nhom) return traLoiNhom(corpus, nhom);
+
+  return { ...SO_SANH_CHUNG };
+}
 
 // ─── Bộ điều phối chính ────────────────────────────────────────────────────
 
@@ -2435,6 +3110,25 @@ export async function ask(question) {
     if (aspect) return { matched: true, ...answerFestivalAspect(top.doc.raw, aspect, top.doc.url) };
   }
 
+  // 3a-bis. So sánh — "cái này so với chỗ khác thì thế nào".
+  //
+  // ── VÌ SAO PHẢI ĐỨNG TRƯỚC 3b ─────────────────────────────────────────────
+  // 3b nhận câu hỏi ngân sách qua `detectBudget`, mà hàm đó bắt cụm 'gia ca'.
+  // "So sánh giá cả hai quán" vì thế bị hiểu thành xin lộ trình theo ngân sách
+  // và nhận về một lịch trình một ngày — không dính dáng gì tới câu hỏi.
+  //
+  // Đứng trước cả mục 9 (tra cứu tự do) nữa: "na Đông Triều so với na Lạng Sơn"
+  // khớp rất mạnh bản ghi **Na dai Đông Triều**, nên để rơi xuống đó thì khách
+  // nhận đúng bài giới thiệu quả na, còn vế "so với Lạng Sơn" bị lờ đi hoàn toàn
+  // — trông như đã trả lời, mà thật ra chưa trả lời câu nào.
+  //
+  // Nhánh tự nhường lại các câu không phải việc của nó (khoảng cách, thủ tục,
+  // khu phố) qua `SO_SANH_NHUONG`, nên đứng sớm mà không cướp của ai.
+  {
+    const a = answerSoSanh(corpus, index, raw, q, top, strongName);
+    if (a) return a;
+  }
+
   // 3b. Lộ trình — vẽ theo ĐÚNG khoảng thời gian khách hỏi (buổi sáng / chiều /
   //     cả ngày / 2 ngày) và cá nhân hoá theo sở thích, sức khoẻ, ngân sách.
   //     Xét trước "nên đi đâu" vì câu lộ trình/ngân sách thường kèm cụm đó.
@@ -2501,6 +3195,48 @@ export async function ask(question) {
     }
   }
 
+  // 3b-quater. Thủ tục hành chính ĐẤT ĐAI.
+  //
+  // ── ĐỨNG TRƯỚC 3d, VÀ CHỈ NHẬN ĐẤT ĐAI ────────────────────────────────────
+  // 3d trả lời "ngoài phạm vi" cho mọi câu có 'thu tuc', 'ho so', 'so do'. Từ
+  // khi cổng có dữ liệu 19 thủ tục đất đai cấp xã thì lời từ chối đó không còn
+  // đúng — nhưng CHỈ với đất đai. Căn cước, khai sinh, hộ khẩu, hộ chiếu vẫn
+  // phải rơi xuống 3d như cũ: nhận bừa cả nhóm là hứa một thứ cổng không có, và
+  // người dân sẽ đến phường với bộ hồ sơ sai.
+  //
+  // Vì thế cửa vào là `laDatDai(q)` — hẹp, liệt kê tường minh, không suy đoán.
+  {
+    // Hỏi về MẪU ĐƠN không nhất thiết kèm chữ "đất": "mẫu đơn nào tôi phải tự
+    // điền" là câu đủ nghĩa ở cổng người dân, vì cổng chỉ có mẫu của mảng này.
+    const hoiMau = has(q, 'mau don', 'mau to khai', 'to khai', 'dien mau', 'mau so', 'bieu mau', 'don mau', 'phai dien', 'tu dien');
+    if (hoiMau && (laDatDai(q) || has(q, 'thu tuc', 'nao', 'gi', 'phai dien', 'tu dien', 'can dien'))) {
+      const a = answerTTHCMauDon(corpus);
+      if (a) return { ...a, matched: true };
+    }
+
+    if (laDatDai(q)) {
+      // Hỏi DANH MỤC phải xét trước hỏi một việc cụ thể: "phường làm được những
+      // thủ tục đất đai nào" có cả chữ "thủ tục" lẫn chữ "đất", nên nếu để nhánh
+      // chi tiết chạy trước thì nó bốc đại một thủ tục ra trả lời.
+      if (has(q, 'nhung thu tuc', 'cac thu tuc', 'thu tuc nao', 'danh muc', 'lam duoc gi', 'lam duoc nhung', 'giai quyet nhung', 'co bao nhieu thu tuc', 'gom nhung thu tuc')) {
+        const a = answerTTHCList(corpus);
+        if (a) return { ...a, matched: true };
+      }
+      const hoiThuTucDat = has(
+        q, 'thu tuc', 'ho so', 'giay to', 'can gi', 'can nhung gi', 'lam the nao', 'lam sao',
+        'bao lau', 'may ngay', 'thoi han', 'le phi', 'chi phi', 'het bao nhieu', 'nop o dau',
+        'nop ho so', 'lam o dau', 'dang ky', 'xin cap', 'cap lai', 'dinh chinh', 'gia han',
+        'chuyen muc dich', 'tach thua', 'lam so do', 'the nao', 'ra sao', 'o dau', 'xin chuyen', 'lam thu tuc gi', 'thu tuc gi',
+      );
+      if (hoiThuTucDat) {
+        const t = timThuTuc(corpus, q);
+        if (t) return { ...answerTTHCDetail(corpus, t), matched: true };
+        const a = answerTTHCList(corpus);
+        if (a) return { ...a, matched: true };
+      }
+    }
+  }
+
   // 3b-ter. Phản ánh, góp ý, khiếu nại.
   //
   // Đứng TRƯỚC 3c vì 3c bắt cụm 'lien he' và 'ubnd': "tôi muốn phản ánh với
@@ -2552,8 +3288,12 @@ export async function ask(question) {
   // 3e2. Xin xếp hạng theo tiêu chí không có trong dữ liệu — xét trước mọi
   //      nhánh gợi ý, nếu không sẽ trả về danh sách xếp theo sao trông như đã
   //      trả lời đúng câu hỏi.
+  //
+  //      Có cả 'hon' trần: "quán nào wifi mạnh hơn" là so sánh, nhưng hai tiếng
+  //      không đứng liền nhau nên nhánh so sánh ở 3a-bis không nhận ra. Ở đây
+  //      'hon' luôn đi kèm một tiêu chí chưa có dữ liệu nên không bắt rộng.
   if (
-    has(q, 'nhat', 'hon ca', 'top') &&
+    has(q, 'nhat', 'hon ca', 'top', 'hon') &&
     has(q, 'wifi', 'wi fi', 'dieu hoa', 'may lanh', 'sach se', 've sinh', 'cho dau xe', 'bai do xe', 'do xe')
   )
     return { ...OUT_OF_SCOPE_RANKING };

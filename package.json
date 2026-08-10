@@ -8,9 +8,7 @@
     "server"
   ],
   "scripts": {
-    "dev": "concurrently -n server,client -c green,cyan \"npm:dev:server\" \"npm:dev:client\"",
-    "dev:server": "npm --workspace server run dev",
-    "dev:client": "npm --workspace client run dev",
+    "dev": "npm --workspace server run dev",
     "build": "npm --workspace client run build",
     "start": "npm --workspace server run start",
     "extract": "npm --workspace server run extract",
@@ -18,6 +16,8 @@
     "check-hanh-chinh": "npm --workspace server run check-hanh-chinh",
     "make-favicon": "npm --workspace server run make-favicon",
     "check-contrast": "npm --workspace client run check-contrast",
+    "test-loi-trang": "npm --workspace client run test-loi-trang",
+    "test-lich": "npm --workspace client run test-lich",
     "fetch-images": "npm --workspace server run fetch-images",
     "import-images": "npm --workspace server run import-images",
     "reprocess-images": "npm --workspace server run reprocess-images --",
@@ -25,17 +25,19 @@
     "test-gemini": "npm --workspace server run test-gemini",
     "test-scenarios": "npm --workspace server run test-scenarios",
     "test-scenarios-bulk": "npm --workspace server run test-scenarios-bulk",
+    "postinstall": "node scripts/postinstall.mjs",
+    "db:generate": "npm --workspace server run db:generate",
     "db:migrate": "npm --workspace server run db:migrate",
     "db:seed": "npm --workspace server run db:seed",
     "db:studio": "npm --workspace server run db:studio",
     "setup": "npm install && npm run extract && npm run build-dataset && npm run db:migrate && npm run db:seed",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "geocode": "npm --workspace server run geocode --"
+    "geocode": "npm --workspace server run geocode --",
+    "extract-tthc": "npm --workspace server run extract-tthc"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
-    "concurrently": "^9.1.2",
     "eslint": "^9.39.5",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",

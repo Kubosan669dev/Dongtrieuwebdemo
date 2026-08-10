@@ -42,8 +42,9 @@ export default function Footer() {
             có lối nào ngoài việc bấm nút chuyển cổng rồi tự mò. Chân trang là
             bản đồ toàn cổng — nó liệt kê hết, chia rõ hai cột theo cổng. */}
         <div>
-          <h3 className="font-serif text-base font-semibold text-white">Cổng du lịch</h3>
+          <h3 className="font-serif text-base font-semibold text-white">Cổng du khách</h3>
           <ul className="mt-4 space-y-2 text-sm text-jade-200/80">
+            <li><Link to="/du-khach" className="hover:text-gold-300">Trang chủ cổng du khách</Link></li>
             <li><Link to="/di-tich" className="hover:text-gold-300">Di tích &amp; danh thắng</Link></li>
             <li><Link to="/le-hoi" className="hover:text-gold-300">Lễ hội truyền thống</Link></li>
             <li><Link to="/am-thuc" className="hover:text-gold-300">Ẩm thực &amp; đặc sản</Link></li>
@@ -61,6 +62,8 @@ export default function Footer() {
             <li><Link to="/khu-pho" className="hover:text-gold-300">11 khu phố của phường</Link></li>
             <li><Link to="/hanh-chinh" className="hover:text-gold-300">Hành chính phường</Link></li>
             <li><Link to="/van-ban" className="hover:text-gold-300">Văn bản chỉ đạo</Link></li>
+            <li><Link to="/thu-tuc" className="hover:text-gold-300">Thủ tục đất đai</Link></li>
+            <li><Link to="/mau-don" className="hover:text-gold-300">Mẫu đơn &amp; tờ khai</Link></li>
             <li><Link to="/phan-anh" className="hover:text-gold-300">Phản ánh &amp; góp ý</Link></li>
             <li><Link to="/tin-tuc" className="hover:text-gold-300">Tin tức &amp; thông báo</Link></li>
             <li><Link to="/lien-he" className="hover:text-gold-300">Liên hệ phường</Link></li>

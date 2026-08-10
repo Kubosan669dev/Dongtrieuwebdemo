@@ -142,7 +142,7 @@ def _doc_tep(ten: str):
 # lặng lẽ thiếu dữ liệu mà không ai biết.
 TEP_DOC = {
     "about.json", "khu-pho.json", "vung-dat.json", "dia-chi-1896.json", "hanh-chinh.json",
-    "van-ban.json",
+    "van-ban.json", "tthc-dat-dai.json", "tthc-mau-don.json",
     "heritages.json", "festivals.json", "festival-details.json", "cuisines.json",
     "attractions.json", "articles.json", "restaurants.json", "lodgings.json",
     "places.json",
@@ -236,6 +236,8 @@ def _lay_du_lieu(api: str, giay: float, ep_tep: bool = False) -> tuple[dict, str
                     ("hanhChinh", _doc_tep("hanh-chinh.json")),
                     ("diaChi1896", _doc_tep("dia-chi-1896.json")),
                     ("vanBan", _doc_tep("van-ban.json")),
+                    ("tthcDatDai", _doc_tep("tthc-dat-dai.json")),
+                    ("tthcMauDon", _doc_tep("tthc-mau-don.json")),
                 )
                 if v is not None
             },
@@ -478,6 +480,54 @@ def _tu_cai_dat(ra: list[Doan], cd: dict) -> None:
                 ),
                 url="/van-ban", stt=i,
             )
+
+    # ── Thủ tục hành chính đất đai cấp xã ──────────────────────────────────
+    #
+    # Bản luật JS đã trả lời được nhóm câu hỏi thẳng ("làm sổ đỏ cần giấy gì").
+    # Phần Python lo nhóm câu hỏi NGƯỢC và câu hỏi lẻ nằm sâu trong hồ sơ: "thủ
+    # tục nào phải chờ 40 ngày", "cơ quan nào ký quyết định giao đất", "thủ tục
+    # nào cần trích lục bản đồ địa chính".
+    tt = cd.get("tthcDatDai") or {}
+    for i, t in enumerate(tt.get("capXa") or []):
+        ten = re.sub(r"^Trình tự,?\s*thủ tục\s*", "", str(t.get("ten", ""))).strip()
+        ten = ten[:1].upper() + ten[1:] if ten else ""
+        han = str(t.get("thoiHanDanhMuc") or "").split("(")[0].strip()
+        ho_so = [h for h in (t.get("hoSo") or []) if not h.lower().startswith("số lượng hồ sơ")]
+        _them(
+            ra, loai="tthc", tieu_de=f"Thủ tục đất đai: {ten}", muc="Thủ tục cấp xã",
+            noi_dung=(
+                f"Thủ tục {ten} làm tại phường Đông Triều mất bao lâu, cần giấy tờ gì: thời hạn giải quyết {han}. "
+                f"Đối tượng: {' '.join(t.get('doiTuong') or [])} "
+                f"Hồ sơ phải nộp: {' '.join(ho_so[:6])} "
+                f"Phí, lệ phí: {' '.join(t.get('phiLePhi') or [])} "
+                f"Kết quả nhận được: {' '.join(t.get('ketQua') or [])} "
+                f"Cơ quan giải quyết: {' '.join(t.get('coQuan') or [])}"
+            ),
+            url="/thu-tuc", stt=i,
+        )
+
+    md = cd.get("tthcMauDon") or {}
+    if md.get("danhSach"):
+        dan = [m for m in md["danhSach"] if m.get("aiDien") == "dan"]
+        _them(
+            ra, loai="tthc", tieu_de="Mẫu đơn thủ tục đất đai", muc="Mẫu đơn",
+            noi_dung=(
+                f"Mẫu đơn nào người dân phải tự điền, tờ khai đất đai lấy ở đâu: trong "
+                f"{len(md['danhSach'])} mẫu kèm theo các thủ tục đất đai, người dân chỉ phải điền {len(dan)} mẫu, "
+                f"gồm: {'; '.join(f'Mẫu {m['so']} {m['ten']}' for m in dan)}. "
+                f"Các mẫu còn lại là giấy tờ cơ quan tự lập khi giải quyết hồ sơ, người dân không phải chuẩn bị."
+            ),
+            url="/mau-don",
+        )
+        _them(
+            ra, loai="tthc", tieu_de="Nộp hồ sơ đất đai ở đâu", muc="Nơi nộp",
+            noi_dung=(
+                "Nộp hồ sơ thủ tục đất đai ở đâu, nộp tại đâu: "
+                + " ".join(tt.get("noiNop") or [])
+                + f" {tt.get('luuY', '')}"
+            ),
+            url="/thu-tuc",
+        )
 
     kp = cd.get("khuPho") or {}
     for i, k in enumerate(kp.get("danhSach") or []):

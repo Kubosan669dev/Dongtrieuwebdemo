@@ -2,16 +2,22 @@ import { prisma } from './prisma.js';
 import { env } from './env.js';
 
 const STATIC_PATHS = [
+  // Cửa vào chung.
   '/',
-  // Cổng người dân — trang chủ riêng, phải có mặt ở đây thì máy tìm kiếm mới
-  // lập chỉ mục được nửa nội dung này của cổng.
+  // Trang chủ RIÊNG của mỗi cổng. Cả hai phải có mặt ở đây: trang chung chỉ là
+  // chỗ chọn lối, nội dung thật nằm ở hai trang này, và máy tìm kiếm không tự
+  // suy ra chúng từ `/`.
+  '/du-khach',
   '/nguoi-dan',
   '/khu-pho',
   '/hanh-chinh',
   '/van-ban',
+  '/thu-tuc',
+  '/mau-don',
   '/phan-anh',
   '/di-tich',
   '/le-hoi',
+  '/lich',
   '/am-thuc',
   '/luu-tru',
   '/ban-do',

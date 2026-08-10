@@ -16,10 +16,11 @@ import { useDoiTuong } from '../hooks/useDoiTuong.jsx';
  * hiện ra lần nào — nay xếp lại đúng thứ tự.
  */
 export default function PageHero({ title, description, breadcrumb = [], image, illustrative = false }) {
-  // "Trang chủ" phải là trang chủ CỦA CỔNG ĐANG XEM. Trỏ cứng về `/` thì người
-  // đang tra quyết định của phường bấm một nhát là rơi sang cổng du lịch — cùng
-  // lỗi đã sửa ở logo trên đầu trang.
-  const { trangChu } = useDoiTuong();
+  // Mắt đầu tiên của breadcrumb là trang chủ CỦA CỔNG ĐANG XEM, và mang tên
+  // cổng đó chứ không phải chữ "Trang chủ" chung chung: logo trên đầu trang đã
+  // dẫn về `/` (cửa vào chung) rồi, nên hai chỗ mà cùng gọi là "Trang chủ" thì
+  // người dùng không biết cái nào đi đâu.
+  const { trangChu, tenCong } = useDoiTuong();
 
   return (
     <div className={cx('relative overflow-hidden bg-jade-800 text-white', image && 'min-h-[19rem] sm:min-h-[23rem]')}>
@@ -39,7 +40,7 @@ export default function PageHero({ title, description, breadcrumb = [], image, i
 
       <div className={cx('container-page relative', image ? 'flex min-h-[19rem] flex-col justify-end py-10 sm:min-h-[23rem] sm:py-12' : 'py-12 sm:py-16')}>
         <nav className="mb-3 flex flex-wrap items-center gap-1 text-sm text-jade-100/80">
-          <Link to={trangChu} className="hover:text-gold-300">Trang chủ</Link>
+          <Link to={trangChu} className="hover:text-gold-300">{tenCong}</Link>
           {breadcrumb.map((b, i) => (
             <span key={i} className="flex items-center gap-1">
               <ChevronRight size={14} />

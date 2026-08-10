@@ -24,8 +24,12 @@ export default function Brand({ size = 40, title, subtitle, titleClass, subtitle
         style={{ width: size, height: size }}
         className="shrink-0 rounded-full object-contain shadow-soft"
       />
+      {/* `min-w-0` mở đường cho `truncate` mà nơi gọi có thể truyền vào
+          `titleClass`: một ô flex mặc định không co xuống dưới bề rộng nội dung,
+          nên thiếu dòng này thì `text-overflow` không bao giờ có cơ hội chạy —
+          chữ cứ xuống dòng như cũ. */}
       {(title || subtitle) && (
-        <span className="leading-tight">
+        <span className="min-w-0 leading-tight">
           {title && <span className={cx('block font-serif font-bold', titleClass)}>{title}</span>}
           {subtitle && <span className={cx('block', subtitleClass)}>{subtitle}</span>}
         </span>

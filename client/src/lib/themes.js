@@ -30,6 +30,10 @@ export const THEMES = [
  * trang quyết định của phường đổi màu theo.
  */
 export const THEME_MAC_DINH = {
+  // Cửa vào chung mang bảng màu thương hiệu của cả cổng. Nó đứng TRƯỚC lúc
+  // người dùng chọn bên, nên lấy màu của một trong hai bên là đã ngầm nghiêng
+  // về bên đó — ngọc lục bảo + vàng son là màu chung của toàn site.
+  chung: 'heritage',
   'du-khach': 'heritage',
   'nguoi-dan': 'cong-quyen',
 };

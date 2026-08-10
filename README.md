@@ -1,4 +1,4 @@
-# Khám phá Đông Triều
+# Phường Đông Triều
 
 Cổng thông tin của phường Đông Triều, tỉnh Quảng Ninh — viết cho **bà con trong phường** trước, khách phương xa sau. Gồm **11 khu phố sau sắp xếp** (tra được bằng tên khu cũ), **13 cụm di tích đã xếp hạng**, **17 lễ hội truyền thống**, **41 nơi ăn uống**, **8 đặc sản tiêu biểu**, **7 điểm đến lân cận**, **21 cơ sở lưu trú** cho khách tới thăm, kèm **bản đồ số** (Google Maps, tự rơi về OpenStreetMap khi chưa có khoá), **đánh giá có kiểm duyệt**, biểu mẫu liên hệ, dự báo thời tiết – triều cường theo thời gian thực và trang quản trị nội dung.
 
@@ -20,13 +20,19 @@ Dữ liệu thời tiết & triều cường: [Open-Meteo](https://open-meteo.co
 
 ### Hai cổng tách rời: du khách và người dân
 
-Đây là **hai cổng riêng**, đi chung một mã nguồn và một cơ sở dữ liệu, nhưng
-không dùng chung trang nào:
+Đây là **hai cổng riêng**, đi chung một mã nguồn, một cơ sở dữ liệu và một
+**cửa vào**:
 
 | | Trang chủ | Thanh điều hướng | Nội dung |
 |---|---|---|---|
-| **Du khách** | `/` | Di tích · Lễ hội · Ẩm thực · Lưu trú · Bản đồ · Thời tiết · Giới thiệu | giới thiệu · mùa lễ hội · di tích · bản đồ · lễ hội · ẩm thực · cảm nhận · lưu trú |
-| **Người dân** | `/nguoi-dan` | Khu phố · Hành chính · Phản ánh · Tin tức & thông báo · Liên hệ | tổng quan phường · lối đi nhanh · 11 khu phố · dịch vụ công · thông báo · phản ánh |
+| **Cửa vào chung** | `/` | *không có* | giới thiệu phường · hai lối vào · ba lối đi ai cũng cần |
+| **Du khách** | `/du-khach` | Di tích · Lễ hội · Ẩm thực · Lưu trú · Bản đồ · Thời tiết · Giới thiệu | giới thiệu · mùa lễ hội · di tích · bản đồ · lễ hội · ẩm thực · cảm nhận · lưu trú |
+| **Người dân** | `/nguoi-dan` | Khu phố · Hành chính · Văn bản · Đất đai · Phản ánh · Tin tức · Liên hệ | tổng quan phường · lối đi nhanh · 11 khu phố · dịch vụ công · thông báo · phản ánh |
+
+**Trang chủ chung không có thanh điều hướng của bên nào, và cũng không có khung
+chat.** Nó chưa thuộc cổng nào, nên hiện nav hay gắn trợ lý của một bên vào là
+chọn hộ người dùng. Việc chọn lối để hai tấm thẻ to giữa trang lo
+([`pages/Portal.jsx`](client/src/pages/Portal.jsx)).
 
 **Vì sao là hai đường dẫn, không phải một công tắc.** Bản đầu dùng một nút nhớ
 trong `localStorage`: cùng địa chỉ `/` hiện hai nội dung tuỳ lần bấm gần nhất.
@@ -44,9 +50,15 @@ phải sở thích: vai của một trang suy từ chính đường dẫn của 
 ([`vaiCuaDuong`](client/src/hooks/useDoiTuong.jsx)), nên nav người dân mà chứa
 một mục thuộc cổng du lịch thì bấm vào đó là cả đầu trang đổi sang bên kia.
 
-**Chân trang là nơi duy nhất hai cổng gặp nhau** — nó là bản đồ toàn cổng, chia
-rõ hai cột. Ngoài ra chỉ có nút chuyển cổng ở đầu trang, tức là một cái cửa thấy
-được, chứ không phải trượt sang lúc nào không biết.
+**Hai chỗ hai cổng gặp nhau: trang chủ chung và chân trang.** Chân trang là bản
+đồ toàn cổng, chia rõ hai cột; trang chủ `/` là cửa vào. Cả hai đều là cái cửa
+thấy được, chứ không phải trượt sang lúc nào không biết.
+
+> Trước đây việc chuyển cổng do một cặp chip "Tôi là du khách / Tôi là người dân"
+> nằm cạnh thanh điều hướng đảm nhiệm. Nó đã bỏ: chật chỗ (chính nó đẩy hàng đầu
+> trang tràn dòng), khó đọc (chữ sẫm trên ảnh bìa tối), và quan trọng nhất là
+> **không nói được nó làm gì** — hai chữ "Du khách" cạnh thanh nav trông như một
+> bộ lọc, không ai đoán được bấm vào là đổi cả nội dung, thanh nav lẫn trợ lý AI.
 
 Thêm trang mới cho người dân thì phải khai vào `NHANH_NGUOI_DAN` trong
 [`useDoiTuong.jsx`](client/src/hooks/useDoiTuong.jsx) — đó là nguồn duy nhất
@@ -300,11 +312,21 @@ DATABASE_URL="postgresql://postgres:MAT_KHAU@127.0.0.1:5432/dongtrieu?schema=pub
 ### 3. Cài đặt và nạp dữ liệu
 
 ```bash
-npm run setup
+npm install
+npm run db:migrate
+npm run db:seed
 ```
 
-Lệnh này chạy tuần tự: `npm install` → `extract` (đọc 29 file .docx) → `build-dataset`
-(chuyển bộ dữ liệu khảo sát 2026) → `db:migrate` → `db:seed`.
+`npm install` tự chạy `prisma generate` (qua `scripts/postinstall.mjs`) — **bước bắt
+buộc** mà nếu thiếu thì `npm run dev` sẽ gãy ngay với lỗi
+`@prisma/client did not initialize yet`.
+
+> **Không cần chạy `extract` hay `build-dataset`.** Toàn bộ dữ liệu đã sinh sẵn và
+> có trong kho (`server/prisma/seed-data/*.json`, 15 tệp). Hai lệnh đó chỉ dùng khi
+> bạn muốn **tạo lại** dữ liệu từ 29 file `.docx` gốc — đọc thêm ở bảng lệnh bên dưới.
+>
+> `npm run setup` gộp cả năm bước và vẫn chạy được, nhưng nó dựng lại dữ liệu từ
+> `.docx` nên lâu hơn và có thêm chỗ để hỏng.
 
 ### 4. Khởi động
 
@@ -312,9 +334,14 @@ Lệnh này chạy tuần tự: `npm install` → `extract` (đọc 29 file .doc
 npm run dev
 ```
 
-- Giao diện: <http://localhost:5173>
-- API: <http://localhost:4000/api/health>
-- Trang quản trị: <http://localhost:5173/admin>
+Mở **<http://localhost:4000>** — chỉ một địa chỉ duy nhất. Giao diện, khu quản trị
+(`/admin`) và API (`/api/…`) đều nằm sau cùng cổng đó.
+
+> Lúc dev, Vite chạy ở **chế độ middleware** bên trong Express thay vì tự mở cổng
+> riêng: một tiến trình, một cổng, vẫn nạp nóng đầy đủ (kênh HMR cũng đi qua
+> 4000). Không còn cổng 5173, không còn `npm run dev:client`, và cũng không cần
+> `CORS_ORIGIN` nữa vì giao diện với API nay cùng origin. Xem
+> [`server/src/index.js`](server/src/index.js).
 
 **Tài khoản quản trị** được tạo lúc seed từ hai biến trong `server/.env`:
 
@@ -335,16 +362,35 @@ node -e "console.log(require('crypto').randomBytes(12).toString('base64url'))"
 > bộ nhớ, không lưu cookie hay `localStorage`). Điều đó chỉ có tác dụng khi mật
 > khẩu đủ mạnh — xem thêm [DEPLOY.md](DEPLOY.md).
 
+### 5. Chạy không lên thì xem đây
+
+Máy chủ tự kiểm tra bốn thứ trước khi mở cổng và in thẳng lệnh cần gõ
+([`server/src/lib/preflight.js`](server/src/lib/preflight.js)). Bảng này để tra nhanh:
+
+| Triệu chứng | Nguyên nhân | Cách sửa |
+|---|---|---|
+| `@prisma/client did not initialize yet` | Chưa sinh Prisma Client. Hay gặp khi tải mã về máy mới rồi chạy thẳng `npm run dev` | `npm run db:generate` |
+| `TỆP .env ĐỂ NHẦM CHỖ` | Đã chép `.env.example` thành `.env` ngay tại thư mục gốc | Chuyển sang `server/.env` — không chỗ nào đọc tệp ở gốc |
+| `THIẾU DATABASE_URL` | Chưa có `server/.env` | `copy .env.example server\.env` rồi sửa mật khẩu |
+| `SAI TÀI KHOẢN PostgreSQL` | Mật khẩu trong `DATABASE_URL` không khớp | Sửa `server/.env` |
+| `CHƯA TẠO CƠ SỞ DỮ LIỆU` | Chưa có database `dongtrieu` | `createdb -U postgres dongtrieu` |
+| `KHÔNG KẾT NỐI ĐƯỢC PostgreSQL` | Dịch vụ PostgreSQL chưa chạy | Windows: Services → `postgresql-x64-16` → Start |
+| `CHƯA TẠO BẢNG` | Chưa migrate | `npm run db:migrate` rồi `npm run db:seed` |
+| Web chạy nhưng trống trơn, trợ lý AI không trả lời | Chưa nạp dữ liệu | `npm run db:seed` |
+| `prisma generate` báo `EPERM` (Windows) | Có tiến trình `npm run dev` đang giữ tệp engine | Tắt hết cửa sổ đang chạy dev rồi thử lại |
+
 ---
 
 ## Các lệnh npm
 
 | Lệnh | Tác dụng |
 |---|---|
-| `npm run setup` | Cài đặt + trích xuất + chuyển dữ liệu + migrate + seed (chạy lần đầu) |
-| `npm run dev` | Chạy song song server (:4000) và client (:5173) |
+| `npm install` | Cài gói **và tự sinh Prisma Client** |
+| `npm run db:generate` | Sinh lại Prisma Client (khi `npm install` báo sinh không được) |
+| `npm run setup` | Cài đặt + **dựng lại dữ liệu từ .docx** + migrate + seed |
+| `npm run dev` | Chạy dev — 1 process, 1 cổng (:4000): Express + Vite ở chế độ middleware, có nạp nóng |
 | `npm run build` | Build giao diện React ra `client/dist` |
-| `npm start` | Chạy production — 1 process phục vụ cả API lẫn giao diện |
+| `npm start` | Chạy production — 1 process phục vụ cả API lẫn giao diện (:4000) |
 | `npm run extract` | Đọc lại 29 file `.docx` → `server/prisma/seed-data/*.json` |
 | `npm run build-dataset` | Chuyển `server/data/sources/*.json` (khảo sát 2026) → 3 lớp phủ seed |
 | `npm run make-favicon` | Sinh lại favicon, logo header/footer và ảnh chia sẻ từ logo phường |
@@ -361,6 +407,8 @@ node -e "console.log(require('crypto').randomBytes(12).toString('base64url'))"
 | `npm run test-scenarios` | Bộ kịch bản 211 câu theo 26 nhóm (kiểu cổng du lịch); báo nhóm nào chưa đạt |
 | `npm run test-scenarios-bulk` | Bộ sinh tự động ~1.400 câu từ dữ liệu thật; báo tỷ lệ đạt theo nhóm |
 | `npm run check-hanh-chinh` | Tải lại trang tra cứu, đối chiếu với `hanh-chinh.json`; **chỉ báo lệch, không tự ghi đè** |
+| `npm run test-lich` | 38 phép kiểm trang Lịch: dò khoảng ngày trong hồ sơ, cắm lễ hội đúng ô, tháng nhuận không nhân đôi |
+| `npm run test-loi-trang` | 39 phép kiểm khung trang trong DOM giả: cố ý cho một trang ném lỗi rồi đòi đầu/chân trang còn nguyên, và canh hai đường về trong đầu trang |
 
 Chạy thử production trên máy local:
 

@@ -232,6 +232,59 @@ const SETTING_SCHEMAS = {
       thieu: z.array(z.object({}).passthrough()).max(100).optional(),
     })
     .passthrough(),
+
+  /**
+   * 19 thủ tục hành chính đất đai CẤP XÃ, sinh ra bằng `npm run extract-tthc`
+   * từ bộ văn bản công bố TTHC của Văn phòng UBND tỉnh Quảng Ninh (tháng 7/2026).
+   *
+   * ── CHỈ CẤP XÃ MỚI CÓ HƯỚNG DẪN CHI TIẾT ───────────────────────────────────
+   * Bộ gốc có 32 thủ tục cấp tỉnh và 19 cấp xã. Cổng này là cổng của một PHƯỜNG,
+   * nên chỉ hướng dẫn chi tiết nhánh cấp xã — việc mà người dân nộp hồ sơ ngay
+   * tại phường. `capTinh` chỉ giữ tên và thời hạn, đủ để trợ lý nhận ra câu hỏi
+   * và chỉ đúng nơi, chứ không hướng dẫn sai cửa.
+   *
+   * ── KHÔNG ĐƯỢC SỬA TAY ─────────────────────────────────────────────────────
+   * Tệp `seed-data/tthc-dat-dai.json` là kết quả máy sinh; sửa tay là lần chạy
+   * `extract-tthc` sau xoá sạch. Muốn đổi thì sửa ở bộ tách.
+   */
+  tthcDatDai: z
+    .object({
+      capNhat: optStr,
+      nguon: optStr,
+      nguoiKy: optStr,
+      linhVuc: optStr,
+      coQuanQuanLy: optStr,
+      luuY: optStr,
+      vichSaoChiCapXa: optStr,
+      noiNop: z.array(z.string().max(1000)).max(20).optional(),
+      tongSo: z.object({}).passthrough().optional(),
+      capXa: z.array(z.object({}).passthrough()).max(200).optional(),
+      capTinh: z.array(z.object({}).passthrough()).max(200).optional(),
+    })
+    .passthrough(),
+
+  /**
+   * Mẫu đơn, mẫu tờ khai kèm 19 thủ tục đất đai cấp xã.
+   *
+   * ── `aiDien` LÀ TRƯỜNG QUAN TRỌNG NHẤT ─────────────────────────────────────
+   * Văn bản gốc liệt kê chung một danh sách "mẫu đơn, mẫu tờ khai" cho mỗi thủ
+   * tục, trộn giấy người dân phải viết với giấy cơ quan tự làm trong nội bộ (tờ
+   * trình, dự thảo quyết định, phiếu chuyển thông tin, biên bản bàn giao). Đọc
+   * thẳng danh sách ấy thì người dân tưởng phải chuẩn bị hơn chục tờ, trong khi
+   * thật ra chỉ điền một tới bốn tờ. Mọi chỗ hiện dữ liệu này PHẢI tách hai nhóm
+   * `dan` / `coquan` chứ không được đổ chung một danh sách.
+   */
+  tthcMauDon: z
+    .object({
+      capNhat: optStr,
+      nguon: optStr,
+      gioiThieu: optStr,
+      viSaoTachHaiNhom: optStr,
+      luuY: optStr,
+      tongSo: z.object({}).passthrough().optional(),
+      danhSach: z.array(z.object({}).passthrough()).max(200).optional(),
+    })
+    .passthrough(),
 };
 
 export const SETTING_KEYS = Object.keys(SETTING_SCHEMAS);

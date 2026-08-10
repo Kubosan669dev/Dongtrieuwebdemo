@@ -5,7 +5,7 @@ import ContactForm from '../components/ContactForm.jsx';
 import MapEmbed from '../components/MapEmbed.jsx';
 import Seo from '../components/Seo.jsx';
 import { phoneHref } from '../lib/format.js';
-import { SITE_OWNER } from '../lib/site.js';
+import { SITE_NAME, SITE_OWNER } from '../lib/site.js';
 import { MAP_CENTER } from '../lib/mapKinds.js';
 
 /**
@@ -24,7 +24,10 @@ export default function Contact() {
 
   return (
     <div>
-      <Seo title="Liên hệ" description="Thông tin liên hệ và biểu mẫu gửi phản hồi cho cổng thông tin Khám phá Đông Triều, tỉnh Quảng Ninh." />
+      <Seo
+        title="Liên hệ"
+        description={`Thông tin liên hệ và biểu mẫu gửi phản hồi cho cổng thông tin ${SITE_NAME}, tỉnh Quảng Ninh.`}
+      />
       <PageHero
         title="Liên hệ"
         description="Góp ý, báo thông tin chưa đúng, hoặc hỏi thêm về di tích và lễ hội."

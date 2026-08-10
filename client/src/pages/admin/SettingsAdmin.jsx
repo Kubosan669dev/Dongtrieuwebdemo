@@ -4,6 +4,7 @@ import { AlertTriangle, Save } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { Spinner } from '../../components/ui.jsx';
 import { Field, Text, Textarea, Number_ } from './fields.jsx';
+import { SITE_NAME } from '../../lib/site.js';
 
 export default function SettingsAdmin() {
   const qc = useQueryClient();
@@ -142,7 +143,7 @@ export default function SettingsAdmin() {
         <Card title="SEO">
           <Field
             label="Tên site trong tiêu đề trang"
-            hint='Hiện sau tên trang con: "Lễ hội — <tên này>". Để trống thì dùng "Khám phá Đông Triều".'
+            hint={`Hiện sau tên trang con: "Lễ hội — <tên này>". Để trống thì dùng "${SITE_NAME}".`}
           >
             <Text value={form.seo?.title} onChange={(v) => setField('seo', 'title', v)} />
           </Field>

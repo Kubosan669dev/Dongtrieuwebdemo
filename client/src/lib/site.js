@@ -9,8 +9,14 @@
  * chéo được vì `client/` chỉ chạy ở trình duyệt, nhưng nội dung phải trùng nhau.
  */
 
-/** Tên đầy đủ, dùng cho thẻ <title> và thương hiệu ở đầu trang. */
-export const SITE_NAME = 'Khám phá Đông Triều';
+/**
+ * Tên đầy đủ, dùng cho thẻ <title> và thương hiệu ở đầu trang.
+ *
+ * Viết hoa chữ "Phường" vì ở đây nó đứng một mình như một cái tên, không phải
+ * danh từ giữa câu. Trong câu văn thì viết thường theo đúng chính tả tiếng Việt
+ * — xem `SITE_OWNER` ("UBND phường Đông Triều") và `ASSISTANT_NAME` bên máy chủ.
+ */
+export const SITE_NAME = 'Phường Đông Triều';
 
 /** Tên ngắn cho chỗ hẹp — đầu trang trên điện thoại, thanh bên khu quản trị. */
 export const SITE_SHORT = 'Đông Triều';
@@ -32,6 +38,16 @@ export const SITE_TAGLINE = 'Cổng thông tin phường';
 export const SITE_OWNER = 'UBND phường Đông Triều';
 
 /**
+ * Cách trợ lý AI tự giới thiệu — phải TRÙNG với `ASSISTANT_NAME` bên máy chủ.
+ *
+ * Lời chào đầu tiên do khung chat dựng sẵn ở phía trình duyệt (không tốn một
+ * lượt gọi máy chủ chỉ để hiện một câu chào), nhưng các câu sau lại do máy chủ
+ * trả về. Hai bên gõ tay hai chuỗi khác nhau thì trợ lý tự giới thiệu bằng hai
+ * cái tên trong cùng một cuộc trò chuyện.
+ */
+export const ASSISTANT_NAME = 'trợ lý phường Đông Triều';
+
+/**
  * Mô tả mặc định cho SEO. Phải trùng với thẻ meta tĩnh trong `client/index.html`
  * — đó là thứ các trình thu thập không chạy JavaScript đọc được.
  *
@@ -46,7 +62,7 @@ export const SITE_DESCRIPTION =
 export const SITE_IMAGE = '/og-image.png';
 
 /**
- * Hậu tố cho tiêu đề trang con: "Lễ hội — Khám phá Đông Triều".
+ * Hậu tố cho tiêu đề trang con: "Lễ hội — Phường Đông Triều".
  *
  * `tenSite` truyền vào được vì quản trị viên đổi được tên dùng cho SEO trong
  * Cài đặt (khoá `seo.title`). Quy tắc ghép thì vẫn chỉ có một chỗ này, để trang

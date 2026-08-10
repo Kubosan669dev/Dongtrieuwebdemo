@@ -34,6 +34,26 @@ export default function Festivals() {
       />
 
       <div className="container-page py-10">
+        {/* Trang này xếp theo tháng ÂM, đúng như hồ sơ ghi. Người đang chọn ngày
+            đi chơi thì lại nghĩ bằng lịch dương, nên phải có lối dẫn sang bản
+            lịch quy đổi — nếu không họ phải tự nhẩm "13 tháng Giêng là ngày mấy". */}
+        <Link
+          to="/lich"
+          className="mb-8 flex items-center gap-3 rounded-md p-3 ring-1 ring-inset ring-jade-900/[0.12] transition hover:bg-jade-50 hover:ring-jade-600 dark:ring-white/10 dark:hover:bg-jade-800/50"
+        >
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded bg-jade-600 text-white">
+            <CalendarDays size={19} aria-hidden="true" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-jade-900 dark:text-jade-50">
+              Xem trên lịch âm – dương
+            </span>
+            <span className="block text-xs text-muted">
+              Lễ hội cắm sẵn vào đúng ngày dương lịch của năm nay
+            </span>
+          </span>
+        </Link>
+
         <div className="space-y-12">
           {months.map((m) => (
             <div key={m}>

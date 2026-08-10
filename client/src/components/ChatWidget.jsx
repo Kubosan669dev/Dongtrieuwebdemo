@@ -3,17 +3,59 @@ import { Link } from 'react-router-dom';
 import { MessageCircle, X, Send, Sparkles, RotateCcw } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { cx } from '../lib/format.js';
+import { ASSISTANT_NAME } from '../lib/site.js';
 import { useDoiTuong } from '../hooks/useDoiTuong.jsx';
 
-const STORAGE_KEY = 'dt_chat';
+/**
+ * HAI TRỢ LÝ, MỖI CỔNG MỘT NGƯỜI.
+ *
+ * Khung chat ở cổng du lịch và ở cổng người dân là hai trợ lý khác nhau: khác
+ * tên, khác lời chào, khác gợi ý, và khác cả phạm vi trả lời — cửa chặn nằm ở
+ * `server/src/services/phamvi.js`.
+ *
+ * ── LỊCH SỬ TRÒ CHUYỆN CŨNG PHẢI TÁCH ─────────────────────────────────────
+ * Mỗi cổng một khoá lưu riêng. Dùng chung một khoá thì đoạn hỏi đáp về lễ hội
+ * trôi sang khung chat của trang thủ tục đất đai — hai trợ lý mà chung một trí
+ * nhớ thì người dùng đọc ra là một trợ lý bị lẫn.
+ */
+const KHOA_LUU = (vai) => `dt_chat:${vai}`;
 
-const WELCOME = {
-  role: 'bot',
-  text:
-    'Xin chào 👋 Mình là **trợ lý Khám phá Đông Triều**.\n\n' +
-    'Mình trả lời dựa trên dữ liệu chính thức của phường — hồ sơ di tích, lịch lễ hội, ẩm thực, lưu trú — cùng **số liệu thời tiết và triều cường cập nhật theo giờ**.',
-  suggestions: ['Hôm nay nên đi đâu?', 'Thời tiết hôm nay thế nào?', 'Lễ hội nào sắp diễn ra?', 'Đặc sản Đông Triều có gì?'],
+const CHAO = {
+  'du-khach': {
+    ten: 'Trợ lý du lịch Đông Triều',
+    phu: 'Trả lời từ dữ liệu của phường',
+    text:
+      `Xin chào 👋 Mình là **${ASSISTANT_NAME}**.\n\n` +
+      'Mình trả lời dựa trên dữ liệu chính thức của phường — hồ sơ di tích, lịch lễ hội, ẩm thực, lưu trú — cùng **số liệu thời tiết và triều cường cập nhật theo giờ**.',
+    // Câu thứ tư cố ý là một câu SO SÁNH. Đây là dạng câu du khách hay hỏi nhất
+    // khi cân nhắc có đi hay không ("chỗ này hơn gì chỗ khác"), nhưng chẳng ai
+    // đoán được một trợ lý của phường chịu trả lời — nên phải mời trước. Nó vẫn
+    // dẫn vào dữ liệu đặc sản như câu cũ, chỉ khác cách hỏi.
+    suggestions: ['Hôm nay nên đi đâu?', 'Thời tiết hôm nay thế nào?', 'Lễ hội nào sắp diễn ra?', 'Na Đông Triều khác na nơi khác chỗ nào?'],
+  },
+  'nguoi-dan': {
+    ten: 'Trợ lý chính quyền',
+    phu: 'Khu phố · hành chính · thủ tục đất đai',
+    text:
+      'Xin chào 👋 Mình là **Trợ lý chính quyền** của phường Đông Triều.\n\n' +
+      'Mình trả lời về **khu phố, căn cước hành chính, văn bản** và **19 thủ tục đất đai** làm tại phường — dựa trên văn bản chính thức của phường và tỉnh.',
+    suggestions: ['Làm sổ đỏ lần đầu cần giấy gì?', 'Đính chính sổ đỏ mất bao lâu?', 'Khu phố tôi ở gồm những thôn nào?', 'Tôi muốn phản ánh'],
+  },
 };
+
+const nhanDienCua = (vai) => CHAO[vai] ?? CHAO['du-khach'];
+const loiChao = (vai) => ({ role: 'bot', ...nhanDienCua(vai) });
+
+/** Lịch sử của đúng cổng này; chưa có thì mở bằng lời chào của trợ lý bên đó. */
+function docLuu(vai) {
+  try {
+    const saved = sessionStorage.getItem(KHOA_LUU(vai));
+    if (saved) return JSON.parse(saved);
+  } catch {
+    /* sessionStorage bị chặn — bỏ qua, dùng lời chào mặc định */
+  }
+  return [loiChao(vai)];
+}
 
 /**
  * Hiển thị văn bản trả lời của bot.
@@ -76,15 +118,18 @@ export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
-  const [messages, setMessages] = useState(() => {
-    try {
-      const saved = sessionStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch {
-      /* sessionStorage bị chặn — bỏ qua, dùng lời chào mặc định */
-    }
-    return [WELCOME];
-  });
+  const [messages, setMessages] = useState(() => docLuu(doiTuong));
+
+  // Bước sang cổng bên kia thì đổi hẳn sang trợ lý của cổng đó, kèm lịch sử
+  // riêng của nó. Mẫu "state phái sinh" như Header.jsx: đặt state ngay trong lúc
+  // render, để không nháy một khung hình hiện đoạn hội thoại của trợ lý cũ dưới
+  // tên trợ lý mới.
+  const [cong, setCong] = useState(doiTuong);
+  if (cong !== doiTuong) {
+    setCong(doiTuong);
+    setMessages(docLuu(doiTuong));
+  }
+  const nhanDien = nhanDienCua(doiTuong);
   const bodyRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -94,11 +139,14 @@ export default function ChatWidget() {
 
   useEffect(() => {
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-30)));
+      sessionStorage.setItem(KHOA_LUU(doiTuong), JSON.stringify(messages.slice(-30)));
     } catch {
       /* không lưu được thì thôi, không ảnh hưởng chức năng */
     }
-  }, [messages]);
+    // `doiTuong` phải nằm trong danh sách phụ thuộc: thiếu nó thì lượt ghi ngay
+    // sau khi đổi cổng vẫn dùng khoá của cổng CŨ, tức là lịch sử của trợ lý mới
+    // đè lên lịch sử của trợ lý cũ — đúng cái lẫn mà việc tách khoá tránh đi.
+  }, [messages, doiTuong]);
 
   // Đóng bằng phím Esc
   useEffect(() => {
@@ -115,9 +163,12 @@ export default function ChatWidget() {
     setInput('');
     setSending(true);
     try {
-      // Gửi kèm vai đang chọn. Máy chủ hiện CHỈ ghi lại chứ chưa đổi câu trả
-      // lời — mục đích là biết người dân thật sự hỏi gì, làm cơ sở cho một trợ
-      // lý riêng của mảng chính quyền sau này.
+      // Vai quyết định câu trả lời, không còn chỉ để ghi nhật ký: máy chủ đối
+      // chiếu ý định với bảng phạm vi (`services/phamvi.js`) và trả về lời chỉ
+      // đường sang cổng kia nếu câu hỏi không thuộc trợ lý này.
+      //
+      // Bỏ trường này đi thì cửa chặn tắt và một trợ lý trả lời tuốt — nên nó
+      // là phần bắt buộc của yêu cầu, không phải dữ liệu kèm cho vui.
       const res = await api.post('/chat', { message: msg, audience: doiTuong });
       setMessages((m) => [
         ...m,
@@ -144,7 +195,7 @@ export default function ChatWidget() {
     }
   };
 
-  const reset = () => setMessages([WELCOME]);
+  const reset = () => setMessages([loiChao(doiTuong)]);
   const last = messages[messages.length - 1];
   const chips = !sending && last?.role === 'bot' ? (last.suggestions ?? []) : [];
 
@@ -152,7 +203,7 @@ export default function ChatWidget() {
     <>
       <button
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? 'Đóng trợ lý du lịch' : 'Mở trợ lý du lịch'}
+        aria-label={`${open ? 'Đóng' : 'Mở'} ${nhanDien.ten}`}
         aria-expanded={open}
         className={cx(
           'fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full text-white shadow-lift transition',
@@ -165,7 +216,7 @@ export default function ChatWidget() {
       {open && (
         <div
           role="dialog"
-          aria-label="Trợ lý du lịch Đông Triều"
+          aria-label={nhanDien.ten}
           className="fixed bottom-24 right-5 z-50 flex h-[min(34rem,calc(100vh-8rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-md bg-white shadow-lift ring-1 ring-jade-900/10 dark:bg-jade-900 dark:ring-white/10 animate-fade-up"
         >
           <div className="flex items-center gap-3 bg-jade-600 px-4 py-3.5 text-white">
@@ -173,8 +224,8 @@ export default function ChatWidget() {
               <Sparkles size={18} />
             </span>
             <div className="min-w-0 flex-1 leading-tight">
-              <p className="font-semibold">Trợ lý du lịch Đông Triều</p>
-              <p className="text-[11px] text-jade-100/80">Trả lời từ dữ liệu của phường</p>
+              <p className="font-semibold">{nhanDien.ten}</p>
+              <p className="text-[11px] text-jade-100/80">{nhanDien.phu}</p>
             </div>
             <button
               onClick={reset}

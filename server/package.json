@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/index.js",
   "scripts": {
-    "dev": "node --watch src/index.js",
+    "dev": "node --watch --watch-path=src src/index.js",
     "start": "node src/index.js",
     "extract": "node scripts/extract-docx.mjs",
     "build-dataset": "node scripts/build-dataset.mjs",
@@ -23,7 +23,8 @@
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
-    "geocode": "node scripts/geocode.mjs"
+    "geocode": "node scripts/geocode.mjs",
+    "extract-tthc": "node scripts/extract-tthc.mjs"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Landmark, MapPinned, Megaphone, Newspaper, Phone, ScrollText, Search } from 'lucide-react';
+import { ClipboardList, Landmark, MapPinned, Megaphone, Newspaper, Phone, ScrollText, Search } from 'lucide-react';
 
 /**
  * Dải lối đi nhanh của cổng người dân.
@@ -18,6 +18,7 @@ import { Landmark, MapPinned, Megaphone, Newspaper, Phone, ScrollText, Search } 
 const LOI_DI = [
   { to: '/khu-pho', icon: MapPinned, nhan: 'Khu phố của tôi', phu: '36 khu cũ → 11 khu mới' },
   { to: '/hanh-chinh', icon: Landmark, nhan: 'Hành chính phường', phu: 'Mã bưu chính, đơn vị cũ, trụ sở' },
+  { to: '/thu-tuc', icon: ClipboardList, nhan: 'Thủ tục đất đai', phu: '19 việc làm ngay tại phường' },
   { to: '/van-ban', icon: ScrollText, nhan: 'Văn bản chỉ đạo', phu: 'Quyết định xếp hạng di tích' },
   { to: '/phan-anh', icon: Megaphone, nhan: 'Phản ánh & góp ý', phu: 'Gửi đúng nơi ngay từ đầu' },
   { to: '/tin-tuc', icon: Newspaper, nhan: 'Thông báo mới', phu: 'Tin của chính quyền phường' },

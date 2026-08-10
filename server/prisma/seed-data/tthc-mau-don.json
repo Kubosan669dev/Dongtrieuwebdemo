@@ -1,0 +1,231 @@
+{
+  "capNhat": "05/8/2026",
+  "nguon": "Quyết định công bố TTHC mới ban hành lĩnh vực đất đai và Quyết định phê duyệt quy trình nội bộ, Văn phòng UBND tỉnh Quảng Ninh, tháng 7/2026 (Tờ trình số 576/TTr-SNN&MT-VP ngày 09/7/2026 của Sở Nông nghiệp và Môi trường)",
+  "nguoiKy": "Phạm Đức Thắng — Chánh Văn phòng UBND tỉnh Quảng Ninh",
+  "noiNop": [
+    "Trực tiếp: Trung tâm Phục vụ hành chính công tỉnh; Trung tâm Phục vụ hành chính công các xã, phường, đặc khu và điểm tiếp nhận, trả kết quả",
+    "Trực tuyến: https://dichvucong.gov.vn/",
+    "Qua dịch vụ bưu chính công ích"
+  ],
+  "luuY": "Đây là bản tóm lược để tra cứu, không thay thế văn bản gốc. Trước khi đi nộp hồ sơ nên gọi hỏi lại Trung tâm Phục vụ hành chính công phường Đông Triều, vì thành phần hồ sơ có thể đổi theo từng trường hợp cụ thể.",
+  "vichSaoChiCapXa": "Bộ văn bản gốc có 32 thủ tục cấp tỉnh và 19 thủ tục cấp xã. Cổng này chỉ hướng dẫn chi tiết 19 thủ tục cấp xã, vì đó là những việc người dân Đông Triều nộp hồ sơ ngay tại phường. Danh mục cấp tỉnh vẫn liệt kê ở dưới để biết việc nào phải lên tỉnh.",
+  "gioiThieu": "Các mẫu đơn, mẫu tờ khai kèm theo 19 thủ tục hành chính đất đai cấp xã.",
+  "viSaoTachHaiNhom": "Văn bản gốc liệt kê chung một danh sách \"mẫu đơn, mẫu tờ khai\" cho mỗi thủ tục, trộn lẫn giấy người dân phải viết với giấy cơ quan tự làm trong nội bộ (tờ trình, dự thảo quyết định, phiếu chuyển thông tin, biên bản bàn giao). Đọc thẳng danh sách đó, người dân tưởng phải chuẩn bị hơn chục tờ giấy, trong khi thực tế chỉ phải điền một tới bốn tờ. Vì vậy trang này tách rõ hai nhóm.",
+  "tongSo": {
+    "tatCa": 30,
+    "danDien": 13,
+    "coQuanLam": 17
+  },
+  "danhSach": [
+    {
+      "so": "01",
+      "ten": "Đơn đề nghị giao đất; cho thuê đất; giao đất, cho thuê đất đồng thời giao khu vực biển để thực hiện hoạt động lấn biển; giao đất và giao rừng; cho thuê đất và cho thuê rừng",
+      "aiDien": "dan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "01/LPTB",
+      "ten": "Tờ khai lệ phí trước bạ",
+      "aiDien": "dan",
+      "tep": "Phu-luc-II-cap-xa-noi-dung-chi-tiet.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "02",
+      "ten": "Đơn đề nghị chuyển mục đích sử dụng đất",
+      "aiDien": "dan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "03",
+      "ten": "Thông báo về việc xác nhận việc hoàn thành nghĩa vụ tài chính về thu tiền sử dụng đất",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "03/BĐS-TNCN",
+      "ten": "Tờ khai thuế thu nhập cá nhân",
+      "aiDien": "dan",
+      "tep": "Phu-luc-II-cap-xa-noi-dung-chi-tiet.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "04",
+      "ten": "Đơn đề nghị điều chỉnh quyết định giao đất, cho thuê đất, cho phép chuyển mục đích sử dụng đất",
+      "aiDien": "dan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "04/TK-SDDPNN",
+      "ten": "Tờ khai thuế sử dụng đất phi nông nghiệp",
+      "aiDien": "dan",
+      "tep": "Phu-luc-II-cap-xa-noi-dung-chi-tiet.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "05",
+      "ten": "Tờ trình về việc giao đất; cho thuê đất; cho phép chuyển mục đích sử dụng đất; giao đất, cho thuê đất đồng thời giao khu vực biển để thực hiện hoạt động lấn biển; giao đất và giao rừng; cho thuê đất và cho thuê rừng; chuyển hình thức sử dụng đất; điều chỉnh quyết định giao đất, cho thuê đất, cho phép chuyển mục đích sử dụng đất; gia hạn sử dụng đất khi hết thời hạn sử dụng đất; điều chỉnh thời hạn sử dụng đất của dự án đầu tư",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "06",
+      "ten": "Quyết định giao đất; cho thuê đất; giao đất, cho thuê đất đồng thời giao khu vực biển để thực hiện hoạt động lấn biển; giao đất và giao rừng; cho thuê đất và cho thuê rừng",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "07",
+      "ten": "Quyết định cho phép chuyển mục đích sử dụng đất",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "08",
+      "ten": "Quyết định chuyển hình thức sử dụng đất",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "09",
+      "ten": "Quyết định điều chỉnh quyết định giao đất, cho thuê đất, cho phép chuyển mục đích sử dụng đất",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "09a",
+      "ten": "Quyết định gia hạn sử dụng đất khi hết thời hạn sử dụng đất",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "09b",
+      "ten": "Quyết định điều chỉnh thời hạn sử dụng đất của dự án đầu tư",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "10",
+      "ten": "Phiếu chuyển thông tin để xác định nghĩa vụ tài chính về đất đai",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "11",
+      "ten": "Phiếu chuyển thông tin về diện tích đất chuyên trồng lúa phải nộp tiền để nhà nước bổ sung diện tích đất chuyên trồng lúa bị mất hoặc tăng hiệu quả sử dụng đất trồng lúa",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "12",
+      "ten": "Thông báo số tiền nhà nước bổ sung diện tích đất chuyên trồng lúa bị mất hoặc tăng hiệu quả sử dụng đất trồng lúa",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "13",
+      "ten": "Biên bản bàn giao đất; bàn giao rừng trên thực địa",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "15",
+      "ten": "Đơn đăng ký đất đai, tài sản gắn liền với đất",
+      "aiDien": "dan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "15a",
+      "ten": "Danh sách những người sử dụng chung thửa đất, Sở hữu chung tài sản gắn liền với đất",
+      "aiDien": "dan",
+      "tep": "Phu-luc-II-cap-xa-noi-dung-chi-tiet.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "15b",
+      "ten": "Danh sách các thửa đất của một hộ gia đình, cá nhân, cộng đồng dân cư, người gốc việt nam định cư ở nước ngoài",
+      "aiDien": "dan",
+      "tep": "Phu-luc-II-cap-xa-noi-dung-chi-tiet.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "15c",
+      "ten": "Danh sách tài sản gắn liền với đất trên cùng một thửa đất",
+      "aiDien": "dan",
+      "tep": "Phu-luc-II-cap-xa-noi-dung-chi-tiet.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "15d",
+      "ten": "Báo cáo kết quả rà soát hiện trạng sử dụng đất của tổ chức, tổ chức tôn giáo, tổ chức tôn giáo trực thuộc",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "16",
+      "ten": "Thông báo xác nhận kết quả đăng ký đất đai",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-II-cap-xa-noi-dung-chi-tiet.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "17",
+      "ten": "Danh sách công khai kết quả kiểm tra hồ sơ đăng ký, cấp Giấy chứng nhận",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-II-cap-xa-noi-dung-chi-tiet.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "18",
+      "ten": "Đơn đăng ký biến động đất đai, tài sản gắn liền với đất",
+      "aiDien": "dan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "19",
+      "ten": "Phiếu chuyển thông tin để xác định nghĩa vụ tài chính về đất đai",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-II-cap-xa-noi-dung-chi-tiet.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "23",
+      "ten": "Đơn đề nghị gia hạn sử dụng đất",
+      "aiDien": "dan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "24",
+      "ten": "Đơn đề nghị sử dụng đất kết hợp đa mục đích",
+      "aiDien": "dan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    },
+    {
+      "so": "25",
+      "ten": "Quyết định về hình thức sử dụng đất",
+      "aiDien": "coquan",
+      "tep": "Phu-luc-I-cap-tinh-noi-dung-chi-tiet-va-mau-don.docx",
+      "dungOCapXa": true
+    }
+  ]
+}

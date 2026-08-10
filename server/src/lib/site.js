@@ -7,8 +7,14 @@
  * báo khởi động; máy khách: thẻ SEO, đầu trang, chân trang).
  */
 
-export const SITE_NAME = 'Khám phá Đông Triều';
+export const SITE_NAME = 'Phường Đông Triều';
 export const SITE_OWNER = 'UBND phường Đông Triều';
 
-/** Cách trợ lý AI tự giới thiệu. */
-export const ASSISTANT_NAME = 'trợ lý Khám phá Đông Triều';
+/**
+ * Cách trợ lý AI tự giới thiệu.
+ *
+ * "phường" viết thường ở đây, khác `SITE_NAME`: chuỗi này luôn nằm giữa câu
+ * ("Mình là trợ lý phường Đông Triều"), nơi nó là danh từ chứ không phải tên
+ * riêng đứng một mình.
+ */
+export const ASSISTANT_NAME = 'trợ lý phường Đông Triều';

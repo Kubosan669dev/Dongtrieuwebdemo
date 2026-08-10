@@ -50,7 +50,10 @@ export default [
 
   // ── Giao diện React ──
   {
-    files: ['client/src/**/*.{js,jsx}'],
+    // `client/scripts/**/*.jsx` cũng nằm ở nhóm này: đó là phần chạy trong DOM
+    // của bộ kiểm màn hình lỗi, dựng cây React thật nên phải có `window` và
+    // trình phân tích JSX — xếp nhầm sang nhóm Node là báo lỗi cú pháp ngay.
+    files: ['client/src/**/*.{js,jsx}', 'client/scripts/**/*.jsx'],
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: 'module',
@@ -81,6 +84,9 @@ export default [
     files: [
       'server/**/*.{js,mjs}',
       'client/scripts/**/*.{js,mjs}',
+      // Script vòng đời npm ở gốc (`scripts/postinstall.mjs`). Mẫu `*.{js,cjs,mjs}`
+      // ngay dưới chỉ khớp tệp NẰM Ở GỐC, không với xuống thư mục con.
+      'scripts/**/*.{js,mjs}',
       '*.{js,cjs,mjs}',
       'client/*.config.js',
       'client/postcss.config.js',

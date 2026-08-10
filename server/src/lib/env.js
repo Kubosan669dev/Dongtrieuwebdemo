@@ -21,7 +21,9 @@ export const env = {
   /// Token chỉ nằm trong bộ nhớ trình duyệt và mất khi tải lại trang, nên hạn này
   /// chỉ là chặn trên cho một buổi làm việc liên tục — không cần dài như trước.
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '8h',
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  /// Rỗng = không bật CORS. Giao diện và API dùng chung một cổng nên bình thường
+  /// không cần; chỉ khai khi tách API sang tên miền khác. Xem `src/index.js`.
+  corsOrigin: process.env.CORS_ORIGIN || '',
 
   weather: {
     lat: num(process.env.WEATHER_LAT, 21.0433),

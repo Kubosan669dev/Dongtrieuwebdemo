@@ -8,6 +8,23 @@
  * `primary` / `accent` / `earth` — cùng biến, tên đúng nghĩa hơn.
  */
 
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+/**
+ * Thư mục `client/`, dạng đường dẫn TUYỆT ĐỐI dùng dấu `/`.
+ *
+ * `content` bên dưới phải tuyệt đối vì Tailwind giải các mẫu tương đối theo thư
+ * mục làm việc hiện tại, KHÔNG theo vị trí tệp cấu hình này. Lúc `npm run build`
+ * thì cwd là `client/` nên `./src/**` đúng; lúc dev, Vite chạy trong tiến trình
+ * Express nên cwd là `server/` — mẫu tương đối trỏ sang `server/src/**`, quét
+ * không thấy lớp nào, và trang hiện ra không có lấy một dòng CSS.
+ *
+ * `replace` là bắt buộc trên Windows: `path` trả về dấu `\`, mà bộ so khớp mẫu
+ * của Tailwind chỉ hiểu `/` — để nguyên là mẫu không khớp gì cả.
+ */
+const CLIENT = path.dirname(fileURLToPath(import.meta.url)).replace(/\\/g, '/');
+
 /** Một dải màu Tailwind đầy đủ trỏ vào nhóm biến `--c-<name>-*`. */
 const ramp = (name, stops) =>
   Object.fromEntries(stops.map((s) => [s, `rgb(var(--c-${name}-${s}) / <alpha-value>)`]));
@@ -19,9 +36,17 @@ const earth = ramp('terra', [400, 500, 600]);
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx}'],
+  content: [`${CLIENT}/index.html`, `${CLIENT}/src/**/*.{js,jsx}`],
   darkMode: 'class',
   theme: {
+    // Mốc màn hình dùng nguyên bộ mặc định của Tailwind.
+    //
+    // Từng có thêm một mốc riêng `nav: 1200px`, vì đầu trang phải chứa cùng lúc
+    // 7 mục điều hướng và nút chuyển cổng "Tôi là du khách / Tôi là người dân"
+    // — cộng lại vượt 1.024px nên thanh nav phải lùi mốc hiện. Nút ấy nay đã bỏ,
+    // việc chọn cổng chuyển hẳn ra trang chủ chung (`pages/Portal.jsx`), trả lại
+    // ~226px. Đầu trang giờ cần ~915px nên `lg` là đủ, và bỏ được một khái niệm
+    // riêng khỏi cấu hình.
     extend: {
       colors: {
         jade: primary,

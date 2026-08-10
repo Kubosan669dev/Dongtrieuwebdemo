@@ -60,7 +60,12 @@ function SectionBody({ query, skeletonCount = 3, children }) {
 }
 
 /**
- * `/` — trang chủ của CỔNG DU LỊCH.
+ * `/du-khach` — trang chủ của CỔNG DU KHÁCH.
+ *
+ * Trang này từng nằm ở `/`. Nay `/` là cửa vào chung của cả hai cổng
+ * (`pages/Portal.jsx`) — nơi người vào chọn mình là du khách hay người trong
+ * phường — nên trang chủ du lịch dời sang đường dẫn riêng, ngang hàng với
+ * `/nguoi-dan`. Hai trang chủ cùng cấp thì không bên nào là "mặc định".
  *
  * Cổng người dân là một trang khác hẳn (`/nguoi-dan`, xem `pages/Resident.jsx`),
  * không dùng chung khối nào với trang này. Xem `hooks/useDoiTuong.jsx` để biết

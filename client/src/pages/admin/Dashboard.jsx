@@ -7,6 +7,7 @@ import {
 import { api } from '../../lib/api.js';
 import { Spinner, ErrorNote } from '../../components/ui.jsx';
 import { formatDate, cx } from '../../lib/format.js';
+import { SITE_NAME } from '../../lib/site.js';
 
 const CARDS = [
   { key: 'heritages', icon: Landmark, label: 'Di tích', to: '/admin/di-tich', color: 'bg-jade-600' },
@@ -91,7 +92,7 @@ export default function Dashboard() {
   return (
     <div>
       <h1 className="font-serif text-2xl font-bold">Tổng quan</h1>
-      <p className="mt-1 text-muted">Quản lý toàn bộ nội dung cổng thông tin Khám phá Đông Triều.</p>
+      <p className="mt-1 text-muted">Quản lý toàn bộ nội dung cổng thông tin {SITE_NAME}.</p>
 
       {/* ── Việc cần làm ── */}
       <section className="mt-6">

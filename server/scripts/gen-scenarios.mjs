@@ -192,8 +192,89 @@ export function buildBulkScenarios(corpus) {
   // ── Xã giao ──
   add(['xin chào', 'chào bạn', 'alo', 'hi', 'bạn là ai', 'bạn giúp được gì', 'bạn làm được gì', 'cảm ơn', 'cảm ơn bạn nhé'], 'answer', 'Xã giao', ['greeting', 'help', 'thanks']);
 
+  // ── Thủ tục đất đai — nay TRẢ LỜI ĐƯỢC ──
+  //
+  // "Sổ đỏ" từng nằm trong danh sách ngoài phạm vi ngay dưới, và đúng vào lúc
+  // cổng chưa có dữ liệu nào về đất đai. Từ khi nạp 19 thủ tục cấp xã (khoá
+  // `tthcDatDai`) thì lời từ chối ấy thành sai: cổng có đủ thời hạn, hồ sơ, lệ
+  // phí, mẫu đơn cho đúng nhóm câu hỏi đó. Nên nó chuyển hẳn sang nhóm 'answer'.
+  //
+  // Ranh giới mới nằm ở LĨNH VỰC chứ không ở chữ "thủ tục": đất đai thì trả lời,
+  // căn cước / khai sinh / hộ khẩu / hộ chiếu vẫn từ chối như cũ.
+  add(
+    [
+      'làm sổ đỏ lần đầu cần giấy gì', 'thủ tục cấp sổ đỏ thế nào', 'xin cấp giấy chứng nhận quyền sử dụng đất',
+      'đính chính sổ đỏ mất bao lâu', 'sổ đỏ ghi sai tên thì làm sao', 'thủ tục đính chính giấy chứng nhận',
+      'chuyển mục đích sử dụng đất thủ tục thế nào', 'xin chuyển đất nông nghiệp lên thổ cư',
+      'gia hạn sử dụng đất mất mấy ngày', 'đất hết hạn sử dụng thì làm thủ tục gì',
+      'sang tên sổ đỏ thế nào', 'tặng cho quyền sử dụng đất cho nhà nước cần gì',
+      'phường làm được những thủ tục đất đai nào', 'phường giải quyết những thủ tục đất đai nào',
+      'nộp hồ sơ đất đai ở đâu', 'lệ phí làm sổ đỏ bao nhiêu',
+    ],
+    'answer',
+    'Thủ tục đất đai',
+    ['tthc_detail', 'tthc_list'],
+  );
+  add(
+    ['mẫu đơn nào tôi phải tự điền', 'thủ tục đất đai cần điền mẫu đơn gì', 'tờ khai đất đai lấy ở đâu'],
+    'answer',
+    'Thủ tục đất đai',
+    ['tthc_mau_don', 'tthc_list', 'tthc_detail'],
+  );
+
+  // ── So sánh, đối chiếu ──
+  //
+  // Cả nhóm này để 'answer' (matched = true), kể cả những câu mà bot trả lời
+  // bằng một lời từ chối xếp hạng. Cố ý, và khác hẳn các nhóm "ngoài phạm vi"
+  // bên dưới: nhánh so sánh KHÔNG được phép thả câu hỏi rơi xuống Gemini, vì
+  // Gemini biết chùa Bái Đính và biết na Lạng Sơn — biết từ dữ liệu huấn luyện
+  // chứ không từ hồ sơ của phường. Rơi xuống đó là nhận về một đoạn so sánh rất
+  // trôi chảy mà không bản ghi nào chứng minh được (xem services/chatbot.js).
+  //
+  // `accept` để hẹp cho từng nhóm nhỏ: nếu một câu so sánh thật tụt xuống thành
+  // lời từ chối chung thì hiện ra ngay dưới dạng lệch ý định.
+  add(
+    cNames.slice(0, 4).flatMap((n) => [`${n} so với nơi khác thế nào`, `${n} khác gì ở vùng khác`]),
+    'answer',
+    'So sánh: với nơi khác',
+    ['so_sanh_ngoai'],
+  );
+  add(
+    [
+      'na Đông Triều so với na Lạng Sơn', 'na Đông Triều có ngon hơn na các nơi khác không',
+      'gà đồi Đông Triều so với gà đồi Yên Thế', 'rươi Đông Triều khác gì rươi Tứ Kỳ',
+      'chùa Mỹ Cụ so với chùa Bái Đính khác gì', 'đền An Biên so với các di tích trên thế giới',
+      'chùa quán Ngọc Thanh so với Yên Tử',
+    ],
+    'answer',
+    'So sánh: với nơi khác',
+    ['so_sanh_ngoai'],
+  );
+  add(
+    [
+      'so sánh chùa Mỹ Cụ với đình Mỹ Cụ', 'chùa quán Ngọc Thanh và đền An Biên khác nhau thế nào',
+      'đồn Cao Đông Triều so với đền An Biên', 'đình Mỹ Cụ và miếu Hậu khác gì nhau',
+      'so sánh chùa An Biên với chùa Mỹ Cụ',
+    ],
+    'answer',
+    'So sánh: hai mục trong phường',
+    ['so_sanh_noi_bo'],
+  );
+  add(
+    ['so sánh các quán ăn', 'đối chiếu các quán ăn ở Đông Triều', 'so sánh các khách sạn', 'đối chiếu các di tích Đông Triều', 'so sánh các quán cà phê'],
+    'answer',
+    'So sánh: cả nhóm',
+    ['so_sanh_nhom'],
+  );
+  add(
+    ['so sánh Đông Triều với Uông Bí', 'Đông Triều so với Hạ Long thì hơn ở điểm nào', 'so sánh phường này với phường khác'],
+    'answer',
+    'So sánh: ngoài phạm vi',
+    ['so_sanh_ngoai_pham_vi'],
+  );
+
   // ── Ngoài phạm vi — phải từ chối trung thực ──
-  const docs = ['căn cước công dân', 'căn cước', 'hộ chiếu', 'khai sinh', 'hộ khẩu', 'giấy phép kinh doanh', 'sổ đỏ', 'đăng ký tạm trú', 'bảo hiểm y tế'];
+  const docs = ['căn cước công dân', 'căn cước', 'hộ chiếu', 'khai sinh', 'hộ khẩu', 'giấy phép kinh doanh', 'đăng ký tạm trú', 'bảo hiểm y tế'];
   add(docs.map((d) => `làm ${d} ở đâu`), 'graceful', 'Ngoài phạm vi: hành chính');
   add(docs.map((d) => `thủ tục ${d} thế nào`), 'graceful', 'Ngoài phạm vi: hành chính');
   const facs = ['ATM', 'cây xăng', 'nhà vệ sinh', 'bãi đỗ xe', 'trạm xăng', 'chỗ rút tiền', 'chỗ gửi xe'];
@@ -201,7 +282,13 @@ export function buildBulkScenarios(corpus) {
   add(['giá vé máy bay đi Đà Nẵng', 'thủ đô nước Pháp là gì', 'tỷ giá đô la hôm nay', 'kết quả xổ số', 'giá vàng hôm nay', 'lịch chiếu phim', 'đặt vé xem phim'], 'graceful', 'Ngoài phạm vi: khác');
   // Dữ liệu chỉ có điểm sao TỔNG THỂ, không chấm riêng từng tiêu chí
   add(
-    ['quán nào wifi mạnh nhất', 'khách sạn nào sạch sẽ nhất', 'quán nào có bãi đỗ xe rộng nhất', 'chỗ nào điều hoà mát nhất'],
+    [
+      'quán nào wifi mạnh nhất', 'khách sạn nào sạch sẽ nhất', 'quán nào có bãi đỗ xe rộng nhất', 'chỗ nào điều hoà mát nhất',
+      // Dạng SO SÁNH của cùng nhóm câu hỏi. Phải rơi vào đây chứ không phải
+      // nhánh so sánh: đối chiếu "quán nào wifi mạnh hơn" bằng bảng điểm sao
+      // tổng thể là trả lời sang chuyện khác mà trông như đã trả lời.
+      'quán nào wifi mạnh hơn', 'khách sạn nào sạch sẽ hơn', 'chỗ nào điều hoà mát hơn', 'quán nào bãi đỗ xe rộng hơn',
+    ],
     'graceful',
     'Ngoài phạm vi: xếp hạng',
   );

@@ -7,6 +7,7 @@ import { ask } from '../services/chatbot.js';
 import { hoiPybot } from '../services/pybot.js';
 import { hoiGemini } from '../services/gemini.js';
 import { getCorpus } from '../services/knowledge.js';
+import { NGUOI_DAN, congCua, lacCong, tenTroLy } from '../services/phamvi.js';
 import { ASSISTANT_NAME } from '../lib/site.js';
 
 const router = Router();
@@ -76,6 +77,23 @@ router.post(
       if (gm) answer = gm;
     }
 
+    /**
+     * ── CỬA CHẶN PHẠM VI: HAI TRỢ LÝ KHÔNG TRẢ LỜI HỘ NHAU ──────────────────
+     * Đặt SAU cả ba tầng (luật → Python → Gemini) chứ không phải trước.
+     *
+     * Trước thì phải đoán câu hỏi thuộc cổng nào ngay từ chuỗi thô, mà đoán từ
+     * chuỗi thô chính là việc khó nhất ở đây — nguyên bộ định tuyến 2.900 dòng
+     * sinh ra để làm đúng việc đó. Sau thì đã có `intent`, tức là đã biết chắc
+     * câu hỏi hoá ra thuộc về đâu, và chỉ còn đối chiếu với một bảng.
+     *
+     * Đổi lại là một lượt gọi có thể chạy thừa. Chấp nhận: đúng phạm vi đáng
+     * giá hơn vài trăm mili-giây, và nhóm câu lạc cổng vốn không nhiều.
+     */
+    const congDung = congCua(answer.intent);
+    if (audience && congDung && congDung !== audience) {
+      answer = lacCong(audience, congDung);
+    }
+
     // Ghi nhật ký để quản trị viên biết còn thiếu dữ liệu gì.
     // Lỗi ghi log không được phép làm hỏng câu trả lời cho du khách.
     prisma.chatLog
@@ -92,19 +110,40 @@ router.post(
   }),
 );
 
-/** GET /api/chat/suggestions — câu hỏi gợi ý lúc mở khung chat. */
+/**
+ * GET /api/chat/suggestions?audience=… — lời chào và câu gợi ý lúc mở khung chat.
+ *
+ * ── HAI TRỢ LÝ PHẢI TỰ GIỚI THIỆU KHÁC NHAU ────────────────────────────────
+ * Đây là chữ người dùng đọc TRƯỚC khi gõ câu đầu tiên, nên nó quyết định họ hỏi
+ * gì. Dùng chung một lời chào "mình là trợ lý du lịch" ở cả hai cổng thì người
+ * dân mở khung chat trên trang thủ tục đất đai vẫn được mời hỏi về lễ hội — rồi
+ * hỏi thật, rồi bị cửa chặn phạm vi trả lại. Lỗi bắt đầu từ chính lời mời.
+ */
 router.get(
   '/suggestions',
-  asyncHandler(async (_req, res) => {
+  asyncHandler(async (req, res) => {
+    const vai = doVai(req.query?.audience);
+    const laDan = vai === NGUOI_DAN;
     res.json({
-      greeting:
-        `Xin chào 👋 Mình là ${ASSISTANT_NAME}. Mình trả lời dựa trên dữ liệu chính thức của phường cùng số liệu thời tiết cập nhật theo giờ.`,
-      suggestions: [
-        'Hôm nay nên đi đâu?',
-        'Quán nào đánh giá cao nhất?',
-        'Giờ này còn quán nào mở?',
-        'Lễ hội nào sắp diễn ra?',
-      ],
+      ten: tenTroLy(vai),
+      greeting: laDan
+        ? 'Xin chào 👋 Mình là **Trợ lý chính quyền** của phường Đông Triều. Mình trả lời về khu phố, hành chính, văn bản và thủ tục đất đai — dựa trên văn bản chính thức của phường và tỉnh.'
+        : `Xin chào 👋 Mình là ${ASSISTANT_NAME}. Mình trả lời dựa trên dữ liệu chính thức của phường cùng số liệu thời tiết cập nhật theo giờ.`,
+      suggestions: laDan
+        ? [
+          'Làm sổ đỏ lần đầu cần giấy gì?',
+          'Đính chính sổ đỏ mất bao lâu?',
+          'Khu phố tôi ở gồm những thôn nào?',
+          'Tôi muốn phản ánh',
+        ]
+        : [
+          'Hôm nay nên đi đâu?',
+          'Quán nào đánh giá cao nhất?',
+          'Giờ này còn quán nào mở?',
+          // Mời hỏi so sánh ngay từ đầu: du khách hay cân nhắc "chỗ này hơn gì
+          // chỗ khác", nhưng không ai đoán được trợ lý của phường chịu trả lời.
+          'Na Đông Triều khác na nơi khác chỗ nào?',
+        ],
     });
   }),
 );
