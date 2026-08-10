@@ -38,7 +38,7 @@ const KHUNG = (dong) => `\n  ${dong.join('\n  ')}\n`;
  * `prisma.$queryRaw()` invocation:" — câu ấy nói về mã của chúng ta chứ không
  * nói người dùng sai gì. Lời giải thích thật nằm ở dòng kế tiếp.
  */
-const dongDau = (s) =>
+export const dongDau = (s) =>
   String(s)
     .split('\n')
     .map((d) => d.trim())

@@ -13,9 +13,16 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Ảnh do admin upload — không commit
-server/uploads/*
-!server/uploads/.gitkeep
+# ── ẢNH CÓ THEO GIT ────────────────────────────────────────────────────────
+# Trước đây thư mục này bị bỏ qua ("ảnh do admin upload, không commit"). Nhưng
+# khi triển khai lên máy chủ, đĩa là TẠM: mỗi lần khởi động lại là trắng trơn.
+# Ảnh không theo mã nguồn thì bản chạy thật lên với toàn ô trống — di tích, lễ
+# hội, đặc sản đều không có hình. Với một cổng du lịch thì coi như hỏng.
+#
+# 5,5MB cho 56 tấm .webp là cái giá rẻ để bản triển khai nào cũng có đủ ảnh.
+#
+# Đánh đổi: ảnh admin tải lên ở máy local nay hiện ra trong `git status`. Thêm
+# ảnh thì commit như một thay đổi nội dung — mà đúng là như vậy thật.
 
 # Bản gốc reprocess-images cất lại trước khi làm nét
 server/image-backup/

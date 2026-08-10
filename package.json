@@ -29,6 +29,8 @@
     "db:generate": "npm --workspace server run db:generate",
     "db:migrate": "npm --workspace server run db:migrate",
     "db:seed": "npm --workspace server run db:seed",
+    "db:seed-if-empty": "npm --workspace server run db:seed-if-empty",
+    "db:deploy": "npm --workspace server run db:deploy",
     "db:studio": "npm --workspace server run db:studio",
     "setup": "npm install && npm run extract && npm run build-dataset && npm run db:migrate && npm run db:seed",
     "lint": "eslint .",

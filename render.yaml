@@ -1,0 +1,90 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  Bản thiết kế triển khai cho Render (render.com)
+#
+#  Cách dùng: Render → New → Blueprint → trỏ vào kho này. Nó đọc tệp này và
+#  dựng sẵn dịch vụ; bạn chỉ còn phải điền hai biến bí mật (xem `sync: false`
+#  bên dưới) và bấm tạo.
+#
+#  ── CHỈ MỘT DỊCH VỤ, KHÔNG PHẢI HAI ────────────────────────────────────────
+#  Express phục vụ luôn giao diện đã build từ `client/dist`, nên không cần dựng
+#  riêng một dịch vụ tĩnh cho frontend. Cũng vì thế không có chuyện CORS hay
+#  phải khai địa chỉ API cho phía trình duyệt: tất cả cùng một origin.
+#
+#  ── CƠ SỞ DỮ LIỆU ĐỂ NGOÀI, CỐ Ý ───────────────────────────────────────────
+#  Không khai `databases:` ở đây. Postgres gói miễn phí của Render bị XOÁ sau
+#  30 ngày — bản demo để cho người khác vào xem thì một tháng sau sẽ tự chết mà
+#  không ai báo. Dùng Neon (neon.tech), gói free không hết hạn, rồi dán chuỗi
+#  kết nối vào `DATABASE_URL`. Nhớ có `?sslmode=require` ở cuối.
+#
+#  ── ĐĨA LÀ TẠM ─────────────────────────────────────────────────────────────
+#  Gói free không có ổ đĩa lâu bền: mỗi lần dịch vụ khởi động lại, `server/
+#  uploads/` trở về đúng những gì có trong git. Ảnh của dự án đã được commit
+#  nên luôn đủ; nhưng ảnh quản trị viên TẢI LÊN sau khi triển khai sẽ mất.
+#  Cần giữ được thì phải chuyển sang nơi có volume (Fly.io) hoặc đưa ảnh lên
+#  kho ngoài (Cloudinary, Supabase Storage) — cả hai đều phải sửa mã.
+# ═══════════════════════════════════════════════════════════════════════════
+
+services:
+  - type: web
+    name: phuong-dong-trieu
+    runtime: node
+    plan: free
+    # Gần Việt Nam nhất. Nếu Render báo vùng này không mở cho gói free thì đổi
+    # sang `oregon` — chậm hơn khoảng một phần tư giây mỗi lượt, không hơn.
+    region: singapore
+
+    # Render gọi đường dẫn này để biết dịch vụ đã sống. Trỏ vào `/api/health`
+    # chứ không phải `/`: trang chủ trả về HTML kể cả khi cơ sở dữ liệu chết,
+    # nên lấy nó làm phép thử thì hỏng nặng vẫn báo "khoẻ".
+    healthCheckPath: /api/health
+
+    # Bốn bước, thứ tự có lý do:
+    #   npm ci          — cài đúng theo package-lock; postinstall tự sinh Prisma Client
+    #   npm run build   — dựng `client/dist` (kho không chứa thư mục này)
+    #   db:deploy       — chạy migration; an toàn khi lặp lại
+    #   db:seed-if-empty— CHỈ nạp mẫu ở lần đầu. Xem `server/scripts/seed-if-empty.mjs`
+    #                     để biết vì sao không gọi thẳng `db:seed`.
+    buildCommand: npm ci && npm run build && npm run db:deploy && npm run db:seed-if-empty
+    startCommand: npm start
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Ghim phiên bản. Không ghim thì Render tự chọn, và một bản Node mới có
+      # thể chưa có bản dựng sẵn của `sharp` — lúc ấy build hỏng vì lý do chẳng
+      # liên quan gì tới thay đổi vừa đẩy lên.
+      - key: NODE_VERSION
+        value: "22"
+
+      # ── Hai biến PHẢI tự điền trong bảng điều khiển ──
+      # Chuỗi kết nối Neon, dạng:
+      #   postgresql://USER:PASSWORD@ep-xxx.ap-southeast-1.aws.neon.tech/dongtrieu?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      # Mật khẩu quản trị, tối thiểu 10 ký tự. Seed sẽ dừng nếu bỏ trống.
+      - key: ADMIN_PASSWORD
+        sync: false
+
+      - key: ADMIN_USERNAME
+        value: admin
+
+      # Render tự sinh chuỗi ngẫu nhiên — không ai phải nghĩ ra, và nó không
+      # bao giờ nằm trong kho mã.
+      - key: JWT_SECRET
+        generateValue: true
+
+      # Trợ lý Python không triển khai kèm. `off` là tắt hẳn; để trống thì mã
+      # rơi về `http://127.0.0.1:5005` rồi gọi vào hư không mỗi câu hỏi.
+      - key: PYBOT_URL
+        value: "off"
+
+      # Tuỳ chọn: có khoá thì bật tầng diễn đạt lại của Gemini, không có thì
+      # trợ lý chạy y như cũ bằng bản luật.
+      - key: GEMINI_API_KEY
+        sync: false
+
+      # KHÔNG khai `PUBLIC_SITE_URL`: `server/src/lib/env.js` tự lấy
+      # `RENDER_EXTERNAL_URL` mà Render bơm sẵn, nên sitemap và thẻ Open Graph
+      # trỏ đúng địa chỉ thật ngay từ lần triển khai đầu. Chỉ khai khi bạn gắn
+      # tên miền riêng.

@@ -710,6 +710,48 @@ Muốn mở rộng: thêm một dòng mẫu vào `gen-scenarios.mjs` là sinh th
 
 ---
 
+## Đưa lên mạng miễn phí (Render + Neon)
+
+Cho bản demo để người khác vào trải nghiệm. Kho đã có sẵn
+[`render.yaml`](render.yaml), nên phần lớn việc là bấm nút.
+
+**1. Cơ sở dữ liệu — [Neon](https://neon.tech).** Tạo project, chép chuỗi kết
+nối (nhớ đuôi `?sslmode=require`).
+
+> Vì sao không dùng Postgres miễn phí của chính Render: **nó bị xoá sau 30
+> ngày.** Bản demo để cho người ta xem dần thì một tháng sau tự chết mà không
+> báo. Neon gói free không hết hạn.
+
+**2. Ứng dụng — [Render](https://render.com).** New → **Blueprint** → trỏ vào
+kho này. Nó đọc `render.yaml` và dựng sẵn mọi thứ; bạn chỉ điền hai ô:
+
+| Biến | Điền gì |
+|---|---|
+| `DATABASE_URL` | chuỗi kết nối Neon ở bước 1 |
+| `ADMIN_PASSWORD` | mật khẩu quản trị, **tối thiểu 10 ký tự** |
+
+`JWT_SECRET` Render tự sinh. `PUBLIC_SITE_URL` **không cần điền** — máy chủ tự
+lấy `RENDER_EXTERNAL_URL`, nên sitemap và thẻ chia sẻ trỏ đúng địa chỉ thật ngay
+lần đầu. `GEMINI_API_KEY` để trống thì trợ lý chạy bằng bản luật như thường.
+
+Lệnh build tự chạy migration và **chỉ nạp dữ liệu mẫu ở lần triển khai đầu** —
+xem [`seed-if-empty.mjs`](server/scripts/seed-if-empty.mjs) để biết vì sao không
+gọi thẳng `db:seed` (gợi ý: `seed.js` có ba lệnh `deleteMany`).
+
+### Ba giới hạn phải biết trước
+
+- **Ngủ sau ~15 phút vắng khách.** Lượt vào kế tiếp chờ khoảng một phút để dậy.
+  Gói free của Render là vậy, không có cách nào lách.
+- **Ảnh tải lên sau khi triển khai sẽ mất.** Đĩa là tạm, mỗi lần khởi động lại
+  `server/uploads/` trở về đúng những gì có trong git. Ảnh của dự án đã commit
+  nên luôn đủ; nhưng ảnh quản trị viên thêm qua trang Admin thì không sống qua
+  lần khởi động sau. Cần giữ thì phải sang nơi có volume (Fly.io) hoặc đẩy ảnh
+  lên kho ngoài — cả hai đều phải sửa mã.
+- **Không có trợ lý Python.** `PYBOT_URL=off`. Bản luật JS và tầng Gemini vẫn
+  chạy; chỉ mất tầng tra đoạn văn bằng BM25.
+
+Chạy thật, lâu dài, có tên miền riêng thì đừng dùng gói free — xem mục dưới.
+
 ## Triển khai lên VPS
 
 Xem hướng dẫn chi tiết tại **[DEPLOY.md](DEPLOY.md)** — cài Node/PostgreSQL/Nginx/PM2, cấu hình HTTPS bằng Let's Encrypt, quy trình cập nhật và sao lưu.

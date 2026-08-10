@@ -15,7 +15,16 @@ export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   isProd: process.env.NODE_ENV === 'production',
   port: num(process.env.PORT, 4000),
-  publicSiteUrl: process.env.PUBLIC_SITE_URL || 'http://localhost:4000',
+  /**
+   * URL công khai, dùng cho sitemap và thẻ Open Graph.
+   *
+   * `RENDER_EXTERNAL_URL` là biến Render tự bơm vào, mang đúng địa chỉ dịch vụ
+   * đang chạy. Nhận nó làm phương án hai để người triển khai không phải tự điền
+   * — quên điền là thẻ chia sẻ và sitemap trỏ về `localhost:4000`, tức là dán
+   * link lên Zalo/Facebook thì mất ảnh xem trước, còn Google lập chỉ mục vào một
+   * địa chỉ không tồn tại. Đó là loại lỗi không ai thấy cho tới lúc đã muộn.
+   */
+  publicSiteUrl: process.env.PUBLIC_SITE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:4000',
 
   jwtSecret: process.env.JWT_SECRET || 'dev-secret-doi-truoc-khi-len-production',
   /// Token chỉ nằm trong bộ nhớ trình duyệt và mất khi tải lại trang, nên hạn này
