@@ -718,6 +718,25 @@ Cho bản demo để người khác vào trải nghiệm. Kho đã có sẵn
 **1. Cơ sở dữ liệu — [Neon](https://neon.tech).** Tạo project, chép chuỗi kết
 nối (nhớ đuôi `?sslmode=require`).
 
+> ⚠️ **Chép chuỗi TRỰC TIẾP, không phải chuỗi pooled.** Neon đưa hai địa chỉ,
+> khác nhau đúng sáu chữ `-pooler`. `prisma migrate deploy` lấy một khoá tư vấn
+> cấp *phiên*, mà PgBouncer không giữ phiên — migrate xong thì phiên nền vẫn nằm
+> trong hồ và **ôm khoá mãi**, nên lần triển khai *sau* chết với `Timed out
+> trying to acquire a postgres advisory lock`. Bẫy ở chỗ lần đầu vẫn báo thành
+> công, nên rất dễ đổ lỗi cho thay đổi vừa đẩy lên.
+>
+> ```
+> …@ep-xxx-pooler.c-3.ap-southeast-1.aws.neon.tech/…   ← đừng dùng
+> …@ep-xxx.c-3.ap-southeast-1.aws.neon.tech/…          ← dùng cái này
+> ```
+>
+> Lỡ kẹt rồi thì nối bằng chuỗi trực tiếp và ngắt phiên đang ôm khoá:
+> ```sql
+> SELECT pg_terminate_backend(l.pid) FROM pg_locks l
+>   JOIN pg_stat_activity a ON a.pid = l.pid
+>  WHERE l.locktype = 'advisory' AND l.granted AND a.state = 'idle';
+> ```
+
 > Vì sao không dùng Postgres miễn phí của chính Render: **nó bị xoá sau 30
 > ngày.** Bản demo để cho người ta xem dần thì một tháng sau tự chết mà không
 > báo. Neon gói free không hết hạn.

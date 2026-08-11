@@ -71,10 +71,38 @@ services:
         value: "22"
 
       # ── Hai biến PHẢI tự điền trong bảng điều khiển ──
-      # Chuỗi kết nối Neon, dạng:
-      #   postgresql://USER:PASSWORD@ep-xxx.ap-southeast-1.aws.neon.tech/dongtrieu?sslmode=require
+      #
+      # DÙNG CHUỖI TRỰC TIẾP, KHÔNG PHẢI CHUỖI POOLED. Neon đưa hai địa chỉ,
+      # khác nhau đúng sáu chữ `-pooler`:
+      #
+      #   ...@ep-xxx-pooler.c-3.ap-southeast-1.aws.neon.tech/...   ← ĐỪNG dùng
+      #   ...@ep-xxx.c-3.ap-southeast-1.aws.neon.tech/...          ← dùng cái này
+      #
+      # Vì sao: `prisma migrate deploy` lấy một khoá tư vấn cấp PHIÊN
+      # (pg_advisory_lock). PgBouncer ở chế độ transaction không giữ phiên, nên
+      # sau khi migrate xong, phiên nền vẫn nằm trong hồ và GIỮ KHOÁ MÃI. Lần
+      # triển khai kế tiếp treo 10 giây rồi chết với "Timed out trying to acquire
+      # a postgres advisory lock".
+      #
+      # Cái bẫy ở chỗ nó KHÔNG hỏng ngay: lần đầu báo thành công, lần sau mới
+      # chết — nên rất dễ đổ lỗi cho thay đổi vừa đẩy lên. Đã đo: qua pooler thì
+      # mỗi lần chạy để lại một phiên idle ôm khoá; qua chuỗi trực tiếp chạy ba
+      # lần liên tiếp đều sạch.
+      #
+      # Cổng này là một tiến trình Express chạy dài, không phải hàm serverless,
+      # nên nối trực tiếp cũng là lựa chọn đúng cho lúc chạy: nó giữ sẵn một hồ
+      # kết nối của riêng mình, không cần hồ thứ hai chồng lên.
       - key: DATABASE_URL
         sync: false
+
+      # Lưới an toàn cho trường hợp ai đó dán nhầm chuỗi pooled: tắt hẳn khoá tư
+      # vấn thì migrate không còn gì để kẹt.
+      #
+      # Khoá ấy tồn tại để chặn hai tiến trình migrate chạy chồng lên nhau. Ở đây
+      # chỉ có một dịch vụ và Render dựng tuần tự, nên rủi ro đó gần như không
+      # có — trong khi rủi ro kẹt khoá thì vừa xảy ra thật.
+      - key: PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK
+        value: "true"
       # Mật khẩu quản trị, tối thiểu 10 ký tự. Seed sẽ dừng nếu bỏ trống.
       - key: ADMIN_PASSWORD
         sync: false
