@@ -44,7 +44,20 @@ services:
     #   db:deploy       — chạy migration; an toàn khi lặp lại
     #   db:seed-if-empty— CHỈ nạp mẫu ở lần đầu. Xem `server/scripts/seed-if-empty.mjs`
     #                     để biết vì sao không gọi thẳng `db:seed`.
-    buildCommand: npm ci && npm run build && npm run db:deploy && npm run db:seed-if-empty
+    #
+    # ── `--include=dev` LÀ BẮT BUỘC, ĐỪNG BỎ ──────────────────────────────
+    # `NODE_ENV=production` bên dưới khiến `npm ci` BỎ QUA toàn bộ
+    # `devDependencies`. Mà ba thứ lệnh build cần đều nằm đúng ở đó:
+    #
+    #   vite     (client)  → dựng giao diện
+    #   prisma   (server)  → `migrate deploy` và `generate`
+    #   esbuild  (client)  → vite dùng bên trong
+    #
+    # Bỏ cờ này thì log dừng ở "sh: 1: vite: not found" kèm mã 127 — đã xảy ra
+    # thật ở lần triển khai đầu. Tệ hơn: `prisma generate` trong postinstall
+    # hỏng LẶNG LẼ (script luôn thoát 0), nên kể cả có qua được bước dựng giao
+    # diện thì máy chủ vẫn chết lúc chạy vì thiếu Prisma Client.
+    buildCommand: npm ci --include=dev && npm run build && npm run db:deploy && npm run db:seed-if-empty
     startCommand: npm start
 
     envVars:
